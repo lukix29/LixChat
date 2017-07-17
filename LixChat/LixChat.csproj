@@ -1,0 +1,392 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D123264B-32F3-4DDC-A6B3-7D40C66F75B0}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LX29_TwitchChat</RootNamespace>
+    <AssemblyName>LX29_TwitchChat</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>LX29_TwitchChat.Program</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>1463551454_16.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Code\TwitchApi\JSON\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Core">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Management" />
+    <Reference Include="System.Xml.Linq">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Data">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Deployment">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Code\Chat\ChatExtras\ChatScripts\BaseScripts\CommandScript.cs" />
+    <Compile Include="Code\Emotes\Emotionary.cs" />
+    <Compile Include="Code\FormChat\ChatControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Code\FormChat\ChatControl.Designer.cs">
+      <DependentUpon>ChatControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\FormChat\ChatPanel\UserInfoPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Code\FormChat\ChatPanel\UserInfoPanel.Designer.cs">
+      <DependentUpon>UserInfoPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\FormStream\ChannelListBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Code\FormStream\ChannelListBox.Designer.cs">
+      <DependentUpon>ChannelListBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\TwitchApi\TwitchUser\SimpleHTTPServer.cs" />
+    <Compile Include="Resources\MyScripts.cs" />
+    <Compile Include="Code\Chat\ChatExtras\ChatScripts\BaseScripts\DschibbsAktien.cs" />
+    <Compile Include="Code\Chat\ChatExtras\ChatScripts\ChatScript.cs" />
+    <Compile Include="Code\Chat\ChatExtras\QuickText\QuickText.cs" />
+    <Compile Include="Code\Chat\ChatExtras\Actions\Actions.cs" />
+    <Compile Include="Code\Chat\Channels\ChannelManager.cs" />
+    <Compile Include="Code\Chat\ChatClient.cs" />
+    <Compile Include="Code\Chat\ChatExtras\QuickText\QuickTextControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Code\Chat\ChatExtras\QuickText\QuickTextControl.Designer.cs">
+      <DependentUpon>QuickTextControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\Emotes\ChatBadges.cs" />
+    <Compile Include="Code\Emotes\ChatEmoteCollection.cs" />
+    <Compile Include="Code\Emotes\ChatEmotes.cs" />
+    <Compile Include="Code\Chat\ChatManager.cs" />
+    <Compile Include="Code\Chat\IrcClient.cs" />
+    <Compile Include="Code\Extensions\Downloader.cs" />
+    <Compile Include="Code\Extensions\Extensions.cs" />
+    <Compile Include="Code\Extensions\LX29Crypt.cs" />
+    <Compile Include="Code\Extensions\MessageBox\MessageBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Code\Extensions\MessageBox\MessageBox.Designer.cs">
+      <DependentUpon>MessageBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\Extensions\MPV_Wrapper.cs" />
+    <Compile Include="Code\Extensions\Settings\Settings.cs" />
+    <Compile Include="Code\Extensions\Tools.cs" />
+    <Compile Include="Code\FormChat\ChatPanel\ChatPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Code\FormChat\ChatPanel\ChatPanel.Designer.cs">
+      <DependentUpon>ChatPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\Extensions\Settings\ControlSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Code\Extensions\Settings\ControlSettings.Designer.cs">
+      <DependentUpon>ControlSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\FormChat\FormChat.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Code\FormChat\FormChat.Designer.cs">
+      <DependentUpon>FormChat.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\Chat\ChatExtras\Actions\FormChatActions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Code\Chat\ChatExtras\Actions\FormChatActions.Designer.cs">
+      <DependentUpon>FormChatActions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\FormChat\FormUsers.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Code\FormChat\FormUsers.Designer.cs">
+      <DependentUpon>FormUsers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\TwitchApi\ApiInfoPanel\ApiInfoPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Code\TwitchApi\ApiInfoPanel\ApiInfoPanel.Designer.cs">
+      <DependentUpon>ApiInfoPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\FormStream\FormStreamPanels.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Code\FormStream\FormStreamPanels.Designer.cs">
+      <DependentUpon>FormStreamPanels.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\FormStream\FormPlayer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Code\FormStream\FormPlayer.designer.cs">
+      <DependentUpon>FormPlayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\FormStream\VolumeControl\VolumeControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Code\FormStream\VolumeControl\VolumeControl.Designer.cs">
+      <DependentUpon>VolumeControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\Emotes\GifAnimator.cs" />
+    <Compile Include="Code\Chat\Channels\ChatChannels.cs" />
+    <Compile Include="Code\TwitchApi\JSON\JSON_Parser.cs" />
+    <Compile Include="Code\TwitchApi\PubSubWhisper.cs" />
+    <Compile Include="Code\TwitchApi\TwitchUser\FormTwitchUser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Code\TwitchApi\TwitchUser\FormTwitchUser.Designer.cs">
+      <DependentUpon>FormTwitchUser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\FormStream\FormBrowserSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Code\FormStream\FormBrowserSelector.Designer.cs">
+      <DependentUpon>FormBrowserSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\TwitchApi\TwitchUser\TokkenInput\TokkenInput.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Code\TwitchApi\TwitchUser\TokkenInput\TokkenInput.Designer.cs">
+      <DependentUpon>TokkenInput.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Code\TwitchApi\TwitchApi.cs" />
+    <Compile Include="Main.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Main.Designer.cs">
+      <DependentUpon>Main.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Code\TwitchApi\TwitchApiResult.cs" />
+    <Compile Include="Code\TwitchApi\TwitchUser\TwitchUser.cs" />
+    <Compile Include="Code\TwitchApi\VideoInfo.cs" />
+    <EmbeddedResource Include="Code\Chat\ChatExtras\QuickText\QuickTextControl.resx">
+      <DependentUpon>QuickTextControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\Extensions\MessageBox\MessageBox.resx">
+      <DependentUpon>MessageBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\Extensions\Settings\ControlSettings.resx">
+      <DependentUpon>ControlSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormChat\ChatControl.resx">
+      <DependentUpon>ChatControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormChat\ChatPanel\ChatPanel.resx">
+      <DependentUpon>ChatPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormChat\ChatPanel\UserInfoPanel.resx">
+      <DependentUpon>UserInfoPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormChat\FormChat.resx">
+      <DependentUpon>FormChat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\Chat\ChatExtras\Actions\FormChatActions.resx">
+      <DependentUpon>FormChatActions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormChat\FormUsers.resx">
+      <DependentUpon>FormUsers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormStream\ChannelListBox.resx">
+      <DependentUpon>ChannelListBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\TwitchApi\ApiInfoPanel\ApiInfoPanel.resx">
+      <DependentUpon>ApiInfoPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormStream\FormStreamPanels.resx">
+      <DependentUpon>FormStreamPanels.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormStream\FormPlayer.resx">
+      <DependentUpon>FormPlayer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormStream\VolumeControl\VolumeControl.resx">
+      <DependentUpon>VolumeControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormStream\FormBrowserSelector.resx">
+      <DependentUpon>FormBrowserSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main.resx">
+      <DependentUpon>Main.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Code\TwitchApi\TwitchUser\FormTwitchUser.resx">
+      <DependentUpon>FormTwitchUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\TwitchApi\TwitchUser\TokkenInput\TokkenInput.resx">
+      <DependentUpon>TokkenInput.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BLACK.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Plugins\7za.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="1463551454_16.ico" />
+    <None Include="Resources\ActionHelp.txt" />
+    <Content Include="Plugins\SlimDX.dll" />
+    <Content Include="Plugins\SlimDX.pdb" />
+    <Content Include="Plugins\SlimDX.xml" />
+    <Content Include="Resources\resize.png" />
+    <Content Include="Resources\success.html" />
+    <None Include="Resources\received.html" />
+    <None Include="Resources\index.html" />
+    <None Include="Code\TwitchApi\JSON\Newtonsoft.Json.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Code\TwitchApi\JSON\Newtonsoft.Json.pdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Code\TwitchApi\JSON\Newtonsoft.Json.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="Data\Empty.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="Resources\404_preview-320x180.jpg" />
+    <None Include="Resources\bild-16-9.png" />
+    <None Include="Resources\loading.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
