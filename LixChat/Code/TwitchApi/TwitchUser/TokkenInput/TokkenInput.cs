@@ -12,7 +12,7 @@ namespace LX29_Twitch.Api.Controls
 
         private Process proc = new Process();
 
-        private Token_HTTP_Server server = new Token_HTTP_Server(TempHtmlPath, 8080);
+        private Token_HTTP_Server server = new Token_HTTP_Server(TempHtmlPath, 12685);
 
         public TokkenInput()
         {
