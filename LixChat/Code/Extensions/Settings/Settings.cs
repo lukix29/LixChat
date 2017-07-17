@@ -207,7 +207,7 @@ namespace LX29_ChatClient
         public static readonly string caonfigBaseDir =
             Application.StartupPath.Contains("Debug") ?
             Path.GetFullPath(".\\") :
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\LX29_TCVC\\";
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\LixChat\\";
 
         public static readonly string chatLogDir = caonfigBaseDir + "Chatlogs\\";
         public static readonly string dataDir = caonfigBaseDir + "Data\\";
