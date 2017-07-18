@@ -174,6 +174,7 @@ namespace LX29_ChatClient
             {
                 //DateTime now = DateTime.Now;
                 // var spans = new List<temp>();
+
                 if (isSnycing) return;
                 isSnycing = true;
                 if (SelfUserToken.Length == 0)
@@ -269,6 +270,9 @@ namespace LX29_ChatClient
 
                 if (ListLoaded != null)
                     ListLoaded(channels.Count, channels.Count, "Loaded " + channels.Count + " Channels");
+
+                //var time = DateTime.Now.Subtract(System.Diagnostics.Process.GetCurrentProcess().StartTime);
+                //System.Windows.Forms.MessageBox.Show(time.ToString());
 
                 Task.Run(() => Emotes.FetchEmotes(channels.Values.ToList()));
                 // spans.Add(new temp("start fetch emotes", DateTime.Now.Subtract(now)));

@@ -132,20 +132,23 @@ namespace LX29_Twitch.Forms
         {
             try
             {
-                var selItems = SelectedItems;
-                Items = ChatClient.GetSortedChannelNames();
-                if ((Items != null && selItems != null) && selIndices.Count > 0 && selItems.Length > 0 && Items.Length > 0)
-                {
-                    selIndices.Clear();
-                    for (int i = 0; i < Items.Length; i++)
+                this.BeginInvoke(new Action(() =>
                     {
-                        if (selItems.Any(t0 => Items[i].ID.Equals(t0.ID)))
+                        var selItems = SelectedItems;
+                        Items = ChatClient.GetSortedChannelNames();
+                        if ((Items != null && selItems != null) && selIndices.Count > 0 && selItems.Length > 0 && Items.Length > 0)
                         {
-                            selIndices.Add(i);
+                            selIndices.Clear();
+                            for (int i = 0; i < Items.Length; i++)
+                            {
+                                if (selItems.Any(t0 => Items[i].ID.Equals(t0.ID)))
+                                {
+                                    selIndices.Add(i);
+                                }
+                            }
                         }
-                    }
-                }
-                base.Invalidate();
+                        base.Invalidate();
+                    }));
             }
             catch { }
         }

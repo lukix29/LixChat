@@ -94,7 +94,7 @@ namespace LX29_Helpers
 
     public class Updater
     {
-        public const string updateURL = "https://sourceforge.net/projects/twitchclient/files/Executables/LX29_TwitchChat.exe/download";
+        public const string updateURL = "https://sourceforge.net/projects/twitchclient/files/Executables/LixChat.exe/download";
 
         public static bool Updating
         {
@@ -109,7 +109,7 @@ namespace LX29_Helpers
                 DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
                 HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(updateURL);
                 req.Proxy = null;
-                string path = Path.GetFullPath(Path.GetTempPath() + "LX29_temp.exe");
+                string path = Path.GetFullPath(Path.GetTempPath() + "LixChat_temp.exe");
                 bool doUpdate = false;
                 using (var resp = req.GetResponse())
                 {

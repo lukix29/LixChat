@@ -123,7 +123,7 @@ namespace LX29_TwitchChat
                 toolStrip1.BackgroundImage = bg;
 
                 //MessageBox.Show(DateTime.Now.Subtract(new DateTime(2000, 1, 1)).TotalSeconds.ToString("F0"));
-                this.Text += " | (Build " + this.GetType().Assembly.GetLinkerTime().ToString() + ")";
+                this.Text = "LixChat | (Build " + this.GetType().Assembly.GetLinkerTime().ToString() + ")";
 
                 if (!System.IO.Directory.Exists(Settings.dataDir))
                 {
