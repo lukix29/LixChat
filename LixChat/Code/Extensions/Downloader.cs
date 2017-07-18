@@ -72,9 +72,9 @@ namespace LX29_Helpers
                 Directory.Delete(Path.GetFullPath(Settings.pluginDir + "MPV\\installer"), true);
                 File.Delete(Path.GetFullPath(Settings.pluginDir + "mpv.7z"));
 
-                Directory.CreateDirectory(Path.GetFullPath(Settings.pluginDir + "MPV\\portable_config"));
-                File.WriteAllText(Path.GetFullPath(Settings.pluginDir + "MPV\\portable_config\\input.conf"),
-                    Resources.mpv_input_config);
+                //Directory.CreateDirectory(Path.GetFullPath(Settings.pluginDir + "MPV\\portable_config"));
+                //File.WriteAllText(Path.GetFullPath(Settings.pluginDir + "MPV\\portable_config\\input.conf"),
+                //    Resources.mpv_input_config);
             }
             catch { }
             //finished = true;
@@ -151,8 +151,8 @@ namespace LX29_Helpers
                 }
                 if (doUpdate)
                 {
-                    File.WriteAllText(Path.GetFullPath(Settings.pluginDir + "MPV\\portable_config\\input.conf"),
-                 Resources.mpv_input_config);
+                    //   File.WriteAllText(Path.GetFullPath(Settings.pluginDir + "MPV\\portable_config\\input.conf"),
+                    //Resources.mpv_input_config);
                     Updating = true;
                     string bat = Path.GetFullPath(Path.GetTempPath() + "update.bat");
                     File.WriteAllText(bat, "@echo off\r\nxcopy \"" + path + "\" \"" + Application.ExecutablePath + "\" /y\r\n" +

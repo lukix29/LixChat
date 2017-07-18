@@ -96,8 +96,8 @@ namespace LX29_ChatClient.Emotes
                 if (x is WebException)
                 {
                     var res = (x as WebException).Response as HttpWebResponse;
-                    var code = res.StatusCode;
-                    if (code != HttpStatusCode.NotFound)
+                    var code = (int)res.StatusCode;
+                    if (!code.Equals(404))
                     {
                         switch (x.Handle())
                         {
