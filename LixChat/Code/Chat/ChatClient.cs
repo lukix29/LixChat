@@ -155,10 +155,10 @@ namespace LX29_ChatClient
         {
             try
             {
-                //if (TryParseUserList(raw))
-                //{
-                //    return true;
-                //}
+                if (TryParseUserList(raw))
+                {
+                    return true;
+                }
                 string spliType = "";
                 if (raw.ContainsAny(out spliType, false, ROOMSTATE, WHISPER, USERNOTICE, USERSTATE, PRIVMSG, CLEARCHAT, NOTICE, GLOBALUSERSTATE))
                 {
@@ -295,6 +295,31 @@ namespace LX29_ChatClient
             return false;
         }
 
+        private static bool TryParseUserList(string raw)
+        {
+            if (raw.StartsWith(":"))
+            {
+                if (raw.Contains("353"))
+                {
+                    Dictionary<string, ChatUser> list = new Dictionary<string, ChatUser>();
+                    string channel = raw.GetBetween("#", " ").ToLower();
+                    string n = raw.Substring(raw.LastIndexOf(':') + 1);
+                    string[] names = n.Split(" ");
+                    foreach (string s in names)
+                    {
+                        users.Add(s, channel);
+                    }
+                }
+                else if (raw.Contains("jtv MODE"))
+                {
+                    string channel = raw.GetBetween("#", " ").ToLower();
+                    string name = raw.Split(" ").Last();
+                    users.Add(name, channel);
+                }
+            }
+            return false;
+        }
+
         //private static bool TryParseUserList(string raw)
         //{
         //    if (raw.StartsWith(":"))
@@ -425,31 +450,45 @@ namespace LX29_ChatClient
 
         public static ChannelInfo[] GetSortedChannelNames()
         {
-            if (isSnycing) return null;
-            var ordered = channels.Values.OrderByDescending(t => t.StreamType);
-            for (int y = 0; y < sortArr.Length; y++)
+            try
             {
-                switch (sortArr[y])
+                if (channels.Count > 0)
                 {
-                    case SortMode.Viewing:
-                        ordered = ordered.ThenByDescending(t => t.IsViewing);
-                        break;
+                    //if (isSnycing) return null;
+                    var ordered = channels.Values.OrderByDescending(t => t.StreamType);
+                    for (int y = 0; y < sortArr.Length; y++)
+                    {
+                        switch (sortArr[y])
+                        {
+                            case SortMode.Viewing:
+                                ordered = ordered.ThenByDescending(t => t.IsViewing);
+                                break;
 
-                    case SortMode.Favorite:
-                        ordered = ordered.ThenByDescending(t => t.IsFavorited);
-                        break;
+                            case SortMode.Favorite:
+                                ordered = ordered.ThenByDescending(t => t.IsFavorited);
+                                break;
 
-                    case SortMode.Chatlogin:
-                        ordered = ordered.ThenByDescending(t => t.IsChatConnected);
-                        break;
+                            case SortMode.Chatlogin:
+                                ordered = ordered.ThenByDescending(t => t.IsChatConnected);
+                                break;
 
-                    case SortMode.Sub:
-                        ordered = ordered.ThenByDescending(t => t.SubInfo.IsSub);
-                        break;
+                            case SortMode.Sub:
+                                ordered = ordered.ThenByDescending(t => t.SubInfo.IsSub);
+                                break;
+                        }
+                    }
+                    var arr = ordered.ToArray();
+                    return arr;
                 }
             }
-            var arr = ordered.ToArray();
-            return arr;
+            catch
+            {
+                if (channels.Count > 0)
+                {
+                    return channels.Values.ToArray();
+                }
+            }
+            return null;
         }
 
         public static bool HasJoined(string channel)
@@ -586,8 +625,8 @@ namespace LX29_ChatClient
                 c.Quit();
                 Task.Run(async () =>
                 {
-                    SendSilentMessage("Error Conecting to Chat, reconecting in " + (reconectTimeout / 1000) + "s!", c.Channel);
-                    await Task.Delay(reconectTimeout);
+                    SendSilentMessage("Error Conecting to Chat, reconecting in 2s!", c.Channel);
+                    await Task.Delay(2000);
                     SendSilentMessage("Reconecting now!", c.Channel);
                     Disconnect(c);
                     connect(c.Channel);
@@ -688,8 +727,8 @@ namespace LX29_ChatClient
                 await Task.Delay(reconectTimeout);
                 if (!clients.ContainsKey(client.Channel))
                 {
-                    reconectTimeout *= 2;
-                    SendSilentMessage("Error Conecting to Chat, reconecting in " + (reconectTimeout / 1000) + "s!", channel);
+                    reconectTimeout = Math.Min(32000, reconectTimeout * 2);
+                    SendSilentMessage("Chat Conecting Timeout (" + (reconectTimeout / 1000) + "s)!", channel);
                     Disconnect(client);
                     connect(client.Channel);
                 }

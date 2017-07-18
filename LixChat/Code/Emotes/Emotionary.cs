@@ -95,26 +95,24 @@ namespace LX29_ChatClient.Emotes
             {
                 if (x is WebException)
                 {
-                    var res = (x as WebException).Response as HttpWebResponse;
-                    var code = (int)res.StatusCode;
-                    if (!code.Equals(404))
+                    var res = (HttpWebResponse)(((WebException)x).Response);
+                    int code = (int)res.StatusCode;
+                    if (code == (int)HttpStatusCode.GatewayTimeout ||
+                        code == (int)HttpStatusCode.RequestTimeout)
                     {
-                        switch (x.Handle())
-                        {
-                            case MessageBoxResult.Retry:
-                                parse_BTTV(bttv_api_url);
-                                break;
-                        }
+                        parse_BTTV(bttv_api_url);
+                        return;
+                    }
+                    else if (code == 404)
+                    {
+                        return;
                     }
                 }
-                else
+                switch (x.Handle())
                 {
-                    switch (x.Handle())
-                    {
-                        case MessageBoxResult.Retry:
-                            parse_BTTV(bttv_api_url);
-                            break;
-                    }
+                    case MessageBoxResult.Retry:
+                        parse_BTTV(bttv_api_url);
+                        break;
                 }
             }
         }

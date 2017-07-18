@@ -172,8 +172,9 @@ namespace LX29_ChatClient
         {
             try
             {
-                //DateTime now = DateTime.Now;
-                // var spans = new List<temp>();
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                DateTime now = DateTime.Now;
+                sb.AppendLine(DateTime.Now.Subtract(now).ToString());
 
                 if (isSnycing) return;
                 isSnycing = true;
@@ -185,14 +186,10 @@ namespace LX29_ChatClient
 
                 var follows = TwitchApi.GetFollowedStreams(SelfApiResult.ID, SelfUserToken);
 
-                //spans.Add(new temp("follows", DateTime.Now.Subtract(now)));
-                // now = DateTime.Now;
                 var setts = LoadChannels();
-                // spans.Add(new temp("load Channels", DateTime.Now.Subtract(now)));
-                //now = DateTime.Now;
+
                 var rest = new Dictionary<string, List<string>>(setts);
                 List<string> chatLogins = new List<string>();
-                //now = DateTime.Now;
                 foreach (var channel in follows)
                 {
                     ChannelInfo ci = new ChannelInfo(channel);
@@ -216,8 +213,9 @@ namespace LX29_ChatClient
                         }
                     }
                 }
-                // spans.Add(new temp("parse channels", DateTime.Now.Subtract(now)));
-                // now = DateTime.Now;
+
+                sb.AppendLine(DateTime.Now.Subtract(now).ToString());
+
                 if (rest.Count > 0)
                 {
                     var restResults = TwitchApi.GetStreamOrChannel(rest.Keys.ToArray());
@@ -235,11 +233,9 @@ namespace LX29_ChatClient
                         }
                     }
                 }
-                //spans.Add(new temp("parse rest", DateTime.Now.Subtract(now)));
-                // now = DateTime.Now;
+                sb.AppendLine(DateTime.Now.Subtract(now).ToString());
+
                 LoadStandardStreams();
-                // spans.Add(new temp("standard streams", DateTime.Now.Subtract(now)));
-                // now = DateTime.Now;
                 SaveChannels();
 
                 isSnycing = false;
@@ -247,16 +243,13 @@ namespace LX29_ChatClient
                 if (ListLoaded != null)
                     ListLoaded(channels.Count, channels.Count, "Loaded " + channels.Count + " Channels");
 
-                // spans.Add(new temp("Save channels", DateTime.Now.Subtract(now)));
-                // now = DateTime.Now;
                 List<Task> list = new List<Task>();
                 list.Add(Task.Run(() => LoadChatLog()));
 
                 list.Add(Task.Run(() => LoadChatHighlightWords()));
 
                 Task.WaitAll(list.ToArray());
-                // spans.Add(new temp("Wait Tasks", DateTime.Now.Subtract(now)));
-                // now = DateTime.Now;
+
                 Task.Run(() =>
                 {
                     logInChats();
@@ -265,26 +258,15 @@ namespace LX29_ChatClient
 
                     AutoActions.Load();
                 });
-                //  spans.Add(new temp("dingens alle", DateTime.Now.Subtract(now)));
-                //  now = DateTime.Now;
 
                 if (ListLoaded != null)
                     ListLoaded(channels.Count, channels.Count, "Loaded " + channels.Count + " Channels");
 
-                //var time = DateTime.Now.Subtract(System.Diagnostics.Process.GetCurrentProcess().StartTime);
-                //System.Windows.Forms.MessageBox.Show(time.ToString());
-
                 Task.Run(() => Emotes.FetchEmotes(channels.Values.ToList()));
-                // spans.Add(new temp("start fetch emotes", DateTime.Now.Subtract(now)));
-                //  now = DateTime.Now;
+
                 startRefresher();
-                // spans.Add(new temp("start refresher", DateTime.Now.Subtract(now)));
-                // now = DateTime.Now;
-                //System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                //foreach (var s in spans)
-                //{
-                //    sb.AppendLine(s.name + ": " + s.span.TotalMilliseconds.ToString("F0") + "ms");
-                //}
+
+                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
                 //System.Windows.Forms.MessageBox.Show(sb.ToString());
             }
             catch (Exception x)

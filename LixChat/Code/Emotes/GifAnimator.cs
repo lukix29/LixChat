@@ -218,6 +218,9 @@ namespace LX29_ChatClient.Emotes
             var result = EmoteImageDrawResult.None;
             try
             {
+                if (size == EmoteImageSize.Large)
+                {
+                }
                 var images = GetImage(size);
                 if (!Name.Equals("WAITING") && images == null)
                 {
@@ -289,7 +292,7 @@ namespace LX29_ChatClient.Emotes
                 //float height = Emote.EmoteHeight;
                 if (!URLs.ContainsKey(size))
                 {
-                    url = URLs.First().Value;
+                    url = URLs.Last().Value;
                 }
                 else
                 {

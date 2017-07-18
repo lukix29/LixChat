@@ -992,15 +992,12 @@ namespace LX29_Twitch.Api
             get { return Base.GetValue<SubType>(ApiInfo.sub_plan); }
         }
 
-        public static SubResult Parse(object res)
+        public static SubResult Parse(string res)
         {
-            if (res is WebException)
+            if (res.Equals("404"))
             {
                 //Has sub Programm but User is no Sub (404 == User has no sub at Channel)
-                if ((((WebException)res).Response as HttpWebResponse).StatusCode == HttpStatusCode.NotFound)
-                {
-                    return new SubResult();
-                }
+                return SubResult.Empty;
             }
             else
             {
@@ -1009,8 +1006,6 @@ namespace LX29_Twitch.Api
 
                 return new SubResult(new ApiResult(apires));
             }
-            //No Sub Programm
-            return SubResult.Empty;
         }
 
         public override string ToString()

@@ -133,24 +133,28 @@ namespace LX29_Twitch.Forms
             try
             {
                 this.BeginInvoke(new Action(() =>
+                {
+                    base.Invalidate();
+                }));
+                var selItems = SelectedItems;
+                Items = ChatClient.GetSortedChannelNames();
+                if ((Items != null && selItems != null) && selIndices.Count > 0 && selItems.Length > 0 && Items.Length > 0)
+                {
+                    selIndices.Clear();
+                    for (int i = 0; i < Items.Length; i++)
                     {
-                        var selItems = SelectedItems;
-                        Items = ChatClient.GetSortedChannelNames();
-                        if ((Items != null && selItems != null) && selIndices.Count > 0 && selItems.Length > 0 && Items.Length > 0)
+                        if (selItems.Any(t0 => Items[i].ID.Equals(t0.ID)))
                         {
-                            selIndices.Clear();
-                            for (int i = 0; i < Items.Length; i++)
-                            {
-                                if (selItems.Any(t0 => Items[i].ID.Equals(t0.ID)))
-                                {
-                                    selIndices.Add(i);
-                                }
-                            }
+                            selIndices.Add(i);
                         }
-                        base.Invalidate();
-                    }));
+                    }
+                }
             }
             catch { }
+            this.BeginInvoke(new Action(() =>
+                {
+                    base.Invalidate();
+                }));
         }
 
         protected override void OnLoad(EventArgs e)
@@ -270,7 +274,7 @@ namespace LX29_Twitch.Forms
                 //bei int i = null; steht der rest
                 e.Graphics.SetGraphicQuality(true, true);
                 int y = 0;
-                if (Items != null)
+                if (Items != null && Items.Length > 0)
                 {
                     //visibleCount = 0;
                     maxVisibleItems = 0;

@@ -937,7 +937,7 @@ namespace LX29_ChatClient.Forms
                             x = _EmotePadding;
                         }
                         if (!_showEmotes) return;
-                        var result = (em.Image.Draw(g, x, y, size.Width, size.Height, false, EmoteImageSize.Small));
+                        var result = em.Image.Draw(g, x, y, size.Width, size.Height, false, EmoteImageSize.Small);
                         if (result == EmoteImageDrawResult.IsGif)
                         {
                             gifVisible = true;

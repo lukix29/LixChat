@@ -75,7 +75,7 @@ namespace LX29_Twitch.Api
         {
             string values = downloadString("https://tmi.twitch.tv/group/user/" + ChannelName + "/chatters").ToString()
                 .ReplaceAll("", " ", "\n", "\"").Replace("_links:{},", "");
-            //var result = JSON.ParseChatters(values);
+            var result = JSON.ParseChatters(values);
             //if (result != null && result.chatters != null)
             //{
             //    var users = result.chatters.moderators.Select(t => new LX29_ChatClient.ChatUser(t, ChannelName, LX29_ChatClient.UserType.moderator));
@@ -161,7 +161,7 @@ namespace LX29_Twitch.Api
             if (string.IsNullOrEmpty(userID)) userID = User_ID;
             if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
             var res = downloadString(
-                "https://api.twitch.tv/kraken/users/" + userID + "/subscriptions/" + channel_ID, false, userToken);
+                "https://api.twitch.tv/kraken/users/" + userID + "/subscriptions/" + channel_ID, userToken, 5, false);
             return SubResult.Parse(res);
         }
 
@@ -224,12 +224,7 @@ namespace LX29_Twitch.Api
             return list;
         }
 
-        private static string downloadString(string url, string tokken = null, int api_version = 5)
-        {
-            return downloadString(url, true, tokken, api_version).ToString();
-        }
-
-        private static object downloadString(string url, bool handleError, string tokken = null, int api_version = 5)
+        private static string downloadString(string url, string tokken = null, int api_version = 5, bool handleError = true)
         {
             try
             {
@@ -251,18 +246,28 @@ namespace LX29_Twitch.Api
             }
             catch (WebException x)
             {
-                var info = TwitchApiErrors.GetError(x);
+                int code = 0;
+                var info = TwitchApiErrors.GetError(x, out code);
+
                 if (handleError)
                 {
-                    switch (x.Handle(info))
+                    if (code == (int)HttpStatusCode.GatewayTimeout || code == (int)HttpStatusCode.RequestTimeout)
                     {
-                        case System.Windows.Forms.MessageBoxResult.Retry:
-                            return downloadString(url, tokken, api_version);
+                        return downloadString(url, tokken, api_version);
+                    }
+                    else
+                    {
+                        var res = x.Handle(info);
+                        switch (res)
+                        {
+                            case System.Windows.Forms.MessageBoxResult.Retry:
+                                return downloadString(url, tokken, api_version);
+                        }
                     }
                 }
                 else
                 {
-                    return x;
+                    return code.ToString();
                 }
             }
             return string.Empty;
@@ -340,7 +345,8 @@ namespace LX29_Twitch.Api
             }
             catch (WebException x)
             {
-                var info = TwitchApiErrors.GetError(x);
+                int code = 0;
+                var info = TwitchApiErrors.GetError(x, out code);
                 switch (x.Handle(info))
                 {
                     case System.Windows.Forms.MessageBoxResult.Retry:
@@ -366,12 +372,14 @@ namespace LX29_Twitch.Api
             { 503, "Service Unavailable. For example, the status of a game or ingest server cannot be retrieved."}
         };
 
-        public static string GetError(WebException x)
+        public static string GetError(WebException x, out int type)
         {
+            type = 0;
             if (x.Response != null)
             {
                 var res = x.Response as HttpWebResponse;
                 int code = (int)res.StatusCode;
+                type = code;
                 if (dict.ContainsKey(code))
                 {
                     return dict[code];
