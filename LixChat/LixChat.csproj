@@ -322,9 +322,7 @@
   <ItemGroup>
     <None Include="Resources\BLACK.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="bin\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Plugins\7za.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -333,6 +331,7 @@
   <ItemGroup>
     <Content Include="1463551454_16.ico" />
     <None Include="Resources\ActionHelp.txt" />
+    <Content Include="bin\Release\LixChat.exe" />
     <Content Include="Plugins\SlimDX.dll" />
     <Content Include="Plugins\SlimDX.pdb" />
     <Content Include="Plugins\SlimDX.xml" />
