@@ -18,7 +18,7 @@ namespace LX29_Twitch.Api
             get
             {
                 return "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id="
-                    + CLIENT_ID + "&redirect_uri=http://localhost:8080&force_verify=true&" +
+                    + CLIENT_ID + "&redirect_uri=http://localhost:12685&force_verify=true&" +
                     "scope=chat_login+user_subscriptions+user_read+user_follows_edit";
             }
         }

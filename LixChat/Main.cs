@@ -133,11 +133,11 @@ namespace LX29_TwitchChat
                 {
                     System.IO.Directory.CreateDirectory(Settings.pluginDir);
                 }
-                if (System.IO.File.Exists(MPV_Wrapper.MPVinputConfig))
-                {
-                    System.IO.File.WriteAllText(System.IO.Path.GetFullPath(Settings.pluginDir + "MPV\\portable_config\\input.conf"),
-                   Resources.mpv_input_config);
-                }
+                //if (System.IO.File.Exists(MPV_Wrapper.MPVinputConfig))
+                //{
+                //    System.IO.File.WriteAllText(System.IO.Path.GetFullPath(Settings.pluginDir + "MPV\\portable_config\\input.conf"),
+                //   Resources.mpv_input_config);
+                //}
                 MPV_Wrapper.SetBorderSize(this.Size, this.ClientSize);
 
                 this.Bounds = Settings.MainBounds.MaxSize(this.Bounds);

@@ -35,12 +35,11 @@ namespace LX29_Twitch.Api.Controls
 
         private static string TempHtmlPath
         {
-            get { return System.IO.Path.GetTempPath() + "lx29_tcvc\\"; }
+            get { return System.IO.Path.GetTempPath() + "lixchat\\"; }
         }
 
         public new void BringToFront()
         {
-            base.BringToFront();
             bool startBrowser = true;
             var Abort = Settings.GetBrowserPath(false);
             if (Abort == DialogResult.Abort)
@@ -63,6 +62,7 @@ namespace LX29_Twitch.Api.Controls
                 server.ReceivedToken += server_ReceivedToken;
                 server.Start();
             }
+            base.BringToFront();
         }
 
         private void btn_Abort_Click(object sender, EventArgs e)
@@ -77,6 +77,8 @@ namespace LX29_Twitch.Api.Controls
 
         private void btn_retry_Click(object sender, EventArgs e)
         {
+            server.Stop();
+            server.Start();
             proc.Close();
             proc = Settings.StartBrowser(LX29_Twitch.Api.TwitchApi.AuthApiUrl);
         }
