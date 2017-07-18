@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
 [assembly: AssemblyTitle("LixChat")]
-[assembly: AssemblyDescription("Alpha")]
+[assembly: AssemblyDescription("Beta")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Lukix29")]
 [assembly: AssemblyProduct("LixChat")]

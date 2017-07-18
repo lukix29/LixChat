@@ -557,7 +557,7 @@ namespace System
 
                     if (LX29_ChatClient.Settings.ShowErrors)
                     {
-                        if (errorCount > 1)
+                        if (errorCount >= 2)
                         {
                             errorCount = 0;
                             return LX29_MessageBox.Show(sb.ToString(), "Error!", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error);
@@ -565,7 +565,7 @@ namespace System
                     }
                     else
                     {
-                        if (errorCount > 2)
+                        if (errorCount >= 4)
                         {
                             errorCount = 0;
                             return MessageBoxResult.Ignore;
