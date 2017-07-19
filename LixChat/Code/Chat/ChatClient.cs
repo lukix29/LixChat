@@ -301,7 +301,7 @@ namespace LX29_ChatClient
             {
                 if (raw.Contains("353"))
                 {
-                    Dictionary<string, ChatUser> list = new Dictionary<string, ChatUser>();
+                    //Dictionary<string, ChatUser> list = new Dictionary<string, ChatUser>();
                     string channel = raw.GetBetween("#", " ").ToLower();
                     string n = raw.Substring(raw.LastIndexOf(':') + 1);
                     string[] names = n.Split(" ");
@@ -375,6 +375,7 @@ namespace LX29_ChatClient
     {
         //private static int connectCnt = 0;
 
+        private static DateTime lastSend = DateTime.MinValue;
         private static Dictionary<string, object> lockChannels = new Dictionary<string, object>();
 
         private static int reconectTimeout = 8000;
@@ -780,7 +781,10 @@ namespace LX29_ChatClient
 
         private static ChatMessage SendMessage(string Message, string user, IRC_Client.IRC irc)
         {
-            if (string.IsNullOrEmpty(Message)) return ChatMessage.Empty;
+            if (string.IsNullOrEmpty(Message) ||
+                DateTime.Now.Subtract(lastSend).TotalSeconds < 1.0) return ChatMessage.Empty;
+
+            lastSend = DateTime.Now;
             string Channel = irc.Channel;
             try
             {
