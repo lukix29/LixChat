@@ -871,7 +871,7 @@ namespace LX29_ChatClient.Forms
                 _showEmotes = false;
                 WhisperName = name;
                 MessageType = Type;
-                this.Invalidate();
+                //this.Invalidate();
                 //MessageCount = ChatClient.Messages.Count(Channel.Name, MessageType, UserMessageName);
             }
 

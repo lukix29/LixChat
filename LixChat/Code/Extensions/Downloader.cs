@@ -1,5 +1,4 @@
 ﻿using LX29_ChatClient;
-using LX29_TwitchChat.Properties;
 using System;
 using System.Diagnostics;
 using System.IO;

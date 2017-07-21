@@ -1,4 +1,5 @@
 ﻿using LX29_ChatClient.Forms;
+using LX29_Helpers;
 using LX29_Twitch.Api;
 using LX29_Twitch.Api.Video;
 using LX29_Twitch.Forms;
@@ -9,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using LX29_Helpers;
 using System.Windows.Forms;
 
 namespace LX29_ChatClient.Channels

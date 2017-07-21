@@ -23,7 +23,7 @@ namespace LX29_ChatClient.Forms
             InitializeComponent();
             panel2.BackgroundImage = Cursors.SizeAll.GetImage();
             panel2.BackgroundImageLayout = ImageLayout.Stretch;
-            panel2.BackgroundImage.Save("test.bmp");
+            //panel2.BackgroundImage.Save("test.bmp");die am handy? LUL
         }
 
         public new Font Font

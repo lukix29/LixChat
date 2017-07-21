@@ -2,10 +2,9 @@
 using LX29_Twitch.JSON_Parser;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Drawing;
+using System.Linq;
 using System.Net;
-using System.Text;
 
 namespace LX29_ChatClient.Emotes
 {

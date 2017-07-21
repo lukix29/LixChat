@@ -354,13 +354,13 @@ namespace System
 
         public static void DrawText(this Graphics g, string text, Font font, Color b, float x, float y)
         {
-            TextRenderer.DrawText(g, text, font, new Point((int)x, (int)y), b,
+            TextRenderer.DrawText(g, text.Replace("&", "&&"), font, new Point((int)x, (int)y), b,
                   TextFormatFlags.NoPadding | TextFormatFlags.Left | TextFormatFlags.TextBoxControl);
         }
 
         public static void DrawText(this Graphics g, string text, Font font, Color b, RectangleF bounds, TextFormatFlags centerStrFormat)
         {
-            TextRenderer.DrawText(g, text, font, Rectangle.Truncate(bounds), b, centerStrFormat);
+            TextRenderer.DrawText(g, text.Replace("&", "&&"), font, Rectangle.Truncate(bounds), b, centerStrFormat);
         }
 
         public static SizeF MeasureText(this Graphics g, string text, Font font)

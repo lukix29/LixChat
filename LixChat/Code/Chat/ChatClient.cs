@@ -319,31 +319,6 @@ namespace LX29_ChatClient
             }
             return false;
         }
-
-        //private static bool TryParseUserList(string raw)
-        //{
-        //    if (raw.StartsWith(":"))
-        //    {
-        //        if (raw.Contains("353"))
-        //        {
-        //            Dictionary<string, ChatUser> list = new Dictionary<string, ChatUser>();
-        //            string channel = raw.GetBetween("#", " ").ToLower();
-        //            string n = raw.Substring(raw.LastIndexOf(':') + 1);
-        //            string[] names = n.Split(" ");
-        //            foreach (string s in names)
-        //            {
-        //                users.Add(s, channel);
-        //            }
-        //        }
-        //        else if (raw.Contains("jtv MODE"))
-        //        {
-        //            string channel = raw.GetBetween("#", " ").ToLower();
-        //            string name = raw.Split(" ").Last();
-        //            users.Add(name, channel);
-        //        }
-        //    }
-        //    return false;
-        //}
     }
 
     public static partial class ChatClient
