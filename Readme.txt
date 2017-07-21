@@ -1,1 +1,37 @@
+# LixChat - The Better Twitch Client
 
+
+_Please help by reporting bugs, pull-requests or feature requests!_
+
+## What is LixChat?
+
+LixChat is an open Desktop Client for Twitch.tv, that aims to make the Twitch experience better than with the common Webplatform from Twitch, its highly customizable and extreme performant.
+
+## Currently Supported Features:
+
+### Chat
+
+  * Multi Channel support
+  * Emote support from Twitch, FrankerFaceZ and BetterTwitchTV   
+  * GIF Emote Support
+  * Chat Actions - automatic reply to messages
+  * User Badges
+  * Chatlog
+  * Userlist with Message Filter
+  * Highly Customizable Chat Layout and Appearance
+
+
+### Stream
+
+  * Show On/Offline Streams
+  * Show Stream Informations (like actual Viewers)
+  * Access to Stream Panels
+  * Favorite function
+  * Follow and Subscribe Buttons
+  * External Stream Player
+  * Stream Preview
+
+
+# License
+
+This is free software under the terms of MIT the license.
