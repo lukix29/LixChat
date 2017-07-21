@@ -70,17 +70,23 @@ namespace LX29_ChatClient.Forms
 
         public event UserNameClicked OnUserNameClicked;
 
+        [ReadOnly(true)]
+        [Browsable(false)]
         public ChannelInfo Channel
         {
             get { return channel; }
         }
 
+        [ReadOnly(true)]
+        [Browsable(false)]
         public new Font Font
         {
             get { return renderer.Font; }
             set { renderer.Font = value; }
         }
 
+        [ReadOnly(true)]
+        [Browsable(false)]
         public int MessageCount
         {
             get { return renderer.ViewStart; }
@@ -300,16 +306,6 @@ namespace LX29_ChatClient.Forms
         protected override void OnResize(EventArgs e)
         {
             if (renderer != null) renderer.Invalidate();
-        }
-
-        private static Rectangle GetMinBoundsRect(RectangleF[] int32Rects)
-        {
-            int xMin = (int)int32Rects.Min(s => s.X);
-            int yMin = (int)int32Rects.Min(s => s.Y);
-            int xMax = (int)int32Rects.Max(s => s.X + s.Width);
-            int yMax = (int)int32Rects.Max(s => s.Y + s.Height);
-            var int32Rect = new Rectangle(xMin, yMin, xMax - xMin, yMax - yMin);
-            return int32Rect;
         }
 
         private void ChatClient_MessageReceived(ChatMessage message)
@@ -650,6 +646,11 @@ namespace LX29_ChatClient.Forms
             private float _LineSpacing
             {
                 get { return (float)Settings.LineSpacing; }
+            }
+
+            private float _TimePadding
+            {
+                get { return (float)Settings.TimePadding; }
             }
 
             private float _WordPadding
@@ -1197,7 +1198,7 @@ namespace LX29_ChatClient.Forms
                     graphics.DrawText(time, timeFont, Color.Gray, x, y + timeSizeFac);
                 }
 
-                x += sf.Width + _WordPadding;
+                x += sf.Width + _WordPadding + _TimePadding;
 
                 if (ShowName)
                 {

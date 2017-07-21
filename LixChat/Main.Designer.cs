@@ -702,10 +702,8 @@
             // controlSettings1
             // 
             resources.ApplyResources(this.controlSettings1, "controlSettings1");
-            this.controlSettings1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.controlSettings1.ForeColor = System.Drawing.Color.LightGray;
             this.controlSettings1.Name = "controlSettings1";
-            this.controlSettings1.ShowAllSettings = true;
             // 
             // Main
             // 

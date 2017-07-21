@@ -32,13 +32,13 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormChat));
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tS_Btn_Emotes = new System.Windows.Forms.ToolStripButton();
             this.tS_Btn_ChatSettings = new System.Windows.Forms.ToolStripButton();
             this.cMS_TextOptions = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsMi_CopyText = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_PasteText = new System.Windows.Forms.ToolStripMenuItem();
             this.controlSettings1 = new LX29_ChatClient.Forms.ControlSettings();
             this.chatPanel1 = new LX29_ChatClient.Forms.ChatPanel();
-            this.tS_Btn_Emotes = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.cMS_TextOptions.SuspendLayout();
             this.SuspendLayout();
@@ -61,6 +61,18 @@
             this.toolStrip1.TabIndex = 15;
             this.toolStrip1.Text = "toolStrip1";
             this.toolStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.toolStrip1_ItemClicked);
+            // 
+            // tS_Btn_Emotes
+            // 
+            this.tS_Btn_Emotes.BackColor = System.Drawing.Color.Black;
+            this.tS_Btn_Emotes.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tS_Btn_Emotes.ForeColor = System.Drawing.Color.White;
+            this.tS_Btn_Emotes.Image = ((System.Drawing.Image)(resources.GetObject("tS_Btn_Emotes.Image")));
+            this.tS_Btn_Emotes.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tS_Btn_Emotes.Name = "tS_Btn_Emotes";
+            this.tS_Btn_Emotes.Size = new System.Drawing.Size(50, 22);
+            this.tS_Btn_Emotes.Text = "Emotes";
+            this.tS_Btn_Emotes.Click += new System.EventHandler(this.tS_Btn_Emotes_Click);
             // 
             // tS_Btn_ChatSettings
             // 
@@ -97,13 +109,11 @@
             // controlSettings1
             // 
             this.controlSettings1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.controlSettings1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.controlSettings1.ForeColor = System.Drawing.Color.LightGray;
             this.controlSettings1.Location = new System.Drawing.Point(0, 28);
             this.controlSettings1.MinimumSize = new System.Drawing.Size(640, 270);
             this.controlSettings1.Name = "controlSettings1";
-            this.controlSettings1.ShowAllSettings = false;
-            this.controlSettings1.Size = new System.Drawing.Size(669, 301);
+            this.controlSettings1.Size = new System.Drawing.Size(669, 460);
             this.controlSettings1.TabIndex = 23;
             this.controlSettings1.Visible = false;
             // 
@@ -120,23 +130,10 @@
             this.chatPanel1.TabIndex = 22;
             this.chatPanel1.Load += new System.EventHandler(this.chatPanel1_Load);
             // 
-            // tS_Btn_Emotes
-            // 
-            this.tS_Btn_Emotes.BackColor = System.Drawing.Color.Black;
-            this.tS_Btn_Emotes.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tS_Btn_Emotes.ForeColor = System.Drawing.Color.White;
-            this.tS_Btn_Emotes.Image = ((System.Drawing.Image)(resources.GetObject("tS_Btn_Emotes.Image")));
-            this.tS_Btn_Emotes.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tS_Btn_Emotes.Name = "tS_Btn_Emotes";
-            this.tS_Btn_Emotes.Size = new System.Drawing.Size(50, 22);
-            this.tS_Btn_Emotes.Text = "Emotes";
-            this.tS_Btn_Emotes.Click += new System.EventHandler(this.tS_Btn_Emotes_Click);
-            // 
             // FormChat
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.ClientSize = new System.Drawing.Size(669, 662);
             this.Controls.Add(this.controlSettings1);
             this.Controls.Add(this.toolStrip1);

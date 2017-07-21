@@ -266,6 +266,26 @@ namespace System
 
         #region DRAWING
 
+        public static Rectangle GetMinBoundsRect(this Rectangle[] int32Rects)
+        {
+            int xMin = (int)int32Rects.Min(s => s.X);
+            int yMin = (int)int32Rects.Min(s => s.Y);
+            int xMax = (int)int32Rects.Max(s => s.X + s.Width);
+            int yMax = (int)int32Rects.Max(s => s.Y + s.Height);
+            var int32Rect = new Rectangle(xMin, yMin, xMax - xMin, yMax - yMin);
+            return int32Rect;
+        }
+
+        public static Rectangle GetMinBoundsRect(this RectangleF[] int32Rects)
+        {
+            int xMin = (int)int32Rects.Min(s => s.X);
+            int yMin = (int)int32Rects.Min(s => s.Y);
+            int xMax = (int)int32Rects.Max(s => s.X + s.Width);
+            int yMax = (int)int32Rects.Max(s => s.Y + s.Height);
+            var int32Rect = new Rectangle(xMin, yMin, xMax - xMin, yMax - yMin);
+            return int32Rect;
+        }
+
         public static Bitmap MakeTransparent(this Bitmap bitmap, Color c, float factor)
         {
             long ticks = DateTime.Now.Ticks;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace LX29_ChatClient.Forms
 {
@@ -11,6 +12,14 @@ namespace LX29_ChatClient.Forms
             InitializeComponent();
         }
 
+        [ReadOnly(true)]
+        [Browsable(false)]
+        public new Color BackColor
+        {
+            get;
+            set;
+        }
+
         public ChatView ChatView
         {
             get;
@@ -18,14 +27,14 @@ namespace LX29_ChatClient.Forms
         }
 
         // [System.ComponentModel.DefaultValue(true)]
-        public bool ShowAllSettings
-        {
-            get { return !splitContainer1.Panel2Collapsed; }
-            set
-            {
-                splitContainer1.Panel2Collapsed = !value;
-            }
-        }
+        //public bool ShowAllSettings
+        //{
+        //    get { return !splitContainer1.Panel2Collapsed; }
+        //    set
+        //    {
+        //        splitContainer1.Panel2Collapsed = !value;
+        //    }
+        //}
 
         public static Panel GetSettingPanel(Size clientSize, double value, SettingClasses classe, Action<decimal, string> onselect)
         {
@@ -97,6 +106,8 @@ namespace LX29_ChatClient.Forms
 
                     SetControls(flowLayoutPanel_RenderOptions, SettingClasses.EmoteBasic, cB_AnimatedEmotes);
 
+                    SetControls(flowLayoutPanel_UserOptions, SettingClasses.UserBasic);
+
                     cb_ShowErrors.Checked = Settings.ShowErrors;
                     cB_AnimatedEmotes.Checked = Settings.AnimatedEmotes;
 
@@ -120,7 +131,7 @@ namespace LX29_ChatClient.Forms
 
         private void btn_OpenScriptFolder_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(Settings.scriptDir);
+            System.Diagnostics.Process.Start(Settings.caonfigBaseDir);
         }
 
         private void btn_ReloadChat_Click(object sender, EventArgs e)
@@ -238,6 +249,11 @@ namespace LX29_ChatClient.Forms
         private void cb_ShowErrors_CheckedChanged(object sender, EventArgs e)
         {
             Settings.ShowErrors = cb_ShowErrors.Checked;
+        }
+
+        private void ControlSettings_SizeChanged(object sender, EventArgs e)
+        {
+            splitContainer1.SplitterDistance = groupBox1.Bottom + 5;
         }
 
         private void flowLayoutPanel6_Paint(object sender, PaintEventArgs e)

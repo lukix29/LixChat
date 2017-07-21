@@ -148,20 +148,25 @@ namespace LX29_ChatClient
     {
         public static readonly SettingClasses[] EmoteBasic = new SettingClasses[]
         {
-            new SettingClasses("_BadgePadding","Badge Padding",1,100,1),
-            new SettingClasses("_BadgeSizeFac","Badge Size",0.1,10,0.1),
-            new SettingClasses("_EmotePadding","Emote Padding",1,100,1),
-            new SettingClasses("_EmoteSizeFac","Emote Size",0.1,10,0.1)
+            new SettingClasses("_BadgePadding", "Badge Padding", 1, 100, 1),
+            new SettingClasses("_BadgeSizeFac", "Badge Size", 0.1, 10, 0.1),
+            new SettingClasses("_EmotePadding", "Emote Padding", 1, 100, 1),
+            new SettingClasses("_EmoteSizeFac", "Emote Size", 0.1, 10, 0.1)
        };
 
         public static readonly SettingClasses[] TextBasic = new SettingClasses[]
         {
-            new SettingClasses("_ChatFontSize","Chat Font Size",4,32,0.1),
-            new SettingClasses("_LinePadding","Line Padding",1,100,0.1),
-            new SettingClasses("_LineSpacing","Line Spacing",1,100,0.1),
-            new SettingClasses("_WordPadding","Word Padding",1,100,0.1) ,
-            new SettingClasses("_UserColorBrigthness","User Brigthness",0.00,2.0,0.01),
-            new SettingClasses("_UserColorSaturation","User Saturation",0.0,2.0,0.01)
+            new SettingClasses("_ChatFontSize", "Chat Font Size", 4,32, 0.1),
+            new SettingClasses("_LinePadding", "Line Padding", 1, 100, 0.1),
+            new SettingClasses("_LineSpacing", "Line Spacing", 1, 100, 0.1),
+            new SettingClasses("_WordPadding", "Word Padding", 1, 100, 0.1),
+            new SettingClasses("_TimePadding","Time Padding", 1, 100, 0.1)
+        };
+
+        public static readonly SettingClasses[] UserBasic = new SettingClasses[]
+        {
+            new SettingClasses("_UserColorBrigthness", "User Brigthness", 0.0, 2.0, 0.01),
+            new SettingClasses("_UserColorSaturation", "User Saturation", 0.0, 2.0, 0.01)
         };
 
         public readonly int DecimalPlaces;
@@ -292,8 +297,9 @@ namespace LX29_ChatClient
         private static double _ChatFontSize = 12.0;
         private static double _LinePadding = 5;
         private static double _LineSpacing = 5;
-        private static double _UserColorBrigthness = 0.2;
-        private static double _UserColorSaturation = 0.2;
+        private static double _TimePadding = 1;
+        private static double _UserColorBrigthness = 0.05;
+        private static double _UserColorSaturation = 1.0;
         private static double _WordPadding = 3;
 
         public static string ChatFontName
@@ -337,6 +343,16 @@ namespace LX29_ChatClient
             set
             {
                 _LineSpacing = value;
+                Save();
+            }
+        }
+
+        public static double TimePadding
+        {
+            get { return _TimePadding; }
+            set
+            {
+                _TimePadding = value;
                 Save();
             }
         }

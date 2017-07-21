@@ -52,6 +52,9 @@
             this.cb_ShowErrors = new System.Windows.Forms.CheckBox();
             this.btn_Close = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.flowLayoutPanel_UserOptions = new System.Windows.Forms.FlowLayoutPanel();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox3.SuspendLayout();
             this.flowLayoutPanel_RenderOptions.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -67,6 +70,7 @@
             this.flowLayoutPanel6.SuspendLayout();
             this.groupBox7.SuspendLayout();
             this.flowLayoutPanel9.SuspendLayout();
+            this.groupBox5.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox3
@@ -84,6 +88,7 @@
             // 
             // flowLayoutPanel_RenderOptions
             // 
+            this.flowLayoutPanel_RenderOptions.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.flowLayoutPanel_RenderOptions.Controls.Add(this.cB_AnimatedEmotes);
             this.flowLayoutPanel_RenderOptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel_RenderOptions.Location = new System.Drawing.Point(3, 17);
@@ -122,6 +127,7 @@
             // 
             // flowLayoutPanel2
             // 
+            this.flowLayoutPanel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.flowLayoutPanel2.Controls.Add(this.btn_SelectFont);
             this.flowLayoutPanel2.Controls.Add(this.btn_SelectChatBG);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -170,6 +176,7 @@
             // 
             // flowLayoutPanel1
             // 
+            this.flowLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.flowLayoutPanel1.Controls.Add(this.rTB_HighlightWords);
             this.flowLayoutPanel1.Controls.Add(this.btn_SaveHL);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -216,6 +223,7 @@
             // 
             // flowLayoutPanel_TextOptions
             // 
+            this.flowLayoutPanel_TextOptions.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.flowLayoutPanel_TextOptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel_TextOptions.Location = new System.Drawing.Point(3, 17);
             this.flowLayoutPanel_TextOptions.Name = "flowLayoutPanel_TextOptions";
@@ -239,7 +247,7 @@
             this.splitContainer1.Panel2.Controls.Add(this.flowLayoutPanel6);
             this.splitContainer1.Panel2MinSize = 185;
             this.splitContainer1.Size = new System.Drawing.Size(640, 463);
-            this.splitContainer1.SplitterDistance = 271;
+            this.splitContainer1.SplitterDistance = 270;
             this.splitContainer1.TabIndex = 39;
             // 
             // flowLayoutPanel5
@@ -252,7 +260,7 @@
             this.flowLayoutPanel5.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel5.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel5.Name = "flowLayoutPanel5";
-            this.flowLayoutPanel5.Size = new System.Drawing.Size(640, 271);
+            this.flowLayoutPanel5.Size = new System.Drawing.Size(640, 270);
             this.flowLayoutPanel5.TabIndex = 0;
             // 
             // flowLayoutPanel6
@@ -260,10 +268,11 @@
             this.flowLayoutPanel6.AutoSize = true;
             this.flowLayoutPanel6.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel6.Controls.Add(this.groupBox7);
+            this.flowLayoutPanel6.Controls.Add(this.groupBox5);
             this.flowLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel6.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel6.Name = "flowLayoutPanel6";
-            this.flowLayoutPanel6.Size = new System.Drawing.Size(640, 188);
+            this.flowLayoutPanel6.Size = new System.Drawing.Size(640, 189);
             this.flowLayoutPanel6.TabIndex = 37;
             this.flowLayoutPanel6.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel6_Paint);
             // 
@@ -272,12 +281,11 @@
             this.groupBox7.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.groupBox7.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.groupBox7.Controls.Add(this.flowLayoutPanel9);
-            this.flowLayoutPanel6.SetFlowBreak(this.groupBox7, true);
             this.groupBox7.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox7.ForeColor = System.Drawing.Color.LightGray;
             this.groupBox7.Location = new System.Drawing.Point(3, 3);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(137, 179);
+            this.groupBox7.Size = new System.Drawing.Size(137, 180);
             this.groupBox7.TabIndex = 36;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Options";
@@ -285,15 +293,17 @@
             // flowLayoutPanel9
             // 
             this.flowLayoutPanel9.AutoSize = true;
+            this.flowLayoutPanel9.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.flowLayoutPanel9.Controls.Add(this.btn_SelectBrowser);
             this.flowLayoutPanel9.Controls.Add(this.btn_OpenScriptFolder);
             this.flowLayoutPanel9.Controls.Add(this.cb_ShowErrors);
+            this.flowLayoutPanel9.Controls.Add(this.label1);
             this.flowLayoutPanel9.Controls.Add(this.btn_Close);
             this.flowLayoutPanel9.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel9.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel9.Location = new System.Drawing.Point(3, 17);
             this.flowLayoutPanel9.Name = "flowLayoutPanel9";
-            this.flowLayoutPanel9.Size = new System.Drawing.Size(131, 159);
+            this.flowLayoutPanel9.Size = new System.Drawing.Size(131, 160);
             this.flowLayoutPanel9.TabIndex = 0;
             // 
             // btn_SelectBrowser
@@ -316,7 +326,7 @@
             this.btn_OpenScriptFolder.Name = "btn_OpenScriptFolder";
             this.btn_OpenScriptFolder.Size = new System.Drawing.Size(124, 30);
             this.btn_OpenScriptFolder.TabIndex = 29;
-            this.btn_OpenScriptFolder.Text = "Open Script Folder";
+            this.btn_OpenScriptFolder.Text = "Open Config Folder";
             this.btn_OpenScriptFolder.UseVisualStyleBackColor = false;
             this.btn_OpenScriptFolder.Click += new System.EventHandler(this.btn_OpenScriptFolder_Click);
             // 
@@ -340,10 +350,10 @@
             // btn_Close
             // 
             this.btn_Close.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_Close.BackColor = System.Drawing.Color.Black;
+            this.btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.btn_Close.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btn_Close.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_Close.Location = new System.Drawing.Point(3, 101);
+            this.btn_Close.Location = new System.Drawing.Point(3, 125);
             this.btn_Close.Name = "btn_Close";
             this.btn_Close.Size = new System.Drawing.Size(124, 30);
             this.btn_Close.TabIndex = 29;
@@ -351,17 +361,52 @@
             this.btn_Close.UseVisualStyleBackColor = false;
             this.btn_Close.Click += new System.EventHandler(this.button1_Click);
             // 
+            // groupBox5
+            // 
+            this.groupBox5.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.groupBox5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.groupBox5.Controls.Add(this.flowLayoutPanel_UserOptions);
+            this.flowLayoutPanel6.SetFlowBreak(this.groupBox5, true);
+            this.groupBox5.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox5.ForeColor = System.Drawing.Color.LightGray;
+            this.groupBox5.Location = new System.Drawing.Point(146, 3);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(137, 180);
+            this.groupBox5.TabIndex = 37;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "User Options";
+            // 
+            // flowLayoutPanel_UserOptions
+            // 
+            this.flowLayoutPanel_UserOptions.AutoSize = true;
+            this.flowLayoutPanel_UserOptions.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.flowLayoutPanel_UserOptions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel_UserOptions.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flowLayoutPanel_UserOptions.Location = new System.Drawing.Point(3, 17);
+            this.flowLayoutPanel_UserOptions.Name = "flowLayoutPanel_UserOptions";
+            this.flowLayoutPanel_UserOptions.Size = new System.Drawing.Size(131, 160);
+            this.flowLayoutPanel_UserOptions.TabIndex = 0;
+            // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(3, 98);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(124, 24);
+            this.label1.TabIndex = 36;
+            this.label1.Text = "                     ";
+            // 
             // ControlSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(50)))));
             this.Controls.Add(this.splitContainer1);
             this.ForeColor = System.Drawing.Color.LightGray;
             this.MinimumSize = new System.Drawing.Size(640, 270);
             this.Name = "ControlSettings";
             this.Size = new System.Drawing.Size(640, 463);
+            this.SizeChanged += new System.EventHandler(this.ControlSettings_SizeChanged);
             this.groupBox3.ResumeLayout(false);
             this.flowLayoutPanel_RenderOptions.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -379,6 +424,8 @@
             this.groupBox7.ResumeLayout(false);
             this.groupBox7.PerformLayout();
             this.flowLayoutPanel9.ResumeLayout(false);
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -412,5 +459,8 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button btn_OpenScriptFolder;
         private System.Windows.Forms.Button btn_SelectChatBG;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel_UserOptions;
+        private System.Windows.Forms.Label label1;
     }
 }
