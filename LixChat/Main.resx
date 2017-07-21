@@ -210,165 +210,6 @@
   <data name="&gt;&gt;splitContainer_Preview.Panel1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="&gt;&gt;btn_StartStream.Name" xml:space="preserve">
-    <value>btn_StartStream</value>
-  </data>
-  <data name="&gt;&gt;btn_StartStream.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btn_StartStream.Parent" xml:space="preserve">
-    <value>flowLayoutPanel2</value>
-  </data>
-  <data name="&gt;&gt;btn_StartStream.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;btn_External.Name" xml:space="preserve">
-    <value>btn_External</value>
-  </data>
-  <data name="&gt;&gt;btn_External.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btn_External.Parent" xml:space="preserve">
-    <value>flowLayoutPanel2</value>
-  </data>
-  <data name="&gt;&gt;btn_External.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;btn_ShowPreview.Name" xml:space="preserve">
-    <value>btn_ShowPreview</value>
-  </data>
-  <data name="&gt;&gt;btn_ShowPreview.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btn_ShowPreview.Parent" xml:space="preserve">
-    <value>flowLayoutPanel2</value>
-  </data>
-  <data name="&gt;&gt;btn_ShowPreview.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;comBox_StreamQuali.Name" xml:space="preserve">
-    <value>comBox_StreamQuali</value>
-  </data>
-  <data name="&gt;&gt;comBox_StreamQuali.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comBox_StreamQuali.Parent" xml:space="preserve">
-    <value>flowLayoutPanel2</value>
-  </data>
-  <data name="&gt;&gt;comBox_StreamQuali.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;btn_Show_Video_Info.Name" xml:space="preserve">
-    <value>btn_Show_Video_Info</value>
-  </data>
-  <data name="&gt;&gt;btn_Show_Video_Info.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btn_Show_Video_Info.Parent" xml:space="preserve">
-    <value>flowLayoutPanel2</value>
-  </data>
-  <data name="&gt;&gt;btn_Show_Video_Info.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="flowLayoutPanel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Fill</value>
-  </data>
-  <data name="flowLayoutPanel2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="flowLayoutPanel2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>108, 240</value>
-  </data>
-  <data name="flowLayoutPanel2.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;flowLayoutPanel2.Name" xml:space="preserve">
-    <value>flowLayoutPanel2</value>
-  </data>
-  <data name="&gt;&gt;flowLayoutPanel2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.FlowLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;flowLayoutPanel2.Parent" xml:space="preserve">
-    <value>splitContainer_Preview.Panel2</value>
-  </data>
-  <data name="&gt;&gt;flowLayoutPanel2.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="splitContainer_Preview.Panel2.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>No</value>
-  </data>
-  <data name="&gt;&gt;splitContainer_Preview.Panel2.Name" xml:space="preserve">
-    <value>splitContainer_Preview.Panel2</value>
-  </data>
-  <data name="&gt;&gt;splitContainer_Preview.Panel2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.SplitterPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;splitContainer_Preview.Panel2.Parent" xml:space="preserve">
-    <value>splitContainer_Preview</value>
-  </data>
-  <data name="&gt;&gt;splitContainer_Preview.Panel2.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="splitContainer_Preview.Size" type="System.Drawing.Size, System.Drawing">
-    <value>534, 240</value>
-  </data>
-  <data name="splitContainer_Preview.SplitterDistance" type="System.Int32, mscorlib">
-    <value>421</value>
-  </data>
-  <data name="splitContainer_Preview.SplitterWidth" type="System.Int32, mscorlib">
-    <value>5</value>
-  </data>
-  <data name="splitContainer_Preview.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;splitContainer_Preview.Name" xml:space="preserve">
-    <value>splitContainer_Preview</value>
-  </data>
-  <data name="&gt;&gt;splitContainer_Preview.Type" xml:space="preserve">
-    <value>System.Windows.Forms.SplitContainer, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;splitContainer_Preview.Parent" xml:space="preserve">
-    <value>pn_Preview</value>
-  </data>
-  <data name="&gt;&gt;splitContainer_Preview.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="btn_StartStream.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
-    <value>Flat</value>
-  </data>
-  <data name="btn_StartStream.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Microsoft Sans Serif, 9pt</value>
-  </data>
-  <data name="btn_StartStream.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="btn_StartStream.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 3</value>
-  </data>
-  <data name="btn_StartStream.Size" type="System.Drawing.Size, System.Drawing">
-    <value>102, 31</value>
-  </data>
-  <data name="btn_StartStream.TabIndex" type="System.Int32, mscorlib">
-    <value>14</value>
-  </data>
-  <data name="btn_StartStream.Text" xml:space="preserve">
-    <value>Start Stream</value>
-  </data>
-  <data name="btn_StartStream.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>TopCenter</value>
-  </data>
-  <data name="&gt;&gt;btn_StartStream.Name" xml:space="preserve">
-    <value>btn_StartStream</value>
-  </data>
-  <data name="&gt;&gt;btn_StartStream.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btn_StartStream.Parent" xml:space="preserve">
-    <value>flowLayoutPanel2</value>
-  </data>
-  <data name="&gt;&gt;btn_StartStream.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
   <data name="btn_External.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
@@ -379,7 +220,7 @@
     <value>NoControl</value>
   </data>
   <data name="btn_External.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 40</value>
+    <value>3, 3</value>
   </data>
   <data name="btn_External.Size" type="System.Drawing.Size, System.Drawing">
     <value>102, 28</value>
@@ -388,7 +229,7 @@
     <value>15</value>
   </data>
   <data name="btn_External.Text" xml:space="preserve">
-    <value>Start External</value>
+    <value>Start Stream</value>
   </data>
   <data name="btn_External.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>TopCenter</value>
@@ -403,6 +244,42 @@
     <value>flowLayoutPanel2</value>
   </data>
   <data name="&gt;&gt;btn_External.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="btn_StartStream.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="btn_StartStream.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 9pt</value>
+  </data>
+  <data name="btn_StartStream.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="btn_StartStream.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 37</value>
+  </data>
+  <data name="btn_StartStream.Size" type="System.Drawing.Size, System.Drawing">
+    <value>102, 31</value>
+  </data>
+  <data name="btn_StartStream.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="btn_StartStream.Text" xml:space="preserve">
+    <value>Cinema Mode</value>
+  </data>
+  <data name="btn_StartStream.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>TopCenter</value>
+  </data>
+  <data name="&gt;&gt;btn_StartStream.Name" xml:space="preserve">
+    <value>btn_StartStream</value>
+  </data>
+  <data name="&gt;&gt;btn_StartStream.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;btn_StartStream.Parent" xml:space="preserve">
+    <value>flowLayoutPanel2</value>
+  </data>
+  <data name="&gt;&gt;btn_StartStream.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
   <data name="btn_ShowPreview.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
@@ -514,6 +391,69 @@ Video Info</value>
   <data name="&gt;&gt;btn_Show_Video_Info.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
+  <data name="flowLayoutPanel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="flowLayoutPanel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="flowLayoutPanel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>108, 240</value>
+  </data>
+  <data name="flowLayoutPanel2.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel2.Name" xml:space="preserve">
+    <value>flowLayoutPanel2</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.FlowLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel2.Parent" xml:space="preserve">
+    <value>splitContainer_Preview.Panel2</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel2.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="splitContainer_Preview.Panel2.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>No</value>
+  </data>
+  <data name="&gt;&gt;splitContainer_Preview.Panel2.Name" xml:space="preserve">
+    <value>splitContainer_Preview.Panel2</value>
+  </data>
+  <data name="&gt;&gt;splitContainer_Preview.Panel2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.SplitterPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;splitContainer_Preview.Panel2.Parent" xml:space="preserve">
+    <value>splitContainer_Preview</value>
+  </data>
+  <data name="&gt;&gt;splitContainer_Preview.Panel2.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="splitContainer_Preview.Size" type="System.Drawing.Size, System.Drawing">
+    <value>534, 240</value>
+  </data>
+  <data name="splitContainer_Preview.SplitterDistance" type="System.Int32, mscorlib">
+    <value>421</value>
+  </data>
+  <data name="splitContainer_Preview.SplitterWidth" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="splitContainer_Preview.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;splitContainer_Preview.Name" xml:space="preserve">
+    <value>splitContainer_Preview</value>
+  </data>
+  <data name="&gt;&gt;splitContainer_Preview.Type" xml:space="preserve">
+    <value>System.Windows.Forms.SplitContainer, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;splitContainer_Preview.Parent" xml:space="preserve">
+    <value>pn_Preview</value>
+  </data>
+  <data name="&gt;&gt;splitContainer_Preview.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
   <data name="splitC_Main.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Bottom, Left, Right</value>
   </data>
@@ -523,6 +463,12 @@ Video Info</value>
   <metadata name="cMS_ListBox.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>418, 17</value>
   </metadata>
+  <data name="tSMI_OpenChatInBrowser.Size" type="System.Drawing.Size, System.Drawing">
+    <value>189, 22</value>
+  </data>
+  <data name="tSMI_OpenChatInBrowser.Text" xml:space="preserve">
+    <value>Open Chat in Browser</value>
+  </data>
   <data name="cMS_ListBox.Size" type="System.Drawing.Size, System.Drawing">
     <value>190, 26</value>
   </data>
@@ -551,7 +497,7 @@ Video Info</value>
     <value>lstB_Channels</value>
   </data>
   <data name="&gt;&gt;lstB_Channels.Type" xml:space="preserve">
-    <value>LX29_Twitch.Forms.ChannelListBox, LX29_TwitchChat, Version=0.0.0.1, Culture=neutral, PublicKeyToken=null</value>
+    <value>LX29_Twitch.Forms.ChannelListBox, LixChat, Version=0.0.0.2, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;lstB_Channels.Parent" xml:space="preserve">
     <value>splitC_Main.Panel1</value>
@@ -769,9 +715,6 @@ Video Info</value>
   <data name="&gt;&gt;btn_Disconnect.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <metadata name="toolTip_Main.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>296, 17</value>
-  </metadata>
   <data name="cB_Favorite.Appearance" type="System.Windows.Forms.Appearance, System.Windows.Forms">
     <value>Button</value>
   </data>
@@ -799,6 +742,9 @@ Video Info</value>
   <data name="cB_Favorite.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleCenter</value>
   </data>
+  <metadata name="toolTip_Main.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>296, 17</value>
+  </metadata>
   <data name="cB_Favorite.ToolTip" xml:space="preserve">
     <value>Sticks the Channel to the Top of the list.
 This not Following a Stream!</value>
@@ -1068,6 +1014,21 @@ This not Following a Stream!</value>
   <data name="&gt;&gt;btn_OpenBrowser.ZOrder" xml:space="preserve">
     <value>11</value>
   </data>
+  <data name="treeView1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="treeView1.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Consolas, 9pt</value>
+  </data>
+  <data name="treeView1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 19</value>
+  </data>
+  <data name="treeView1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>104, 74</value>
+  </data>
+  <data name="treeView1.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
   <data name="&gt;&gt;treeView1.Name" xml:space="preserve">
     <value>treeView1</value>
   </data>
@@ -1195,7 +1156,7 @@ This not Following a Stream!</value>
     <value>apiInfoPanel1</value>
   </data>
   <data name="&gt;&gt;apiInfoPanel1.Type" xml:space="preserve">
-    <value>LX29_Twitch.Forms.ApiInfoPanel, LX29_TwitchChat, Version=0.0.0.1, Culture=neutral, PublicKeyToken=null</value>
+    <value>LX29_Twitch.Forms.ApiInfoPanel, LixChat, Version=0.0.0.2, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;apiInfoPanel1.Parent" xml:space="preserve">
     <value>splitContainer_ChatPreview.Panel2</value>
@@ -1305,39 +1266,6 @@ This not Following a Stream!</value>
   <data name="&gt;&gt;splitC_Main.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
-  <data name="tSMI_OpenChatInBrowser.Size" type="System.Drawing.Size, System.Drawing">
-    <value>189, 22</value>
-  </data>
-  <data name="tSMI_OpenChatInBrowser.Text" xml:space="preserve">
-    <value>Open Chat in Browser</value>
-  </data>
-  <data name="treeView1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Fill</value>
-  </data>
-  <data name="treeView1.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Consolas, 9pt</value>
-  </data>
-  <data name="treeView1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 19</value>
-  </data>
-  <data name="treeView1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>104, 74</value>
-  </data>
-  <data name="treeView1.TabIndex" type="System.Int32, mscorlib">
-    <value>10</value>
-  </data>
-  <data name="&gt;&gt;treeView1.Name" xml:space="preserve">
-    <value>treeView1</value>
-  </data>
-  <data name="&gt;&gt;treeView1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TreeView, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;treeView1.Parent" xml:space="preserve">
-    <value>groupBox1</value>
-  </data>
-  <data name="&gt;&gt;treeView1.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
   <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>122, 17</value>
   </metadata>
@@ -1443,29 +1371,86 @@ This not Following a Stream!</value>
   <data name="toolStrip1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
     <value>Stretch</value>
   </data>
-  <data name="toolStrip1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
+  <data name="tSMi_Accounts.Size" type="System.Drawing.Size, System.Drawing">
+    <value>124, 22</value>
   </data>
-  <data name="toolStrip1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>802, 25</value>
+  <data name="tSMi_Accounts.Text" xml:space="preserve">
+    <value>Accounts</value>
   </data>
-  <data name="toolStrip1.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
+  <data name="refreshChannelsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>177, 22</value>
   </data>
-  <data name="toolStrip1.Text" xml:space="preserve">
-    <value>toolStrip1</value>
+  <data name="refreshChannelsToolStripMenuItem.Text" xml:space="preserve">
+    <value>Refresh Channels</value>
   </data>
-  <data name="&gt;&gt;toolStrip1.Name" xml:space="preserve">
-    <value>toolStrip1</value>
+  <data name="tSMi_CacheEmotes.Size" type="System.Drawing.Size, System.Drawing">
+    <value>169, 22</value>
   </data>
-  <data name="&gt;&gt;toolStrip1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStrip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="tSMi_CacheEmotes.Text" xml:space="preserve">
+    <value>Cache All Emotes</value>
   </data>
-  <data name="&gt;&gt;toolStrip1.Parent" xml:space="preserve">
-    <value>$this</value>
+  <data name="toolStripMenuItem2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>169, 22</value>
   </data>
-  <data name="&gt;&gt;toolStrip1.ZOrder" xml:space="preserve">
-    <value>4</value>
+  <data name="toolStripMenuItem2.Text" xml:space="preserve">
+    <value>Reload All Emotes</value>
+  </data>
+  <data name="tSMi_ReloadEmotes.Size" type="System.Drawing.Size, System.Drawing">
+    <value>177, 22</value>
+  </data>
+  <data name="tSMi_ReloadEmotes.Text" xml:space="preserve">
+    <value>Reload Emotes</value>
+  </data>
+  <data name="tsMi_SyncOnlyOnline.Size" type="System.Drawing.Size, System.Drawing">
+    <value>166, 22</value>
+  </data>
+  <data name="tsMi_SyncOnlyOnline.Text" xml:space="preserve">
+    <value>Sync Only Online</value>
+  </data>
+  <data name="tSMi_SyncAll.Size" type="System.Drawing.Size, System.Drawing">
+    <value>166, 22</value>
+  </data>
+  <data name="tSMi_SyncAll.Text" xml:space="preserve">
+    <value>Sync All Follows</value>
+  </data>
+  <data name="tSMi_Sync.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI Semibold, 9pt, style=Bold</value>
+  </data>
+  <data name="tSMi_Sync.Size" type="System.Drawing.Size, System.Drawing">
+    <value>177, 22</value>
+  </data>
+  <data name="tSMi_Sync.Text" xml:space="preserve">
+    <value>Resync Follows</value>
+  </data>
+  <data name="tSMi_ReconnectChat.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI Semibold, 9pt, style=Bold</value>
+  </data>
+  <data name="tSMi_ReconnectChat.Size" type="System.Drawing.Size, System.Drawing">
+    <value>177, 22</value>
+  </data>
+  <data name="tSMi_ReconnectChat.Text" xml:space="preserve">
+    <value>Reconnect all Chats</value>
+  </data>
+  <data name="tSMi_ShowSettings.Size" type="System.Drawing.Size, System.Drawing">
+    <value>177, 22</value>
+  </data>
+  <data name="tSMi_ShowSettings.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="toolStripMenuItem1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>124, 22</value>
+  </data>
+  <data name="toolStripMenuItem1.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="tSMi_Exit.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI Semibold, 9pt, style=Bold</value>
+  </data>
+  <data name="tSMi_Exit.Size" type="System.Drawing.Size, System.Drawing">
+    <value>124, 22</value>
+  </data>
+  <data name="tSMi_Exit.Text" xml:space="preserve">
+    <value>Exit</value>
   </data>
   <data name="toolStripDropDownButton1.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI Semibold, 9pt, style=Bold</value>
@@ -1497,86 +1482,17 @@ This not Following a Stream!</value>
   <data name="toolStripDropDownButton1.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
     <value>TextBeforeImage</value>
   </data>
-  <data name="tSMi_Accounts.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
+  <data name="tSMI_UpdateProgramm.Size" type="System.Drawing.Size, System.Drawing">
+    <value>171, 22</value>
   </data>
-  <data name="tSMi_Accounts.Text" xml:space="preserve">
-    <value>Accounts</value>
+  <data name="tSMI_UpdateProgramm.Text" xml:space="preserve">
+    <value>Check for Updates</value>
   </data>
-  <data name="toolStripMenuItem1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
+  <data name="tSMI_About.Size" type="System.Drawing.Size, System.Drawing">
+    <value>171, 22</value>
   </data>
-  <data name="toolStripMenuItem1.Text" xml:space="preserve">
-    <value>Settings</value>
-  </data>
-  <data name="refreshChannelsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>177, 22</value>
-  </data>
-  <data name="refreshChannelsToolStripMenuItem.Text" xml:space="preserve">
-    <value>Refresh Channels</value>
-  </data>
-  <data name="tSMi_ReloadEmotes.Size" type="System.Drawing.Size, System.Drawing">
-    <value>177, 22</value>
-  </data>
-  <data name="tSMi_ReloadEmotes.Text" xml:space="preserve">
-    <value>Reload Emotes</value>
-  </data>
-  <data name="tSMi_CacheEmotes.Size" type="System.Drawing.Size, System.Drawing">
-    <value>169, 22</value>
-  </data>
-  <data name="tSMi_CacheEmotes.Text" xml:space="preserve">
-    <value>Cache All Emotes</value>
-  </data>
-  <data name="toolStripMenuItem2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>169, 22</value>
-  </data>
-  <data name="toolStripMenuItem2.Text" xml:space="preserve">
-    <value>Reload All Emotes</value>
-  </data>
-  <data name="tSMi_Sync.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI Semibold, 9pt, style=Bold</value>
-  </data>
-  <data name="tSMi_Sync.Size" type="System.Drawing.Size, System.Drawing">
-    <value>177, 22</value>
-  </data>
-  <data name="tSMi_Sync.Text" xml:space="preserve">
-    <value>Resync Follows</value>
-  </data>
-  <data name="tsMi_SyncOnlyOnline.Size" type="System.Drawing.Size, System.Drawing">
-    <value>166, 22</value>
-  </data>
-  <data name="tsMi_SyncOnlyOnline.Text" xml:space="preserve">
-    <value>Sync Only Online</value>
-  </data>
-  <data name="tSMi_SyncAll.Size" type="System.Drawing.Size, System.Drawing">
-    <value>166, 22</value>
-  </data>
-  <data name="tSMi_SyncAll.Text" xml:space="preserve">
-    <value>Sync All Follows</value>
-  </data>
-  <data name="tSMi_ReconnectChat.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI Semibold, 9pt, style=Bold</value>
-  </data>
-  <data name="tSMi_ReconnectChat.Size" type="System.Drawing.Size, System.Drawing">
-    <value>177, 22</value>
-  </data>
-  <data name="tSMi_ReconnectChat.Text" xml:space="preserve">
-    <value>Reconnect all Chats</value>
-  </data>
-  <data name="tSMi_ShowSettings.Size" type="System.Drawing.Size, System.Drawing">
-    <value>177, 22</value>
-  </data>
-  <data name="tSMi_ShowSettings.Text" xml:space="preserve">
-    <value>Settings</value>
-  </data>
-  <data name="tSMi_Exit.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI Semibold, 9pt, style=Bold</value>
-  </data>
-  <data name="tSMi_Exit.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
-  </data>
-  <data name="tSMi_Exit.Text" xml:space="preserve">
-    <value>Exit</value>
+  <data name="tSMI_About.Text" xml:space="preserve">
+    <value>About</value>
   </data>
   <data name="tSDDB_About_Menue.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -1600,18 +1516,6 @@ This not Following a Stream!</value>
     <value>53, 22</value>
   </data>
   <data name="tSDDB_About_Menue.Text" xml:space="preserve">
-    <value>About</value>
-  </data>
-  <data name="tSMI_UpdateProgramm.Size" type="System.Drawing.Size, System.Drawing">
-    <value>171, 22</value>
-  </data>
-  <data name="tSMI_UpdateProgramm.Text" xml:space="preserve">
-    <value>Check for Updates</value>
-  </data>
-  <data name="tSMI_About.Size" type="System.Drawing.Size, System.Drawing">
-    <value>171, 22</value>
-  </data>
-  <data name="tSMI_About.Text" xml:space="preserve">
     <value>About</value>
   </data>
   <data name="toolStripSeparator1.Size" type="System.Drawing.Size, System.Drawing">
@@ -1641,9 +1545,30 @@ This not Following a Stream!</value>
   <data name="tsLabel_Info.Visible" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <metadata name="toolTip_Main.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>296, 17</value>
-  </metadata>
+  <data name="toolStrip1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="toolStrip1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>802, 25</value>
+  </data>
+  <data name="toolStrip1.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="toolStrip1.Text" xml:space="preserve">
+    <value>toolStrip1</value>
+  </data>
+  <data name="&gt;&gt;toolStrip1.Name" xml:space="preserve">
+    <value>toolStrip1</value>
+  </data>
+  <data name="&gt;&gt;toolStrip1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStrip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;toolStrip1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;toolStrip1.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
   <data name="controlSettings1.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
     <value>GrowAndShrink</value>
   </data>
@@ -1666,7 +1591,7 @@ This not Following a Stream!</value>
     <value>controlSettings1</value>
   </data>
   <data name="&gt;&gt;controlSettings1.Type" xml:space="preserve">
-    <value>LX29_ChatClient.Forms.ControlSettings, LX29_TwitchChat, Version=0.0.0.1, Culture=neutral, PublicKeyToken=null</value>
+    <value>LX29_ChatClient.Forms.ControlSettings, LixChat, Version=0.0.0.2, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;controlSettings1.Parent" xml:space="preserve">
     <value>$this</value>
@@ -1744,6 +1669,9 @@ This not Following a Stream!</value>
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 </value>
+  </data>
+  <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
   </data>
   <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
     <value>CenterScreen</value>

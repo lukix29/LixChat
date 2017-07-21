@@ -157,14 +157,21 @@ namespace LX29_ChatClient
 
         public static void SaveChannels()
         {
-            using (StreamWriter sw = new StreamWriter(ChannelSave, false))
+            try
             {
-                var chans = channels.Values.OrderByDescending(t => t.IsOnline);
-                foreach (var channel in chans)
+                using (StreamWriter sw = new StreamWriter(ChannelSave, false))
                 {
-                    sw.WriteLine(channel.ToString());
-                    sw.WriteLine();
+                    var chans = channels.Values.OrderByDescending(t => t.IsOnline);
+                    foreach (var channel in chans)
+                    {
+                        sw.WriteLine(channel.ToString());
+                        sw.WriteLine();
+                    }
                 }
+            }
+            catch (Exception x)
+            {
+                x.Handle();
             }
         }
 

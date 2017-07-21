@@ -20,7 +20,7 @@ namespace LX29_Twitch.Api
     {
         public readonly static AddError CantBeEmpty = new AddError(AddErrorInfo.CantBeEmpty, "");
 
-        //public readonly static AddError Error = new AddError(AddErrorInfo.None);
+        public readonly static AddError Error = new AddError(AddErrorInfo.Error, "");
         public readonly static AddError Exists = new AddError(AddErrorInfo.Exists, "");
 
         public readonly static AddError None = new AddError(AddErrorInfo.None, "");
@@ -252,12 +252,17 @@ namespace LX29_Twitch.Api
 
         public void Load(System.Windows.Forms.Form Main, Action action = null)
         {
-            if (Load() == AddError.None)
+            var err = Load();
+            if (err == AddError.None)
             {
                 if (action != null)
                 {
                     Task.Run(action);
                 }
+            }
+            else if (err == AddError.Error)
+            {
+                throw new Exception(err.Info);
             }
             else
             {
@@ -286,7 +291,7 @@ namespace LX29_Twitch.Api
                         }
                         return AddError.None;
                     }
-                    catch { }
+                    catch (Exception x) { return new AddError(AddErrorInfo.Error, x.ToString()); }
                 }
                 File.Delete(filePath);
             }
