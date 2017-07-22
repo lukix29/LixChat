@@ -236,14 +236,11 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, bool grayOut = false, EmoteImageSize size = EmoteImageSize.Small)
+        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, bool grayOut = false, EmoteImageSize size = EmoteImageSize.Large)
         {
             var result = EmoteImageDrawResult.None;
             try
             {
-                if (size == EmoteImageSize.Large)
-                {
-                }
                 var images = GetImage(size);
                 if (!Name.Equals("WAITING") && images == null)
                 {
@@ -292,7 +289,7 @@ namespace LX29_ChatClient.Emotes
             return result;
         }
 
-        public Image[] GetImage(EmoteImageSize size = EmoteImageSize.Small)
+        public Image[] GetImage(EmoteImageSize size = EmoteImageSize.Large)
         {
             if (_images == null) return null;
             if (_images.Count == 0) return null;
@@ -301,7 +298,7 @@ namespace LX29_ChatClient.Emotes
             {
                 return _images[size];
             }
-            return _images.FirstOrDefault(t => t.Key == size).Value;
+            return _images.Last().Value;
         }
 
         protected virtual void Dispose(bool disposing)
