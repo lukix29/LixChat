@@ -67,7 +67,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>x86</PlatformTarget>
@@ -330,6 +330,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="1463551454_16.ico" />
+    <Content Include="Resources\ban.png" />
+    <Content Include="Resources\timeout.png" />
     <None Include="Resources\ActionHelp.txt" />
     <None Include="bin\Release\LixChat.exe" />
     <Content Include="Emojis\1f004.png" />

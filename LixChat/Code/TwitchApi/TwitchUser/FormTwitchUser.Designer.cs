@@ -117,6 +117,7 @@
             // 
             this.apiInfoPanel1.BackColor = System.Drawing.Color.Black;
             this.apiInfoPanel1.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.apiInfoPanel1.InfosToShow = new LX29_Twitch.Api.ApiInfo[0];
             this.apiInfoPanel1.Location = new System.Drawing.Point(8, 47);
             this.apiInfoPanel1.Name = "apiInfoPanel1";
             this.apiInfoPanel1.Size = new System.Drawing.Size(283, 347);

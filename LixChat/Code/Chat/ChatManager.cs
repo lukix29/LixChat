@@ -724,10 +724,7 @@ namespace LX29_ChatClient
                 {
                     color = UserColors.RandomColor(Name);
                 }
-                //if (color.B == 255 && color.R == 0 && color.G == 0)
-                //{
-                //    color = Color.FromArgb(50, 50, 200);
-                //}
+
                 Color = color;
 
                 Channel = channel;
@@ -1091,6 +1088,7 @@ namespace LX29_ChatClient
 
     public partial class UserColors
     {
+        public readonly static Color ChatLine = Color.FromArgb(80, 80, 80);
         private static Color _ChatBackground = Color.FromArgb(0, 0, 0, 0);
 
         private static int lastColor = 0;

@@ -754,7 +754,7 @@ namespace LX29_TwitchChat
 
         private void tSMI_About_Click(object sender, EventArgs e)
         {
-            LX29_MessageBox.Show("Programmed by Lukix29 " + DateTime.Now.Year);
+            LX29_MessageBox.Show("Programmed by Lukix29 " + DateTime.Now.Year + "\r\nhttps://github.com/lukix29/LixChat");
         }
 
         private void tSMi_CacheEmotes_Click(object sender, EventArgs e)

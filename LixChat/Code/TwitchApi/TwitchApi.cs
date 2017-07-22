@@ -75,7 +75,7 @@ namespace LX29_Twitch.Api
         {
             string values = downloadString("https://tmi.twitch.tv/group/user/" + ChannelName + "/chatters").ToString()
                 .ReplaceAll("", " ", "\n", "\"").Replace("_links:{},", "");
-            var result = JSON.ParseChatters(values);
+            //var result = JSON.ParseChatters(values);
             //if (result != null && result.chatters != null)
             //{
             //    var users = result.chatters.moderators.Select(t => new LX29_ChatClient.ChatUser(t, ChannelName, LX29_ChatClient.UserType.moderator));
@@ -88,7 +88,7 @@ namespace LX29_Twitch.Api
             //}
             //return new List<LX29_ChatClient.ChatUser>();
             var users = values.GetBetween("moderators:[", "]").Split(",")
-                .Select(t => new { UType = LX29_ChatClient.UserType.moderator, Name = t }).ToList();
+               .Select(t => new { UType = LX29_ChatClient.UserType.moderator, Name = t }).ToList();
 
             users.AddRange(values.GetBetween("staff:[", "]").Split(",")
                 .Select(t => new { UType = LX29_ChatClient.UserType.staff, Name = t }));

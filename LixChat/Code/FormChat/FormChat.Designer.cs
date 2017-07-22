@@ -51,6 +51,8 @@
             // 
             // toolStrip1
             // 
+            this.toolStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tS_Btn_Emotes,
             this.tS_Btn_ChatSettings});
@@ -109,6 +111,7 @@
             // controlSettings1
             // 
             this.controlSettings1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.controlSettings1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(50)))));
             this.controlSettings1.ForeColor = System.Drawing.Color.LightGray;
             this.controlSettings1.Location = new System.Drawing.Point(0, 28);
             this.controlSettings1.MinimumSize = new System.Drawing.Size(640, 270);

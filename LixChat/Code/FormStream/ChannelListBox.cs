@@ -134,7 +134,7 @@ namespace LX29_Twitch.Forms
             {
                 this.BeginInvoke(new Action(() =>
                 {
-                    base.Invalidate();
+                    base.Refresh();
                 }));
                 var selItems = SelectedItems;
                 Items = ChatClient.GetSortedChannelNames();
@@ -153,7 +153,7 @@ namespace LX29_Twitch.Forms
             catch { }
             this.BeginInvoke(new Action(() =>
                 {
-                    base.Invalidate();
+                    base.Refresh();
                 }));
         }
 

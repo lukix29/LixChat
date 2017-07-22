@@ -35,6 +35,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.panelVideo = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.chatPanel1 = new LX29_ChatClient.Forms.ChatPanel();
             this.cb_Pause = new System.Windows.Forms.CheckBox();
             this.btnClose = new System.Windows.Forms.Button();
             this.btn_Chat = new System.Windows.Forms.Button();
@@ -42,7 +43,6 @@
             this.cB_Borderless = new System.Windows.Forms.CheckBox();
             this.cB_OnTop = new System.Windows.Forms.CheckBox();
             this.volumeControl1 = new LX29_Twitch.Forms.VolumeControl();
-            this.chatPanel1 = new LX29_ChatClient.Forms.ChatPanel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -105,6 +105,15 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Visible = false;
+            // 
+            // chatPanel1
+            // 
+            this.chatPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.chatPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chatPanel1.Location = new System.Drawing.Point(0, 0);
+            this.chatPanel1.Name = "chatPanel1";
+            this.chatPanel1.Size = new System.Drawing.Size(371, 686);
+            this.chatPanel1.TabIndex = 0;
             // 
             // cb_Pause
             // 
@@ -224,15 +233,6 @@
             0,
             0});
             // 
-            // chatPanel1
-            // 
-            this.chatPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            this.chatPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chatPanel1.Location = new System.Drawing.Point(0, 0);
-            this.chatPanel1.Name = "chatPanel1";
-            this.chatPanel1.Size = new System.Drawing.Size(371, 686);
-            this.chatPanel1.TabIndex = 0;
-            // 
             // FormPlayer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -248,7 +248,6 @@
             this.Controls.Add(this.comBox_previewQuali);
             this.Controls.Add(this.splitContainer1);
             this.ForeColor = System.Drawing.Color.White;
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "FormPlayer";

@@ -7,17 +7,13 @@ namespace LX29_ChatClient.Forms
 {
     public partial class ControlSettings : UserControl
     {
+        //[ReadOnly(true)]
+        //[Browsable(false)]
+        //public new readonly Color BackColor = Color.FromArgb(40, 40, 50);
+
         public ControlSettings()
         {
             InitializeComponent();
-        }
-
-        [ReadOnly(true)]
-        [Browsable(false)]
-        public new Color BackColor
-        {
-            get;
-            set;
         }
 
         public ChatView ChatView

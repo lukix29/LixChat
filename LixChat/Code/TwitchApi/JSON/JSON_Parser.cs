@@ -321,7 +321,7 @@ namespace LX29_Twitch.JSON_Parser
             public class ChatterList
             {
                 public int chatter_count { get; set; }
-                public Chatters chatters { get; set; }
+                public Dictionary<string, List<string>> chatters { get; set; }
             }
 
             public class Chatters

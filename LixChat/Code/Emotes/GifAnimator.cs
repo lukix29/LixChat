@@ -40,6 +40,20 @@ namespace LX29_ChatClient.Emotes
 
         private object locko = new object();
 
+        public EmoteImage(string name, Image image)
+        {
+            FilePaths = new Dictionary<EmoteImageSize, string>();
+            URLs = new Dictionary<EmoteImageSize, string>();
+            Name = name;
+            _images = new Dictionary<EmoteImageSize, Image[]>();
+            Type = image.RawFormat;
+
+            if (!SetGif(image, EmoteImageSize.Small))
+            {
+                _images.Add(EmoteImageSize.Small, new Image[] { (Image)image.Clone() });
+            }
+        }
+
         public EmoteImage(string name)
         {
             if (name.Equals("WAITING"))
@@ -50,7 +64,7 @@ namespace LX29_ChatClient.Emotes
                 _images = new Dictionary<EmoteImageSize, Image[]>();
                 Type = LX29_TwitchChat.Properties.Resources.loading.RawFormat;
                 IsGif = true;
-                SetGif(new Bitmap(LX29_TwitchChat.Properties.Resources.loading), EmoteImageSize.Small);
+                SetGif(LX29_TwitchChat.Properties.Resources.loading, EmoteImageSize.Small);
             }
         }
 

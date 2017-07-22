@@ -314,7 +314,7 @@ namespace LX29_ChatClient
                 {
                     string channel = raw.GetBetween("#", " ").ToLower();
                     string name = raw.Split(" ").Last();
-                    users.Add(name, channel);
+                    users.Add(new ChatUser(name, channel, UserType.moderator));
                 }
             }
             return false;
@@ -350,6 +350,7 @@ namespace LX29_ChatClient
     {
         //private static int connectCnt = 0;
 
+        private readonly static string[] commands = new string[] { ".ban", ".timeout", ".unban" };
         private static DateTime lastSend = DateTime.MinValue;
         private static Dictionary<string, object> lockChannels = new Dictionary<string, object>();
 
@@ -601,8 +602,9 @@ namespace LX29_ChatClient
                 c.Quit();
                 Task.Run(async () =>
                 {
-                    SendSilentMessage("Error Conecting to Chat, reconecting in 2s!", c.Channel);
-                    await Task.Delay(2000);
+                    SendSilentMessage("Error Conecting to Chat, reconecting in " + (reconectTimeout / 1000) + "s!", c.Channel);
+                    await Task.Delay(reconectTimeout);
+                    reconectTimeout = Math.Min(32000, reconectTimeout * 2);
                     SendSilentMessage("Reconecting now!", c.Channel);
                     Disconnect(c);
                     connect(c.Channel);
@@ -632,7 +634,7 @@ namespace LX29_ChatClient
                         Task.Run(() => Emotes.LoadChannelEmotes(c.Channel));
 
                         clients.Add(c.Channel, c);
-
+                        reconectTimeout = 2000;
                         Task.Run(() => FetchChatUsers(c.Channel));
                         ListUpdated();
                     }
@@ -710,7 +712,7 @@ namespace LX29_ChatClient
                 }
                 else
                 {
-                    reconectTimeout = 8000;
+                    reconectTimeout = 2000;
                 }
             });
         }
@@ -792,7 +794,10 @@ namespace LX29_ChatClient
                         channelInfo.LastSendMessageTime = DateTime.Now;
 
                         ChatMessage m = new ChatMessage(Message, me, Channel, true);
-                        messages.Add(Channel, m, true);
+                        if (!commands.Any(t => Message.ToLower().StartsWith(t)))
+                        {
+                            messages.Add(Channel, m, true);
+                        }
                         LogMessage(Channel, Message);
 
                         if (!irc.SendMessage(Message, true, mod))
@@ -1267,6 +1272,10 @@ namespace LX29_ChatClient
                             {
                                 users[channel].Add(name, user);
                             }
+                            else
+                            {
+                                users[channel][name] = user;
+                            }
                         }
                         else
                         {
@@ -1321,9 +1330,6 @@ namespace LX29_ChatClient
                             }
                             else
                             {
-                                if (!toResult.IsEmpty)
-                                {
-                                }
                                 users[channel][name].Parse(channel, parameters, name, toResult);
                             }
                         }

@@ -176,7 +176,6 @@
             // 
             // flowLayoutPanel1
             // 
-            this.flowLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.flowLayoutPanel1.Controls.Add(this.rTB_HighlightWords);
             this.flowLayoutPanel1.Controls.Add(this.btn_SaveHL);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -223,7 +222,6 @@
             // 
             // flowLayoutPanel_TextOptions
             // 
-            this.flowLayoutPanel_TextOptions.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.flowLayoutPanel_TextOptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel_TextOptions.Location = new System.Drawing.Point(3, 17);
             this.flowLayoutPanel_TextOptions.Name = "flowLayoutPanel_TextOptions";
@@ -293,7 +291,6 @@
             // flowLayoutPanel9
             // 
             this.flowLayoutPanel9.AutoSize = true;
-            this.flowLayoutPanel9.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.flowLayoutPanel9.Controls.Add(this.btn_SelectBrowser);
             this.flowLayoutPanel9.Controls.Add(this.btn_OpenScriptFolder);
             this.flowLayoutPanel9.Controls.Add(this.cb_ShowErrors);
@@ -333,7 +330,6 @@
             // cb_ShowErrors
             // 
             this.cb_ShowErrors.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.cb_ShowErrors.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
             this.cb_ShowErrors.Checked = true;
             this.cb_ShowErrors.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cb_ShowErrors.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -379,7 +375,6 @@
             // flowLayoutPanel_UserOptions
             // 
             this.flowLayoutPanel_UserOptions.AutoSize = true;
-            this.flowLayoutPanel_UserOptions.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.flowLayoutPanel_UserOptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel_UserOptions.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel_UserOptions.Location = new System.Drawing.Point(3, 17);
@@ -400,7 +395,6 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(50)))));
             this.Controls.Add(this.splitContainer1);
             this.ForeColor = System.Drawing.Color.LightGray;
             this.MinimumSize = new System.Drawing.Size(640, 270);

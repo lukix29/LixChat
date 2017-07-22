@@ -80,6 +80,16 @@ namespace LX29_TwitchChat.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ban {
+            get {
+                object obj = ResourceManager.GetObject("ban", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap BLACK {
             get {
                 object obj = ResourceManager.GetObject("BLACK", resourceCulture);
@@ -211,6 +221,16 @@ namespace LX29_TwitchChat.Properties {
         internal static System.Drawing.Bitmap temp {
             get {
                 object obj = ResourceManager.GetObject("temp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap timeout {
+            get {
+                object obj = ResourceManager.GetObject("timeout", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
