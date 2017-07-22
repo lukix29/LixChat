@@ -61,9 +61,14 @@ namespace LX29_ChatClient.Emotes
             var img = GetImage(b);
             if (img != null)
             {
-                if (Origin == BadgeOrigin.FFZ)
+                switch (Origin)
                 {
-                    g.FillRectangle(ffz_brush, X, Y, Width, Height);
+                    case BadgeOrigin.FFZ:
+                        g.FillRectangle(ffz_brush, X, Y, Width, Height);
+                        break;
+                    case BadgeOrigin.FFZ_AP:
+                        g.FillRectangle(Brushes.MediumBlue, X, Y, Width, Height);
+                        break;
                 }
                 img.Draw(g, X, Y, Width, Height);
             }

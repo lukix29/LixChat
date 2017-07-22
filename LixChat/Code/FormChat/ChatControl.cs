@@ -1247,7 +1247,7 @@ namespace LX29_ChatClient.Forms
 
             if (!measure)
             {
-                if (user != null && !user.IsEmpty && user.Types.All(t => ((int)t < (int)UserType.moderator)))
+                if (UserIsMod && user != null && !user.IsEmpty && user.Types.All(t => ((int)t < (int)UserType.moderator)))
                 {
                     internalImages[internImages.Ban].Draw(graphics, x, y, badgeHeight, badgeHeight);
                     ClickableList.Add(new SLRect(x, y, badgeHeight, badgeHeight, user.Name, RectType.ModActionBan));
@@ -1314,9 +1314,6 @@ namespace LX29_ChatClient.Forms
                             var badge = ChatClient.Emotes.Badges[bt];
                             if (badge != null)
                             {
-                                if (badge.Origin == BadgeOrigin.FFZ_AP)
-                                {
-                                }
                                 if (!measure)
                                 {
                                     ClickableList.Add(new SLRect(x, y, badgeHeight, badgeHeight, bt, RectType.Badge));

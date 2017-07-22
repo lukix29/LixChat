@@ -88,8 +88,13 @@ namespace LX29_ChatClient.Emotes
 
                 if (!this.URLs.ContainsKey(emimgs))
                 {
-                    this.URLs.Add(emimgs, url.Value);
-                    this.FilePaths.Add(emimgs, Path.GetFullPath(GetLocalfileName(url.Value)));
+                    string uri = url.Value;
+                    if (!uri.StartsWith("http"))
+                    {
+                        uri = "http:" + uri;
+                    }
+                    this.URLs.Add(emimgs, uri);
+                    this.FilePaths.Add(emimgs, Path.GetFullPath(GetLocalfileName(uri)));
                 }
             }
         }
