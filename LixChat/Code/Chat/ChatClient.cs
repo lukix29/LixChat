@@ -1182,7 +1182,7 @@ namespace LX29_ChatClient
         public static void FetchEmotes()
         {
             //File.Delete(Settings.dataDir + "Emotes.txt");
-            Directory.Delete(Settings.emoteDir, true);
+
             Emotes.FetchEmotes(channels.Values.ToList(), true);
         }
 

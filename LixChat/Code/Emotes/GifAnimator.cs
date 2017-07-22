@@ -215,13 +215,17 @@ namespace LX29_ChatClient.Emotes
 
         public void Dispose()
         {
-            foreach (var size in _images)
+            try
             {
-                foreach (var image in size.Value)
+                foreach (var size in _images)
                 {
-                    image.Dispose();
+                    foreach (var image in size.Value)
+                    {
+                        image.Dispose();
+                    }
                 }
             }
+            catch { }
         }
 
         public void DownloadImages()

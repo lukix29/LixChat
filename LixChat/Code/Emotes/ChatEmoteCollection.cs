@@ -105,9 +105,16 @@ namespace LX29_ChatClient.Emotes
             {
                 Finished = false;
                 emotess = new Emoteionary();
+                emotess.Dispose();
                 Badges = new BadgeCollection();
                 loadedChannels = new HashSet<string>();
-
+                try
+                {
+                    Directory.Delete(Settings.emoteDir, true);
+                }
+                catch
+                {
+                }
                 if (!Directory.Exists(Settings.emoteDir))
                 {
                     Directory.CreateDirectory(Settings.emoteDir);

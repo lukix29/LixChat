@@ -720,6 +720,7 @@
             this.ForeColor = System.Drawing.Color.White;
             this.HelpButton = true;
             this.Name = "Main";
+            this.ShowIcon = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResizeEnd += new System.EventHandler(this.Main_ResizeEnd);

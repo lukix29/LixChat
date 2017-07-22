@@ -367,6 +367,14 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
+        public void Dispose()
+        {
+            foreach (var kvp in All)
+            {
+                kvp.Image.Dispose();
+            }
+        }
+
         public IEnumerable<Emote> Find(string name, string channel)
         {
             var em = _twitch.Values.Where((e) =>

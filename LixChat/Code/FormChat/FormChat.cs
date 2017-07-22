@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace LX29_ChatClient.Forms
 {
@@ -103,8 +104,13 @@ namespace LX29_ChatClient.Forms
             try
             {
                 this.AllowTransparency = false;
-                this.TransparencyKey = Color.Orchid;
+                this.TransparencyKey = Color.DarkGoldenrod;
                 chatView.BackColor = UserColors.ChatBackground;
+
+                var ca = toolStrip1.Items.Cast<ToolStripItem>()
+                    .Where(t => t.Text.Equals("Emotes") || t.Text.Equals("Settings")).ToArray();
+                toolStrip1.Items.Clear();
+                toolStrip1.Items.AddRange(ca);
 
                 toolStrip1.Items.Insert(0, new ToolStripSeparator());
                 AddTSMItem(MsgType.HL_Messages, true);

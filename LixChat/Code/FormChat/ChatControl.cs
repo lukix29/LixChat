@@ -1227,10 +1227,7 @@ namespace LX29_ChatClient.Forms
                 {
                     graphics.FillRectangle(sb, 0, y - _LineSpacing, bounds.Width, height - (_LineSpacing - 2));
                 }
-                using (SolidBrush sb = new SolidBrush(UserColors.ChatLine))
-                {
-                    graphics.FillRectangle(sb, 0, y - (_LineSpacing + 2), bounds.Width, 1);
-                }
+                graphics.FillRectangle(Brushes.Black, 0, y - (_LineSpacing + 3), bounds.Width, 2);
             }
 
             #endregion Style&Font
