@@ -16,6 +16,8 @@ namespace LX29_ChatClient.Channels
 {
     public enum ChannelSettings
     {
+        ID,
+        Name,
         IsFavorited,
         AutoLoginChat,
         LogChat,
@@ -385,7 +387,7 @@ namespace LX29_ChatClient.Channels
             return result.GetValue<T>(type);
         }
 
-        public void Load(IEnumerable<string> list)
+        public void Load(Dictionary<string, string> list)
         {
             if (!IsFixed)
             {
@@ -547,11 +549,7 @@ namespace LX29_ChatClient.Channels
 
         public override string ToString()
         {
-            StringWriter sw = new StringWriter();
-            sw.WriteLine("#" + ID + "(" + Name + ")");
-
-            sw.WriteLine(Save(this));
-            return sw.ToString().Trim('\r', '\n');
+            return Save(this);
         }
 
         private void chatForm_FormClosed(object sender, System.Windows.Forms.FormClosedEventArgs e)

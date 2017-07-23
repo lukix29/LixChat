@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAutoChatActions));
             this.txtB_Username = new System.Windows.Forms.TextBox();
             this.txtB_Message = new System.Windows.Forms.TextBox();
             this.txtB_Action = new System.Windows.Forms.TextBox();
@@ -359,8 +358,9 @@
             this.Controls.Add(this.txtB_Username);
             this.ForeColor = System.Drawing.Color.White;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormAutoChatActions";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "Chat Auto Actions";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormChatSettings_FormClosing);
             this.Load += new System.EventHandler(this.FormChatSettings_Load);

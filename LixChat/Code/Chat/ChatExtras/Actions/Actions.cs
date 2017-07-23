@@ -149,12 +149,16 @@ namespace LX29_ChatClient.Addons
             string path = Settings.dataDir + "AutoActions.txt";
             if (System.IO.File.Exists(path))
             {
-                var sa = System.IO.File.ReadAllLines(path);
-                chatactions = CustomSettings.Load<ChatAction, ChatActionType>(
-                    sa, ((a, s) => a.Channel.Equals(s)), (t => new ChatAction(t)));
-                //foreach(var ac in chatactions)
-                //{
-                //}
+                chatactions.Clear();
+                var sa = System.IO.File.ReadAllText(path);
+                var di = CustomSettings.LoadList(sa);
+                foreach (var val in di)
+                {
+                    string Channel = val["Channel"];
+                    ChatAction action = new ChatAction(Channel);
+                    action.Load(val);
+                    chatactions.Add(action);
+                }
             }
         }
 
@@ -203,8 +207,10 @@ namespace LX29_ChatClient.Addons
 
         private string GetChatActions()
         {
-            var s = CustomSettings.GetSettings<ChatAction, ChatActionType>(
-                chatactions, new Func<ChatAction, string>(t => t.Channel));
+            var list = chatactions.Select(t => t.Save());
+            var s = CustomSettings.SaveList(list);
+            //var s = CustomSettings.GetSettings<ChatAction, ChatActionType>(
+            //chatactions, new Func<ChatAction, string>(t => t.Channel));
             return s;
         }
     }
@@ -222,9 +228,9 @@ namespace LX29_ChatClient.Addons
 
         public ChatAction(string[] input)
         {
-            if (!Load(input, this))
-            {
-            }
+            //if (!Load(input, this))
+            //{
+            //}
         }
 
         public ChatAction(string username, string channel, string message,
@@ -395,6 +401,11 @@ namespace LX29_ChatClient.Addons
             return sout;
         }
 
+        public bool Load(Dictionary<string, string> values)
+        {
+            return base.Load(values, this);
+        }
+
         public string Save()
         {
             return base.Save(this);
@@ -409,7 +420,7 @@ namespace LX29_ChatClient.Addons
     public class CustomAnalytics
     {
         //22:25  InzpektorGadget: Mehr Dschibbse für: lukix29 - 65 (29), tox1c90 - 94 (42), ellabama_ - 94 (42), oberst_l - 11 (5), cradoxlive - 94 (42), aceboy1984 - 94 (42), punishbear - 94 (42), o_neill90 - 94 (42), tim3ywimey - 94 (42), freestayl - 94 (42), impioi - 94 (42), leppits - 94 (42), lyngar - 94 (42), eraser_tm - 67 (30)
-        //22:23  InzpektorGadget: Obacht! lukix29 hat doch tatsächlich vor in die Dschibbstüte zu greifen! Willst du auch Dschibbs?! Schreibe !nom [1-42] für fettige Finger!
+        ////22:23  InzpektorGadget: Obacht! lukix29 hat doch tatsächlich vor in die Dschibbstüte zu greifen! Willst du auch Dschibbs?! Schreibe !nom [1-42] für fettige Finger!
         //22:26  InzpektorGadget: Dschibbs : milleniumplyer hat 2.999 Dschibbs und 208h zugeschaut! PogChamp
 
         //public Dictionary<string,string>

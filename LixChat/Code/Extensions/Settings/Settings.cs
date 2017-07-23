@@ -7,44 +7,50 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Utilities;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace LX29_ChatClient
 {
     public class CustomSettings<Tclass, Tenum>
     {
-        public bool Load(IEnumerable<string> lines, Tclass Class)
+        public bool Load(Dictionary<string, string> lines, Tclass Class)
         {
-            if (lines.Count() > 0)
+            if (lines.Count > 0)
             {
                 try
                 {
                     foreach (var li in lines)
                     {
-                        var line = li.Trim('\t', ' ');
-                        if (string.IsNullOrEmpty(line)) continue;
-
-                        var _Value = line.GetBetween(": ", "");
-                        var key = line.GetBetween("", ": ");
+                        var _Value = li.Value;
+                        var key = li.Key;
                         var typ = Class.GetType();
                         var prop = typ.GetProperty(key);
                         //var value = Convert.ChangeType(type, prop.PropertyType);
-
-                        object val = _Value;
-                        if (prop.PropertyType.BaseType.IsEquivalentTo(typeof(Enum)))
+                        if (prop.CanWrite)
                         {
-                            val = Enum.Parse(prop.PropertyType, _Value);
-                        }
-                        else if (prop.PropertyType.IsEquivalentTo(typeof(Rectangle)))
-                        {
-                            var rec = _Value.ParseRectangleScreenSafe();
-                            val = rec;
+                            object val = _Value;
+                            if (prop.PropertyType.BaseType.IsEquivalentTo(typeof(Enum)))
+                            {
+                                val = Enum.Parse(prop.PropertyType, _Value);
+                            }
+                            else if (prop.PropertyType.IsEquivalentTo(typeof(Rectangle)))
+                            {
+                                var rec = _Value.ParseRectangleScreenSafe();
+                                val = rec;
+                            }
+                            else
+                            {
+                                val = Convert.ChangeType(_Value, prop.PropertyType);
+                            }
+                            prop.SetValue(Class, val);
                         }
                         else
                         {
-                            val = Convert.ChangeType(_Value, prop.PropertyType);
                         }
-                        prop.SetValue(Class, val);
-
                         //prop.SetValue(null, value);
                     }
                     return true;
@@ -58,89 +64,156 @@ namespace LX29_ChatClient
 
         public string Save(Tclass Class)
         {
-            using (StringWriter sw = new StringWriter())
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+            serializer.TypeNameHandling = TypeNameHandling.Auto;
+            serializer.DefaultValueHandling = DefaultValueHandling.Ignore;
+            serializer.MissingMemberHandling = MissingMemberHandling.Ignore;
+            serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
+            var names = Enum.GetNames(typeof(Tenum));
+            StringWriter sw = new StringWriter();
+            using (JsonWriter writer = new JsonTextWriter(sw))
             {
-                var _settingsInfo = Enum.GetNames(typeof(Tenum));
-                foreach (var s in _settingsInfo)
+                try
                 {
-                    var type = Class.GetType();
-                    var prop = type.GetProperty(s);
-                    if (null != prop)
+                    var typ = Class.GetType();
+                    writer.WriteStartObject();
+                    foreach (var name in names)
                     {
-                        var value = prop.GetValue(Class);
-                        sw.WriteLine("\t" + s + ": " + value);
+                        var prop = typ.GetProperty(name);
+                        writer.WritePropertyName(name);
+                        writer.WriteValue(prop.GetValue(Class).ToString());
                     }
+                    writer.WriteEndObject();
                 }
-                return sw.ToString().Trim("\r\n");
+                catch
+                {
+                }
             }
+            string vari = sw.ToString();
+
+            return vari;
+
+            //using (TextWriter tw = new StringWriter())
+            //{
+            //    var seri = Newtonsoft.Json.JsonSerializer.Create();
+            //    var _settingsInfo = Enum.GetNames(typeof(Tenum));
+            //    foreach (var s in _settingsInfo)
+            //    {
+            //        var type = Class.GetType();
+            //        var prop = type.GetProperty(s);
+            //        if (null != prop)
+            //        {
+            //            var value = prop.GetValue(Class);
+            //            // sw.WriteLine("\t" + s + ": " + value);
+            //            seri.Serialize(tw, value, prop.PropertyType);
+            //        }
+            //    }
+            //    var stg = tw.ToString();
+            //    return stg;
+            //}
         }
     }
 
     public class CustomSettings
     {
-        public static string GetSettings<Tclass, Tenum>(
-            IEnumerable<Tclass> chatactions,
-            Func<Tclass, string> NameSelector)
+        //public static string GetSettings<Tclass, Tenum>(
+        //    IEnumerable<Tclass> chatactions,
+        //    Func<Tclass, string> NameSelector)
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    foreach (var item in chatactions)
+        //    {
+        //        sb.AppendLine("#" + NameSelector(item));
+        //        var sett = (item as CustomSettings<Tclass, Tenum>);
+        //        // sb.AppendLine("\t" + sett.Save(item));
+        //        sb.AppendLine();
+        //    }
+        //    sb.AppendLine("#END");
+        //    return sb.ToString();
+        //}
+
+        //public static List<Tclass> Load<Tclass, Tenum>(IEnumerable<string> raw,
+        //    Func<Tclass, string, bool> Predicate, Func<string, Tclass> Create)
+        //{
+        //    List<string> temp = new List<string>();
+        //    List<Tclass> list = new List<Tclass>();
+        //    string name = "";
+        //    var names = raw.Where(t => t.StartsWith("#")).ToArray();
+        //    foreach (var s in names)
+        //    {
+        //        string si = s.Trim('\t', ' ');
+        //        if (!si.Equals("#END") && !string.IsNullOrEmpty(si))
+        //        {
+        //            list.Add(Create(s.Remove(0, 1)));
+        //        }
+        //    }
+        //    foreach (var si in raw)
+        //    {
+        //        try
+        //        {
+        //            string s = si.Trim('\t', ' ');
+        //            if (!string.IsNullOrEmpty(s))
+        //            {
+        //                if (s.StartsWith("#"))
+        //                {
+        //                    if (temp.Count > 0)
+        //                    {
+        //                        var cl = list.FirstOrDefault(t => Predicate(t, name));
+        //                        var sett = (cl as CustomSettings<Tclass, Tenum>);
+        //                        sett.Load(temp, cl);
+        //                        temp.Clear();
+
+        //                        if (!list.Contains(cl))
+        //                            list.Add(cl);
+        //                    }
+        //                    if (s.Equals("#END")) break;
+
+        //                    name = s.Remove(0, 1);
+        //                }
+        //                else
+        //                {
+        //                    temp.Add(s);
+        //                }
+        //            }
+        //        }
+        //        catch { }
+        //    }
+        //    return list;
+        //}
+
+        public static List<Dictionary<string, string>> LoadList(string input)
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (var item in chatactions)
+            try
             {
-                sb.AppendLine("#" + NameSelector(item));
-                var sett = (item as CustomSettings<Tclass, Tenum>);
-                sb.AppendLine("\t" + sett.Save(item));
-                sb.AppendLine();
+                var stuff = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(input);
+                return stuff;
             }
-            sb.AppendLine("#END");
-            return sb.ToString();
+            catch { }
+            return null;
         }
 
-        public static List<Tclass> Load<Tclass, Tenum>(IEnumerable<string> raw,
-            Func<Tclass, string, bool> Predicate, Func<string, Tclass> Create)
+        public static string SaveList(IEnumerable<string> list)
         {
-            List<string> temp = new List<string>();
-            List<Tclass> list = new List<Tclass>();
-            string name = "";
-            var names = raw.Where(t => t.StartsWith("#"));
-            foreach (var s in names)
-            {
-                string si = s.Trim('\t', ' ');
-                if (!si.Equals("#END") && !string.IsNullOrEmpty(si))
-                {
-                    list.Add(Create(s.Remove(0, 1)));
-                }
-            }
-            foreach (var si in raw)
-            {
-                try
-                {
-                    string s = si.Trim('\t', ' ');
-                    if (!string.IsNullOrEmpty(s))
-                    {
-                        if (s.StartsWith("#"))
-                        {
-                            if (temp.Count > 0)
-                            {
-                                var cl = list.FirstOrDefault(t => Predicate(t, name));
-                                var sett = (cl as CustomSettings<Tclass, Tenum>);
-                                sett.Load(temp, cl);
-                                temp.Clear();
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+            serializer.TypeNameHandling = TypeNameHandling.Auto;
+            serializer.DefaultValueHandling = DefaultValueHandling.Ignore;
+            serializer.MissingMemberHandling = MissingMemberHandling.Ignore;
+            serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
 
-                                if (!list.Contains(cl))
-                                    list.Add(cl);
-                            }
-                            if (s.Equals("#END")) break;
-
-                            name = s.Remove(0, 1);
-                        }
-                        else
-                        {
-                            temp.Add(s);
-                        }
-                    }
+            StringWriter sw = new StringWriter();
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartArray();
+                foreach (var item in list)
+                {
+                    writer.WriteRawValue(item);
                 }
-                catch { }
+                writer.WriteEndArray();
             }
-            return list;
+            var st = sw.ToString();
+            return st;
         }
     }
 

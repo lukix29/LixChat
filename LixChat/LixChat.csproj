@@ -320,6 +320,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="bin\Release\LixChat.exe" />
     <None Include="Resources\BLACK.png" />
   </ItemGroup>
   <ItemGroup />
@@ -333,7 +334,6 @@
     <Content Include="Resources\ban.png" />
     <Content Include="Resources\timeout.png" />
     <None Include="Resources\ActionHelp.txt" />
-    <None Include="bin\Release\LixChat.exe" />
     <None Include="Emojis\1f004.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -2957,15 +2957,6 @@
     <Content Include="Resources\success.html" />
     <None Include="Resources\received.html" />
     <None Include="Resources\index.html" />
-    <None Include="Code\TwitchApi\JSON\Newtonsoft.Json.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Code\TwitchApi\JSON\Newtonsoft.Json.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Code\TwitchApi\JSON\Newtonsoft.Json.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <Content Include="Data\Empty.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

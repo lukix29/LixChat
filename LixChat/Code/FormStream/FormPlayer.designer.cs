@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormPlayer));
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -248,9 +247,9 @@
             this.Controls.Add(this.comBox_previewQuali);
             this.Controls.Add(this.splitContainer1);
             this.ForeColor = System.Drawing.Color.White;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "FormPlayer";
+            this.ShowIcon = false;
             this.Text = "FormPreviewPopout";
             this.TransparencyKey = System.Drawing.Color.FromArgb(((int)(((byte)(221)))), ((int)(((byte)(250)))), ((int)(((byte)(105)))));
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormPreviewPopout_FormClosing);

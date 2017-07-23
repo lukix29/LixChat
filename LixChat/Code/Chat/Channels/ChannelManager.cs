@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Dynamic;
 
 namespace LX29_ChatClient
 {
@@ -55,6 +56,11 @@ namespace LX29_ChatClient
                 return new AddError(AddErrorInfo.Error, x.Message);
             }
             //return AddError.Error;
+        }
+
+        public static System.Reflection.PropertyInfo[] GetMemberNames(object target, bool dynamicOnly = false)
+        {
+            return target.GetType().GetProperties();
         }
 
         public static string GetOnlyName(string input)
@@ -161,12 +167,9 @@ namespace LX29_ChatClient
             {
                 using (StreamWriter sw = new StreamWriter(ChannelSave, false))
                 {
-                    var chans = channels.Values.OrderByDescending(t => t.IsOnline);
-                    foreach (var channel in chans)
-                    {
-                        sw.WriteLine(channel.ToString());
-                        sw.WriteLine();
-                    }
+                    var chans = channels.Values.OrderByDescending(t => t.IsOnline).Select(t => t.ToString()).ToList();
+
+                    sw.Write(CustomSettings.SaveList(chans));
                 }
             }
             catch (Exception x)
@@ -195,7 +198,7 @@ namespace LX29_ChatClient
 
                 var setts = LoadChannels();
 
-                var rest = new Dictionary<string, List<string>>(setts);
+                var rest = new Dictionary<string, Dictionary<string, string>>(setts);
                 List<string> chatLogins = new List<string>();
                 foreach (var channel in follows)
                 {
@@ -331,25 +334,32 @@ namespace LX29_ChatClient
             }
         }
 
-        private static Dictionary<string, List<string>> LoadChannels()
+        private static Dictionary<string, Dictionary<string, string>> LoadChannels()
         {
-            var setts = new Dictionary<string, List<string>>();
             try
             {
                 if (File.Exists(ChannelSave))
                 {
-                    setts = ChannelInfo.ParseSavedChannels(File.ReadAllLines(ChannelSave));
-                    if (setts.Count == 0) File.Delete(ChannelSave);
-                    return setts;
+                    var input = File.ReadAllText(ChannelSave);
+                    var values = CustomSettings.LoadList(input);
+
+                    Dictionary<string, Dictionary<string, string>> dict = new Dictionary<string, Dictionary<string, string>>();
+                    foreach (var vals in values)
+                    {
+                        string ID = vals["ID"];
+                        dict.Add(ID, new Dictionary<string, string>());
+                        foreach (var item in vals)
+                        {
+                            dict[ID].Add(item.Key, item.Value);
+                        }
+                    }
+
+                    if (dict.Count == 0) File.Delete(ChannelSave);
+                    return dict;
                 }
             }
             catch { }
-            if (File.Exists(Settings.dataDir + "Channels.txt"))
-            {
-                setts = ChannelInfo.ParseSavedChannels(File.ReadAllLines(Settings.dataDir + "Channels.txt"));
-                File.Delete(Settings.dataDir + "Channels.txt");
-            }
-            return setts;
+            return new Dictionary<string, Dictionary<string, string>>();
         }
 
         private static void LoadStandardStreams()
