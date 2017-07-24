@@ -87,6 +87,18 @@ namespace LX29_ChatClient.Addons
             //StreamManager.ChatClient.ExecuteActions = cB_Enabled.Checked;
         }
 
+        private void cB_FirstOrAll_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cB_FirstOrAll.Checked)
+            {
+                cB_FirstOrAll.Text = "Match START";
+            }
+            else
+            {
+                cB_FirstOrAll.Text = "Match ANY ocurrence";
+            }
+        }
+
         private void cB_Global_CheckedChanged(object sender, EventArgs e)
         {
             if (cB_Global.Checked)

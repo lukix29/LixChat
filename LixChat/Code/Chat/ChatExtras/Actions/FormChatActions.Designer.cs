@@ -206,7 +206,7 @@
             this.cB_Global.AutoSize = true;
             this.flowLayoutPanel1.SetFlowBreak(this.cB_Global, true);
             this.cB_Global.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cB_Global.Location = new System.Drawing.Point(84, 55);
+            this.cB_Global.Location = new System.Drawing.Point(84, 71);
             this.cB_Global.Name = "cB_Global";
             this.cB_Global.Size = new System.Drawing.Size(107, 20);
             this.cB_Global.TabIndex = 14;
@@ -268,10 +268,11 @@
             this.cB_FirstOrAll.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cB_FirstOrAll.Location = new System.Drawing.Point(84, 29);
             this.cB_FirstOrAll.Name = "cB_FirstOrAll";
-            this.cB_FirstOrAll.Size = new System.Drawing.Size(85, 20);
+            this.cB_FirstOrAll.Size = new System.Drawing.Size(94, 36);
             this.cB_FirstOrAll.TabIndex = 16;
-            this.cB_FirstOrAll.Text = "First or All";
+            this.cB_FirstOrAll.Text = "Match ANY\r\nPart of Msg\r\n";
             this.cB_FirstOrAll.UseVisualStyleBackColor = true;
+            this.cB_FirstOrAll.CheckedChanged += new System.EventHandler(this.cB_FirstOrAll_CheckedChanged);
             // 
             // label5
             // 

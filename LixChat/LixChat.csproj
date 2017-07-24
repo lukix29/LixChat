@@ -320,10 +320,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="bin\Release\LixChat.exe" />
     <None Include="Resources\BLACK.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="bin\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="Plugins\7za.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

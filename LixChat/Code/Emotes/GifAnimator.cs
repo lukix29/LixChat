@@ -33,6 +33,7 @@ namespace LX29_ChatClient.Emotes
         private readonly object LockObject = new object();
 
         private Dictionary<EmoteImageSize, Image[]> _images = new Dictionary<EmoteImageSize, Image[]>();
+        private Dictionary<EmoteImageSize, Size> _sizes = new Dictionary<EmoteImageSize, Size>();
 
         private bool isDownloading = false;
 
@@ -193,17 +194,24 @@ namespace LX29_ChatClient.Emotes
             return b;
         }
 
-        public SizeF CalcSize(float height, EmoteImageSize size = EmoteImageSize.Small)
+        public SizeF CalcSize(float height, EmoteImageSize size)
         {
             try
             {
-                var images = GetImage(size);
-                if (images == null)
-                    return SizeF.Empty;
-                if (images[0] == null)
-                    return SizeF.Empty;
+                if (_sizes.Count == 0)
+                    return Size.Empty;
 
-                SizeF emS = images[0].Size;
+                SizeF emS = Size.Empty;
+
+                if (_images.ContainsKey(size))
+                {
+                    emS = _sizes[size];
+                }
+                else
+                {
+                    emS = _sizes.Last().Value;
+                }
+
                 float ratio = height / emS.Height;
                 float newWidth = (emS.Width * ratio);
                 //float newHeight = (emS.Height * ratio);
@@ -236,7 +244,7 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, bool grayOut = false, EmoteImageSize size = EmoteImageSize.Large)
+        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size, bool grayOut = false)
         {
             var result = EmoteImageDrawResult.None;
             try
@@ -249,7 +257,7 @@ namespace LX29_ChatClient.Emotes
                         isDownloading = true;
                         Task.Run(() => DownloadImage(size));
                     }
-                    Wait.Draw(g, X, Y, Width, Height);
+                    Wait.Draw(g, X, Y, Width, Height, size);
                     result = EmoteImageDrawResult.Downloading;
                 }
                 else
@@ -276,6 +284,7 @@ namespace LX29_ChatClient.Emotes
                     {
                         g.DrawImage(images[FrameIndex], X, Y, Width, Height);
                     }
+                    //g.DrawImage(images[FrameIndex], X, Y, Width, Height);
                 }
                 if (grayOut)
                 {
@@ -289,16 +298,21 @@ namespace LX29_ChatClient.Emotes
             return result;
         }
 
-        public Image[] GetImage(EmoteImageSize size = EmoteImageSize.Large)
+        public Image[] GetImage(EmoteImageSize size)
         {
-            if (_images == null) return null;
-            if (_images.Count == 0) return null;
+            //lock (LockObject)
+            //{
+            if (_images == null)
+                return null;
+            if (_images.Count == 0)
+                return null;
 
             if (_images.ContainsKey(size))
             {
                 return _images[size];
             }
             return _images.Last().Value;
+            //}
         }
 
         protected virtual void Dispose(bool disposing)
@@ -410,6 +424,7 @@ namespace LX29_ChatClient.Emotes
                 //}
 
                 _images.Add(size, list.ToArray());
+                _sizes.Add(size, list[0].Size);
                 return true;
             }
             catch (Exception x)
@@ -435,6 +450,8 @@ namespace LX29_ChatClient.Emotes
                 }
                 if (!_images.ContainsKey(size))
                     _images.Add(size, new Image[] { (Image)img.Clone() });
+                if (!_sizes.ContainsKey(size))
+                    _sizes.Add(size, img.Size);
             }
         }
     }

@@ -165,6 +165,14 @@ namespace LX29_ChatClient.Emotes
                     tbadges.Wait();
                 }
 
+                Task.Run(() =>
+                {
+                    foreach (var msg in ChatClient.Messages.Messages)
+                    {
+                        msg.Value.ForEach(t => t.ReloadEmotes());
+                    }
+                });
+
                 Finished = true;
 
                 _loaded_channel(null, emotess.Count, emotess.Count,

@@ -66,11 +66,12 @@ namespace LX29_ChatClient.Emotes
                     case BadgeOrigin.FFZ:
                         g.FillRectangle(ffz_brush, X, Y, Width, Height);
                         break;
+
                     case BadgeOrigin.FFZ_AP:
                         g.FillRectangle(Brushes.MediumBlue, X, Y, Width, Height);
                         break;
                 }
-                img.Draw(g, X, Y, Width, Height);
+                img.Draw(g, X, Y, Width, Height, Settings.EmoteQuality);
             }
         }
 

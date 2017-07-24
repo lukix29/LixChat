@@ -394,11 +394,6 @@ namespace LX29_ChatClient
             private set;
         }
 
-        public Emote[] Emotes
-        {
-            get { return ChatWords.Where(t => t.IsEmote).Select(t => t.Emote).ToArray(); }
-        }
-
         public bool IsEmpty
         {
             get
@@ -407,6 +402,10 @@ namespace LX29_ChatClient
             }
         }
 
+        //public Emote[] Emotes
+        //{
+        //    get { return ChatWords.Where(t => t.IsEmote).Select(t => t.Emote).ToArray(); }
+        //}
         public bool IsMessageEmpty
         {
             get
@@ -517,6 +516,15 @@ namespace LX29_ChatClient
             {
                 if (Type[0] == MsgType.All_Messages) return true;
                 return typelist.Contains(Type[0]);
+            }
+        }
+
+        public void ReloadEmotes()
+        {
+            for (int i = 0; i < ChatWords.Count; i++)
+            {
+                var word = ChatWords[i];
+                ChatWords[i] = new ChatWord(word.Text, Channel);//typelist.Contains(MsgType.Outgoing));
             }
         }
 
@@ -874,16 +882,7 @@ namespace LX29_ChatClient
         {
             Text = input.Emote.Name;
 
-            //HashCode = Emote_ID + Name.HashCode();
-
-            //Find BTTV & FFZ Emotes
             Emote = input.Emote;
-            //if (IsEmote)
-            //{
-            //    Set_ID = input.Emote.Set;
-
-            //    //Emote_ID = input.Emote.ID;
-            //}
         }
 
         public ChatWord(string name, string channel, bool outgoing)
@@ -896,6 +895,13 @@ namespace LX29_ChatClient
             //    Set_ID = Emote.Set;
             //}
             //HashCode = Name.HashCode();
+        }
+
+        public ChatWord(string name, string channel)
+        {
+            Text = name;
+
+            Emote = ChatClient.Emotes.Values.All.FirstOrDefault(t => t.Name.Equals(name));
         }
 
         public Emote Emote

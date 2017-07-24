@@ -224,7 +224,8 @@ namespace LX29_ChatClient
             new SettingClasses("_BadgePadding", "Badge Padding", 1, 100, 1),
             new SettingClasses("_BadgeSizeFac", "Badge Size", 0.1, 10, 0.1),
             new SettingClasses("_EmotePadding", "Emote Padding", 1, 100, 1),
-            new SettingClasses("_EmoteSizeFac", "Emote Size", 0.1, 10, 0.1)
+            new SettingClasses("_EmoteSizeFac", "Emote Size", 0.1, 10, 0.1),
+            new SettingClasses("_EmoteSize", "Emote Quality", 1, 3, 1)
        };
 
         public static readonly SettingClasses[] TextBasic = new SettingClasses[]
@@ -301,6 +302,7 @@ namespace LX29_ChatClient
         private static double _BadgePadding = 2;
         private static double _BadgeSizeFac = 0.9;
         private static double _EmotePadding = 2;
+        private static double _EmoteSize = (int)Emotes.EmoteImageSize.Medium;
         private static double _EmoteSizeFac = 1.5;
 
         public static bool AnimatedEmotes
@@ -349,6 +351,16 @@ namespace LX29_ChatClient
             set
             {
                 _EmotePadding = value;
+                Save();
+            }
+        }
+
+        public static Emotes.EmoteImageSize EmoteQuality
+        {
+            get { return (Emotes.EmoteImageSize)(int)_EmoteSize; }
+            set
+            {
+                _EmoteSize = (int)value;
                 Save();
             }
         }
@@ -449,7 +461,7 @@ namespace LX29_ChatClient
         private static int _ChatBackGround = Color.FromArgb(35, 35, 35).ToArgb();
         private static string _ChatFontName = "Calibri";
         private static Rectangle _MainBounds = Rectangle.Empty;
-        private static bool _ShowErrors = true;
+        private static bool _ShowErrors = false;
         private static int _UpdateInterval = 60000;
 
         #endregion PrivateFields

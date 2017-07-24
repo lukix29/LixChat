@@ -825,7 +825,7 @@ namespace LX29_ChatClient
 
     public static partial class ChatClient
     {
-        public class MessageCollection// : IDictionary<string, Dictionary<string, ChatUser>>
+        public class MessageCollection // : IDictionary<string, Dictionary<string, ChatUser>>
         {
             private int maxMessages = UInt16.MaxValue;
 
@@ -838,6 +838,11 @@ namespace LX29_ChatClient
             public delegate void WhisperReceivedHandler(ChatMessage message);
 
             public event WhisperReceivedHandler OnWhisperReceived;
+
+            public Dictionary<string, List<ChatMessage>> Messages
+            {
+                get { return messages; }
+            }
 
             public Dictionary<string, List<ChatMessage>> Whispers
             {

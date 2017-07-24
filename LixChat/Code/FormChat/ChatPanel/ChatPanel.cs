@@ -189,6 +189,7 @@ namespace LX29_ChatClient.Forms
                 userInfoPanel1.Font = new Font(chatView1.Font.FontFamily, 10);
 
                 this.ParentForm.AcceptButton = this.btn_Send;
+                rTB_Send.AddContextMenu();
             }
             catch (Exception x)
             {
@@ -254,7 +255,7 @@ namespace LX29_ChatClient.Forms
                 {
                     var em = (Emotes.Emote)res.Result;
                     x += 5;
-                    em.Image.Draw(e.Graphics, x, y, e.Bounds.Height, e.Bounds.Height);
+                    em.Image.Draw(e.Graphics, x, y, e.Bounds.Height, e.Bounds.Height, Settings.EmoteQuality);
                     x += 5 + e.Bounds.Height;
                 }
                 //else
@@ -314,11 +315,13 @@ namespace LX29_ChatClient.Forms
                     else
                     {
                         lastSearch = "";
+                        searchResult.Clear();
                     }
                 }
                 else
                 {
                     lastSearch = "";
+                    searchResult.Clear();
                     ChatHistory(e);
                 }
             }
@@ -338,6 +341,7 @@ namespace LX29_ChatClient.Forms
                     btn_Send.PerformClick();
                 }
                 lastSearch = "";
+                searchResult.Clear();
             }
             else if (e.KeyData == Keys.Tab)
             {
@@ -351,38 +355,43 @@ namespace LX29_ChatClient.Forms
 
                     if (!string.IsNullOrEmpty(lastSearch))
                     {
-                        searchResult = search(lastSearch.ToLower());
-                        if (searchResult != null && searchResult.Count() > 0)
-                        {
-                            lstB_Search.Items.Clear();
-                            foreach (var result in searchResult)
+                        System.Threading.Tasks.Task.Run(() =>
                             {
-                                if (result.Value.IsEmote)
+                                searchResult = search(lastSearch.ToLower());
+                                if (searchResult != null && searchResult.Count() > 0)
                                 {
-                                    var em = (Emotes.Emote)result.Value.Result;
-                                    if (em.Image.IsGif)
-                                    {
-                                        if (Settings.AnimateGifInSearch) timer1.Interval = 200;
-                                    }
+                                    this.Invoke(new Action(() =>
+                                        {
+                                            lstB_Search.Items.Clear();
+                                            foreach (var result in searchResult)
+                                            {
+                                                if (result.Value.IsEmote)
+                                                {
+                                                    var em = (Emotes.Emote)result.Value.Result;
+                                                    if (em.Image.IsGif)
+                                                    {
+                                                        if (Settings.AnimateGifInSearch) timer1.Interval = 200;
+                                                    }
+                                                }
+                                                lstB_Search.Items.Add(result.Key);
+                                            }
+                                            lstB_Search.SelectedIndex = 0;
+                                            lstB_Search.Visible = true;
+                                            lstB_Search.Location = new Point(0, chatView1.Bottom - lstB_Search.Height);
+
+                                            lockListSearch = false;
+                                        }));
                                 }
-                                lstB_Search.Items.Add(result.Key);
-                            }
-                            lstB_Search.SelectedIndex = 0;
-                            lstB_Search.Visible = true;
-                            lstB_Search.Location = new Point(0, chatView1.Bottom - lstB_Search.Height);
-                        }
+                            });
                     }
                 }
                 else
                 {
-                    if (lstB_Search.Items.Count > 0)
-                    {
-                        if (lstB_Search.SelectedIndex + 1 >= lstB_Search.Items.Count)
-                            lstB_Search.SelectedIndex = 0;
-                        else lstB_Search.SelectedIndex++;
-                    }
+                    if (lstB_Search.SelectedIndex + 1 >= lstB_Search.Items.Count)
+                        lstB_Search.SelectedIndex = 0;
+                    else lstB_Search.SelectedIndex++;
+                    lockListSearch = false;
                 }
-                lockListSearch = false;
             }
             else if (e.KeyData == Keys.Space)
             {
@@ -396,6 +405,7 @@ namespace LX29_ChatClient.Forms
                 timer1.Interval = 1000;
                 lastMessageScrollIndex = -1;
                 lastSearch = "";
+                searchResult.Clear();
                 lstB_Search.Visible = false;
             }
         }
@@ -448,6 +458,7 @@ namespace LX29_ChatClient.Forms
             {
             }
             lastSearch = "";
+            searchResult.Clear();
         }
 
         private void timer1_Tick(object sender, EventArgs e)

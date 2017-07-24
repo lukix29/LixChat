@@ -21,6 +21,7 @@ namespace System.Windows.Forms
         public MessageBoxForm()
         {
             InitializeComponent();
+            txtB_Main.LinkClicked += txtB_Main_LinkClicked;
         }
 
         public new Color BackColor
@@ -188,6 +189,11 @@ namespace System.Windows.Forms
         private void MessageBoxForm_Resize(object sender, EventArgs e)
         {
             base.Text = this.Size.ToString();
+        }
+
+        private void txtB_Main_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            LX29_ChatClient.Settings.StartBrowser(e.LinkText);
         }
 
         //private void txtB_Main_ContentsResized(object sender, ContentsResizedEventArgs e)

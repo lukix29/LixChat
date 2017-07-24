@@ -50,11 +50,11 @@
             this.btn_SelectBrowser = new System.Windows.Forms.Button();
             this.btn_OpenScriptFolder = new System.Windows.Forms.Button();
             this.cb_ShowErrors = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.btn_Close = new System.Windows.Forms.Button();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanel_UserOptions = new System.Windows.Forms.FlowLayoutPanel();
-            this.label1 = new System.Windows.Forms.Label();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox3.SuspendLayout();
             this.flowLayoutPanel_RenderOptions.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -88,7 +88,6 @@
             // 
             // flowLayoutPanel_RenderOptions
             // 
-            this.flowLayoutPanel_RenderOptions.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.flowLayoutPanel_RenderOptions.Controls.Add(this.cB_AnimatedEmotes);
             this.flowLayoutPanel_RenderOptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel_RenderOptions.Location = new System.Drawing.Point(3, 17);
@@ -127,7 +126,6 @@
             // 
             // flowLayoutPanel2
             // 
-            this.flowLayoutPanel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.flowLayoutPanel2.Controls.Add(this.btn_SelectFont);
             this.flowLayoutPanel2.Controls.Add(this.btn_SelectChatBG);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -343,6 +341,14 @@
             this.cb_ShowErrors.UseVisualStyleBackColor = false;
             this.cb_ShowErrors.CheckedChanged += new System.EventHandler(this.cb_ShowErrors_CheckedChanged);
             // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(3, 98);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(124, 24);
+            this.label1.TabIndex = 36;
+            this.label1.Text = "                     ";
+            // 
             // btn_Close
             // 
             this.btn_Close.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -381,14 +387,6 @@
             this.flowLayoutPanel_UserOptions.Name = "flowLayoutPanel_UserOptions";
             this.flowLayoutPanel_UserOptions.Size = new System.Drawing.Size(131, 160);
             this.flowLayoutPanel_UserOptions.TabIndex = 0;
-            // 
-            // label1
-            // 
-            this.label1.Location = new System.Drawing.Point(3, 98);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(124, 24);
-            this.label1.TabIndex = 36;
-            this.label1.Text = "                     ";
             // 
             // ControlSettings
             // 
