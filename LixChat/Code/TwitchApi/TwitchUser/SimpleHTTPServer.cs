@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 using System.Threading;
+using System.Net.NetworkInformation;
 
 internal class Token_HTTP_Server
 {
@@ -89,7 +91,8 @@ internal class Token_HTTP_Server
     private HttpListener _listener;
     private int _port;
     private string _rootDirectory;
-    private Thread _serverThread;
+    private Task _serverThread;
+    private bool _stopServer = false;
 
     /// <summary>
     /// Construct server with given port.
@@ -141,7 +144,8 @@ internal class Token_HTTP_Server
     {
         if (!IsStarted)
         {
-            _serverThread = new Thread(this.Listen);
+            _stopServer = false;
+            _serverThread = Task.Run(() => this.Listen());
             _serverThread.Start();
             IsStarted = true;
         }
@@ -152,9 +156,25 @@ internal class Token_HTTP_Server
     /// </summary>
     public void Stop()
     {
-        _serverThread.Abort();
-        _listener.Close();
+        _stopServer = true;
         IsStarted = false;
+    }
+
+    private void CheckPort()
+    {
+        IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+        TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
+        Random rd = new Random();
+        for (int i = 0; i < tcpConnInfoArray.Length; i++)
+        {
+            var tcpi = tcpConnInfoArray[i];
+            if (tcpi.LocalEndPoint.Port == _port)
+            {
+                _port += rd.Next(-100, 101);
+                i = 0;
+                break;
+            }
+        }
     }
 
     private void Initialize(string path, int port)
@@ -167,25 +187,43 @@ internal class Token_HTTP_Server
     {
         try
         {
+            if (_listener != null) _listener.Close();
             _listener = new HttpListener();
+
+            CheckPort();
+
             _listener.Prefixes.Add("http://*:" + _port.ToString() + "/");
             _listener.Start();
             while (true)
             {
+                if (_stopServer)
+                {
+                    _listener.Close();
+                    return;
+                }
                 HttpListenerContext context = _listener.GetContext();
                 Process(context);
             }
         }
         catch (Exception ex)
         {
-            if (!(ex is ThreadAbortException))
+            if (IsStarted)
             {
-                switch (ex.Handle())
+                if (LX29_Tools.HasInternetConnection)
                 {
-                    case System.Windows.Forms.MessageBoxResult.Retry:
-                        _listener.Close();
-                        Listen();
-                        break;
+                    Listen();
+                }
+                else
+                {
+                    if (!(ex is ThreadAbortException))
+                    {
+                        switch (ex.Handle())
+                        {
+                            case System.Windows.Forms.MessageBoxResult.Retry:
+                                Listen();
+                                break;
+                        }
+                    }
                 }
             }
         }

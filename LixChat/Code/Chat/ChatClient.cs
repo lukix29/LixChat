@@ -722,15 +722,28 @@ namespace LX29_ChatClient
             var cus = TwitchApi.GetChatUsers(channelName);
             var cur = users.Get(channelName);
 
-            var diff = cus.Keys.Except(cur.Keys).Select(t => cus[t]);
-            var diff2 = cur.Keys.Except(cus.Keys).Select(t => cur[t]);
-            foreach (var user in diff)
+            try
             {
-                users.Add(user);
+                var diff = cus.Keys.Except(cur.Keys).Select(t => cus[t]);
+                foreach (var user in diff)
+                {
+                    users.Add(user);
+                }
+                if (cur == null) return;
+                var diff2 = cur.Keys.Except(cus.Keys).Select(t => cur[t]);
+                foreach (var user in diff2)
+                {
+                    user.IsOnline = false;
+                }
             }
-            foreach (var user in diff2)
+            catch (Exception x)
             {
-                user.IsOnline = false;
+                switch (x.Handle())
+                {
+                    case MessageBoxResult.Retry:
+                        FetchChatUsers(channelName);
+                        break;
+                }
             }
         }
 

@@ -54,9 +54,9 @@ namespace LX29_Twitch.Api.Controls
             if (startBrowser)
             {
                 System.IO.Directory.CreateDirectory(TempHtmlPath);
-                System.IO.File.WriteAllText(TempHtmlPath + "index.html", LX29_TwitchChat.Properties.Resources.index);
-                System.IO.File.WriteAllText(TempHtmlPath + "received.html", LX29_TwitchChat.Properties.Resources.received);
-                System.IO.File.WriteAllText(TempHtmlPath + "success.html", LX29_TwitchChat.Properties.Resources.success);
+                System.IO.File.WriteAllText(TempHtmlPath + "index.html", LX29_LixChat.Properties.Resources.index);
+                System.IO.File.WriteAllText(TempHtmlPath + "received.html", LX29_LixChat.Properties.Resources.received);
+                System.IO.File.WriteAllText(TempHtmlPath + "success.html", LX29_LixChat.Properties.Resources.success);
 
                 proc = Settings.StartBrowser(LX29_Twitch.Api.TwitchApi.AuthApiUrl);
                 server.ReceivedToken += server_ReceivedToken;

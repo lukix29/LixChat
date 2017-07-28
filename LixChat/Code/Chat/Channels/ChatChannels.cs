@@ -223,7 +223,7 @@ namespace LX29_ChatClient.Channels
                     if (img != null)
                         return img;
                 }
-                return LX29_TwitchChat.Properties.Resources.loading;
+                return LX29_LixChat.Properties.Resources.loading;
             }
         }
 

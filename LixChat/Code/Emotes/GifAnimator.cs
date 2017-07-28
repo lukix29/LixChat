@@ -63,9 +63,9 @@ namespace LX29_ChatClient.Emotes
                 URLs = new Dictionary<EmoteImageSize, string>();
                 Name = name;
                 _images = new Dictionary<EmoteImageSize, Image[]>();
-                Type = LX29_TwitchChat.Properties.Resources.loading.RawFormat;
+                Type = LX29_LixChat.Properties.Resources.loading.RawFormat;
                 IsGif = true;
-                SetGif(LX29_TwitchChat.Properties.Resources.loading, EmoteImageSize.Small);
+                SetGif(LX29_LixChat.Properties.Resources.loading, EmoteImageSize.Small);
             }
         }
 

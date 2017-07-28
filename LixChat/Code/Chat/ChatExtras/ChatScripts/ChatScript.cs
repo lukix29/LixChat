@@ -168,7 +168,7 @@ namespace LX29_ChatClient.Addons.Scripts
 
             parameters.ReferencedAssemblies.AddRange(assemblies);
             parameters.ReferencedAssemblies.Add(
-                System.IO.Path.GetFullPath(typeof(LX29_TwitchChat.Program).Assembly.CodeBase.Replace("file:///", "")));
+                System.IO.Path.GetFullPath(typeof(LX29_LixChat.Program).Assembly.CodeBase.Replace("file:///", "")));
 
             parameters.GenerateInMemory = true;
             parameters.GenerateExecutable = false;

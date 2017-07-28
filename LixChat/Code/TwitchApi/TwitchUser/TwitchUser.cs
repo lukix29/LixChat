@@ -245,19 +245,20 @@ namespace LX29_Twitch.Api
             {
                 Main.Controls.Add(input);
                 input.BringToFront();
-                await Task.Delay(2000);
+                await Task.Delay(1000);
                 Main.TopMost = false;
             }));
         }
 
-        public void Load(System.Windows.Forms.Form Main, Action action = null)
+        public async void Load(System.Windows.Forms.Form Main, Action action = null)
         {
+            while (!LX29_Tools.HasInternetConnection) await Task.Delay(10000);
             var err = Load();
             if (err == AddError.None)
             {
                 if (action != null)
                 {
-                    Task.Run(action);
+                    await Task.Run(action);
                 }
             }
             else if (err == AddError.Error)

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LX29_TwitchChat.Properties {
+namespace LX29_LixChat.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace LX29_TwitchChat.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("LX29_TwitchChat.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("LX29_LixChat.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -94,6 +94,40 @@ namespace LX29_TwitchChat.Properties {
             get {
                 object obj = ResourceManager.GetObject("BLACK", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die 1f600=:grinning:
+        ///1f603=:smiley:
+        ///1f604=:smile:
+        ///1f601=:grin:
+        ///1f606=:laughing:
+        ///1f605=:sweat_smile:
+        ///1f602=:joy:
+        ///1f923=:rofl:
+        ///263a=:relaxed:
+        ///1f60a=:blush:
+        ///1f607=:innocent:
+        ///1f642=:slight_smile:
+        ///1f643=:upside_down:
+        ///1f609=:wink:
+        ///1f60c=:relieved:
+        ///1f60d=:heart_eyes:
+        ///1f618=:kissing_heart:
+        ///1f617=:kissing:
+        ///1f619=:kissing_smiling_eyes:
+        ///1f61a=:kissing_closed_eyes:
+        ///1f60b=:yum:
+        ///1f61c=:stuck_out_tongue_winking_eye:
+        ///1f61d=:stuck_out_tongue_closed_eyes:
+        ///1f61b=:stuck_out_tongue:
+        ///1f911=:money_mouth:
+        ///1f91 [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        /// </summary>
+        internal static string emojis {
+            get {
+                return ResourceManager.GetString("emojis", resourceCulture);
             }
         }
         

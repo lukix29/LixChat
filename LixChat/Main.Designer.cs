@@ -1,4 +1,4 @@
-﻿namespace LX29_TwitchChat
+﻿namespace LX29_LixChat
 {
     partial class Main
     {
@@ -140,8 +140,8 @@
             // pb_Preview
             // 
             resources.ApplyResources(this.pb_Preview, "pb_Preview");
-            this.pb_Preview.Image = global::LX29_TwitchChat.Properties.Resources.temp;
-            this.pb_Preview.InitialImage = global::LX29_TwitchChat.Properties.Resources.temp;
+            this.pb_Preview.Image = global::LX29_LixChat.Properties.Resources.temp;
+            this.pb_Preview.InitialImage = global::LX29_LixChat.Properties.Resources.temp;
             this.pb_Preview.Name = "pb_Preview";
             this.pb_Preview.TabStop = false;
             this.pb_Preview.DoubleClick += new System.EventHandler(this.pb_Preview_DoubleClick);
@@ -494,7 +494,7 @@
             // 
             // toolStrip1
             // 
-            this.toolStrip1.BackgroundImage = global::LX29_TwitchChat.Properties.Resources.BLACK;
+            this.toolStrip1.BackgroundImage = global::LX29_LixChat.Properties.Resources.BLACK;
             resources.ApplyResources(this.toolStrip1, "toolStrip1");
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {

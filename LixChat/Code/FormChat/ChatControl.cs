@@ -601,9 +601,9 @@ namespace LX29_ChatClient.Forms
             control = form;
 
             internalImages.Add(internImages.Ban,
-                new EmoteImage("Ban", LX29_TwitchChat.Properties.Resources.ban));
+                new EmoteImage("Ban", LX29_LixChat.Properties.Resources.ban));
             internalImages.Add(internImages.Timeout,
-               new EmoteImage("Timeout", LX29_TwitchChat.Properties.Resources.timeout));
+               new EmoteImage("Timeout", LX29_LixChat.Properties.Resources.timeout));
             //dx.Create(control);
 
             infoStrFormat.LineAlignment = StringAlignment.Near;

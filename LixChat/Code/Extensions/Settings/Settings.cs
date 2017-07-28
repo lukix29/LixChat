@@ -634,7 +634,7 @@ namespace LX29_ChatClient
                     //string nwe = File.ReadAllText(scriptDir + "TestScript.cs");
                     //if (old.Equals(nwe))
                     //{
-                    File.WriteAllText(scriptDir + "TestScript.cs", LX29_TwitchChat.Properties.Resources.MyScripts);
+                    File.WriteAllText(scriptDir + "TestScript.cs", LX29_LixChat.Properties.Resources.MyScripts);
                     // }
                 }
             }

@@ -50,7 +50,7 @@ namespace LX29_ChatClient.Addons
 
         private void btn_Help_Click(object sender, EventArgs e)
         {
-            string help = LX29_TwitchChat.Properties.Resources.ActionHelp;
+            string help = LX29_LixChat.Properties.Resources.ActionHelp;
             LX29_MessageBox.Show(help, "Action Help");
         }
 

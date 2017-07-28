@@ -573,15 +573,15 @@ namespace System
                         var s = sa[i];
                         var si = s.Trim()
                             .Replace("cs:", "cs-")
-                            .ReplaceAll(" ", "\r", "\n");
-                        //.LastLine("\\");
-                        if (si.Contains(":\\"))
-                        {
-                            var spl = si.GetBefore(":\\", " ");
-                            si = si.Replace(spl, "\r\n" + spl);
-                        }
+                            .Replace(" in ", "\r\n");
+                        ////.LastLine("\\");
+                        //if (si.Contains(":\\"))
+                        //{
+                        //    var spl = si.GetBefore(":\\", " ");
+                        //    si = si.Replace(spl, "\r\n" + spl);
+                        //}
 
-                        sb.AppendLine(si.Trim());
+                        sb.AppendLine(si);
                         if (i == 0)
                         {
                             sb.AppendLine();

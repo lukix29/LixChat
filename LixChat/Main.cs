@@ -2,7 +2,7 @@
 using LX29_ChatClient.Channels;
 using LX29_Helpers;
 using LX29_Twitch.Api;
-using LX29_TwitchChat.Properties;
+using LX29_LixChat.Properties;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,7 +11,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace LX29_TwitchChat
+namespace LX29_LixChat
 {
     public partial class Main : Form
     {
@@ -149,7 +149,7 @@ namespace LX29_TwitchChat
                 ChatClient.ListLoaded += ChatClient_ListLoaded;
                 LX29_ChatClient.Emotes.EmoteCollection.OnChannelLoaded += Emotes_LoadedChannel;
 
-                ChatClient.INITIALIZE(this);
+                Task.Run(() => ChatClient.INITIALIZE(this));
 
                 finishedLaoding = true;
             }
