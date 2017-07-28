@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace LX29_TwitchChat
+namespace LX29_LixChat
 {
     internal static class Program
     {
         /// <summary>
-        /// Der Haupteinstiegspunkt für die Anwendung.
+        /// Der Hauptei nstiegspunkt für die Anwendung.
         /// </summary>
         [STAThread]
         private static void Main()
