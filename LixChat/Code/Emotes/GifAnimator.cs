@@ -11,7 +11,7 @@ namespace LX29_ChatClient.Emotes
 {
     public enum EmoteImageDrawResult
     {
-        None,
+        Success,
         IsGif,
         Downloading,
     }
@@ -25,8 +25,6 @@ namespace LX29_ChatClient.Emotes
 
     public class EmoteImage : IDisposable
     {
-        public static readonly SolidBrush grayOutBrush = new SolidBrush(Color.FromArgb(200, LX29_ChatClient.UserColors.ChatBackground));
-
         public static readonly EmoteImage Wait =
             new EmoteImage("WAITING");
 
@@ -244,9 +242,9 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size, bool grayOut = false)
+        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size)
         {
-            var result = EmoteImageDrawResult.None;
+            var result = EmoteImageDrawResult.Success;
             try
             {
                 var images = GetImage(size);
@@ -285,11 +283,6 @@ namespace LX29_ChatClient.Emotes
                         g.DrawImage(images[FrameIndex], X, Y, Width, Height);
                     }
                     //g.DrawImage(images[FrameIndex], X, Y, Width, Height);
-                }
-                if (grayOut)
-                {
-                    g.FillRectangle(grayOutBrush, X, Y, Width, Height);
-                    g.DrawLine(Pens.DarkGray, X, Y, X + Width, Y + Height);
                 }
             }
             catch

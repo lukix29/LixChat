@@ -50,7 +50,7 @@ namespace LX29_ChatClient.Emotes
             private set;
         }
 
-        public Emote Add(string id, string name, IEnumerable<string> url, string channel, EmoteOrigin origin, string channelName)
+        public EmoteBase Add(string id, string name, IEnumerable<string> url, string channel, EmoteOrigin origin, string channelName)
         {
             string emoteSet = "";
             var emSet = emotess.EmoteSets.FirstOrDefault(t => t.Name.Equals(channel, StringComparison.OrdinalIgnoreCase));
@@ -66,7 +66,7 @@ namespace LX29_ChatClient.Emotes
             return Add(em);
         }
 
-        public Emote Add(Emote e)
+        public EmoteBase Add(Emote e)
         {
             if (e.IsEmpty) return null;
 
@@ -92,7 +92,7 @@ namespace LX29_ChatClient.Emotes
             int length = emotess.All.Count();
             foreach (var emote in emotess.All)
             {
-                emote.Image.DownloadImages();
+                emote.DownloadImages();
                 cnt++;
                 if (OnChannelLoaded != null)
                     OnChannelLoaded(null, cnt, length, emote.Name);
@@ -164,6 +164,8 @@ namespace LX29_ChatClient.Emotes
                     _loaded_channel(null, Channels.Count, Channels.Count, "Waiting for Badges");
                     tbadges.Wait();
                 }
+                var emojicnt = emotess.LoadEmojis();
+                _loaded_channel(null, emojicnt, emojicnt, "Loading Emoji's");
 
                 Task.Run(() =>
                 {
@@ -189,7 +191,7 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public Emote GetEmote(string name, string channel, bool outgoing = false)
+        public EmoteBase GetEmote(string name, string channel, bool outgoing = false)
         {
             if (!Finished) return null;
             string id = null;
@@ -216,7 +218,7 @@ namespace LX29_ChatClient.Emotes
             return null;
         }
 
-        public IEnumerable<Emote> GetEmotes(string channel)
+        public IEnumerable<EmoteBase> GetEmotes(string channel)
         {
             if (!Finished) return null;
             return emotess.GetEmotes(channel);

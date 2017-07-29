@@ -696,6 +696,9 @@ namespace LX29_ChatClient
                     {
                         ID = parameters[irc_params.user_id];
                     }
+                    else
+                    {
+                    }
                     if (parameters.ContainsKey(irc_params.display_name))
                     {
                         DisplayName = parameters[irc_params.display_name];
@@ -904,7 +907,7 @@ namespace LX29_ChatClient
             Emote = ChatClient.Emotes.Values.All.FirstOrDefault(t => t.Name.Equals(name));
         }
 
-        public Emote Emote
+        public EmoteBase Emote
         {
             get;
             private set;
@@ -948,12 +951,12 @@ namespace LX29_ChatClient
             //public string Name;
             //public string ID;
             //public string Set;
-            public Emote Emote;
+            public EmoteBase Emote;
 
             public int End;
             public int Start;
 
-            public TempWord(int Start, int End, Emote Emote)// string Name, string ID, string Set)
+            public TempWord(int Start, int End, EmoteBase Emote)// string Name, string ID, string Set)
             {
                 this.Start = Start;
                 this.End = End;

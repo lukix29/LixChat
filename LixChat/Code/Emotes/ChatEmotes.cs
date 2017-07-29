@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
 
 namespace LX29_ChatClient.Emotes
 {
@@ -11,15 +12,77 @@ namespace LX29_ChatClient.Emotes
         FFZ_Global,
         Twitch,
         BTTV,
-        FFZ
+        FFZ,
+        Emoji
     }
 
-    public class Emote : IEquatable<Emote>
+    public interface EmoteBase : IEquatable<EmoteBase>
+    {
+        string Channel
+        {
+            get;
+            set;
+        }
+
+        string ID
+        {
+            get;
+            set;
+        }
+
+        // public static readonly EmoteBase Empty = new EmoteBase();
+        bool IsEmpty
+        {
+            get;
+        }
+
+        string Name
+        {
+            get;
+            set;
+        }
+
+        EmoteOrigin Origin
+        {
+            get;
+            set;
+        }
+
+        SizeF CalcSize(float height, EmoteImageSize size);
+
+        void Dispose();
+
+        void DownloadImages();
+
+        //{
+        //    return SizeF.Empty;
+        //}
+
+        EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size, bool grayOut = false);
+
+        //{
+        //    if (grayOut)
+        //    {
+        //        g.FillRectangle(GrayOutBrush, X, Y, Width, Height);
+        //        g.DrawLine(Pens.DarkGray, X, Y, X + Width, Y + Height);
+        //    }
+        //    return EmoteImageDrawResult.Success;
+        //}
+
+        //{
+        //    return ID.Equals(obj.ID);
+        //}
+
+        //public override string ToString()
+        //{
+        //    return ID + " " + Name + " " + Channel + " " + Set + " " + Enum.GetName(typeof(EmoteOrigin), Origin);
+        //}
+    }
+
+    public class Emote : EmoteBase
     {
         public const int EmoteHeight = 32;
-        public static readonly Emote Empty = new Emote();
-
-        //private readonly string hashcode = "";
+        private static readonly SolidBrush GrayOutBrush = new SolidBrush(Color.FromArgb(200, LX29_ChatClient.UserColors.ChatBackground));
 
         public Emote()
         {
@@ -56,7 +119,7 @@ namespace LX29_ChatClient.Emotes
         public string Channel
         {
             get;
-            private set;
+            set;
         }
 
         public string ChannelName
@@ -68,13 +131,7 @@ namespace LX29_ChatClient.Emotes
         public string ID
         {
             get;
-            private set;
-        }
-
-        public EmoteImage Image
-        {
-            get;
-            private set;
+            set;
         }
 
         public bool IsEmpty
@@ -82,22 +139,75 @@ namespace LX29_ChatClient.Emotes
             get { return string.IsNullOrEmpty(ID) || string.IsNullOrEmpty(Name) || Image == null; }
         }
 
+        //public string ID
+        //{
+        //    get;
+        //    private set;
+        //}
+        public bool IsGif
+        {
+            get { return Image.IsGif; }
+        }
+
         public string Name
         {
             get;
-            private set;
+            set;
         }
 
         public EmoteOrigin Origin
         {
             get;
-            private set;
+            set;
         }
 
+        //public string Name
+        //{
+        //    get;
+        //    private set;
+        //}
         public string Set
         {
             get;
             private set;
+        }
+
+        private EmoteImage Image
+        {
+            get;
+            set;
+        }
+
+        public SizeF CalcSize(float height, EmoteImageSize size)
+        {
+            return Image.CalcSize(height, size);
+        }
+
+        public void Dispose()
+        {
+            Image.Dispose();
+        }
+
+        public void DownloadImages()
+        {
+            Image.DownloadImages();
+        }
+
+        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size, bool grayOut = false)
+        {
+            var res = Image.Draw(g, X, Y, Width, Height, size);
+            if (grayOut)
+            {
+                g.FillRectangle(GrayOutBrush, X, Y, Width, Height);
+                g.DrawLine(Pens.DarkGray, X, Y, X + Width, Y + Height);
+            }
+            return res;
+        }
+
+        //private readonly string hashcode = "";
+        public bool Equals(EmoteBase e)
+        {
+            return e.ID.Equals(ID);
         }
 
         //public static Emote Parse(string input)
@@ -113,10 +223,10 @@ namespace LX29_ChatClient.Emotes
         //    return new Emote(id, name, url, channel, set, origin);
         //}
 
-        public bool Equals(Emote obj)
-        {
-            return ID.Equals(obj.ID);
-        }
+        //public bool Equals(Emote obj)
+        //{
+        //    return ID.Equals(obj.ID);
+        //}
 
         //public bool Equals(ChatWord obj)
         //{

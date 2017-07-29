@@ -149,6 +149,8 @@ namespace LX29_LixChat
                 ChatClient.ListLoaded += ChatClient_ListLoaded;
                 LX29_ChatClient.Emotes.EmoteCollection.OnChannelLoaded += Emotes_LoadedChannel;
 
+                Task.Run(() => Updater.CheckUpdate(SetProgressInfo));
+
                 Task.Run(() => ChatClient.INITIALIZE(this));
 
                 finishedLaoding = true;

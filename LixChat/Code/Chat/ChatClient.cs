@@ -724,16 +724,26 @@ namespace LX29_ChatClient
 
             try
             {
-                var diff = cus.Keys.Except(cur.Keys).Select(t => cus[t]);
-                foreach (var user in diff)
+                if (cus == null) return;
+                if (cur == null)
                 {
-                    users.Add(user);
+                    foreach (var user in cus)
+                    {
+                        users.Add(user.Value);
+                    }
                 }
-                if (cur == null) return;
-                var diff2 = cur.Keys.Except(cus.Keys).Select(t => cur[t]);
-                foreach (var user in diff2)
+                else
                 {
-                    user.IsOnline = false;
+                    var diff = cus.Keys.Except(cur.Keys).Select(t => cus[t]);
+                    foreach (var user in diff)
+                    {
+                        users.Add(user);
+                    }
+                    var diff2 = cur.Keys.Except(cus.Keys).Select(t => cur[t]);
+                    foreach (var user in diff2)
+                    {
+                        user.IsOnline = false;
+                    }
                 }
             }
             catch (Exception x)

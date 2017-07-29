@@ -290,6 +290,7 @@ namespace LX29_ChatClient
 
         public static readonly string chatLogDir = caonfigBaseDir + "Chatlogs\\";
         public static readonly string dataDir = caonfigBaseDir + "Data\\";
+        public static readonly string emojiDir = ".\\Emojis\\";
         public static readonly string emoteDir = caonfigBaseDir + "Emotes\\";
         public static readonly string pluginDir = ".\\Plugins\\";
         public static readonly string scriptDir = caonfigBaseDir + "Scripts\\";

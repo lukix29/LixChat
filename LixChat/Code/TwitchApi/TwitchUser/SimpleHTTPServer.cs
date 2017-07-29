@@ -146,7 +146,6 @@ internal class Token_HTTP_Server
         {
             _stopServer = false;
             _serverThread = Task.Run(() => this.Listen());
-            _serverThread.Start();
             IsStarted = true;
         }
     }

@@ -253,9 +253,9 @@ namespace LX29_ChatClient.Forms
                 var res = searchResult[lstB_Search.Items[e.Index].ToString()];
                 if (res.IsEmote)
                 {
-                    var em = (Emotes.Emote)res.Result;
+                    var em = (Emotes.EmoteBase)res.Result;
                     x += 5;
-                    em.Image.Draw(e.Graphics, x, y, e.Bounds.Height, e.Bounds.Height, Settings.EmoteQuality);
+                    em.Draw(e.Graphics, x, y, e.Bounds.Height, e.Bounds.Height, Settings.EmoteQuality);
                     x += 5 + e.Bounds.Height;
                 }
                 //else
@@ -329,84 +329,96 @@ namespace LX29_ChatClient.Forms
 
         private void rTB_Send_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyData == Keys.Enter)
+            try
             {
-                e.SuppressKeyPress = true;
-                if (!string.IsNullOrEmpty(lastSearch))
-                {
-                    selectName();
-                }
-                else
-                {
-                    btn_Send.PerformClick();
-                }
-                lastSearch = "";
-                searchResult.Clear();
-            }
-            else if (e.KeyData == Keys.Tab)
-            {
-                lockListSearch = true;
-                if (string.IsNullOrEmpty(lastSearch))
+                if (e.KeyData == Keys.Enter)
                 {
                     e.SuppressKeyPress = true;
-
-                    var arr = rTB_Send.Text.Trim().Split(" ");
-                    lastSearch = arr.Select(t => t.Trim()).Last();
-
                     if (!string.IsNullOrEmpty(lastSearch))
                     {
-                        System.Threading.Tasks.Task.Run(() =>
+                        selectName();
+                    }
+                    else
+                    {
+                        btn_Send.PerformClick();
+                    }
+                    lastSearch = "";
+                    searchResult.Clear();
+                }
+                else if (e.KeyData == Keys.Tab)
+                {
+                    lockListSearch = true;
+                    if (string.IsNullOrEmpty(lastSearch))
+                    {
+                        e.SuppressKeyPress = true;
+
+                        var arr = rTB_Send.Text.Trim().Split(" ");
+                        lastSearch = arr.Select(t => t.Trim()).Last();
+
+                        if (!string.IsNullOrEmpty(lastSearch))
+                        {
+                            // System.Threading.Tasks.Task.Run(() =>
                             {
                                 searchResult = search(lastSearch.ToLower());
                                 if (searchResult != null && searchResult.Count() > 0)
                                 {
-                                    this.Invoke(new Action(() =>
+                                    //this.Invoke(new Action(() =>
+                                    {
+                                        lstB_Search.Items.Clear();
+                                        foreach (var result in searchResult)
                                         {
-                                            lstB_Search.Items.Clear();
-                                            foreach (var result in searchResult)
+                                            if (result.Value.Result is Emotes.Emote)
                                             {
-                                                if (result.Value.IsEmote)
+                                                var em = (Emotes.Emote)result.Value.Result;
+                                                if (em.IsGif)
                                                 {
-                                                    var em = (Emotes.Emote)result.Value.Result;
-                                                    if (em.Image.IsGif)
-                                                    {
-                                                        if (Settings.AnimateGifInSearch) timer1.Interval = 200;
-                                                    }
+                                                    if (Settings.AnimateGifInSearch) timer1.Interval = 200;
                                                 }
-                                                lstB_Search.Items.Add(result.Key);
                                             }
-                                            lstB_Search.SelectedIndex = 0;
-                                            lstB_Search.Visible = true;
-                                            lstB_Search.Location = new Point(0, chatView1.Bottom - lstB_Search.Height);
+                                            lstB_Search.Items.Add(result.Key);
+                                        }
+                                        lstB_Search.SelectedIndex = 0;
+                                        lstB_Search.Visible = true;
+                                        lstB_Search.Location = new Point(0, chatView1.Bottom - lstB_Search.Height);
 
-                                            lockListSearch = false;
-                                        }));
+                                        lockListSearch = false;
+                                    }//));
                                 }
-                            });
+                            }//);
+                        }
                     }
+                    else
+                    {
+                        if (lstB_Search.SelectedIndex + 1 >= lstB_Search.Items.Count)
+                            lstB_Search.SelectedIndex = 0;
+                        else lstB_Search.SelectedIndex++;
+                        lockListSearch = false;
+                    }
+                }
+                else if (e.KeyData == Keys.Space)
+                {
+                    selectName();
+                }
+                else if (e.KeyCode == Keys.Down || e.KeyCode == Keys.Up)
+                {
                 }
                 else
                 {
-                    if (lstB_Search.SelectedIndex + 1 >= lstB_Search.Items.Count)
-                        lstB_Search.SelectedIndex = 0;
-                    else lstB_Search.SelectedIndex++;
-                    lockListSearch = false;
+                    timer1.Interval = 1000;
+                    lastMessageScrollIndex = -1;
+                    lastSearch = "";
+                    searchResult.Clear();
+                    lstB_Search.Visible = false;
                 }
             }
-            else if (e.KeyData == Keys.Space)
+            catch (Exception x)
             {
-                selectName();
-            }
-            else if (e.KeyCode == Keys.Down || e.KeyCode == Keys.Up)
-            {
-            }
-            else
-            {
-                timer1.Interval = 1000;
-                lastMessageScrollIndex = -1;
-                lastSearch = "";
-                searchResult.Clear();
-                lstB_Search.Visible = false;
+                switch (x.Handle())
+                {
+                    case MessageBoxResult.Retry:
+                        rTB_Send_KeyUp(sender, e);
+                        break;
+                }
             }
         }
 
@@ -501,7 +513,7 @@ namespace LX29_ChatClient.Forms
 
             public EmoteSearchResult(object result, string name)
             {
-                IsEmote = (result is LX29_ChatClient.Emotes.Emote);
+                IsEmote = (result is LX29_ChatClient.Emotes.EmoteBase);
                 Result = result;
                 Name = name;
             }

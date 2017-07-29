@@ -786,7 +786,7 @@ namespace LX29_ChatClient.Forms
                 ClickableList.Clear();
                 foreach (var em in emotes)
                 {
-                    size = em.Image.CalcSize(32, Settings.EmoteQuality);
+                    size = em.CalcSize(32, Settings.EmoteQuality);
                     if (!lastChannel.Contains(em.Channel))
                     {
                         y += size.Height + _EmotePadding;
@@ -801,7 +801,7 @@ namespace LX29_ChatClient.Forms
                         x = _EmotePadding;
                     }
                     if (!_showEmotes) return;
-                    var result = em.Image.Draw(g, x, y, size.Width, size.Height, EmoteImageSize.Small, false);
+                    var result = em.Draw(g, x, y, size.Width, size.Height, EmoteImageSize.Small, false);
                     if (result == EmoteImageDrawResult.IsGif)
                     {
                         gifVisible = true;
@@ -924,7 +924,7 @@ namespace LX29_ChatClient.Forms
 
                         if (emote != null)
                         {
-                            emote.Image.Draw(g, bounds.X + emSiz / 4f, bounds.Y + txtSize.Height, emSiz, emSiz, EmoteImageSize.Large, false);
+                            emote.Draw(g, bounds.X + emSiz / 4f, bounds.Y + txtSize.Height, emSiz, emSiz, EmoteImageSize.Large, false);
                         }
                     }
                     if (SelectRect.Width > 0)
@@ -1175,9 +1175,9 @@ namespace LX29_ChatClient.Forms
 
                 if (w.IsEmote)
                 {
-                    Emote em = w.Emote;
+                    EmoteBase em = w.Emote;
 
-                    sf = em.Image.CalcSize(emoteHeight, Settings.EmoteQuality);
+                    sf = em.CalcSize(emoteHeight, Settings.EmoteQuality);
                     lineSpace = _LineSpacing * 2f;
                     if (x + sf.Width > bounds.Right)
                     {
@@ -1189,7 +1189,7 @@ namespace LX29_ChatClient.Forms
                     {
                         ClickableList.Add(new SLRect(x, y, sf.Width, sf.Height, em, RectType.Emote));
 
-                        var gif = em.Image.Draw(graphics, x, y - emote_Y_Offset, sf.Width, sf.Height, Settings.EmoteQuality, isTimeout) == EmoteImageDrawResult.IsGif;
+                        var gif = em.Draw(graphics, x, y - emote_Y_Offset, sf.Width, sf.Height, Settings.EmoteQuality, isTimeout) == EmoteImageDrawResult.IsGif;
                         if (gif && !measure) gifVisible = true;
                     }
                     x += sf.Width + _EmotePadding + _WordPadding;
