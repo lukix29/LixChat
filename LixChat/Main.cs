@@ -2,7 +2,6 @@
 using LX29_ChatClient.Channels;
 using LX29_Helpers;
 using LX29_Twitch.Api;
-using LX29_LixChat.Properties;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

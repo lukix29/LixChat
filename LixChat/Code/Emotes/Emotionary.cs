@@ -1,13 +1,13 @@
 ﻿using LX29_ChatClient.Channels;
+using LX29_ChatClient.Emotes.Emojis;
 using LX29_Twitch.Api;
 using LX29_Twitch.JSON_Parser;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
-using System.IO;
-using LX29_ChatClient.Emotes.Emojis;
 
 namespace LX29_ChatClient.Emotes
 {

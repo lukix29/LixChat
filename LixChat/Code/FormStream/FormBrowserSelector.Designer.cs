@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormBrowserSelector));
             this.listView1 = new System.Windows.Forms.ListView();
             this.btn_Select = new System.Windows.Forms.Button();
             this.btn_copy = new System.Windows.Forms.Button();
@@ -104,6 +105,7 @@
             this.Controls.Add(this.listView1);
             this.ForeColor = System.Drawing.Color.Gainsboro;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormBrowserSelector";
             this.ShowIcon = false;
             this.Text = "Browser Selector";

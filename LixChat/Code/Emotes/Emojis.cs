@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LX29_ChatClient.Channels;
-using System.IO;
-using System.Windows.Forms;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace LX29_ChatClient.Emotes.Emojis
 {
