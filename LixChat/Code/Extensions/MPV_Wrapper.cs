@@ -70,6 +70,7 @@ namespace LX29_Helpers
         demuxer_cache_duration,
         demuxer_cache_time,
         demuxer_cache_idle,
+        demuxer_via_network,
         paused_for_cache,
         cache_buffering_state,
         eof_reached,
@@ -77,12 +78,19 @@ namespace LX29_Helpers
         mixer_active,
         ao_volume,
         ao_mute,
+        video_bitrate,
+        audio_bitrate,
+        sub_bitrate,
+        packet_video_bitrate,
+        packet_audio_bitrate,
+        packet_sub_bitrate,
         audio_codec,
         audio_codec_name
     }
 
     public class MPV_Wrapper : IDisposable
     {
+        public const string WindowIdentifier = "-Stream @ LixChat";
         public static readonly string MPVinputConfig = Settings.pluginDir + "\\MPV\\portable_config\\input.config";
 
         public static readonly string MPVPATH = Settings.pluginDir + "\\MPV\\mpv.exe";
@@ -90,7 +98,7 @@ namespace LX29_Helpers
 
         private static int topBH = 0;
 
-        private readonly string socketName = "mpvsocket";
+        private readonly string socketName = "";
 
         private NamedPipeClientStream pipe = null;
 
@@ -323,6 +331,13 @@ namespace LX29_Helpers
             return _read('\n');
         }
 
+        public string ResetCache()
+        {
+            var command = "{ \"command\": [\"drop-buffers\"] }";
+            SendRaw(command);
+            return ReadLine();
+        }
+
         public string SendCommand(MPV_ComType type, MPV_Property name = MPV_Property.none, object value = null)
         {
             //https://mpv.io/manual/master/#list-of-input-commands
@@ -357,7 +372,7 @@ namespace LX29_Helpers
             try
             {
                 process = p;
-
+                if (pipe != null && pipe.IsConnected) pipe.Close();
                 pipe = new NamedPipeClientStream(
                 ".", socketName,
                     PipeDirection.InOut, PipeOptions.Asynchronous,
@@ -437,10 +452,12 @@ namespace LX29_Helpers
                 string cash = "";
                 if (cache > 0)
                 {
-                    cash = " --cache-initial=" + cache +
+                    cash = " --cache-initial=" + cache / 2 +
                             " --cache-backbuffer=" + cache +
-                            " --cache=" + cache +
-                            " --cache-secs=" + cacheSecs; //
+                            " --cache-default=" + cache +
+                            " --demuxer-readahead-secs=" + cacheSecs;// +
+                    //" --demuxer-max-bytes=" + cache * 1000;
+                    //" "
                 }
                 string geom = "";
                 if (!rect.IsEmpty)
@@ -454,14 +471,23 @@ namespace LX29_Helpers
                     {
                         rect.X = sc.Bounds.X + leftBH;
                     }
-                    geom = " --geometry=" + rect.X + ":" + rect.Y;
-                    //geom = " --geometry=" + rect.Width + "x" + rect.Height +
-                    //    ((rect.X < 0) ? "-" : "+") + Math.Abs(rect.X) +
-                    //    ((rect.Y < 0) ? "-" : "+") + Math.Abs(rect.Y);
+                    if (rect.Width > sc.Bounds.Width / 1.5)
+                    {
+                        rect.Width = sc.Bounds.Width / 2;
+                    }
+                    else if (rect.Height > sc.Bounds.Height / 1.5)
+                    {
+                        rect.Height = sc.Bounds.Height / 2;
+                    }
+                    //geom = " --geometry=" + rect.X + ":" + rect.Y;
+                    geom = " --geometry=" + rect.Width + "x" + rect.Height +
+                        ((rect.X < 0) ? "-" : "+") + Math.Abs(rect.X) +
+                        ((rect.Y < 0) ? "-" : "+") + Math.Abs(rect.Y);
                 }
                 pipe = new NamedPipeClientStream(".", socketName,
                       PipeDirection.InOut, PipeOptions.Asynchronous,
                       TokenImpersonationLevel.Anonymous);
+
                 process = new Process();
                 //process.StartInfo.RedirectStandardError = true;
                 //process.StartInfo.RedirectStandardOutput = true;
@@ -470,7 +496,7 @@ namespace LX29_Helpers
                 process.StartInfo.FileName = MPVPATH;
                 process.StartInfo.Arguments = (@"--input-ipc-server=\\.\pipe\" + socketName +
                     " --osc=yes --no-ytdl --af=format=channels=2.0" + geom +//--no-osc
-                    " --title=\"" + Title + "\"" +
+                    " --title=\"" + Title + WindowIdentifier + "\"" +
                     cash + " --hls-bitrate=max" +
                     " --volume=" + Math.Max(0, Math.Min(100, volume)) +
                     intPtr + fileName);
@@ -576,6 +602,8 @@ namespace LX29_Helpers
 
         private object _parse(string s)
         {
+            if (s.Equals("property unavailable"))
+                return null;
             bool b = false;
             float d = 0;
             if (float.TryParse(s.Replace(".", ","), out d))

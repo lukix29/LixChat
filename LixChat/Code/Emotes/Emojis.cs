@@ -1,6 +1,13 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
-namespace LX29_ChatClient.Emotes.Emojis
+namespace LX29_ChatClient.Emotes
 {
     public class Emoji : EmoteBase
     {
@@ -8,6 +15,7 @@ namespace LX29_ChatClient.Emotes.Emojis
         private static readonly SolidBrush GrayOutBrush = new SolidBrush(Color.FromArgb(200, LX29_ChatClient.UserColors.ChatBackground));
         private Image _image = null;
 
+        private DateTime loadTime = DateTime.MaxValue;
         private object LockObject = new object();
 
         public Emoji(string ID, string Name)
@@ -47,6 +55,7 @@ namespace LX29_ChatClient.Emotes.Emojis
                     _image = (Image)Image.FromFile(FilePath).Clone();
                     Size = _image.Size;
                 }
+                loadTime = DateTime.Now;
                 return _image;
             }
         }
@@ -54,6 +63,11 @@ namespace LX29_ChatClient.Emotes.Emojis
         public bool IsEmpty
         {
             get { return string.IsNullOrEmpty(ID); }
+        }
+
+        public TimeSpan LoadedTime
+        {
+            get { return DateTime.Now.Subtract(loadTime); }
         }
 
         public string Name
@@ -91,6 +105,7 @@ namespace LX29_ChatClient.Emotes.Emojis
             if (_image != null)
             {
                 _image.Dispose();
+                _image = null;
             }
         }
 
@@ -115,9 +130,24 @@ namespace LX29_ChatClient.Emotes.Emojis
             return EmoteImageDrawResult.Success;
         }
 
-        public bool Equals(EmoteBase e)
+        public bool Equals(EmoteBase obj, EmoteBase obj1)
         {
-            return e.ID.Equals(ID);
+            return obj.ID.Equals(obj1.ID);
+        }
+
+        public new bool Equals(object obj)
+        {
+            return ((EmoteBase)obj).ID.Equals(ID);
+        }
+
+        public new int GetHashCode()
+        {
+            return ID.GetHashCode();
+        }
+
+        public int GetHashCode(EmoteBase b)
+        {
+            return b.GetHashCode();
         }
     }
 }

@@ -3,30 +3,30 @@ using LX29_ChatClient.Channels;
 using LX29_Helpers;
 using LX29_Twitch.Api;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text;
 
 namespace LX29_LixChat
 {
     public partial class Main : Form
     {
         private bool finishedLaoding = false;
+
         private string lastSelectedName = "";
+
         private bool lockChatSettings = false;
-        //private bool lockRTB = false;
 
         private bool lockUpdateList = false;
 
+        //private bool lockRTB = false;
         //private MPV_Wrapper mpv = new MPV_Wrapper("external");
         private MPV_Wrapper mpvPreview = new MPV_Wrapper("preview");
-
-        //private int oldRefreshTime = 0;
-
-        //private int treeMax = 0;
 
         public Main()
         {
@@ -34,10 +34,9 @@ namespace LX29_LixChat
             {
             }
             InitializeComponent();
-            //lstB_Channels.DrawItem += listBox1_DrawItem;
-            //lstB_Channels.MeasureItem += listBox1_MeasureItem;
         }
 
+        //private int treeMax = 0;
         public static Color[] ColorStructToList()
         {
             return typeof(Color).GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public)
@@ -45,14 +44,12 @@ namespace LX29_LixChat
                                 .ToArray();
         }
 
+        //private int oldRefreshTime = 0;
         public static PropertyInfo HasMethod(object objectToCheck, string methodName)
         {
             var type = objectToCheck.GetType();
             return type.GetProperty(methodName);
         }
-
-        //MPV doesnt start!!!
-        //public int dfs() { }
 
         protected void btn_OpenChat_Click(object sender, EventArgs e)
         {
@@ -71,6 +68,8 @@ namespace LX29_LixChat
             catch { }
         }
 
+        //MPV doesnt start!!!
+        //public int dfs() { }
         protected void button1_Click(object sender, EventArgs e)
         {
             try
@@ -141,7 +140,7 @@ namespace LX29_LixChat
 
                 this.Bounds = Settings.MainBounds.MaxSize(this.Bounds);
 
-                comBox_StreamQuali.SelectedIndex = 0;
+                //comBox_StreamQuali.SelectedIndex = 0;
 
                 SetTreeView();
 
@@ -181,7 +180,7 @@ namespace LX29_LixChat
             if (sa != null)
             {
                 var si = sa[0];
-                this.Invoke(new Action<ChannelInfo>(SetChatInfos), si);
+                this.BeginInvoke(new Action<ChannelInfo>(SetChatInfos), si);
             }
         }
 
@@ -219,6 +218,14 @@ namespace LX29_LixChat
                 var sa = GetCurrentInfo();
                 if (sa != null)
                 {
+                    var arr = sa[0].MPV_Stats;
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var s in arr)
+                    {
+                        sb.AppendLine(s);
+                    }
+                    richTextBox1.SelectAll();
+                    richTextBox1.SelectedText = sb.ToString();
                     var si = sa[0];
                     SetChatInfoBox(si);
                 }
@@ -304,11 +311,6 @@ namespace LX29_LixChat
 
         private void btn_OpenBrowser_Click(object sender, EventArgs e)
         {
-            var sa = GetCurrentInfo();
-            if (sa != null)
-            {
-                Settings.StartBrowser("https://www.twitch.tv/" + sa[0].Name);
-            }
         }
 
         private void btn_openSubpage_Click(object sender, EventArgs e)
@@ -416,6 +418,11 @@ namespace LX29_LixChat
         private void btn_Test_Click(object sender, EventArgs e)
         {
             //var sa = GetCurrentInfo();
+            //if (sa[0].MPV.IsRunning)
+            //{
+            //    var url = sa[0].StreamURLS["source"].URL;
+            //    sa[0].MPV.PlayNewFile(url);
+            //}
             //ChatClient.SendMessage("/mods", sa[0].Name);
         }
 
@@ -439,6 +446,20 @@ namespace LX29_LixChat
             }
         }
 
+        private void cB_Favorite_CheckedChanged(object sender, EventArgs e)
+        {
+            if (lockChatSettings) return;
+            var sa = GetCurrentInfo();
+            if (sa != null)
+            {
+                foreach (var s in sa)
+                {
+                    s.IsFavorited = cB_Favorite.Checked;
+                }
+                this.lstB_Channels.Invalidate();
+            }
+        }
+
         //private void cB_ChatPreview_CheckedChanged(object sender, EventArgs e)
         //{
         //    if (cB_ChatPreview.Checked)
@@ -458,21 +479,6 @@ namespace LX29_LixChat
         //        apiInfoPanel1.BringToFront();
         //    }
         //}
-
-        private void cB_Favorite_CheckedChanged(object sender, EventArgs e)
-        {
-            if (lockChatSettings) return;
-            var sa = GetCurrentInfo();
-            if (sa != null)
-            {
-                foreach (var s in sa)
-                {
-                    s.IsFavorited = cB_Favorite.Checked;
-                }
-                this.lstB_Channels.Invalidate();
-            }
-        }
-
         private void cB_LogChat_CheckedChanged(object sender, EventArgs e)
         {
             if (lockChatSettings) return;
@@ -530,14 +536,20 @@ namespace LX29_LixChat
         //}
         private void comboBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            var sa = GetCurrentInfo();
-            if (sa != null)
-            {
-                comBox_StreamQuali.BeginUpdate();
-                comBox_StreamQuali.Items.Clear();
-                comBox_StreamQuali.Items.AddRange(sa[0].StreamURLS.KeysUpper);
-                comBox_StreamQuali.EndUpdate();
-            }
+            //var sa = GetCurrentInfo();
+            //if (sa != null)
+            //{
+            //    comBox_StreamQuali.Text = "Loading...";
+            //    this.BeginInvoke(new Action(() =>
+            //        {
+            //            comBox_StreamQuali.BeginUpdate();
+            //            comBox_StreamQuali.Items.Clear();
+            //            comBox_StreamQuali.Items.AddRange(sa[0].StreamURLS.KeysUpper);
+            //            comBox_StreamQuali.EndUpdate();
+            //            //comBox_StreamQuali.SelectedIndex = 0;
+            //            comBox_StreamQuali.DroppedDown = true;
+            //        }));
+            //}
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -584,6 +596,10 @@ namespace LX29_LixChat
         {
         }
 
+        private void lstB_Channels_Load_1(object sender, EventArgs e)
+        {
+        }
+
         private void Main_LocationChanged(object sender, EventArgs e)
         {
             if (finishedLaoding)
@@ -602,6 +618,51 @@ namespace LX29_LixChat
         {
             if (finishedLaoding)
                 Settings.MainSize = this.Size;
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void numericUpDown2_ValueChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void openChannelInBrowserToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var sa = GetCurrentInfo();
+            if (sa != null)
+            {
+                Settings.StartBrowser("https://www.twitch.tv/" + sa[0].Name);
+            }
+        }
+
+        private void openStreamInBrowserPopoutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var sa = GetCurrentInfo();
+            if (sa != null)
+            {
+                foreach (var channel in sa)
+                {
+                    string arguments = "";
+                    switch (Settings.BrowserName)
+                    {
+                        case "chrome":
+                            arguments = "--new-window --app=";
+                            break;
+
+                        case "chromium":
+                            arguments = "--new-window --app=";
+                            break;
+
+                        case "firefox":
+                            arguments = "-new-window ";
+                            break;
+                    }
+                    Settings.StartBrowser(arguments + "https://player.twitch.tv/?volume=1&!muted&channel=" + channel.Name + "/chat");
+                    ChatClient.TryConnect(channel.Name);
+                }
+            }
         }
 
         private void pb_Preview_DoubleClick(object sender, EventArgs e)
@@ -636,6 +697,25 @@ namespace LX29_LixChat
             lockChatSettings = true;
 
             pb_Preview.SizeMode = si.PreviewImage.IsGif() ? PictureBoxSizeMode.CenterImage : PictureBoxSizeMode.Zoom;
+
+            comBox_StreamQuali.Text = "Loading...";
+            Task.Run(() =>
+            {
+                var items = si.StreamURLS.KeysUpper;
+                this.Invoke(new Action(() =>
+                {
+                    comBox_StreamQuali.BeginUpdate();
+                    comBox_StreamQuali.Items.Clear();
+                    comBox_StreamQuali.Items.AddRange(items);
+                    comBox_StreamQuali.EndUpdate();
+                    if (comBox_StreamQuali.Items.Count > 0)
+                    {
+                        comBox_StreamQuali.SelectedIndex = 0;
+                    }
+                    //comBox_StreamQuali.SelectedIndex = 0;
+                    // comBox_StreamQuali.DroppedDown = true;
+                }));
+            });
 
             pb_Preview.Image = si.PreviewImage;
             cB_AutoLogin.Checked = si.AutoLoginChat;
@@ -716,12 +796,6 @@ namespace LX29_LixChat
         {
         }
 
-        //private void StartMpvExternal(string quali, ChannelInfo sa)
-        //{
-        //    MPV_StartTimer mst = new MPV_StartTimer();
-        //    mst.Start(quali, sa, SetProgressInfo);
-        //}
-
         private void textBox1_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyData == Keys.Enter)
@@ -730,6 +804,11 @@ namespace LX29_LixChat
             }
         }
 
+        //private void StartMpvExternal(string quali, ChannelInfo sa)
+        //{
+        //    MPV_StartTimer mst = new MPV_StartTimer();
+        //    mst.Start(quali, sa, SetProgressInfo);
+        //}
         private void timer2_Tick(object sender, EventArgs e)
         {
             tsLabel_Info.Visible = false;
@@ -755,7 +834,9 @@ namespace LX29_LixChat
 
         private void tSMI_About_Click(object sender, EventArgs e)
         {
-            LX29_MessageBox.Show("Programmed by Lukix29 " + DateTime.Now.Year + "\r\n\r\nhttps://github.com/lukix29/LixChat\r\n\r\nIf you want to Support me:\r\nhttps://paypal.me/lukix29");
+            DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
+            LX29_MessageBox.Show("Programmed by Lukix29 ©" + cur.Year + "\r\n\r\nEmoji artwork provided by EmojiOne." +
+                "\r\n\r\nhttps://lixchat.com\r\n(Domain provided by ChoosenEye)\r\n\r\nIf you want to Support me:\r\nhttps://paypal.me/lukix29");
         }
 
         private void tSMi_CacheEmotes_Click(object sender, EventArgs e)
@@ -922,5 +1003,54 @@ namespace LX29_LixChat
         //        return false;
         //    }
         //}
+    }
+
+    public class Performance
+    {
+        private PerformanceCounter[] counters = new PerformanceCounter[0];
+
+        public Performance()
+        {
+            LoadProzessPerfMon();
+        }
+
+        public string GetInfo()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var c in counters)
+            {
+                sb.AppendLine(c.CounterName + ":\r\n" + c.NextValue().SizeSuffix());
+            }
+            return sb.ToString();
+        }
+
+        public void LoadProzessPerfMon()
+        {
+            var arr = PerformanceCounterCategory.GetCategories()
+            .Where(t => t.CategoryName.Equals("prozess", StringComparison.OrdinalIgnoreCase));
+            List<PerformanceCounter> list = new List<PerformanceCounter>();
+            foreach (var s in arr)
+            {
+                try
+                {
+                    foreach (var i in s.GetInstanceNames())
+                    {
+                        var counters = s.GetCounters(i);
+                        foreach (var c in counters)
+                        {
+                            if (i.Equals(Process.GetCurrentProcess().ProcessName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                list.Add(c);
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
+            this.counters = list.ToArray();
+            //            //var res = s.CategoryType + " - " + s.CategoryName + " - " + i + " - " + c.CounterName + " - " + c.CategoryName;
+            //            Console.WriteLine(c.CounterName + ":");
+            //            Console.WriteLine(c.NextValue().ToString("F3"));
+        }
     }
 }

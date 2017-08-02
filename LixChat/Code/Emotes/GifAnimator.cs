@@ -51,6 +51,7 @@ namespace LX29_ChatClient.Emotes
             {
                 _images.Add(EmoteImageSize.Small, new Image[] { (Image)image.Clone() });
             }
+            LoadTime = DateTime.MaxValue;
         }
 
         public EmoteImage(string name)
@@ -64,6 +65,7 @@ namespace LX29_ChatClient.Emotes
                 Type = LX29_LixChat.Properties.Resources.loading.RawFormat;
                 IsGif = true;
                 SetGif(LX29_LixChat.Properties.Resources.loading, EmoteImageSize.Small);
+                LoadTime = DateTime.MaxValue;
             }
         }
 
@@ -73,9 +75,7 @@ namespace LX29_ChatClient.Emotes
             Name = name.Trim();
             this.URLs = new Dictionary<EmoteImageSize, string>();
             this.FilePaths = new Dictionary<EmoteImageSize, string>();
-            if (name.Contains("ffzap"))
-            {
-            }
+
             foreach (var url in urls)
             {
                 int i = 1;
@@ -96,6 +96,7 @@ namespace LX29_ChatClient.Emotes
                     this.FilePaths.Add(emimgs, Path.GetFullPath(GetLocalfileName(uri)));
                 }
             }
+            LoadTime = DateTime.MaxValue;
         }
 
         public int Delay
@@ -128,6 +129,12 @@ namespace LX29_ChatClient.Emotes
             private set;
         }
 
+        public DateTime LoadTime
+        {
+            get;
+            private set;
+        }
+
         public string Name
         {
             get;
@@ -143,7 +150,7 @@ namespace LX29_ChatClient.Emotes
         public Dictionary<EmoteImageSize, string> URLs
         {
             get;
-            private set;
+            set;
         }
 
         public static string GetLocalfileName(string imageUri)
@@ -230,6 +237,7 @@ namespace LX29_ChatClient.Emotes
                         image.Dispose();
                     }
                 }
+                _images.Clear();
             }
             catch { }
         }
@@ -282,6 +290,7 @@ namespace LX29_ChatClient.Emotes
                     {
                         g.DrawImage(images[FrameIndex], X, Y, Width, Height);
                     }
+                    LoadTime = DateTime.Now;
                     //g.DrawImage(images[FrameIndex], X, Y, Width, Height);
                 }
             }
@@ -304,7 +313,8 @@ namespace LX29_ChatClient.Emotes
             {
                 return _images[size];
             }
-            return _images.Last().Value;
+            var max = (EmoteImageSize)_images.Keys.Max(t => (int)t);
+            return _images[max];
             //}
         }
 
@@ -359,6 +369,7 @@ namespace LX29_ChatClient.Emotes
                         }
                     }
                 }
+                LoadTime = DateTime.Now;
             }
             catch
             {
@@ -385,8 +396,6 @@ namespace LX29_ChatClient.Emotes
         {
             try
             {
-                //gif reparieren
-
                 if (!ImageFormat.Gif.Equals(this.Type)) return false;
                 if (cnt > 10) return false;
                 IsGif = true;

@@ -325,7 +325,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\" />
-    <Folder Include="Plugins\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\1463551454_16.ico" />
@@ -8327,6 +8326,9 @@
     <None Include="Emojis\3299.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Plugins\7za.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="Resources\ban.png" />
     <None Include="Resources\emojis.txt" />
     <Content Include="Resources\emojis.exe" />
@@ -8366,8 +8368,8 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>E:\Backup\LixChat\LixChat\bin\Release\Plugins\7za a -y E:\Backup\LixChat\LixChat\bin\Release\LixChat_Nightly_Updater.7z E:\Backup\LixChat\LixChat\bin\Release\LixChat.exe
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

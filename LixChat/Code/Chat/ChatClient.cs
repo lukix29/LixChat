@@ -246,7 +246,9 @@ namespace LX29_ChatClient
                                     }
                                     system_msg = subType + " " + msg_id + " " + months + "x";
                                 }
-                                SendSilentMessage(system_msg, channelName, MsgType.UserNotice);
+                                //SendSilentMessage(system_msg, channelName, MsgType.UserNotice);
+                                //messages.Add(channelName, parameters, Name, Message, spliType, tor);
+                                messages.Add(channelName, system_msg, true, MsgType.UserNotice);
                             }
                             break;
 
@@ -356,6 +358,11 @@ namespace LX29_ChatClient
 
         private static int reconectTimeout = 8000;
         private static SortMode[] sortArr;
+
+        public static long ReceivedBytes
+        {
+            get { return clients.Sum(t => t.Value.ReceivedBytes); }
+        }
 
         public static void Disconnect(IRC client)
         {
@@ -850,7 +857,8 @@ namespace LX29_ChatClient
     {
         public class MessageCollection // : IDictionary<string, Dictionary<string, ChatUser>>
         {
-            private int maxMessages = UInt16.MaxValue;
+            //count bytes received in IRC-client
+            private int maxMessages = 1024;
 
             private Dictionary<string, int> messageCount = new Dictionary<string, int>();
 
@@ -907,11 +915,16 @@ namespace LX29_ChatClient
                 }
             }
 
-            public void Add(string Channel, string Message, params MsgType[] types)
+            public void Add(string Channel, string Message, bool executeActions, params MsgType[] types)
             {
                 Channel = Channel.ToLower().Trim();
                 ChatMessage m = new ChatMessage(Message, ChatUser.Emtpy, Channel, true, types);
-                Add(Channel, m, false);
+                Add(Channel, m, executeActions);
+            }
+
+            public void Add(string Channel, string Message, params MsgType[] types)
+            {
+                Add(Channel, Message, false, types);
             }
 
             public void Add(string channelName, ChatMessage msg, bool executeActions)

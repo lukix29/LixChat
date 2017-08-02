@@ -96,19 +96,55 @@ namespace LX29_Helpers.Crypt
 
     public class LX29Crypt
     {
-        public readonly byte[] Key = null;
+        private readonly byte[] Key = null;
 
-        public LX29Crypt(byte[] Key)
+        public LX29Crypt(string id)
         {
-            this.Key = Key;
+            Key = CreateKey(id);
         }
 
-        public LX29Crypt(int seed)
+        public byte[] Decrypt(byte[] Input)
         {
-            Key = CreateKey(seed);
+            if (Input[0] != 22) return null;
+
+            int Ktemp = Key.Length;
+            int Ki = 0;
+            List<byte> list = new List<byte>();
+
+            Random rd = new Random(Key[0]);
+            int seed = BitConverter.ToInt32(Key, rd.Next(0, Ktemp - 4));
+            rd = new Random(seed);
+
+            for (int i = 1; i < Input.Length; i += 2)
+            {
+                Ki = rd.Next(0, Ktemp);
+                int b = BitConverter.ToInt16(Input, i) - Key[Ki];
+                list.Add((byte)b);
+            }
+            return list.ToArray();
         }
 
-        public byte[] CreateKey(int seed)
+        public byte[] Encrypt(byte[] Input)
+        {
+            int Ktemp = Key.Length;
+            int Ki = 0;
+            List<byte> list = new List<byte>();
+            list.Add((byte)22);
+
+            Random rd = new Random(Key[0]);
+            int seed = BitConverter.ToInt32(Key, rd.Next(0, Ktemp - 4));
+            rd = new Random(seed);
+
+            for (int i = 0; i < Input.Length; i++)
+            {
+                Ki = rd.Next(0, Ktemp);
+                int b = ((int)Input[i] + (int)Key[Ki]);
+                list.AddRange(BitConverter.GetBytes((short)b));
+            }
+            return list.ToArray();
+        }
+
+        private byte[] CreateKey(string id)
         {
             //ManagementObjectSearcher MOS = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
             //ManagementObjectCollection moc = MOS.Get();
@@ -121,52 +157,11 @@ namespace LX29_Helpers.Crypt
             //long l = long.Parse(s, System.Globalization.NumberStyles.HexNumber);
             //byte[] ba = BitConverter.GetBytes(l);
             //int _seed = BitConverter.ToInt32(new byte[] { ba[0], ba[2], ba[4], ba[6] }, 0);
-            Random rd = new Random(seed);
-            var key = new byte[128];
+            int s = int.Parse(id);
+            Random rd = new Random(s);
+            var key = new byte[2048];
             rd.NextBytes(key);
             return key;
-        }
-
-        public string Decrypt(byte[] Input)
-        {
-            if (Input[0] != 22) return "";
-
-            byte[] Ktemp = Key;
-            int Ki = 0;
-            List<byte> list = new List<byte>();
-
-            for (int i = 1; i < Input.Length; i += 2)
-            {
-                int b = BitConverter.ToInt16(Input, i) - Ktemp[Ki];
-                list.Add((byte)b);
-                Ki++;
-                if (Ki >= Ktemp.Length)
-                {
-                    Ki = 0;
-                }
-            }
-            string s = Encoding.UTF8.GetString(list.ToArray());
-            return s;
-        }
-
-        public byte[] Encrypt(string Input)
-        {
-            byte[] temp = Encoding.UTF8.GetBytes(Input);
-            byte[] Ktemp = Key;
-            int Ki = 0;
-            List<byte> list = new List<byte>();
-            list.Add((byte)22);
-            for (int i = 0; i < temp.Length; i++)
-            {
-                int b = ((int)temp[i] + (int)Ktemp[Ki]);
-                list.AddRange(BitConverter.GetBytes((short)b));
-                Ki++;
-                if (Ki >= Ktemp.Length)
-                {
-                    Ki = 0;
-                }
-            }
-            return list.ToArray();
         }
     }
 }

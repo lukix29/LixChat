@@ -33,7 +33,7 @@
             this.flowLayoutPanel_RenderOptions = new System.Windows.Forms.FlowLayoutPanel();
             this.cB_AnimatedEmotes = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
+            this.flowLayoutPanel_ChatOptions = new System.Windows.Forms.FlowLayoutPanel();
             this.btn_SelectFont = new System.Windows.Forms.Button();
             this.btn_SelectChatBG = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -58,7 +58,7 @@
             this.groupBox3.SuspendLayout();
             this.flowLayoutPanel_RenderOptions.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            this.flowLayoutPanel2.SuspendLayout();
+            this.flowLayoutPanel_ChatOptions.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -113,7 +113,7 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.flowLayoutPanel2);
+            this.groupBox2.Controls.Add(this.flowLayoutPanel_ChatOptions);
             this.flowLayoutPanel5.SetFlowBreak(this.groupBox2, true);
             this.groupBox2.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox2.ForeColor = System.Drawing.Color.LightGray;
@@ -124,16 +124,16 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Chat Options";
             // 
-            // flowLayoutPanel2
+            // flowLayoutPanel_ChatOptions
             // 
-            this.flowLayoutPanel2.Controls.Add(this.btn_SelectFont);
-            this.flowLayoutPanel2.Controls.Add(this.btn_SelectChatBG);
-            this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 17);
-            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(121, 242);
-            this.flowLayoutPanel2.TabIndex = 0;
+            this.flowLayoutPanel_ChatOptions.Controls.Add(this.btn_SelectFont);
+            this.flowLayoutPanel_ChatOptions.Controls.Add(this.btn_SelectChatBG);
+            this.flowLayoutPanel_ChatOptions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel_ChatOptions.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flowLayoutPanel_ChatOptions.Location = new System.Drawing.Point(3, 17);
+            this.flowLayoutPanel_ChatOptions.Name = "flowLayoutPanel_ChatOptions";
+            this.flowLayoutPanel_ChatOptions.Size = new System.Drawing.Size(121, 242);
+            this.flowLayoutPanel_ChatOptions.TabIndex = 0;
             // 
             // btn_SelectFont
             // 
@@ -402,7 +402,7 @@
             this.groupBox3.ResumeLayout(false);
             this.flowLayoutPanel_RenderOptions.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
-            this.flowLayoutPanel2.ResumeLayout(false);
+            this.flowLayoutPanel_ChatOptions.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
@@ -434,7 +434,7 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel_RenderOptions;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel_ChatOptions;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.GroupBox groupBox4;

@@ -604,8 +604,8 @@ namespace LX29_ChatClient
             {
                 if (string.IsNullOrEmpty(displayName))
                 {
-                    if (!ApiResult.IsEmpty)
-                        displayName = ApiResult.GetValue<string>(ApiInfo.display_name);
+                    if (result != null && !result.IsEmpty)
+                        displayName = result.GetValue<string>(ApiInfo.display_name);
                 }
                 if (string.IsNullOrEmpty(displayName))
                 {

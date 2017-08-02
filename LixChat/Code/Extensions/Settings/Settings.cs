@@ -214,6 +214,11 @@ namespace LX29_ChatClient
 
     public class SettingClasses
     {
+        public static readonly SettingClasses[] ChatBasic = new SettingClasses[]
+        {
+            new SettingClasses("_ChatHistory", "Chat History Amount", 100, Int16.MaxValue, 1)
+        };
+
         public static readonly SettingClasses[] EmoteBasic = new SettingClasses[]
         {
             new SettingClasses("_BadgePadding", "Badge Padding", 1, 100, 1),
@@ -459,6 +464,7 @@ namespace LX29_ChatClient
         private static Rectangle _MainBounds = Rectangle.Empty;
         private static bool _ShowErrors = false;
         private static int _UpdateInterval = 60000;
+        private int _ChatHistory = 1024;
 
         #endregion PrivateFields
 
@@ -576,6 +582,16 @@ namespace LX29_ChatClient
             set
             {
                 _UserColorSaturation = Math.Max(0, Math.Min(1, value));
+                Save();
+            }
+        }
+
+        public int ChatHistory
+        {
+            get { return _ChatHistory; }
+            set
+            {
+                _ChatHistory = value;
                 Save();
             }
         }

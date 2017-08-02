@@ -33,6 +33,7 @@ namespace LX29_ChatClient.Channels
     {
         public readonly bool IsFixed = false;
         public readonly object LockObject = new object();
+        public readonly MPV_Wrapper MPV;
         private static int fetchCnt = 0;
         private bool _AutoLoginChat = false;
         private Bitmap[] _previewImages = new Bitmap[2];
@@ -74,13 +75,19 @@ namespace LX29_ChatClient.Channels
 
             Modes = new ChannelModes();
 
+            MPV = new MPV_Wrapper(Name);
+
             Task.Run(async () =>
             {
                 while (fetchCnt > 10) await Task.Delay(50);
                 fetchCnt++;
                 subInfo = TwitchApi.GetSubscription(this.ID);
+
+                CheckExisting_MPV_Instance();
+
                 fetchCnt--;
             });
+
             //Settings = new ChannelSettings<ChannelSettings>();
             //AutoActions = new Actions.AutoActions();
         }
@@ -179,8 +186,8 @@ namespace LX29_ChatClient.Channels
 
         public bool IsViewing
         {
-            get;
-            private set;
+            get { return MPV.IsRunning; }
+            //private set;
         }
 
         public DateTime LastSendMessageTime
@@ -306,6 +313,21 @@ namespace LX29_ChatClient.Channels
             return null;
         }
 
+        public void CheckExisting_MPV_Instance()
+        {
+            var procs = System.Diagnostics.Process.GetProcessesByName("mpv");
+            foreach (var proc in procs)
+            {
+                if (proc.MainWindowTitle.Contains(MPV_Wrapper.WindowIdentifier))
+                {
+                    if (proc.MainWindowTitle.ToLower().StartsWith(Name))
+                    {
+                        MPV.SetProcess(proc);
+                    }
+                }
+            }
+        }
+
         public void CloseChat()
         {
             if (chatForm != null)
@@ -328,7 +350,7 @@ namespace LX29_ChatClient.Channels
                 playerForm.Close();
                 playerForm.Dispose();
                 playerForm = null;
-                IsViewing = false;
+                //IsViewing = false;
             }
         }
 
@@ -424,6 +446,37 @@ namespace LX29_ChatClient.Channels
 
         private bool isStartingStream = false;
 
+        public string[] MPV_Stats
+        {
+            get
+            {
+                if (MPV.IsRunning)
+                {
+                    var arr = new MPV_Property[] { MPV_Property.demuxer_cache_duration, MPV_Property.cache, MPV_Property.paused_for_cache, MPV_Property.video_bitrate, MPV_Property.audio_bitrate };
+                    // var names = Enum.GetNames(typeof(MPV_Property)).Where(t => t.Contains("cache") || t.Contains("demuxer") || t.Contains("bitrate"));
+                    List<string> values = new List<string>();
+                    foreach (var prop in arr)
+                    {
+                        var s = Enum.GetName(typeof(MPV_Property), prop);
+                        object value = MPV.GetProperty(prop);
+                        if (value == null)
+                            continue;
+                        if (s.Contains("bitrate"))
+                        {
+                            if (value is float)
+                            {
+                                float val = (float)value;
+                                value = val.SizeSuffix(2) + "/s";
+                            }
+                        }
+                        values.Add(s + ": " + value);
+                    }
+                    return values.ToArray();
+                }
+                return new string[0];
+            }
+        }
+
         public void ShowVideoPlayer(string quality, bool external = false, Action<int, int, string> a = null)
         {
             if (isStartingStream) return;
@@ -455,7 +508,7 @@ namespace LX29_ChatClient.Channels
                     }
                     playerForm.LocationChanged += playerForm_LocationChanged;
                     isStartingStream = false;
-                    IsViewing = true;
+                    //IsViewing = true;
                 }
             }
         }
@@ -536,7 +589,8 @@ namespace LX29_ChatClient.Channels
             if (!sdf.IsEmpty)
             {
                 string url = sdf[quali].URL;
-                MPV_Wrapper.StartAlone(this.DisplayName, url, this.PlayerPosition);
+                MPV.Start(this.Name, url, 64000, 5, this.PlayerPosition);
+                //MessageBox.Show(MPV.GetProperty(MPV_Property.ca).ToString());
                 return true;
             }
             else
@@ -567,7 +621,7 @@ namespace LX29_ChatClient.Channels
         {
             playerForm.Dispose();
             playerForm = null;
-            IsViewing = false;
+            //IsViewing = false;
         }
 
         private void playerForm_LocationChanged(object sender, EventArgs e)

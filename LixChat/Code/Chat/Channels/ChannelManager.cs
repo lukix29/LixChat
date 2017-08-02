@@ -13,7 +13,6 @@ namespace LX29_ChatClient
     {
         public static bool LoggedIn = false;
 
-        //public static TwitchPubSub pubsub = new TwitchPubSub();
         private static Dictionary<string, ChannelInfo> channels = new Dictionary<string, ChannelInfo>();
 
         private static bool isSnycing = false;
@@ -271,7 +270,7 @@ namespace LX29_ChatClient
                 if (ListLoaded != null)
                     ListLoaded(channels.Count, channels.Count, "Loaded " + channels.Count + " Channels");
 
-                Task.Run(() => Emotes.FetchEmotes(channels.Values.ToList()));
+                Task.Run(() => Emotes.FetchEmotes(channels.Values.ToList(), false));
 
                 startRefresher();
 
@@ -316,6 +315,8 @@ namespace LX29_ChatClient
                         channel.ResetStreamStatus();
                     }
                 }
+                Emotes.Values.CheckLoadingTime();
+
                 ListLoaded(channels.Count, channels.Count, "Refreshed Channels");
             }
             catch (Exception x)

@@ -37,17 +37,21 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.splitContainer_Preview = new System.Windows.Forms.SplitContainer();
-            this.pb_Preview = new System.Windows.Forms.PictureBox();
             this.lbl_preview = new System.Windows.Forms.Label();
+            this.pb_Preview = new System.Windows.Forms.PictureBox();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.btn_External = new System.Windows.Forms.Button();
-            this.btn_StartStream = new System.Windows.Forms.Button();
             this.btn_ShowPreview = new System.Windows.Forms.Button();
             this.comBox_StreamQuali = new System.Windows.Forms.ComboBox();
             this.btn_Show_Video_Info = new System.Windows.Forms.Button();
+            this.btn_AutostartStream = new System.Windows.Forms.Button();
+            this.btn_StartStream = new System.Windows.Forms.Button();
             this.splitC_Main = new System.Windows.Forms.SplitContainer();
+            this.lstB_Channels = new LX29_Twitch.Forms.ChannelListBox();
             this.cMS_ListBox = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tSMI_OpenChatInBrowser = new System.Windows.Forms.ToolStripMenuItem();
+            this.openStreamInBrowserPopoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openChannelInBrowserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tLP_Preview = new System.Windows.Forms.TableLayoutPanel();
             this.pn_Preview = new System.Windows.Forms.Panel();
             this.splitContainer_ChatPreview = new System.Windows.Forms.SplitContainer();
@@ -63,10 +67,10 @@
             this.btn_AutoChatActions = new System.Windows.Forms.Button();
             this.cB_LogChat = new System.Windows.Forms.CheckBox();
             this.btn_openSubpage = new System.Windows.Forms.Button();
-            this.btn_OpenBrowser = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.treeView1 = new System.Windows.Forms.TreeView();
-            this.btn_AutostartStream = new System.Windows.Forms.Button();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.apiInfoPanel1 = new LX29_Twitch.Forms.ApiInfoPanel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.btn_AddChannel = new System.Windows.Forms.Button();
@@ -94,8 +98,6 @@
             this.tSProgBar_Loading = new System.Windows.Forms.ToolStripProgressBar();
             this.tsLabel_Info = new System.Windows.Forms.ToolStripLabel();
             this.toolTip_Main = new System.Windows.Forms.ToolTip(this.components);
-            this.lstB_Channels = new LX29_Twitch.Forms.ChannelListBox();
-            this.apiInfoPanel1 = new LX29_Twitch.Forms.ApiInfoPanel();
             this.controlSettings1 = new LX29_ChatClient.Forms.ControlSettings();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Preview)).BeginInit();
             this.splitContainer_Preview.Panel1.SuspendLayout();
@@ -128,14 +130,20 @@
             // 
             this.splitContainer_Preview.Panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             resources.ApplyResources(this.splitContainer_Preview.Panel1, "splitContainer_Preview.Panel1");
-            this.splitContainer_Preview.Panel1.Controls.Add(this.pb_Preview);
             this.splitContainer_Preview.Panel1.Controls.Add(this.lbl_preview);
+            this.splitContainer_Preview.Panel1.Controls.Add(this.pb_Preview);
             this.splitContainer_Preview.Panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer2_Panel1_Paint);
             // 
             // splitContainer_Preview.Panel2
             // 
             this.splitContainer_Preview.Panel2.Controls.Add(this.flowLayoutPanel2);
             resources.ApplyResources(this.splitContainer_Preview.Panel2, "splitContainer_Preview.Panel2");
+            // 
+            // lbl_preview
+            // 
+            resources.ApplyResources(this.lbl_preview, "lbl_preview");
+            this.lbl_preview.BackColor = System.Drawing.Color.Transparent;
+            this.lbl_preview.Name = "lbl_preview";
             // 
             // pb_Preview
             // 
@@ -146,20 +154,15 @@
             this.pb_Preview.TabStop = false;
             this.pb_Preview.DoubleClick += new System.EventHandler(this.pb_Preview_DoubleClick);
             // 
-            // lbl_preview
-            // 
-            resources.ApplyResources(this.lbl_preview, "lbl_preview");
-            this.lbl_preview.BackColor = System.Drawing.Color.Transparent;
-            this.lbl_preview.Name = "lbl_preview";
-            // 
             // flowLayoutPanel2
             // 
             this.flowLayoutPanel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(20)))));
             this.flowLayoutPanel2.Controls.Add(this.btn_External);
-            this.flowLayoutPanel2.Controls.Add(this.btn_StartStream);
             this.flowLayoutPanel2.Controls.Add(this.btn_ShowPreview);
             this.flowLayoutPanel2.Controls.Add(this.comBox_StreamQuali);
             this.flowLayoutPanel2.Controls.Add(this.btn_Show_Video_Info);
+            this.flowLayoutPanel2.Controls.Add(this.btn_AutostartStream);
+            this.flowLayoutPanel2.Controls.Add(this.btn_StartStream);
             resources.ApplyResources(this.flowLayoutPanel2, "flowLayoutPanel2");
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             // 
@@ -172,16 +175,6 @@
             this.btn_External.TabStop = false;
             this.btn_External.UseVisualStyleBackColor = false;
             this.btn_External.Click += new System.EventHandler(this.btn_External_Click);
-            // 
-            // btn_StartStream
-            // 
-            this.btn_StartStream.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            resources.ApplyResources(this.btn_StartStream, "btn_StartStream");
-            this.btn_StartStream.ForeColor = System.Drawing.Color.Gainsboro;
-            this.btn_StartStream.Name = "btn_StartStream";
-            this.btn_StartStream.TabStop = false;
-            this.btn_StartStream.UseVisualStyleBackColor = false;
-            this.btn_StartStream.Click += new System.EventHandler(this.btn_StartStream_Click);
             // 
             // btn_ShowPreview
             // 
@@ -199,8 +192,6 @@
             resources.ApplyResources(this.comBox_StreamQuali, "comBox_StreamQuali");
             this.comBox_StreamQuali.ForeColor = System.Drawing.Color.Gainsboro;
             this.comBox_StreamQuali.FormattingEnabled = true;
-            this.comBox_StreamQuali.Items.AddRange(new object[] {
-            resources.GetString("comBox_StreamQuali.Items")});
             this.comBox_StreamQuali.Name = "comBox_StreamQuali";
             this.comBox_StreamQuali.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             this.comBox_StreamQuali.MouseClick += new System.Windows.Forms.MouseEventHandler(this.comboBox1_MouseClick);
@@ -215,6 +206,26 @@
             this.btn_Show_Video_Info.UseVisualStyleBackColor = false;
             this.btn_Show_Video_Info.Click += new System.EventHandler(this.btn_Show_Video_Info_Click);
             // 
+            // btn_AutostartStream
+            // 
+            this.btn_AutostartStream.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            resources.ApplyResources(this.btn_AutostartStream, "btn_AutostartStream");
+            this.btn_AutostartStream.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btn_AutostartStream.Name = "btn_AutostartStream";
+            this.btn_AutostartStream.TabStop = false;
+            this.btn_AutostartStream.UseVisualStyleBackColor = false;
+            this.btn_AutostartStream.Click += new System.EventHandler(this.btn_Test_Click);
+            // 
+            // btn_StartStream
+            // 
+            this.btn_StartStream.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            resources.ApplyResources(this.btn_StartStream, "btn_StartStream");
+            this.btn_StartStream.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btn_StartStream.Name = "btn_StartStream";
+            this.btn_StartStream.TabStop = false;
+            this.btn_StartStream.UseVisualStyleBackColor = false;
+            this.btn_StartStream.Click += new System.EventHandler(this.btn_StartStream_Click);
+            // 
             // splitC_Main
             // 
             resources.ApplyResources(this.splitC_Main, "splitC_Main");
@@ -228,10 +239,23 @@
             // 
             this.splitC_Main.Panel2.Controls.Add(this.tLP_Preview);
             // 
+            // lstB_Channels
+            // 
+            this.lstB_Channels.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.lstB_Channels.ContextMenuStrip = this.cMS_ListBox;
+            resources.ApplyResources(this.lstB_Channels, "lstB_Channels");
+            this.lstB_Channels.Name = "lstB_Channels";
+            this.lstB_Channels.SelectedIndex = 0;
+            this.lstB_Channels.SelectedIndexChanged += new LX29_Twitch.Forms.ChannelListBox.OnSelectedIndexChanged(this.lstB_Channels_SelectedIndexChanged);
+            this.lstB_Channels.Load += new System.EventHandler(this.lstB_Channels_Load_1);
+            this.lstB_Channels.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstB_Channels_MouseDoubleClick);
+            // 
             // cMS_ListBox
             // 
             this.cMS_ListBox.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tSMI_OpenChatInBrowser});
+            this.tSMI_OpenChatInBrowser,
+            this.openStreamInBrowserPopoutToolStripMenuItem,
+            this.openChannelInBrowserToolStripMenuItem});
             this.cMS_ListBox.Name = "cMS_ListBox";
             resources.ApplyResources(this.cMS_ListBox, "cMS_ListBox");
             this.cMS_ListBox.Opening += new System.ComponentModel.CancelEventHandler(this.cMS_ListBox_Opening);
@@ -241,6 +265,18 @@
             this.tSMI_OpenChatInBrowser.Name = "tSMI_OpenChatInBrowser";
             resources.ApplyResources(this.tSMI_OpenChatInBrowser, "tSMI_OpenChatInBrowser");
             this.tSMI_OpenChatInBrowser.Click += new System.EventHandler(this.tSMI_OpenChatInBrowser_Click);
+            // 
+            // openStreamInBrowserPopoutToolStripMenuItem
+            // 
+            this.openStreamInBrowserPopoutToolStripMenuItem.Name = "openStreamInBrowserPopoutToolStripMenuItem";
+            resources.ApplyResources(this.openStreamInBrowserPopoutToolStripMenuItem, "openStreamInBrowserPopoutToolStripMenuItem");
+            this.openStreamInBrowserPopoutToolStripMenuItem.Click += new System.EventHandler(this.openStreamInBrowserPopoutToolStripMenuItem_Click);
+            // 
+            // openChannelInBrowserToolStripMenuItem
+            // 
+            this.openChannelInBrowserToolStripMenuItem.Name = "openChannelInBrowserToolStripMenuItem";
+            resources.ApplyResources(this.openChannelInBrowserToolStripMenuItem, "openChannelInBrowserToolStripMenuItem");
+            this.openChannelInBrowserToolStripMenuItem.Click += new System.EventHandler(this.openChannelInBrowserToolStripMenuItem_Click);
             // 
             // tLP_Preview
             // 
@@ -266,6 +302,7 @@
             // 
             // splitContainer_ChatPreview.Panel2
             // 
+            this.splitContainer_ChatPreview.Panel2.Controls.Add(this.richTextBox1);
             this.splitContainer_ChatPreview.Panel2.Controls.Add(this.apiInfoPanel1);
             // 
             // flowLayoutPanel1
@@ -283,9 +320,7 @@
             this.flowLayoutPanel1.Controls.Add(this.btn_AutoChatActions);
             this.flowLayoutPanel1.Controls.Add(this.cB_LogChat);
             this.flowLayoutPanel1.Controls.Add(this.btn_openSubpage);
-            this.flowLayoutPanel1.Controls.Add(this.btn_OpenBrowser);
             this.flowLayoutPanel1.Controls.Add(this.groupBox1);
-            this.flowLayoutPanel1.Controls.Add(this.btn_AutostartStream);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
             // 
@@ -410,16 +445,6 @@
             this.btn_openSubpage.UseVisualStyleBackColor = false;
             this.btn_openSubpage.Click += new System.EventHandler(this.btn_openSubpage_Click);
             // 
-            // btn_OpenBrowser
-            // 
-            this.btn_OpenBrowser.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            resources.ApplyResources(this.btn_OpenBrowser, "btn_OpenBrowser");
-            this.btn_OpenBrowser.ForeColor = System.Drawing.Color.Gainsboro;
-            this.btn_OpenBrowser.Name = "btn_OpenBrowser";
-            this.btn_OpenBrowser.TabStop = false;
-            this.btn_OpenBrowser.UseVisualStyleBackColor = false;
-            this.btn_OpenBrowser.Click += new System.EventHandler(this.btn_OpenBrowser_Click);
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.treeView1);
@@ -442,15 +467,20 @@
             this.treeView1.TabStop = false;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             // 
-            // btn_AutostartStream
+            // richTextBox1
             // 
-            this.btn_AutostartStream.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            resources.ApplyResources(this.btn_AutostartStream, "btn_AutostartStream");
-            this.btn_AutostartStream.ForeColor = System.Drawing.Color.Gainsboro;
-            this.btn_AutostartStream.Name = "btn_AutostartStream";
-            this.btn_AutostartStream.TabStop = false;
-            this.btn_AutostartStream.UseVisualStyleBackColor = false;
-            this.btn_AutostartStream.Click += new System.EventHandler(this.btn_Test_Click);
+            this.richTextBox1.BackColor = System.Drawing.SystemColors.InfoText;
+            this.richTextBox1.ForeColor = System.Drawing.Color.LightGray;
+            resources.ApplyResources(this.richTextBox1, "richTextBox1");
+            this.richTextBox1.Name = "richTextBox1";
+            // 
+            // apiInfoPanel1
+            // 
+            this.apiInfoPanel1.BackColor = System.Drawing.Color.Black;
+            resources.ApplyResources(this.apiInfoPanel1, "apiInfoPanel1");
+            this.apiInfoPanel1.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.apiInfoPanel1.InfosToShow = new LX29_Twitch.Api.ApiInfo[0];
+            this.apiInfoPanel1.Name = "apiInfoPanel1";
             // 
             // timer1
             // 
@@ -681,24 +711,6 @@
             this.toolTip_Main.UseAnimation = false;
             this.toolTip_Main.UseFading = false;
             // 
-            // lstB_Channels
-            // 
-            this.lstB_Channels.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.lstB_Channels.ContextMenuStrip = this.cMS_ListBox;
-            resources.ApplyResources(this.lstB_Channels, "lstB_Channels");
-            this.lstB_Channels.Name = "lstB_Channels";
-            this.lstB_Channels.SelectedIndex = 0;
-            this.lstB_Channels.SelectedIndexChanged += new LX29_Twitch.Forms.ChannelListBox.OnSelectedIndexChanged(this.lstB_Channels_SelectedIndexChanged);
-            this.lstB_Channels.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstB_Channels_MouseDoubleClick);
-            // 
-            // apiInfoPanel1
-            // 
-            this.apiInfoPanel1.BackColor = System.Drawing.Color.Black;
-            resources.ApplyResources(this.apiInfoPanel1, "apiInfoPanel1");
-            this.apiInfoPanel1.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.apiInfoPanel1.InfosToShow = new LX29_Twitch.Api.ApiInfo[0];
-            this.apiInfoPanel1.Name = "apiInfoPanel1";
-            // 
             // controlSettings1
             // 
             resources.ApplyResources(this.controlSettings1, "controlSettings1");
@@ -802,7 +814,6 @@
         private System.Windows.Forms.Button btn_AutoChatActions;
         private System.Windows.Forms.Button btn_openSubpage;
         private System.Windows.Forms.ToolStripMenuItem tSMi_ShowSettings;
-        private System.Windows.Forms.Button btn_OpenBrowser;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox cB_LogChat;
         private System.Windows.Forms.ToolStripDropDownButton tSDDB_About_Menue;
@@ -818,6 +829,9 @@
         private LX29_Twitch.Forms.ApiInfoPanel apiInfoPanel1;
         private LX29_ChatClient.Forms.ControlSettings controlSettings1;
         private System.Windows.Forms.ToolStripMenuItem refreshChannelsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openStreamInBrowserPopoutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openChannelInBrowserToolStripMenuItem;
+        private System.Windows.Forms.RichTextBox richTextBox1;
     }
 }
 

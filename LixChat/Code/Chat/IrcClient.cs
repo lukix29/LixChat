@@ -198,6 +198,12 @@ namespace IRC_Client
             get { return RawMessageSent == null; }
         }
 
+        public long ReceivedBytes
+        {
+            get;
+            private set;
+        }
+
         public string ServerAddress
         {
             get
@@ -467,6 +473,7 @@ namespace IRC_Client
             try
             {
                 length = NetworkStream.EndRead(result);
+                ReceivedBytes += length;
 
                 string msg = Encoding.GetString(ReadBuffer, 0, length);
 

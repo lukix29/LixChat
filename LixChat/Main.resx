@@ -132,36 +132,6 @@
   <data name="splitContainer_Preview.Panel1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
     <value>Zoom</value>
   </data>
-  <data name="pb_Preview.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Fill</value>
-  </data>
-  <data name="pb_Preview.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="pb_Preview.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="pb_Preview.Size" type="System.Drawing.Size, System.Drawing">
-    <value>421, 240</value>
-  </data>
-  <data name="pb_Preview.SizeMode" type="System.Windows.Forms.PictureBoxSizeMode, System.Windows.Forms">
-    <value>CenterImage</value>
-  </data>
-  <data name="pb_Preview.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;pb_Preview.Name" xml:space="preserve">
-    <value>pb_Preview</value>
-  </data>
-  <data name="&gt;&gt;pb_Preview.Type" xml:space="preserve">
-    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;pb_Preview.Parent" xml:space="preserve">
-    <value>splitContainer_Preview.Panel1</value>
-  </data>
-  <data name="&gt;&gt;pb_Preview.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
   <data name="lbl_preview.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -193,6 +163,36 @@
     <value>splitContainer_Preview.Panel1</value>
   </data>
   <data name="&gt;&gt;lbl_preview.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="pb_Preview.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="pb_Preview.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="pb_Preview.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="pb_Preview.Size" type="System.Drawing.Size, System.Drawing">
+    <value>421, 240</value>
+  </data>
+  <data name="pb_Preview.SizeMode" type="System.Windows.Forms.PictureBoxSizeMode, System.Windows.Forms">
+    <value>CenterImage</value>
+  </data>
+  <data name="pb_Preview.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;pb_Preview.Name" xml:space="preserve">
+    <value>pb_Preview</value>
+  </data>
+  <data name="&gt;&gt;pb_Preview.Type" xml:space="preserve">
+    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;pb_Preview.Parent" xml:space="preserve">
+    <value>splitContainer_Preview.Panel1</value>
+  </data>
+  <data name="&gt;&gt;pb_Preview.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
   <data name="splitContainer_Preview.Panel1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
@@ -246,45 +246,6 @@
   <data name="&gt;&gt;btn_External.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="btn_StartStream.Enabled" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="btn_StartStream.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
-    <value>Flat</value>
-  </data>
-  <data name="btn_StartStream.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Microsoft Sans Serif, 9pt</value>
-  </data>
-  <data name="btn_StartStream.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="btn_StartStream.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 37</value>
-  </data>
-  <data name="btn_StartStream.Size" type="System.Drawing.Size, System.Drawing">
-    <value>102, 31</value>
-  </data>
-  <data name="btn_StartStream.TabIndex" type="System.Int32, mscorlib">
-    <value>14</value>
-  </data>
-  <data name="btn_StartStream.Text" xml:space="preserve">
-    <value>Cinema Mode</value>
-  </data>
-  <data name="btn_StartStream.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>TopCenter</value>
-  </data>
-  <data name="&gt;&gt;btn_StartStream.Name" xml:space="preserve">
-    <value>btn_StartStream</value>
-  </data>
-  <data name="&gt;&gt;btn_StartStream.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btn_StartStream.Parent" xml:space="preserve">
-    <value>flowLayoutPanel2</value>
-  </data>
-  <data name="&gt;&gt;btn_StartStream.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
   <data name="btn_ShowPreview.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
@@ -295,7 +256,7 @@
     <value>NoControl</value>
   </data>
   <data name="btn_ShowPreview.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 74</value>
+    <value>3, 37</value>
   </data>
   <data name="btn_ShowPreview.Size" type="System.Drawing.Size, System.Drawing">
     <value>102, 28</value>
@@ -319,16 +280,13 @@
     <value>flowLayoutPanel2</value>
   </data>
   <data name="&gt;&gt;btn_ShowPreview.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>1</value>
   </data>
   <data name="comBox_StreamQuali.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Popup</value>
   </data>
-  <data name="comBox_StreamQuali.Items" xml:space="preserve">
-    <value>SOURCE</value>
-  </data>
   <data name="comBox_StreamQuali.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 108</value>
+    <value>3, 71</value>
   </data>
   <data name="comBox_StreamQuali.Size" type="System.Drawing.Size, System.Drawing">
     <value>102, 23</value>
@@ -337,7 +295,7 @@
     <value>17</value>
   </data>
   <data name="comBox_StreamQuali.Text" xml:space="preserve">
-    <value>SOURCE</value>
+    <value>QUALITY</value>
   </data>
   <data name="&gt;&gt;comBox_StreamQuali.Name" xml:space="preserve">
     <value>comBox_StreamQuali</value>
@@ -349,7 +307,7 @@
     <value>flowLayoutPanel2</value>
   </data>
   <data name="&gt;&gt;comBox_StreamQuali.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>2</value>
   </data>
   <data name="btn_Show_Video_Info.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
@@ -364,7 +322,7 @@
     <value>NoControl</value>
   </data>
   <data name="btn_Show_Video_Info.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 137</value>
+    <value>3, 100</value>
   </data>
   <data name="btn_Show_Video_Info.Size" type="System.Drawing.Size, System.Drawing">
     <value>102, 40</value>
@@ -392,7 +350,79 @@ Video Info</value>
     <value>flowLayoutPanel2</value>
   </data>
   <data name="&gt;&gt;btn_Show_Video_Info.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="btn_AutostartStream.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="btn_AutostartStream.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 9pt</value>
+  </data>
+  <data name="btn_AutostartStream.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="btn_AutostartStream.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 146</value>
+  </data>
+  <data name="btn_AutostartStream.Size" type="System.Drawing.Size, System.Drawing">
+    <value>102, 45</value>
+  </data>
+  <data name="btn_AutostartStream.TabIndex" type="System.Int32, mscorlib">
+    <value>25</value>
+  </data>
+  <data name="btn_AutostartStream.Text" xml:space="preserve">
+    <value>Autostart Stream</value>
+  </data>
+  <data name="&gt;&gt;btn_AutostartStream.Name" xml:space="preserve">
+    <value>btn_AutostartStream</value>
+  </data>
+  <data name="&gt;&gt;btn_AutostartStream.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;btn_AutostartStream.Parent" xml:space="preserve">
+    <value>flowLayoutPanel2</value>
+  </data>
+  <data name="&gt;&gt;btn_AutostartStream.ZOrder" xml:space="preserve">
     <value>4</value>
+  </data>
+  <data name="btn_StartStream.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="btn_StartStream.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="btn_StartStream.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 9pt</value>
+  </data>
+  <data name="btn_StartStream.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="btn_StartStream.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 197</value>
+  </data>
+  <data name="btn_StartStream.Size" type="System.Drawing.Size, System.Drawing">
+    <value>102, 31</value>
+  </data>
+  <data name="btn_StartStream.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="btn_StartStream.Text" xml:space="preserve">
+    <value>Cinema Mode</value>
+  </data>
+  <data name="btn_StartStream.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>TopCenter</value>
+  </data>
+  <data name="&gt;&gt;btn_StartStream.Name" xml:space="preserve">
+    <value>btn_StartStream</value>
+  </data>
+  <data name="&gt;&gt;btn_StartStream.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;btn_StartStream.Parent" xml:space="preserve">
+    <value>flowLayoutPanel2</value>
+  </data>
+  <data name="&gt;&gt;btn_StartStream.ZOrder" xml:space="preserve">
+    <value>5</value>
   </data>
   <data name="flowLayoutPanel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
@@ -467,13 +497,25 @@ Video Info</value>
     <value>418, 17</value>
   </metadata>
   <data name="tSMI_OpenChatInBrowser.Size" type="System.Drawing.Size, System.Drawing">
-    <value>189, 22</value>
+    <value>243, 22</value>
   </data>
   <data name="tSMI_OpenChatInBrowser.Text" xml:space="preserve">
-    <value>Open Chat in Browser</value>
+    <value>Open Chat in Browser Popout</value>
+  </data>
+  <data name="openStreamInBrowserPopoutToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>243, 22</value>
+  </data>
+  <data name="openStreamInBrowserPopoutToolStripMenuItem.Text" xml:space="preserve">
+    <value>Open Stream in Browser Popout</value>
+  </data>
+  <data name="openChannelInBrowserToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>243, 22</value>
+  </data>
+  <data name="openChannelInBrowserToolStripMenuItem.Text" xml:space="preserve">
+    <value>Open Channel in Browser</value>
   </data>
   <data name="cMS_ListBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>190, 26</value>
+    <value>244, 70</value>
   </data>
   <data name="&gt;&gt;cMS_ListBox.Name" xml:space="preserve">
     <value>cMS_ListBox</value>
@@ -500,7 +542,7 @@ Video Info</value>
     <value>lstB_Channels</value>
   </data>
   <data name="&gt;&gt;lstB_Channels.Type" xml:space="preserve">
-    <value>LX29_Twitch.Forms.ChannelListBox, LixChat, Version=0.0.0.2, Culture=neutral, PublicKeyToken=null</value>
+    <value>LX29_Twitch.Forms.ChannelListBox, LixChat, Version=1.0.0.7, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;lstB_Channels.Parent" xml:space="preserve">
     <value>splitC_Main.Panel1</value>
@@ -984,39 +1026,6 @@ This not Following a Stream!</value>
   <data name="&gt;&gt;btn_openSubpage.ZOrder" xml:space="preserve">
     <value>10</value>
   </data>
-  <data name="btn_OpenBrowser.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
-    <value>Flat</value>
-  </data>
-  <data name="btn_OpenBrowser.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Microsoft Sans Serif, 9pt</value>
-  </data>
-  <data name="btn_OpenBrowser.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="btn_OpenBrowser.Location" type="System.Drawing.Point, System.Drawing">
-    <value>119, 71</value>
-  </data>
-  <data name="btn_OpenBrowser.Size" type="System.Drawing.Size, System.Drawing">
-    <value>110, 28</value>
-  </data>
-  <data name="btn_OpenBrowser.TabIndex" type="System.Int32, mscorlib">
-    <value>22</value>
-  </data>
-  <data name="btn_OpenBrowser.Text" xml:space="preserve">
-    <value>Open in Browser</value>
-  </data>
-  <data name="&gt;&gt;btn_OpenBrowser.Name" xml:space="preserve">
-    <value>btn_OpenBrowser</value>
-  </data>
-  <data name="&gt;&gt;btn_OpenBrowser.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btn_OpenBrowser.Parent" xml:space="preserve">
-    <value>flowLayoutPanel1</value>
-  </data>
-  <data name="&gt;&gt;btn_OpenBrowser.ZOrder" xml:space="preserve">
-    <value>11</value>
-  </data>
   <data name="treeView1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
@@ -1045,7 +1054,7 @@ This not Following a Stream!</value>
     <value>0</value>
   </data>
   <data name="groupBox1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>119, 105</value>
+    <value>119, 71</value>
   </data>
   <data name="groupBox1.Size" type="System.Drawing.Size, System.Drawing">
     <value>110, 96</value>
@@ -1066,43 +1075,7 @@ This not Following a Stream!</value>
     <value>flowLayoutPanel1</value>
   </data>
   <data name="&gt;&gt;groupBox1.ZOrder" xml:space="preserve">
-    <value>12</value>
-  </data>
-  <data name="btn_AutostartStream.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
-    <value>Flat</value>
-  </data>
-  <data name="btn_AutostartStream.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Microsoft Sans Serif, 9pt</value>
-  </data>
-  <data name="btn_AutostartStream.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="btn_AutostartStream.Location" type="System.Drawing.Point, System.Drawing">
-    <value>119, 207</value>
-  </data>
-  <data name="btn_AutostartStream.Size" type="System.Drawing.Size, System.Drawing">
-    <value>110, 40</value>
-  </data>
-  <data name="btn_AutostartStream.TabIndex" type="System.Int32, mscorlib">
-    <value>25</value>
-  </data>
-  <data name="btn_AutostartStream.Text" xml:space="preserve">
-    <value>Autostart Stream</value>
-  </data>
-  <data name="btn_AutostartStream.Visible" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="&gt;&gt;btn_AutostartStream.Name" xml:space="preserve">
-    <value>btn_AutostartStream</value>
-  </data>
-  <data name="&gt;&gt;btn_AutostartStream.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btn_AutostartStream.Parent" xml:space="preserve">
-    <value>flowLayoutPanel1</value>
-  </data>
-  <data name="&gt;&gt;btn_AutostartStream.ZOrder" xml:space="preserve">
-    <value>13</value>
+    <value>11</value>
   </data>
   <data name="flowLayoutPanel1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
@@ -1143,6 +1116,30 @@ This not Following a Stream!</value>
   <data name="&gt;&gt;splitContainer_ChatPreview.Panel1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
+  <data name="richTextBox1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 71</value>
+  </data>
+  <data name="richTextBox1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>283, 236</value>
+  </data>
+  <data name="richTextBox1.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="richTextBox1.Text" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="&gt;&gt;richTextBox1.Name" xml:space="preserve">
+    <value>richTextBox1</value>
+  </data>
+  <data name="&gt;&gt;richTextBox1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RichTextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;richTextBox1.Parent" xml:space="preserve">
+    <value>splitContainer_ChatPreview.Panel2</value>
+  </data>
+  <data name="&gt;&gt;richTextBox1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
   <data name="apiInfoPanel1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
@@ -1159,13 +1156,13 @@ This not Following a Stream!</value>
     <value>apiInfoPanel1</value>
   </data>
   <data name="&gt;&gt;apiInfoPanel1.Type" xml:space="preserve">
-    <value>LX29_Twitch.Forms.ApiInfoPanel, LixChat, Version=0.0.0.2, Culture=neutral, PublicKeyToken=null</value>
+    <value>LX29_Twitch.Forms.ApiInfoPanel, LixChat, Version=1.0.0.7, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;apiInfoPanel1.Parent" xml:space="preserve">
     <value>splitContainer_ChatPreview.Panel2</value>
   </data>
   <data name="&gt;&gt;apiInfoPanel1.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
   <data name="&gt;&gt;splitContainer_ChatPreview.Panel2.Name" xml:space="preserve">
     <value>splitContainer_ChatPreview.Panel2</value>
@@ -1594,7 +1591,7 @@ This not Following a Stream!</value>
     <value>controlSettings1</value>
   </data>
   <data name="&gt;&gt;controlSettings1.Type" xml:space="preserve">
-    <value>LX29_ChatClient.Forms.ControlSettings, LixChat, Version=0.0.0.2, Culture=neutral, PublicKeyToken=null</value>
+    <value>LX29_ChatClient.Forms.ControlSettings, LixChat, Version=1.0.0.7, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;controlSettings1.Parent" xml:space="preserve">
     <value>$this</value>
@@ -3804,9 +3801,6 @@ This not Following a Stream!</value>
         A+AAAAPgAAAH8AAAD/AAAB/4AAAf+AAAP/gAAH/8AAB//AAA///4Af////P/
 </value>
   </data>
-  <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
   <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
     <value>CenterScreen</value>
   </data>
@@ -3817,6 +3811,18 @@ This not Following a Stream!</value>
     <value>tSMI_OpenChatInBrowser</value>
   </data>
   <data name="&gt;&gt;tSMI_OpenChatInBrowser.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;openStreamInBrowserPopoutToolStripMenuItem.Name" xml:space="preserve">
+    <value>openStreamInBrowserPopoutToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;openStreamInBrowserPopoutToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;openChannelInBrowserToolStripMenuItem.Name" xml:space="preserve">
+    <value>openChannelInBrowserToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;openChannelInBrowserToolStripMenuItem.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;timer1.Name" xml:space="preserve">

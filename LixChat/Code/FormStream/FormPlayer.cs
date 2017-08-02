@@ -19,7 +19,14 @@ namespace LX29_Twitch.Forms
         private bool mouseDown = false;
 
         private Point mousePoint = Point.Empty;
-        private MPV_Wrapper mpv = null;
+        private MPV_Wrapper mpv
+        {
+            get
+            {
+                if (stream == null) return null;
+                return stream.MPV;
+            }
+        }
         private Point oldMousePoint = Point.Empty;
         private Rectangle oldSize = new Rectangle();
 
@@ -349,7 +356,7 @@ namespace LX29_Twitch.Forms
 
         private void startStream(string quality, int volume, IntPtr handle)
         {
-            mpv = new MPV_Wrapper(stream.Name + DateTime.Now.Ticks);
+            //mpv = new MPV_Wrapper(stream.Name + DateTime.Now.Ticks);
             var video = stream.StreamURLS[quality];
             if (video != null)
             {

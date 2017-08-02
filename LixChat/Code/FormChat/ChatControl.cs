@@ -1002,7 +1002,7 @@ namespace LX29_ChatClient.Forms
 
         private float MeasureMessage(Graphics graphics, ChatMessage message, RectangleF bounds, float yInput = 0, float height = 0, bool measure = true)
         {
-            float emote_Y_Offset = 6;
+            float emote_Y_Offset = 4;
 
             var user = message.User;
 

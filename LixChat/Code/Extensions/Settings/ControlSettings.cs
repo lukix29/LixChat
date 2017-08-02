@@ -6,10 +6,6 @@ namespace LX29_ChatClient.Forms
 {
     public partial class ControlSettings : UserControl
     {
-        //[ReadOnly(true)]
-        //[Browsable(false)]
-        //public new readonly Color BackColor = Color.FromArgb(40, 40, 50);
-
         public ControlSettings()
         {
             InitializeComponent();
@@ -20,16 +16,6 @@ namespace LX29_ChatClient.Forms
             get;
             private set;
         }
-
-        // [System.ComponentModel.DefaultValue(true)]
-        //public bool ShowAllSettings
-        //{
-        //    get { return !splitContainer1.Panel2Collapsed; }
-        //    set
-        //    {
-        //        splitContainer1.Panel2Collapsed = !value;
-        //    }
-        //}
 
         public static Panel GetSettingPanel(Size clientSize, double value, SettingClasses classe, Action<decimal, string> onselect)
         {
@@ -102,6 +88,8 @@ namespace LX29_ChatClient.Forms
                     SetControls(flowLayoutPanel_RenderOptions, SettingClasses.EmoteBasic, cB_AnimatedEmotes);
 
                     SetControls(flowLayoutPanel_UserOptions, SettingClasses.UserBasic);
+
+                    SetControls(flowLayoutPanel_ChatOptions, SettingClasses.ChatBasic, btn_SelectChatBG, btn_SelectFont);
 
                     cb_ShowErrors.Checked = Settings.ShowErrors;
                     cB_AnimatedEmotes.Checked = Settings.AnimatedEmotes;

@@ -16,7 +16,7 @@ namespace LX29_ChatClient.Emotes
         Emoji
     }
 
-    public interface EmoteBase : IEquatable<EmoteBase>
+    public interface EmoteBase : IEqualityComparer<EmoteBase>
     {
         string Channel
         {
@@ -32,6 +32,11 @@ namespace LX29_ChatClient.Emotes
 
         // public static readonly EmoteBase Empty = new EmoteBase();
         bool IsEmpty
+        {
+            get;
+        }
+
+        TimeSpan LoadedTime
         {
             get;
         }
@@ -54,42 +59,14 @@ namespace LX29_ChatClient.Emotes
 
         void DownloadImages();
 
-        //{
-        //    return SizeF.Empty;
-        //}
-
         EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size, bool grayOut = false);
-
-        //{
-        //    if (grayOut)
-        //    {
-        //        g.FillRectangle(GrayOutBrush, X, Y, Width, Height);
-        //        g.DrawLine(Pens.DarkGray, X, Y, X + Width, Y + Height);
-        //    }
-        //    return EmoteImageDrawResult.Success;
-        //}
-
-        //{
-        //    return ID.Equals(obj.ID);
-        //}
-
-        //public override string ToString()
-        //{
-        //    return ID + " " + Name + " " + Channel + " " + Set + " " + Enum.GetName(typeof(EmoteOrigin), Origin);
-        //}
     }
 
     public class Emote : EmoteBase
     {
         public const int EmoteHeight = 32;
-        private static readonly SolidBrush GrayOutBrush = new SolidBrush(Color.FromArgb(200, LX29_ChatClient.UserColors.ChatBackground));
 
-        public Emote()
-        {
-            Name = "";
-            Channel = "";
-            ChannelName = "";
-        }
+        private static readonly SolidBrush GrayOutBrush = new SolidBrush(Color.FromArgb(200, LX29_ChatClient.UserColors.ChatBackground));
 
         public Emote(string id, string name, IEnumerable<string> urls, string channel, string emoteSet, EmoteOrigin origin, string channelName)
         {
@@ -139,14 +116,14 @@ namespace LX29_ChatClient.Emotes
             get { return string.IsNullOrEmpty(ID) || string.IsNullOrEmpty(Name) || Image == null; }
         }
 
-        //public string ID
-        //{
-        //    get;
-        //    private set;
-        //}
         public bool IsGif
         {
             get { return Image.IsGif; }
+        }
+
+        public TimeSpan LoadedTime
+        {
+            get { return DateTime.Now.Subtract(Image.LoadTime); }
         }
 
         public string Name
@@ -161,15 +138,15 @@ namespace LX29_ChatClient.Emotes
             set;
         }
 
-        //public string Name
-        //{
-        //    get;
-        //    private set;
-        //}
         public string Set
         {
             get;
             private set;
+        }
+
+        public IEnumerable<string> URLs
+        {
+            get { return Image.URLs.Values; }
         }
 
         private EmoteImage Image
@@ -204,34 +181,25 @@ namespace LX29_ChatClient.Emotes
             return res;
         }
 
-        //private readonly string hashcode = "";
-        public bool Equals(EmoteBase e)
+        public bool Equals(EmoteBase obj, EmoteBase obj1)
         {
-            return e.ID.Equals(ID);
+            return obj.ID.Equals(obj1.ID);
         }
 
-        //public static Emote Parse(string input)
-        //{
-        //    string[] sarr = input.Split(" ");
-        //    string id = sarr[0].Trim();
-        //    string name = sarr[1].Trim();
-        //    string channel = sarr[2].Trim();
-        //    string url = sarr[3].Trim();
-        //    string set = sarr[4].Trim();
-        //    EmoteOrigin origin = (EmoteOrigin)Enum.Parse(typeof(EmoteOrigin), sarr[4].Trim());
+        public new bool Equals(object obj)
+        {
+            return ((EmoteBase)obj).ID.Equals(ID);
+        }
 
-        //    return new Emote(id, name, url, channel, set, origin);
-        //}
+        public new int GetHashCode()
+        {
+            return ID.GetHashCode();
+        }
 
-        //public bool Equals(Emote obj)
-        //{
-        //    return ID.Equals(obj.ID);
-        //}
-
-        //public bool Equals(ChatWord obj)
-        //{
-        //    return ID.Equals(obj.Emote_ID);
-        //}
+        public int GetHashCode(EmoteBase b)
+        {
+            return b.GetHashCode();
+        }
 
         public override string ToString()
         {
