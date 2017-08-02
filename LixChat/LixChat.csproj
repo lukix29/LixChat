@@ -8329,6 +8329,7 @@
     <None Include="Plugins\7za.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="Release\LixChat_Nightly_Updater.exe" />
     <Content Include="Resources\ban.png" />
     <None Include="Resources\emojis.txt" />
     <Content Include="Resources\emojis.exe" />

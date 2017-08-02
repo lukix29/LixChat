@@ -352,6 +352,9 @@ Video Info</value>
   <data name="&gt;&gt;btn_Show_Video_Info.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
+  <data name="btn_AutostartStream.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
   <data name="btn_AutostartStream.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
@@ -542,7 +545,7 @@ Video Info</value>
     <value>lstB_Channels</value>
   </data>
   <data name="&gt;&gt;lstB_Channels.Type" xml:space="preserve">
-    <value>LX29_Twitch.Forms.ChannelListBox, LixChat, Version=1.0.0.7, Culture=neutral, PublicKeyToken=null</value>
+    <value>LX29_Twitch.Forms.ChannelListBox, LixChat, Version=1.0.0.8, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;lstB_Channels.Parent" xml:space="preserve">
     <value>splitC_Main.Panel1</value>
@@ -1116,30 +1119,6 @@ This not Following a Stream!</value>
   <data name="&gt;&gt;splitContainer_ChatPreview.Panel1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="richTextBox1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 71</value>
-  </data>
-  <data name="richTextBox1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>283, 236</value>
-  </data>
-  <data name="richTextBox1.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
-  </data>
-  <data name="richTextBox1.Text" xml:space="preserve">
-    <value>Empty</value>
-  </data>
-  <data name="&gt;&gt;richTextBox1.Name" xml:space="preserve">
-    <value>richTextBox1</value>
-  </data>
-  <data name="&gt;&gt;richTextBox1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.RichTextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;richTextBox1.Parent" xml:space="preserve">
-    <value>splitContainer_ChatPreview.Panel2</value>
-  </data>
-  <data name="&gt;&gt;richTextBox1.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
   <data name="apiInfoPanel1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
@@ -1156,13 +1135,13 @@ This not Following a Stream!</value>
     <value>apiInfoPanel1</value>
   </data>
   <data name="&gt;&gt;apiInfoPanel1.Type" xml:space="preserve">
-    <value>LX29_Twitch.Forms.ApiInfoPanel, LixChat, Version=1.0.0.7, Culture=neutral, PublicKeyToken=null</value>
+    <value>LX29_Twitch.Forms.ApiInfoPanel, LixChat, Version=1.0.0.8, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;apiInfoPanel1.Parent" xml:space="preserve">
     <value>splitContainer_ChatPreview.Panel2</value>
   </data>
   <data name="&gt;&gt;apiInfoPanel1.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>0</value>
   </data>
   <data name="&gt;&gt;splitContainer_ChatPreview.Panel2.Name" xml:space="preserve">
     <value>splitContainer_ChatPreview.Panel2</value>
@@ -1591,7 +1570,7 @@ This not Following a Stream!</value>
     <value>controlSettings1</value>
   </data>
   <data name="&gt;&gt;controlSettings1.Type" xml:space="preserve">
-    <value>LX29_ChatClient.Forms.ControlSettings, LixChat, Version=1.0.0.7, Culture=neutral, PublicKeyToken=null</value>
+    <value>LX29_ChatClient.Forms.ControlSettings, LixChat, Version=1.0.0.8, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;controlSettings1.Parent" xml:space="preserve">
     <value>$this</value>
@@ -3800,6 +3779,9 @@ This not Following a Stream!</value>
         H/gAAA/4AAAP8AAAD+AAAAfAAAAHwAAAB4AAAAMAAAADAAAAAYAAAAGAAAABgAAAAMAAAADAAAAB4AAA
         A+AAAAPgAAAH8AAAD/AAAB/4AAAf+AAAP/gAAH/8AAB//AAA///4Af////P/
 </value>
+  </data>
+  <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
   </data>
   <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
     <value>CenterScreen</value>

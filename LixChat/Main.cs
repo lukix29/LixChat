@@ -218,14 +218,14 @@ namespace LX29_LixChat
                 var sa = GetCurrentInfo();
                 if (sa != null)
                 {
-                    var arr = sa[0].MPV_Stats;
-                    StringBuilder sb = new StringBuilder();
-                    foreach (var s in arr)
-                    {
-                        sb.AppendLine(s);
-                    }
-                    richTextBox1.SelectAll();
-                    richTextBox1.SelectedText = sb.ToString();
+                    //var arr = sa[0].MPV_Stats;
+                    //StringBuilder sb = new StringBuilder();
+                    //foreach (var s in arr)
+                    //{
+                    //    sb.AppendLine(s);
+                    //}
+                    //richTextBox1.SelectAll();
+                    //richTextBox1.SelectedText = sb.ToString();
                     var si = sa[0];
                     SetChatInfoBox(si);
                 }
