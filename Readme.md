@@ -31,6 +31,9 @@ LixChat is an open Desktop Client for Twitch.tv, that aims to make the Twitch ex
   * External Stream Player
   * Stream Preview
 
+# Installation
+
+Installer Packets are found here https://github.com/lukix29/LixChat/releases
 
 # License
 
