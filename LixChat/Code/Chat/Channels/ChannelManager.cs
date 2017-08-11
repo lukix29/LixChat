@@ -13,6 +13,8 @@ namespace LX29_ChatClient
     {
         public static bool LoggedIn = false;
 
+        // public static DateTime now = DateTime.Now;
+        // public static System.Text.StringBuilder sb = new System.Text.StringBuilder();
         private static Dictionary<string, ChannelInfo> channels = new Dictionary<string, ChannelInfo>();
 
         private static bool isSnycing = false;
@@ -36,11 +38,9 @@ namespace LX29_ChatClient
                         so = sa[0];
                         ChannelInfo si = new ChannelInfo(so);
                         channels.Add(s, si);
-                        //if (si.IsOnline)
-                        //{
-                        //    TryConnect(s);
-                        //}
-                        Emotes.LoadChannelEmotes(si.Name);
+
+                        Emotes.LoadChannelEmotesAndBadges(si);
+
                         ListLoaded(channels.Count, channels.Count, "Loaded Channel: " + s);
                         SaveChannels();
                         return AddError.None;
@@ -180,9 +180,7 @@ namespace LX29_ChatClient
         {
             try
             {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                DateTime now = DateTime.Now;
-                sb.AppendLine(DateTime.Now.Subtract(now).ToString());
+                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
 
                 if (isSnycing) return;
                 isSnycing = true;
@@ -222,7 +220,7 @@ namespace LX29_ChatClient
                     }
                 }
 
-                sb.AppendLine(DateTime.Now.Subtract(now).ToString());
+                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
 
                 if (rest.Count > 0)
                 {
@@ -241,7 +239,7 @@ namespace LX29_ChatClient
                         }
                     }
                 }
-                sb.AppendLine(DateTime.Now.Subtract(now).ToString());
+                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
 
                 LoadStandardStreams();
                 SaveChannels();
@@ -250,6 +248,8 @@ namespace LX29_ChatClient
 
                 if (ListLoaded != null)
                     ListLoaded(channels.Count, channels.Count, "Loaded " + channels.Count + " Channels");
+
+                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
 
                 List<Task> list = new List<Task>();
                 list.Add(Task.Run(() => LoadChatLog()));
@@ -267,6 +267,8 @@ namespace LX29_ChatClient
                     AutoActions.Load();
                 });
 
+                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
+
                 if (ListLoaded != null)
                     ListLoaded(channels.Count, channels.Count, "Loaded " + channels.Count + " Channels");
 
@@ -274,8 +276,7 @@ namespace LX29_ChatClient
 
                 startRefresher();
 
-                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
-                //System.Windows.Forms.MessageBox.Show(sb.ToString());
+                // sb.AppendLine(DateTime.Now.Subtract(now).ToString());
             }
             catch (Exception x)
             {
@@ -306,7 +307,7 @@ namespace LX29_ChatClient
                         channel.ApiResult = stream;
                         Task.Run(() =>
                         {
-                            Emotes.LoadChannelEmotes(channel.Name);
+                            //Emotes.LoadChannelEmotes(channel);
                             FetchChatUsers(channel.Name);
                         });
                     }
@@ -394,7 +395,7 @@ namespace LX29_ChatClient
         {
             TTData o = new TTData();
             System.Threading.Timer t =
-                new System.Threading.Timer(new TimerCallback(updateChannels), o, Settings.UpdateInterval, System.Threading.Timeout.Infinite);
+                new System.Threading.Timer(new TimerCallback(updateChannels), o, (int)Settings.UpdateInterval, System.Threading.Timeout.Infinite);
             o.t = t;
         }
 
@@ -404,7 +405,7 @@ namespace LX29_ChatClient
             UpdateChannels();
             if (LX29_Tools.HasInternetConnection)
             {
-                o.t.Change(Settings.UpdateInterval, System.Threading.Timeout.Infinite);
+                o.t.Change((int)Settings.UpdateInterval, System.Threading.Timeout.Infinite);
             }
             else
             {

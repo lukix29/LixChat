@@ -48,7 +48,7 @@ namespace LX29_Twitch.JSON_Parser
                 {
                     lust.Add(new ApiResult(dataSet.follow));
                 }
-                else if (!string.IsNullOrEmpty(dataSet._id))
+                else if (!dataSet._id.IsEmpty())
                 {
                     lust.Add(new ApiResult(dataSet));
                 }
@@ -138,34 +138,55 @@ namespace LX29_Twitch.JSON_Parser
             return dataSet;
         }
 
-        public static List<LX29_Twitch.Api.EmoteApiInfo> ParseTwitchEmotes(string input)
+        public static IEnumerable<Twitch_Api.Emoticon> ParseTwitchEmotes(string input)
         {
-            var sets = input.ReplaceAll("", "{\"emoticon_sets\":{", "}}").Split("],").Select(t => t + "]").ToArray();
-
-            List<LX29_Twitch.Api.EmoteApiInfo> emotes = new List<LX29_Twitch.Api.EmoteApiInfo>();
-            foreach (var s in sets)
+            try
             {
-                string setid = s.GetBetween("\"", "\"");
-
-                var set = s.Trim("]");
-
-                string arr = "[" + GetBetween(set, "[");
-
-                if (!arr.EndsWith("]")) arr += "]";
-
-                try
-                {
-                    var array = JArray.Parse(arr);
-                    foreach (var n in array)
-                    {
-                        var emid = n.First.First.Value<int>();
-                        var emcode = n.Last.First.Value<string>();
-                        emotes.Add(new LX29_Twitch.Api.EmoteApiInfo(emcode, emid.ToString(), setid));
-                    }
-                }
-                catch { }
+                input = input.RemoveStart("{\"emoticon_sets\":");
+                if (input.EndsWith("}")) input = input.Remove(input.Length - 1);
+                var list = JsonConvert.DeserializeObject<Dictionary<string, List<Twitch_Api.Emoticon>>>(input);
+                //foreach (var e in list)
+                //{
+                //    string id = e.Value.id.ToString();
+                //    if (LX29_ChatClient.Emotes.EmoteCollection.StandardEmotes.ContainsKey(id))
+                //    {
+                //        e.Value.code = LX29_ChatClient.Emotes.EmoteCollection.StandardEmotes[id];
+                //    }
+                //}
+                //return list;
+                return list.SelectMany(t => t.Value.Select(
+                    i => new Twitch_Api.Emoticon { code = i.code, id = i.id, emoticon_set = t.Key }));
             }
-            return emotes;
+            catch
+            {
+            }
+            return null;
+            //var sets = input.ReplaceAll("", "{\"emoticon_sets\":{", "}}").Split("],").Select(t => t + "]").ToArray();
+
+            //List<LX29_Twitch.Api.EmoteApiInfo> emotes = new List<LX29_Twitch.Api.EmoteApiInfo>();
+            //foreach (var s in sets)
+            //{
+            //    string setid = s.GetBetween("\"", "\"");
+
+            //    var set = s.Trim("]");
+
+            //    string arr = "[" + GetBetween(set, "[");
+
+            //    if (!arr.EndsWith("]")) arr += "]";
+
+            //    try
+            //    {
+            //        var array = JArray.Parse(arr);
+            //        foreach (var n in array)
+            //        {
+            //            var emid = n.First.First.Value<int>();
+            //            var emcode = n.Last.First.Value<string>();
+            //            emotes.Add(new LX29_Twitch.Api.EmoteApiInfo(emcode, emid.ToString(), setid));
+            //        }
+            //    }
+            //    catch { }
+            //}
+            //return emotes;
         }
 
         private static string GetBetween(string input, string left, string right = "")
@@ -333,6 +354,13 @@ namespace LX29_Twitch.JSON_Parser
                 public List<string> viewers { get; set; }
             }
 
+            public class Emoticon
+            {
+                public string code { get; set; }
+                public string emoticon_set { get; set; }
+                public string id { get; set; }
+            }
+
             public class Follow
             {
                 public Channel channel { get; set; }
@@ -467,7 +495,8 @@ namespace LX29_Twitch.JSON_Parser
         {
             public class BadgeData
             {
-                public Dictionary<string, Versions> badge_sets { get; set; }
+                public string Name { get; set; }
+                public Dictionary<string, Data> versions { get; set; }
             }
 
             public class Data
@@ -492,11 +521,6 @@ namespace LX29_Twitch.JSON_Parser
                         };
                     }
                 }
-            }
-
-            public class Versions
-            {
-                public Dictionary<string, Data> versions { get; set; }
             }
         }
     }

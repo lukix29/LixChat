@@ -49,7 +49,7 @@ namespace LX29_Twitch.Api
                 }
                 ErrorInfo = error;
                 Info = AddErrorStrings[ErrorInfo];
-                if (!string.IsNullOrEmpty(info))
+                if (!info.IsEmpty())
                 {
                     Info += "\r\n" + info;
                 }

@@ -12,7 +12,7 @@ namespace LX29_Twitch.Forms
     public partial class ChannelListBox : UserControl
     {
         private SolidBrush BackBrush = new SolidBrush(Color.Black);
-        private SolidBrush InverseBG = new SolidBrush(Color.White);
+        //private SolidBrush InverseBG = new SolidBrush(Color.White);
 
         private bool isCtrPressed = false;
         private bool isMouseDown = false;
@@ -38,7 +38,6 @@ namespace LX29_Twitch.Forms
             this.SetStyle(ControlStyles.ResizeRedraw, true);
         }
 
-        //private int visibleCount = 0;
         public delegate void OnSelectedIndexChanged(object sender, EventArgs e);
 
         public event OnSelectedIndexChanged SelectedIndexChanged;
@@ -52,9 +51,6 @@ namespace LX29_Twitch.Forms
             set
             {
                 BackBrush = new SolidBrush(value);
-                HSL hsl = new HSL(value);
-                hsl.Invert();
-                InverseBG = new SolidBrush(hsl.ToColor());
                 base.BackColor = value;
             }
         }
@@ -123,19 +119,14 @@ namespace LX29_Twitch.Forms
             {
                 int length = (Items != null) ? Items.Length : 0;
                 length /= ItemHeight;
-                // scrollVisible = length > 1;
                 return Math.Max(40, Math.Min(this.ClientRectangle.Height, length));
             }
         }
 
-        public new void Invalidate()
+        public new void Refresh()
         {
             try
             {
-                this.BeginInvoke(new Action(() =>
-                {
-                    base.Refresh();
-                }));
                 var selItems = SelectedItems;
                 Items = ChatClient.GetSortedChannelNames();
                 if ((Items != null && selItems != null) && selIndices.Count > 0 && selItems.Length > 0 && Items.Length > 0)
@@ -151,7 +142,7 @@ namespace LX29_Twitch.Forms
                 }
             }
             catch { }
-            this.BeginInvoke(new Action(() =>
+            this.Invoke(new Action(() =>
                 {
                     base.Refresh();
                 }));
@@ -216,7 +207,7 @@ namespace LX29_Twitch.Forms
                     {
                     }
                 }
-                this.Invalidate();
+                this.Refresh();
             }
             base.OnMouseMove(e);
         }
@@ -244,7 +235,7 @@ namespace LX29_Twitch.Forms
 
             isScrolling = false;
             isMouseDown = false;
-            this.Invalidate();
+            this.Refresh();
             base.OnMouseUp(e);
         }
 
@@ -256,11 +247,7 @@ namespace LX29_Twitch.Forms
             ys = Math.Min(this.ClientRectangle.Bottom - scrollBarHeight, Math.Max(0, ys - scrollBarHeight / 2));
             scrollRect = new Rectangle(this.ClientRectangle.Right - 12, ys, 10, scrollBarHeight);
 
-            //var offset = LXMath.Map(e.Y, scrollBarHeight / 2,
-            //    this.ClientSize.Height - scrollBarHeight / 2, 0, Items.Length - maxVisibleItems);
-            ////scrollOffset = Math.Max(0, Math.Min(Items.Length - maxVisibleItems, offset));
-
-            this.Invalidate();
+            this.Refresh();
             base.OnMouseWheel(e);
         }
 
@@ -268,15 +255,10 @@ namespace LX29_Twitch.Forms
         {
             try
             {
-                //Scrollbar rechts zeichnen
-                //Scroll on select over Bounds
-                //nicht wichtig: make better loading gif (kleiner beim laden oder so)
-                //bei int i = null; steht der rest
                 e.Graphics.SetGraphicQuality(true, true);
                 int y = 0;
                 if (Items != null && Items.Length > 0)
                 {
-                    //visibleCount = 0;
                     maxVisibleItems = 0;
                     scrollVisible = true;
                     for (int i = scrollOffset; i < Items.Length; i++)
@@ -296,7 +278,6 @@ namespace LX29_Twitch.Forms
                         scrollOffset = 0;
                         scrollVisible = false;
                     }
-                    // maxVisibleItems--;
                     if (scrollVisible)
                     {
                         e.Graphics.DrawRectangle(Pens.DarkGray, new Rectangle(scrollRect.X - 1, 0, scrollRect.Width + 1, this.ClientSize.Height - 1));
@@ -349,85 +330,57 @@ namespace LX29_Twitch.Forms
 
         private void DrawItem(ChannelInfo info, Graphics g, int y, bool selected)
         {
-            try
+            int off = 2;
+            Rectangle rec = new Rectangle(off, y,
+                ItemHeight - (off * 2), ItemHeight - (off * 2));
+
+            Rectangle bounds = new Rectangle(0, y - off / 2,
+                this.ClientSize.Width - scrollRect.Width - 2, ItemHeight + off);
+
+            if (selected)
             {
-                int off = 2;
-                Rectangle rec = new Rectangle(off, y,
-                    ItemHeight - (off * 2), ItemHeight - (off * 2));
-
-                Rectangle bounds = new Rectangle(0, y - off / 2,
-                    this.ClientSize.Width - scrollRect.Width - 2, ItemHeight + off);
-
-                if (selected)
-                {
-                    g.FillRectangle(SystemBrushes.HotTrack, bounds);
-                }
-                else
-                {
-                    g.FillRectangle(BackBrush, bounds);//
-                    //e.DrawBackground();
-                }
-
-                var typ = info.ApiResult.GetValue<StreamType>(ApiInfo.stream_type);
-                switch (typ)
-                {
-                    case StreamType.live:
-                        g.FillEllipse(Brushes.Green, rec);
-                        break;
-
-                    case StreamType.watch_party:
-                        g.FillEllipse(Brushes.DarkOrange, rec);
-                        break;
-                }
-                g.DrawEllipse(Pens.DarkGray, rec);
-
-                rec.X += rec.Right + off;
-
-                string inf = "";
-                if (info.IsChatConnected) inf = "C ";
-                if (info.SubInfo.IsSub) inf += "S";
-                inf = inf.Trim();
-
-                Size siz = TextRenderer.MeasureText(inf, this.Font, Extensions.maxSize, TextFormatFlags.NoPadding);
-                //   rec.Y -= off;
-                rec.Size = siz;
-                rec.Height = ItemHeight - off * 2;
-                rec.Width -= off * 2;
-
-                g.DrawRectangle(Pens.DarkGray, rec);
-                TextRenderer.DrawText(g, inf, this.Font, new Point(rec.X + off + 1, y - off / 2), Color.LightGray, TextFormatFlags.NoPadding);
-
-                Color sb = (info.IsFavorited) ? Color.LightGreen : Color.WhiteSmoke;
-                TextRenderer.DrawText(g, info.DisplayName, this.Font, new Point(rec.Right + off, y - off), sb);
+                g.FillRectangle(SystemBrushes.HotTrack, bounds);
             }
-            catch
+            else
             {
+                g.FillRectangle(BackBrush, bounds);
             }
+
+            var typ = info.ApiResult.GetValue<StreamType>(ApiInfo.stream_type);
+            switch (typ)
+            {
+                case StreamType.live:
+                    g.FillEllipse(Brushes.Green, rec);
+                    break;
+
+                case StreamType.watch_party:
+                    g.FillEllipse(Brushes.DarkOrange, rec);
+                    break;
+            }
+            g.DrawEllipse(Pens.DarkGray, rec);
+
+            rec.X += rec.Right + off;
+
+            string inf = "";
+            if (info.IsChatConnected) inf = "C ";
+            if (info.SubInfo.IsSub) inf += "S";
+            inf = inf.Trim();
+
+            Size siz = TextRenderer.MeasureText(inf, this.Font, Extensions.maxSize, TextFormatFlags.NoPadding);
+            rec.Size = siz;
+            rec.Height = ItemHeight - off * 2;
+            rec.Width -= off * 2;
+
+            g.DrawRectangle(Pens.DarkGray, rec);
+            TextRenderer.DrawText(g, inf, this.Font, new Point(rec.X + off + 1, y - off / 2), Color.LightGray, TextFormatFlags.NoPadding);
+
+            Color sb = (info.IsFavorited) ? Color.LightGreen : Color.WhiteSmoke;
+            TextRenderer.DrawText(g, info.DisplayName, this.Font, new Point(rec.Right + off, y - off), sb);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            this.Invalidate();
-        }
-    }
-
-    public class ChannelListBoxItem
-    {
-        public ChannelInfo Channel
-        {
-            get;
-            set;
-        }
-
-        public int Index
-        {
-            get;
-            set;
-        }
-
-        public override string ToString()
-        {
-            return Channel.Name;
+            this.Refresh();
         }
     }
 }

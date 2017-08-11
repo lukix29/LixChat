@@ -452,7 +452,7 @@ namespace LX29_Helpers
                 string cash = "";
                 if (cache > 0)
                 {
-                    cash = " --cache-initial=" + cache / 2 +
+                    cash = " --cache-initial=" + cache +
                             " --cache-backbuffer=" + cache +
                             " --cache-default=" + cache +
                             " --demuxer-readahead-secs=" + cacheSecs;// +

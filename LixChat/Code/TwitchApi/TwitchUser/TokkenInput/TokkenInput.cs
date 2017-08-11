@@ -125,7 +125,7 @@ namespace LX29_Twitch.Api.Controls
 
         private void textBox1_Leave(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(textBox1.Text))
+            if (textBox1.Text.IsEmpty())
             {
                 textBox1.Text = "<Enter Token here>";
             }

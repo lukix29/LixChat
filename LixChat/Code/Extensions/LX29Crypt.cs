@@ -31,7 +31,7 @@ namespace LX29_Helpers.Crypt
                         {
                             try
                             {
-                                if (!string.IsNullOrEmpty(sii) && !list.Contains(sii))
+                                if (!sii.IsEmpty() && !list.Contains(sii))
                                 {
                                     list.Add(sii);
                                 }

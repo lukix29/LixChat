@@ -8,12 +8,19 @@ using System.Linq;
 using System.Net;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Utilities;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Schema;
+using Newtonsoft.Json.Converters;
+using System.Globalization;
 
 namespace LX29_ChatClient.Emotes
 {
     public class Emoteionary
     {
-        private Dictionary<string, Emoji> _emojis = new Dictionary<string, Emoji>();
+        //public Dictionary<string, Emoji> _emoji_names = new Dictionary<string, Emoji>();
+        public Dictionary<int, Emoji> _emoji_unicodes = new Dictionary<int, Emoji>();
 
         private Dictionary<string, EmoteBase> _ffzbttv = new Dictionary<string, EmoteBase>();
 
@@ -21,8 +28,7 @@ namespace LX29_ChatClient.Emotes
 
         public Emoteionary()
         {
-            EmoteSets = new List<EmoteApiInfo>();
-            UserEmotes = new List<EmoteApiInfo>();
+            UserEmotes = new List<JSON.Twitch_Api.Emoticon>();
         }
 
         public IEnumerable<EmoteBase> All
@@ -32,16 +38,10 @@ namespace LX29_ChatClient.Emotes
 
         public int Count
         {
-            get { return _ffzbttv.Count + _twitch.Count + _emojis.Count; }
+            get { return _ffzbttv.Count + _twitch.Count + _emoji_unicodes.Count; }
         }
 
-        public List<EmoteApiInfo> EmoteSets
-        {
-            get;
-            set;
-        }
-
-        public List<EmoteApiInfo> UserEmotes
+        public List<JSON.Twitch_Api.Emoticon> UserEmotes
         {
             get;
             set;
@@ -51,10 +51,6 @@ namespace LX29_ChatClient.Emotes
         {
             get
             {
-                if (!string.IsNullOrEmpty(Name) && Name.StartsWith(":") && _emojis.ContainsKey(Name))
-                {
-                    return _emojis[Name];
-                }
                 if (!string.IsNullOrEmpty(ID) && _twitch.ContainsKey(ID))
                 {
                     return _twitch[ID];
@@ -106,7 +102,7 @@ namespace LX29_ChatClient.Emotes
                     em.Dispose();
                 }
             }
-            foreach (var emoji in _emojis.Values)
+            foreach (var emoji in _emoji_unicodes.Values)
             {
                 if (emoji.LoadedTime.TotalMinutes > 5.0)
                 {
@@ -155,7 +151,7 @@ namespace LX29_ChatClient.Emotes
             if (name.StartsWith(":"))
             {
                 name = name.ToLower();
-                return _emojis.Values.Where(t => t.Name.StartsWith(name)).Select(t => (EmoteBase)t).ToList();
+                return _emoji_unicodes.Values.Where(t => t.Name.StartsWith(name)).Select(t => (EmoteBase)t).ToList();
             }
             else
             {
@@ -163,7 +159,7 @@ namespace LX29_ChatClient.Emotes
                    {
                        if (e.Name.ToLower().StartsWith(name))
                        {
-                           return UserEmotes.Any(t => t.ID.Equals(e.ID));
+                           return UserEmotes.Any(t => t.id.Equals(e.ID));
                        }
                        return false;
                    });
@@ -190,7 +186,7 @@ namespace LX29_ChatClient.Emotes
         public IEnumerable<EmoteBase> GetEmotes(string channel)
         {
             var ems = _twitch.Values
-                .Where(t => UserEmotes.Any(t0 => t.ID.Equals(t0.ID))).ToList();
+                .Where(t => UserEmotes.Any(t0 => t.ID.Equals(t0.id))).ToList();
 
             //  int i = null;
             var ffz = _ffzbttv.Values.Where((t) =>
@@ -212,7 +208,7 @@ namespace LX29_ChatClient.Emotes
         public int LoadEmojis()
         {
             string line = "";
-            _emojis = new Dictionary<string, Emoji>();
+            _emoji_unicodes = new Dictionary<int, Emoji>();
             using (StringReader sr = new StringReader(LX29_LixChat.Properties.Resources.emojis))
             {
                 while ((line = sr.ReadLine()) != null)
@@ -220,59 +216,23 @@ namespace LX29_ChatClient.Emotes
                     var arr = line.Split('=');
                     var name = arr[1];
                     var id = arr[0];
-                    _emojis.Add(name, new Emoji(id, name));
-                }
-            }
-            return _emojis.Count;
-        }
-
-        public bool LoadEmotes(bool loadNew)
-        {
-            if (loadNew) return true;
-            try
-            {
-                var input = File.ReadAllLines(Settings.dataDir + "EmoteCache.txt");
-                DateTime dt = new DateTime(long.Parse(input[0]));
-                if (DateTime.Now.Subtract(dt).TotalHours < 24.0)
-                {
-                    var res = JsonConvert.DeserializeObject<List<Emote>>(input[1]);
-                    foreach (var em in res)
+                    if (!id.IsEmpty())
                     {
-                        Emote m = new Emote(em.ID, em.Name, em.URLs, em.Channel, em.Set, em.Origin, em.ChannelName);
-                        Add(m);
+                        Emoji emo = new Emoji(id, name);
+                        var arr0 = id.Split("-");
+                        foreach (var vak in arr0)
+                        {
+                            //int val = int.Parse(ID, NumberStyles.HexNumber);
+                            var uni = int.Parse(vak, NumberStyles.HexNumber);
+                            if (!_emoji_unicodes.ContainsKey(uni))
+                            {
+                                _emoji_unicodes.Add(uni, emo);
+                            }
+                        }
                     }
-                    return false;
                 }
             }
-            catch
-            {
-            }
-            return true;
-        }
-
-        public void SaveEmotes()
-        {
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.NullValueHandling = NullValueHandling.Ignore;
-            serializer.TypeNameHandling = TypeNameHandling.Auto;
-            serializer.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
-            serializer.MissingMemberHandling = MissingMemberHandling.Ignore;
-            serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
-
-            using (StreamWriter sw = new StreamWriter(Settings.dataDir + "EmoteCache.txt"))
-            {
-                sw.WriteLine(DateTime.Now.Ticks);
-                using (JsonWriter writer = new JsonTextWriter(sw))
-                {
-                    writer.WriteStartArray();
-                    foreach (var item in All)
-                    {
-                        string val = JsonConvert.SerializeObject((item as Emote));
-                        writer.WriteRawValue(val);
-                    }
-                    writer.WriteEndArray();
-                }
-            }
+            return _emoji_unicodes.Count;
         }
     }
 }

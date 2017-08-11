@@ -118,7 +118,6 @@ namespace LX29_Helpers
                 using (var resp = req.GetResponse())
                 {
                     long length = resp.ContentLength;
-                    progAction.Invoke(0, (int)length, "Downloading Update.");
 
                     using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
                     {
@@ -140,6 +139,7 @@ namespace LX29_Helpers
                             else if (doUpdate && line.StartsWith("<link"))
                             {
                                 dlUrl = "https://github.com" + line.GetBetween("href=", "/>").Replace("tag", "download") + "/LixChat_Setup.msi";
+                                progAction.Invoke(0, (int)length, "Downloading Update.");
                                 break;
                             }
                         }

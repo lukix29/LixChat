@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Text;
+using System.IO.MemoryMappedFiles;
 
 namespace LX29_LixChat
 {
@@ -68,8 +69,6 @@ namespace LX29_LixChat
             catch { }
         }
 
-        //MPV doesnt start!!!
-        //public int dfs() { }
         protected void button1_Click(object sender, EventArgs e)
         {
             try
@@ -309,10 +308,6 @@ namespace LX29_LixChat
             }
         }
 
-        private void btn_OpenBrowser_Click(object sender, EventArgs e)
-        {
-        }
-
         private void btn_openSubpage_Click(object sender, EventArgs e)
         {
             var sa = GetCurrentInfo();
@@ -456,29 +451,10 @@ namespace LX29_LixChat
                 {
                     s.IsFavorited = cB_Favorite.Checked;
                 }
-                this.lstB_Channels.Invalidate();
+                this.lstB_Channels.Refresh();
             }
         }
 
-        //private void cB_ChatPreview_CheckedChanged(object sender, EventArgs e)
-        //{
-        //    if (cB_ChatPreview.Checked)
-        //    {
-        //        chatPreview.Visible = true;
-        //        chatPreview.BringToFront();
-        //        this.BeginInvoke(new Action(() =>
-        //        {
-        //            chatPreview.ChatView.SetChannel(GetCurrentInfo()[0], MsgType.All_Messages);
-        //            this.UpdateList();
-        //        }));
-        //    }
-        //    else
-        //    {
-        //        chatPreview.ChatView.Stop();
-        //        chatPreview.Visible = false;
-        //        apiInfoPanel1.BringToFront();
-        //    }
-        //}
         private void cB_LogChat_CheckedChanged(object sender, EventArgs e)
         {
             if (lockChatSettings) return;
@@ -504,7 +480,7 @@ namespace LX29_LixChat
                     {
                         UpdateList();
 
-                        if (!string.IsNullOrEmpty(info)) SetProgressInfo(count, max, info);
+                        if (!info.IsEmpty()) SetProgressInfo(count, max, info);
                         lockUpdateList = false;
                     });
             }
@@ -527,13 +503,6 @@ namespace LX29_LixChat
             }
         }
 
-        //private void ChatClient_ListUpdated()
-        //{
-        //    if (lockUpdateList) return;
-        //    lockUpdateList = true;
-        //    UpdateList();// ChatClient_ListLoaded(sa, 0, 0, string.Empty);
-        //    lockUpdateList = false;
-        //}
         private void comboBox1_MouseClick(object sender, MouseEventArgs e)
         {
             //var sa = GetCurrentInfo();
@@ -693,7 +662,7 @@ namespace LX29_LixChat
         private void SetChatInfos(ChannelInfo si)
         {
             if (lockChatSettings) return;
-            this.SuspendLayout();
+            //this.SuspendLayout();
             lockChatSettings = true;
 
             pb_Preview.SizeMode = si.PreviewImage.IsGif() ? PictureBoxSizeMode.CenterImage : PictureBoxSizeMode.Zoom;
@@ -708,10 +677,10 @@ namespace LX29_LixChat
                     comBox_StreamQuali.Items.Clear();
                     comBox_StreamQuali.Items.AddRange(items);
                     comBox_StreamQuali.EndUpdate();
-                    if (comBox_StreamQuali.Items.Count > 0)
-                    {
-                        comBox_StreamQuali.SelectedIndex = 0;
-                    }
+                    //if (comBox_StreamQuali.Items.Count > 0)
+                    //{
+                    //    comBox_StreamQuali.SelectedIndex = 0;
+                    //}
                     //comBox_StreamQuali.SelectedIndex = 0;
                     // comBox_StreamQuali.DroppedDown = true;
                 }));
@@ -751,7 +720,7 @@ namespace LX29_LixChat
                 mpvPreview.Start(si.StreamURLS[comBox_StreamQuali.SelectedItem.ToString()].URL, 0, splitContainer_Preview.Panel1.Handle);
             }
             lastSelectedName = si.Name;
-            this.ResumeLayout();
+            //this.ResumeLayout();
         }
 
         private void SetProgressInfo(int count, int max, string info)
@@ -763,12 +732,12 @@ namespace LX29_LixChat
                         tsLbl_Infotext.Visible = true;
                         tsLabel_Info.Visible = true;
                         tSProgBar_Loading.Visible = true;
-                        tSProgBar_Loading.Maximum = max;
-                        tSProgBar_Loading.Value = Math.Min(max, count);
-                        if (!string.IsNullOrEmpty(info))
+                        tSProgBar_Loading.Maximum = 100;
+                        tSProgBar_Loading.Value = Math.Min(100, (int)(((count / (float)max) * 100) + 0.5f));
+                        if (!info.IsEmpty())
                         {
-                            tsLbl_Infotext.Text = info;
-                            if ((max > 0 && max == count) || info.ToLower().Contains("finished"))
+                            tsLbl_Infotext.Text = info + " - " + tSProgBar_Loading.Value + "%";
+                            if ((max > 0 && max >= count) || info.ToLower().Contains("finished"))
                                 timer2.Enabled = true;
                         }
                     }));
@@ -804,11 +773,6 @@ namespace LX29_LixChat
             }
         }
 
-        //private void StartMpvExternal(string quali, ChannelInfo sa)
-        //{
-        //    MPV_StartTimer mst = new MPV_StartTimer();
-        //    mst.Start(quali, sa, SetProgressInfo);
-        //}
         private void timer2_Tick(object sender, EventArgs e)
         {
             tsLabel_Info.Visible = false;
@@ -915,7 +879,7 @@ namespace LX29_LixChat
             {
                 this.Invoke(new Action(() =>
                     {
-                        lstB_Channels.Invalidate();
+                        lstB_Channels.Refresh();
                         if (sa != null)
                         {
                             SetChatInfos(sa[0]);
@@ -924,7 +888,7 @@ namespace LX29_LixChat
             }
             else
             {
-                lstB_Channels.Invalidate();
+                lstB_Channels.Refresh();
                 if (sa != null)
                 {
                     SetChatInfos(sa[0]);
@@ -934,123 +898,16 @@ namespace LX29_LixChat
 
         private void users_OnChangedToken(TwitchUser new_user)
         {
-            var sa = ChatClient.Channels.Where(t => ChatClient.HasJoined(t.Key));
-            foreach (var si in sa)
-            {
-                ChatClient.Disconnect(si.Key);
-                while (ChatClient.HasJoined(si.Key)) ;
-                ChatClient.TryConnect(si.Key, true);
-            }
-        }
-
-        //public class MPV_StartTimer
-        //{
-        //    public async void Start(string quali, ChannelInfo sa, Action<int, int, string> a)
-        //    {
-        //        int cnt = 0;
-        //        while (true)
-        //        {
-        //            if (StartMpvExternal(quali, sa, a))
-        //            {
-        //                break;
-        //            }
-        //            else
-        //            {
-        //                cnt++;
-        //                if (cnt >= 3)
-        //                {
-        //                    var res = LX29_MessageBox.Show("Stream is Offline", "", MessageBoxButtons.RetryCancel, MessageBoxIcon.Asterisk);
-        //                    if (res == MessageBoxResult.Cancel)
-        //                    {
-        //                        break;
-        //                    }
-        //                    cnt = 0;
-        //                }
-        //                await Task.Delay(10000);
-        //            }
-        //        }
-        //    }
-
-        //    private bool StartMpvExternal(string quali, ChannelInfo sa, Action<int, int, string> a)
-        //    {
-        //        try
-        //        {
-        //            if (!MPV_Downloader.MPV_Exists)
-        //            {
-        //                MPV_Downloader.DownloadMPV(a, () => StartMpvExternal(quali, sa, a));
-        //            }
-
-        //            var sdf = sa.StreamURLS;
-        //            if (!sdf.IsEmpty)
-        //            {
-        //                string url = sdf[quali].URL;
-        //                MPV_Wrapper.StartAlone(sa.DisplayName, url, sa.PlayerPosition);
-        //                return true;
-        //            }
-        //            else
-        //            {
-        //                return false;
-        //            }
-        //        }
-        //        catch (Exception x)
-        //        {
-        //            switch (x.Handle())
-        //            {
-        //                case MessageBoxResult.Retry:
-        //                    return StartMpvExternal(quali, sa, a);
-        //            }
-        //        }
-        //        return false;
-        //    }
-        //}
-    }
-
-    public class Performance
-    {
-        private PerformanceCounter[] counters = new PerformanceCounter[0];
-
-        public Performance()
-        {
-            LoadProzessPerfMon();
-        }
-
-        public string GetInfo()
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (var c in counters)
-            {
-                sb.AppendLine(c.CounterName + ":\r\n" + c.NextValue().SizeSuffix());
-            }
-            return sb.ToString();
-        }
-
-        public void LoadProzessPerfMon()
-        {
-            var arr = PerformanceCounterCategory.GetCategories()
-            .Where(t => t.CategoryName.Equals("prozess", StringComparison.OrdinalIgnoreCase));
-            List<PerformanceCounter> list = new List<PerformanceCounter>();
-            foreach (var s in arr)
-            {
-                try
+            Task.Run(() =>
                 {
-                    foreach (var i in s.GetInstanceNames())
+                    var sa = ChatClient.Channels.Where(t => ChatClient.HasJoined(t.Key));
+                    foreach (var si in sa)
                     {
-                        var counters = s.GetCounters(i);
-                        foreach (var c in counters)
-                        {
-                            if (i.Equals(Process.GetCurrentProcess().ProcessName, StringComparison.OrdinalIgnoreCase))
-                            {
-                                list.Add(c);
-                            }
-                        }
+                        ChatClient.Disconnect(si.Key);
+                        while (ChatClient.HasJoined(si.Key)) ;
+                        ChatClient.TryConnect(si.Key, true);
                     }
-                }
-                catch { }
-            }
-            this.counters = list.ToArray();
-            //            //var res = s.CategoryType + " - " + s.CategoryName + " - " + i + " - " + c.CounterName + " - " + c.CategoryName;
-            //            Console.WriteLine(c.CounterName + ":");
-            //            Console.WriteLine(c.NextValue().ToString("F3"));
+                });
         }
     }
 }

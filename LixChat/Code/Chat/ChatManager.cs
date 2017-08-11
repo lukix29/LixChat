@@ -155,7 +155,7 @@ namespace LX29_ChatClient
                 else if (HasTimeOut)
                 {
                     string msg = name + " has been timed out for " + TimeOutDuration + "s";
-                    if (!string.IsNullOrEmpty(Reason))
+                    if (!Reason.IsEmpty())
                     {
                         msg += " (" + Reason.Replace("\\s", " ") + ")";
                     }
@@ -410,7 +410,7 @@ namespace LX29_ChatClient
         {
             get
             {
-                return string.IsNullOrEmpty(Message.Trim());
+                return Message.Trim().IsEmpty();
             }
         }
 
@@ -602,12 +602,12 @@ namespace LX29_ChatClient
         {
             get
             {
-                if (string.IsNullOrEmpty(displayName))
+                if (displayName.IsEmpty())
                 {
                     if (result != null && !result.IsEmpty)
                         displayName = result.GetValue<string>(ApiInfo.display_name);
                 }
-                if (string.IsNullOrEmpty(displayName))
+                if (displayName.IsEmpty())
                 {
                     return Name;
                 }
@@ -780,7 +780,7 @@ namespace LX29_ChatClient
         //{
         //    if (ApiResult.IsEmpty)
         //    {
-        //        if (string.IsNullOrEmpty(ID))
+        //        if (ID))
         //        {
         //            ID = TwitchApi.GetUserID(Name);
         //        }
@@ -884,14 +884,34 @@ namespace LX29_ChatClient
         public ChatWord(TempWord input)
         {
             Text = input.Emote.Name;
-
-            Emote = input.Emote;
+            Emote = new EmoteBase[] { input.Emote };
         }
 
         public ChatWord(string name, string channel, bool outgoing)
         {
             Text = name;
-            Emote = ChatClient.Emotes.GetEmote(name, channel, outgoing);
+
+            string temp = name;
+            //try
+            //{
+            //    for (int i = 0; i < temp.Length - 1; i++)
+            //    {
+            //        int uni = char.ConvertToUtf32(temp, i);
+            //        if (ChatClient.Emotes.Values._emoji_unicodes.ContainsKey(uni))
+            //        {
+            //            Emote.Add(ChatClient.Emotes.GetEmote(name, channel, outgoing));
+            //            name = name.Remove(i, 1);
+            //        }
+            //    }
+            //}
+            //catch
+            //{
+            //}
+            var em = ChatClient.Emotes.GetEmote(name, channel, outgoing);
+            if (em != null)
+            {
+                Emote = em;
+            }
             //if (IsEmote)
             //{
             //    //Emote_ID = Emote.ID;
@@ -904,10 +924,14 @@ namespace LX29_ChatClient
         {
             Text = name;
 
-            Emote = ChatClient.Emotes.Values.All.FirstOrDefault(t => t.Name.Equals(name));
+            var em = ChatClient.Emotes.Values.All.Where(t => t.Name.Equals(name));
+            if (em != null)
+            {
+                Emote = em;
+            }
         }
 
-        public EmoteBase Emote
+        public IEnumerable<EmoteBase> Emote
         {
             get;
             private set;
@@ -1172,7 +1196,7 @@ namespace LX29_ChatClient
 
         public static Color RandomColor(string name)
         {
-            if (string.IsNullOrEmpty(name))
+            if (name.IsEmpty())
             {
                 return standardColors[0];
             }
@@ -1187,7 +1211,7 @@ namespace LX29_ChatClient
         public static Color ToColor(string hex, string name = "")
         {
             hex = hex.Replace("#", "");
-            if (!string.IsNullOrEmpty(hex))
+            if (!hex.IsEmpty())
             {
                 if (hex.Length < 6)
                 {
@@ -1199,7 +1223,7 @@ namespace LX29_ChatClient
                 Color c = Color.FromArgb(r, g, b);
                 return c;
             }
-            if (string.IsNullOrEmpty(name))
+            if (name.IsEmpty())
             {
                 return Color.Gray;
             }

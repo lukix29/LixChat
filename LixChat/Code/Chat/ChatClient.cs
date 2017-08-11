@@ -273,7 +273,7 @@ namespace LX29_ChatClient
                             break;
                     }
 
-                    if (string.IsNullOrEmpty(Name))
+                    if (Name.IsEmpty())
                     {
                         if (parameters.ContainsKey(irc_params.display_name))
                         {
@@ -638,7 +638,7 @@ namespace LX29_ChatClient
                         c.UserPartedChannel += client_UserPartedChannel;
                         c.UserQuit += client_UserQuit;
 
-                        Task.Run(() => Emotes.LoadChannelEmotes(c.Channel));
+                        //Task.Run(() => Emotes.LoadChannelEmotes(c.Channel));
 
                         clients.Add(c.Channel, c);
                         reconectTimeout = 2000;
@@ -788,7 +788,7 @@ namespace LX29_ChatClient
 
         private static ChatMessage SendMessage(string Message, string user, IRC_Client.IRC irc)
         {
-            if (string.IsNullOrEmpty(Message) ||
+            if (Message.IsEmpty() ||
                 DateTime.Now.Subtract(lastSend).TotalSeconds < 1.0) return ChatMessage.Empty;
 
             lastSend = DateTime.Now;
@@ -812,7 +812,7 @@ namespace LX29_ChatClient
                         Message = Message.Remove(500);
                     }
 
-                    user = (string.IsNullOrEmpty(user) ? SelfUserName.ToLower() : user);
+                    user = (user.IsEmpty()) ? SelfUserName.ToLower() : user;
                     ChatUser me = ChatClient.Users.Get(user, Channel);
 
                     bool mod = me.Types.Any(t => (((int)t) >= (int)UserType.moderator));
@@ -885,7 +885,7 @@ namespace LX29_ChatClient
                 get
                 {
                     channel = channel.ToLower().Trim();
-                    if (string.IsNullOrEmpty(name))
+                    if (name.IsEmpty())
                     {
                         if (messages.ContainsKey(channel))
                         {
@@ -975,7 +975,7 @@ namespace LX29_ChatClient
                 Dictionary<irc_params, string> parameters,
                string name, string Message, string outerMessageType, TimeOutResult isTO)
             {
-                if (!string.IsNullOrEmpty(Message) &&
+                if (!Message.IsEmpty() &&
                     (channelName.Length > 0 && parameters.Count > 0))
                 {
                     //Emotes.ParseEmoteFromMessage(parameters, Message, channelName);
@@ -1041,11 +1041,11 @@ namespace LX29_ChatClient
                     {
                         if (type != MsgType.Whisper)
                         {
-                            if (!string.IsNullOrEmpty(channel))
+                            if (!channel.IsEmpty())
                             {
                                 if (messages.ContainsKey(channel))
                                 {
-                                    if (string.IsNullOrEmpty(name))
+                                    if (name.IsEmpty())
                                     {
                                         return messages[channel].Count(t => t.IsType(type));
                                     }
@@ -1064,7 +1064,7 @@ namespace LX29_ChatClient
                         }
                         else
                         {
-                            if (!string.IsNullOrEmpty(name))
+                            if (!name.IsEmpty())
                             {
                                 if (whisper.ContainsKey(name))
                                 {
@@ -1093,7 +1093,7 @@ namespace LX29_ChatClient
                         {
                             if (messages.ContainsKey(channel))
                             {
-                                if (string.IsNullOrEmpty(name))
+                                if (name.IsEmpty())
                                 {
                                     if (messages[channel].Count(t => t.IsType(type)) > 0)
                                     {
@@ -1120,7 +1120,7 @@ namespace LX29_ChatClient
                             }
                             //if (specialMessages.ContainsKey(channel))
                             //{
-                            //    if (string.IsNullOrEmpty(name))
+                            //    if (name))
                             //    {
                             //        var msgs = specialMessages[channel].FindAll(cm => (cm.IsType(type)));
                             //        if (type == MsgType.Highlight)
@@ -1207,7 +1207,7 @@ namespace LX29_ChatClient
 
         public static void AddChatHighlightWord(string word, bool save = true)
         {
-            if (string.IsNullOrEmpty(word)) return;
+            if (word.IsEmpty()) return;
             if (!chatHighlights.Contains(word.ToLower()))
             {
                 chatHighlights.Add(word.ToLower());
@@ -1419,11 +1419,11 @@ namespace LX29_ChatClient
 
             public ChatUser Get(string name, string channel)
             {
-                if (!string.IsNullOrEmpty(name))
+                if (!name.IsEmpty())
                 {
                     channel = channel.ToLower().Trim();
                     name = name.ToLower().Trim();
-                    if (string.IsNullOrEmpty(channel))
+                    if (channel.IsEmpty())
                     {
                         foreach (string s in users.Keys)
                         {

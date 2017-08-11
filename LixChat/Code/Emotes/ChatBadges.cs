@@ -6,6 +6,10 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.IO;
+
 namespace LX29_ChatClient.Emotes
 {
     public enum BadgeOrigin
@@ -25,7 +29,7 @@ namespace LX29_ChatClient.Emotes
             Type = name;
             Name = type;
             URLS = new Dictionary<string, EmoteImage>();
-            URLS.Add("1", new EmoteImage(urls, Name));
+            URLS.Add("1", new EmoteImage(urls, Name, EmoteOrigin.Badge));
         }
 
         public Badge(LX29_Twitch.JSON_Parser.JSON.FFZ_Emotes.Badge badge)
@@ -34,19 +38,19 @@ namespace LX29_ChatClient.Emotes
             Type = badge.name.Trim() + "_FFZ";
             Name = Type;
             URLS = new Dictionary<string, EmoteImage>();
-            URLS.Add("1", new EmoteImage(badge.urls, Name));
+            URLS.Add("1", new EmoteImage(badge.urls, Name, EmoteOrigin.Badge));
         }
 
-        public Badge(string name, JSON.Twitch_Badges.Versions lst)
+        public Badge(JSON.Twitch_Badges.BadgeData lst)
         {
             Origin = BadgeOrigin.Twitch;
             Type = "None";
-            Name = name.Trim();
+            Name = lst.Name.Trim();
             URLS = new Dictionary<string, EmoteImage>();
             foreach (var kvp in lst.versions)
             {
                 Type = kvp.Value.description;
-                URLS.Add(kvp.Key, new EmoteImage(kvp.Value.urls, Name));
+                URLS.Add(kvp.Key, new EmoteImage(kvp.Value.urls, Name, EmoteOrigin.Badge));
             }
         }
 
@@ -100,7 +104,7 @@ namespace LX29_ChatClient.Emotes
             Name = name.Trim();
             Type = type.Trim();
             Origin = origin;
-            if (!string.IsNullOrEmpty(version))
+            if (!version.IsEmpty())
             {
                 Version = version.Trim();
             }
@@ -177,89 +181,127 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public void Fetch_Badges(string url = "https://badges.twitch.tv/v1/badges/global/display", ChannelInfo ci = null)
+        public void Fetch_Channel_Badges(ChannelInfo ci = null)
         {
             try
             {
-                WebClient wc = new WebClient();
-                wc.Proxy = null;
-                var str = wc.DownloadString(url);
-                wc.Dispose();
-
-                var result = JSON.ParseBadges(str);
-
-                foreach (var kvp in result.badge_sets)
+                string url = (ci == null) ? "https://badges.twitch.tv/v1/badges/global/display" : "https://badges.twitch.tv/v1/badges/channels/" + ci.ID + "/display";
+                using (WebClient wc = new WebClient())
                 {
-                    string name = (ci != null) ? ci.Name : kvp.Key;
-
-                    Badge badge = new Badge(name, kvp.Value);
-                    if (!badges.ContainsKey(name))
+                    wc.Proxy = null;
+                    wc.Headers.Add("Client-ID", LX29_Twitch.Api.TwitchApi.CLIENT_ID);
+                    using (JsonTextReader reader = new JsonTextReader(new StreamReader(wc.OpenRead(url))))
                     {
-                        badges.Add(name, badge);
+                        JsonSerializer jser = new JsonSerializer();
+                        if (!reader.Read() || !reader.Read() || !reader.Read()) return;
+                        while (true)
+                        {
+                            if (!reader.Read())
+                                break;
+                            if (reader.TokenType == JsonToken.PropertyName)
+                            {
+                                var name = (ci == null) ? reader.Value.ToString() : ci.Name;
+
+                                if (!reader.Read())
+                                    break;
+
+                                var obj = jser.Deserialize<JSON.Twitch_Badges.BadgeData>(reader);
+                                obj.Name = name;
+
+                                Badge badge = new Badge(obj);
+                                if (!badges.ContainsKey(name))
+                                {
+                                    badges.Add(name, badge);
+                                }
+                            }
+                        }
                     }
+                    //}
+                    //else
+                    //{
+                    //    var result = JSON.ParseBadges(str);
+                    //    if (result.badge_sets.subscriber != null)
+                    //    {
+                    //        string name = ci.Name;
+                    //        Badge badge = new Badge(name, result);
+                    //        if (!badges.ContainsKey(name))
+                    //        {
+                    //            badges.Add(name, badge);
+                    //        }
+                    //    }
+                    //}
                 }
             }
-            catch
-            { }
-        }
-
-        public void Fetch_Sub_Badges(ChannelInfo ci)
-        {
-            try
+            catch (Exception x)
             {
-                string url = "https://badges.twitch.tv/v1/badges/channels/" + ci.ID + "/display";
-                Fetch_Badges(url, ci);
-            }
-            catch
-            {
+                //switch (x.Handle())
+                //{
+                //    case System.Windows.Forms.MessageBoxResult.Retry:
+                //        Fetch_Channel_Badges(ci);
+                //        break;
+                //}
             }
         }
 
         public void Parse_FFZ_Addon_Badges()
         {
-            WebClient wc = new WebClient();
-            wc.Proxy = null;
-            string temp = wc.DownloadString("https://cdn.ffzap.download/supporters.json");
-            wc.Dispose();
-            var result = JSON.ParseFFZAddonBadges(temp);
-
-            //FFZ_Users = new List<FFZBadgeUser>();
-            var badge = result.badges[0];
-            Badge b = new Badge(badge.name + "_ffzap", badge.title, badge.urls);
-            badges.Add(b.Type, b);
-            foreach (var user in result.users)
+            try
             {
-                if (user.username.Equals("cwar97", StringComparison.OrdinalIgnoreCase))
+                WebClient wc = new WebClient();
+                wc.Proxy = null;
+                string temp = wc.DownloadString("https://cdn.ffzap.download/supporters.json");
+                wc.Dispose();
+                var result = JSON.ParseFFZAddonBadges(temp);
+
+                //FFZ_Users = new List<FFZBadgeUser>();
+                var badge = result.badges[0];
+                Badge b = new Badge(badge.name + "_ffzap", badge.title, badge.urls);
+                badges.Add(b.Type, b);
+                foreach (var user in result.users)
                 {
+                    FFZ_Users.Add(new FFZBadgeUser(user.username, b));
                 }
-                FFZ_Users.Add(new FFZBadgeUser(user.username, b));
-                //Badge b = new Badge(badge);
-                //badges.Add(b.Name, b);
-                //var user = result.users[badge.id];
-                //foreach (var u in user)
-                //{
-                //    FFZ_Users.Add(new FFZBadgeUser(u, b));
-                //}
+            }
+            catch (Exception x)
+            {
+                switch (x.Handle())
+                {
+                    case System.Windows.Forms.MessageBoxResult.Retry:
+                        Parse_FFZ_Addon_Badges();
+                        break;
+                }
             }
         }
 
         public void Parse_FFZ_Badges()
         {
-            WebClient wc = new WebClient();
-            wc.Proxy = null;
-            string temp = wc.DownloadString("http://api.frankerfacez.com/v1/badges");
-            wc.Dispose();
-            var result = JSON.ParseFFZBadges(temp);
-
-            FFZ_Users = new List<FFZBadgeUser>();
-            foreach (var badge in result.badges)
+            try
             {
-                Badge b = new Badge(badge);
-                badges.Add(b.Name, b);
-                var user = result.users[badge.id];
-                foreach (var u in user)
+                WebClient wc = new WebClient();
+                wc.Proxy = null;
+                string temp = wc.DownloadString("http://api.frankerfacez.com/v1/badges");
+                wc.Dispose();
+                var result = JSON.ParseFFZBadges(temp);
+
+                FFZ_Users = new List<FFZBadgeUser>();
+                foreach (var badge in result.badges)
                 {
-                    FFZ_Users.Add(new FFZBadgeUser(u, b));
+                    Badge b = new Badge(badge);
+                    badges.Add(b.Name, b);
+                    var user = result.users[badge.id];
+                    foreach (var u in user)
+                    {
+                        FFZ_Users.Add(new FFZBadgeUser(u, b));
+                    }
+                }
+            }
+            catch (Exception x)
+            {
+                switch (x.Handle())
+                {
+                    case System.Windows.Forms.MessageBoxResult.Retry:
+                        Parse_FFZ_Badges();
+                        break;
                 }
             }
         }

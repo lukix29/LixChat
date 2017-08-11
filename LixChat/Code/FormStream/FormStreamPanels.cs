@@ -25,7 +25,7 @@ namespace LX29_Twitch.Forms
             panel.BorderStyle = BorderStyle.FixedSingle;
             panel.Width = 350;
 
-            if (!string.IsNullOrEmpty(title))
+            if (!title.IsEmpty())
             {
                 label1.Anchor = AnchorStyles.None;
                 label1.FlatStyle = FlatStyle.Flat;
@@ -44,7 +44,7 @@ namespace LX29_Twitch.Forms
                 pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
                 pictureBox1.TabStop = false;
                 pictureBox1.Image = image;
-                if (!string.IsNullOrEmpty(imgUrl))
+                if (!imgUrl.IsEmpty())
                 {
                     pictureBox1.MouseEnter += delegate(object sender, EventArgs e)
                     {
@@ -60,7 +60,7 @@ namespace LX29_Twitch.Forms
                     };
                 }
             }
-            if (!string.IsNullOrEmpty(text))
+            if (!text.IsEmpty())
             {
                 webBrowser1.Height = panel.Width * 2;
                 webBrowser1.Width = panel.Width;
@@ -91,7 +91,7 @@ namespace LX29_Twitch.Forms
 
             int y = 0;
             panel.Height = 0;
-            if (!string.IsNullOrEmpty(title))
+            if (!title.IsEmpty())
             {
                 label1.Location = new Point();
                 panel.Height = label1.Height;
@@ -103,7 +103,7 @@ namespace LX29_Twitch.Forms
                 panel.Height += pictureBox1.Height;
                 panel.Controls.Add(pictureBox1);
             }
-            if (!string.IsNullOrEmpty(text))
+            if (!text.IsEmpty())
             {
                 panel.Height += webBrowser1.Height;
                 panel.Controls.Add(webBrowser1);
@@ -112,7 +112,7 @@ namespace LX29_Twitch.Forms
             pictureBox1.Location = new Point(0, y);
             webBrowser1.Location = new Point(0, pictureBox1.Bottom);
             //panel.Controls.Add(pictureBox1);
-            //if (!string.IsNullOrEmpty(text))
+            //if (!text))
             //{
             //    panel.Controls.Add(richTextBox1);
             //}

@@ -17,6 +17,35 @@ namespace LX29_ChatClient.Forms
             private set;
         }
 
+        public static Panel GetSettingCheckBox(Size clientSize, bool value, SettingClasses classe, Action<bool, string> onselect)
+        {
+            CheckBox cb_value = new CheckBox();
+            cb_value.AutoSize = true;
+            cb_value.Name = "nUD_" + classe.Name;
+            cb_value.BackColor = System.Drawing.Color.Black;
+            cb_value.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            cb_value.ForeColor = System.Drawing.Color.Gainsboro;
+            cb_value.Location = new System.Drawing.Point(clientSize.Width - cb_value.Width, 3);
+            cb_value.TabIndex = 2;
+            cb_value.Checked = value;
+            cb_value.CheckedChanged += (sender, e) =>
+            {
+                var nud = (CheckBox)sender;
+                onselect(nud.Checked, classe.Name);
+            };
+            cb_value.Dock = DockStyle.Left;
+            cb_value.Text = classe.Text;
+
+            Panel panel1 = new Panel();
+            panel1.Controls.Add(cb_value);
+            panel1.Name = "panel_" + classe.Name;
+            panel1.Visible = true;
+            panel1.BackColor = System.Drawing.Color.FromArgb(60, 60, 60);
+            panel1.Location = new Point(0, 0);
+            panel1.Size = new Size(clientSize.Width, cb_value.Height);
+            return panel1;
+        }
+
         public static Panel GetSettingPanel(Size clientSize, double value, SettingClasses classe, Action<decimal, string> onselect)
         {
             //
@@ -90,6 +119,8 @@ namespace LX29_ChatClient.Forms
                     SetControls(flowLayoutPanel_UserOptions, SettingClasses.UserBasic);
 
                     SetControls(flowLayoutPanel_ChatOptions, SettingClasses.ChatBasic, btn_SelectChatBG, btn_SelectFont);
+
+                    SetControls(flowLayoutPanel_PlayerOptions, SettingClasses.PlayerBasic);
 
                     cb_ShowErrors.Checked = Settings.ShowErrors;
                     cB_AnimatedEmotes.Checked = Settings.AnimatedEmotes;
@@ -245,26 +276,53 @@ namespace LX29_ChatClient.Forms
 
         private void SetControls(Control c, SettingClasses[] keys, params Control[] extra)
         {
-            c.Controls.Clear();
-            foreach (var ci in extra)
+            try
             {
-                c.Controls.Add(ci);
-            }
-            var textsetts = Settings.GetFields(keys);
-            foreach (var set in textsetts)
-            {
-                if (set.Value is double)
+                c.Controls.Clear();
+                foreach (var ci in extra)
                 {
-                    double value = Math.Max(set.Min, Math.Min(set.Max, (double)set.Value));
-                    c.Controls.Add(GetSettingPanel(c.ClientSize,
-                        value, set, (a, s) =>
-                        {
-                            Settings.SetValue(set, (double)a);
-                            if (s.Equals("_ChatFontSize") && ChatView != null)
+                    c.Controls.Add(ci);
+                }
+                var textsetts = Settings.GetFields(keys);
+                foreach (var set in textsetts)
+                {
+                    if (set.Value is double)
+                    {
+                        double value = Math.Max((double)set.Min, Math.Min((double)set.Max, (double)set.Value));
+                        c.Controls.Add(GetSettingPanel(c.ClientSize,
+                            value, set, (a, s) =>
                             {
-                                ChatView.SetFontSize(a);
-                            }
-                        }));
+                                Settings.SetValue(set, (double)a);
+                                if (s.Equals("_ChatFontSize") && ChatView != null)
+                                {
+                                    foreach (var channel in ChatClient.Channels)
+                                    {
+                                        if (channel.Value.ChatForm != null)
+                                        {
+                                            channel.Value.ChatForm.chatView.SetFontSize(a);
+                                        }
+                                    }
+                                }
+                            }));
+                    }
+                    else if (set.Value is bool)
+                    {
+                        bool value = (bool)set.Value;
+                        c.Controls.Add(GetSettingCheckBox(c.ClientSize,
+                            value, set, (a, s) =>
+                            {
+                                Settings.SetValue(set, a);
+                            }));
+                    }
+                }
+            }
+            catch (Exception x)
+            {
+                switch (x.Handle())
+                {
+                    case MessageBoxResult.Retry:
+                        SetControls(c, keys, extra);
+                        break;
                 }
             }
         }

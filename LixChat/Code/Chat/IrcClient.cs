@@ -124,6 +124,7 @@ namespace IRC_Client
 
     public partial class IRC
     {
+        public readonly Encoding Encoding = Encoding.Unicode;
         private const int ReadBufferLength = 4096;
 
         //internal RequestManager RequestManager { get; set; }
@@ -174,8 +175,6 @@ namespace IRC_Client
         {
             get { return ConnectionComplete == null; }
         }
-
-        public Encoding Encoding { get; set; }
 
         public bool IgnoreInvalidSSL { get; set; }
 
@@ -435,7 +434,7 @@ namespace IRC_Client
 
                 NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length, DataRecieved, null);
 
-                if (!string.IsNullOrEmpty(User.Password))
+                if (!User.Password.IsEmpty())
                 {
                     SendRawMessage("PASS {0}", User.Password);
                 }
@@ -565,7 +564,7 @@ namespace IRC_Client
 
         private void PingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(ServerNameFromPing))
+            if (!ServerNameFromPing.IsEmpty())
                 SendRawMessage("PONG :{0}", ServerNameFromPing);
         }
     }
@@ -591,7 +590,7 @@ namespace IRC_Client
                 rawMessage = rawMessage.Substring(rawMessage.IndexOf(' ') + 1);
 
                 var parameters = new List<string>();
-                while (!string.IsNullOrEmpty(rawMessage))
+                while (!rawMessage.IsEmpty())
                 {
                     if (rawMessage.StartsWith(":"))
                     {
@@ -758,51 +757,6 @@ namespace IRC_Client
             return Hostmask;
         }
     }
-}
-
-namespace IRC_Client
-{
-    //internal class RequestManager
-    //{
-    //    public RequestManager()
-    //    {
-    //        PendingOperations = new Dictionary<string, RequestOperation>();
-    //    }
-
-    //    private Dictionary<string, RequestOperation> PendingOperations { get; set; }
-
-    //    public RequestOperation DequeueOperation(string key)
-    //    {
-    //        var operation = PendingOperations[key];
-    //        PendingOperations.Remove(key);
-    //        return operation;
-    //    }
-
-    //    public RequestOperation PeekOperation(string key)
-    //    {
-    //        var realKey = PendingOperations.Keys.FirstOrDefault(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
-    //        return PendingOperations[realKey];
-    //    }
-
-    //    public void QueueOperation(string key, RequestOperation operation)
-    //    {
-    //        if (PendingOperations.ContainsKey(key))
-    //            throw new InvalidOperationException("Operation is already pending.");
-    //        PendingOperations.Add(key, operation);
-    //    }
-    //}
-
-    //internal class RequestOperation
-    //{
-    //    public RequestOperation(object state, Action<RequestOperation> callback)
-    //    {
-    //        State = state;
-    //        Callback = callback;
-    //    }
-
-    //    public Action<RequestOperation> Callback { get; set; }
-    //    public object State { get; set; }
-    //}
 }
 
 namespace IRC_Client.Events

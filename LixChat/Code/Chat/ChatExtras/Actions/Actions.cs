@@ -76,7 +76,7 @@ namespace LX29_ChatClient.Addons
                 {
                     string username = msg.Name;
 
-                    //if (string.IsNullOrEmpty(username))
+                    //if (username))
                     //    return;
                     List<ChatAction> list = chatactions.FindAll(c => (c.Username.ToLower().Contains(username)));
 
@@ -299,9 +299,9 @@ namespace LX29_ChatClient.Addons
         {
             get
             {
-                return string.IsNullOrEmpty(Username) ||
-                    string.IsNullOrEmpty(Message) ||
-                    string.IsNullOrEmpty(Action);
+                return Username.IsEmpty() ||
+                    Message.IsEmpty() ||
+                    Action.IsEmpty();
             }
         }
 

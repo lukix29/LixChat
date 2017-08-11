@@ -705,7 +705,7 @@ namespace LX29_Twitch.Api
                         switch (info)
                         {
                             case ApiInfo._id:
-                                info = ApiInfo.stream_id; ;
+                                info = ApiInfo.stream_id;
                                 break;
 
                             case ApiInfo.created_at:
@@ -715,7 +715,7 @@ namespace LX29_Twitch.Api
                     }
                     object o = prop.GetValue(channel);
                     o = ConvertValue(o, info);
-                    if (o is string && string.IsNullOrEmpty((string)o))
+                    if (o is string && ((string)o).IsEmpty())
                     {
                         ApiInfo[] test = new ApiInfo[] { ApiInfo.name, ApiInfo._id };
 
@@ -729,46 +729,6 @@ namespace LX29_Twitch.Api
                         values.Add(info, o);
                 }
             }
-        }
-    }
-
-    public class EmoteApiInfo
-    {
-        public EmoteApiInfo(string name, string emote_id, string set_id)
-        {
-            this.Name = name;
-
-            this.Set = set_id;
-
-            this.ID = emote_id;
-
-            if (LX29_ChatClient.Emotes.EmoteCollection.StandardEmotes.ContainsKey(emote_id))
-            {
-                this.Name = LX29_ChatClient.Emotes.EmoteCollection.StandardEmotes[emote_id];
-            }
-        }
-
-        public string ID
-        {
-            get;
-            private set;
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public string Set
-        {
-            get;
-            private set;
-        }
-
-        public override string ToString()
-        {
-            return ID + " | " + Name + " | " + Set;
         }
     }
 
@@ -827,7 +787,7 @@ namespace LX29_Twitch.Api
                     try
                     {
                         string url = value.data.image;
-                        if (!string.IsNullOrEmpty(url))
+                        if (!url.IsEmpty())
                         {
                             image = new System.Drawing.Bitmap(1, 1);
                             WebClient wc = new WebClient();

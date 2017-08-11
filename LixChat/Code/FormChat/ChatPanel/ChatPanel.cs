@@ -107,7 +107,7 @@ namespace LX29_ChatClient.Forms
                 System.Threading.Tasks.Task.Run(() =>
                 {
                     var msg = ChatMessage.Empty;
-                    if (string.IsNullOrEmpty(chatView1.UserMessageName))
+                    if (chatView1.UserMessageName.IsEmpty())
                     {
                         msg = ChatClient.SendMessage(text, Channel.Name);
                     }
@@ -134,7 +134,7 @@ namespace LX29_ChatClient.Forms
         {
             try
             {
-                if (!string.IsNullOrEmpty(lastSearch)) return;
+                if (!lastSearch.IsEmpty()) return;
 
                 e.SuppressKeyPress = true;
 
@@ -334,7 +334,7 @@ namespace LX29_ChatClient.Forms
                 if (e.KeyData == Keys.Enter)
                 {
                     e.SuppressKeyPress = true;
-                    if (!string.IsNullOrEmpty(lastSearch))
+                    if (!lastSearch.IsEmpty())
                     {
                         selectName();
                     }
@@ -348,14 +348,14 @@ namespace LX29_ChatClient.Forms
                 else if (e.KeyData == Keys.Tab)
                 {
                     lockListSearch = true;
-                    if (string.IsNullOrEmpty(lastSearch))
+                    if (lastSearch.IsEmpty())
                     {
                         e.SuppressKeyPress = true;
 
                         var arr = rTB_Send.Text.Trim().Split(" ");
                         lastSearch = arr.Select(t => t.Trim()).Last();
 
-                        if (!string.IsNullOrEmpty(lastSearch))
+                        if (!lastSearch.IsEmpty())
                         {
                             // System.Threading.Tasks.Task.Run(() =>
                             {
@@ -449,7 +449,7 @@ namespace LX29_ChatClient.Forms
         {
             try
             {
-                if ((lstB_Search.SelectedIndex >= 0 && !string.IsNullOrEmpty(lastSearch)))
+                if ((lstB_Search.SelectedIndex >= 0 && !lastSearch.IsEmpty()))
                 {
                     var text = rTB_Send.Text.Trim();
                     var repl = lstB_Search.SelectedItem;

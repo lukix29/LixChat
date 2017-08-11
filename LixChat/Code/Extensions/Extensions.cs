@@ -222,7 +222,7 @@ namespace System
         {
             int index0 = input.Length - 1;
             string temp = input;
-            if (!string.IsNullOrEmpty(Before))
+            if (!Before.IsEmpty())
             {
                 index0 = input.IndexOf(Before);
 
@@ -301,7 +301,7 @@ namespace System
                 {
                     betw = input.Substring(i0, i1 - i0);
                     index = i1 + right.Length;
-                    if (!string.IsNullOrEmpty(betw))
+                    if (!betw.IsEmpty())
                     {
                         list.Add(betw);
                     }
@@ -664,7 +664,7 @@ namespace System
                             sb.AppendLine();
                         }
                     }
-                    if (!string.IsNullOrEmpty(extraInfo))
+                    if (!extraInfo.IsEmpty())
                     {
                         sb.AppendLine();
                         sb.AppendLine(extraInfo);
@@ -672,7 +672,7 @@ namespace System
 
                     if (LX29_ChatClient.Settings.ShowErrors)
                     {
-                        if (errorCount >= 2)
+                        if (errorCount >= 1)
                         {
                             errorCount = 0;
                             return LX29_MessageBox.Show(sb.ToString(), "Error!", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error);
@@ -680,7 +680,7 @@ namespace System
                     }
                     else
                     {
-                        if (errorCount >= 4)
+                        if (errorCount >= 2)
                         {
                             errorCount = 0;
                             return MessageBoxResult.Ignore;
@@ -755,6 +755,11 @@ namespace System
             }
             catch { }
             return "";
+        }
+
+        public static bool IsEmpty(this string s)
+        {
+            return string.IsNullOrEmpty(s);
         }
 
         public static string Read(this StringReader sr, char until)
@@ -856,7 +861,7 @@ namespace System
 
         public static string RemoveNonCharsAndDigits(this string s)
         {
-            if (!string.IsNullOrEmpty(s))
+            if (!s.IsEmpty())
             {
                 string si = "";
                 for (int i = 0; i < s.Length; i++)
@@ -886,7 +891,7 @@ namespace System
 
         public static string RemoveUntil(this string input, string Until, int start = 0)
         {
-            if (string.IsNullOrEmpty(input)) return input;
+            if (input.IsEmpty()) return input;
             int idx = input.IndexOf(Until, start);
             if (idx <= 0) return input;
 
@@ -1033,7 +1038,7 @@ namespace System
                 {
                     s = input.Substring(idxs[i]);
                 }
-                if (!string.IsNullOrEmpty(s))
+                if (!s.IsEmpty())
                 {
                     list.Add(s);
                 }
@@ -1093,7 +1098,7 @@ namespace System
         public static string UppercaseFirst(this string s)
         {
             // Check for empty string.
-            if (string.IsNullOrEmpty(s))
+            if (s.IsEmpty())
             {
                 return string.Empty;
             }

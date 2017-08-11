@@ -24,7 +24,6 @@ namespace LX29_ChatClient
                         var key = li.Key;
                         var typ = Class.GetType();
                         var prop = typ.GetProperty(key);
-                        //var value = Convert.ChangeType(type, prop.PropertyType);
                         if (prop.CanWrite)
                         {
                             object val = _Value;
@@ -43,10 +42,6 @@ namespace LX29_ChatClient
                             }
                             prop.SetValue(Class, val);
                         }
-                        else
-                        {
-                        }
-                        //prop.SetValue(null, value);
                     }
                     return true;
                 }
@@ -138,7 +133,7 @@ namespace LX29_ChatClient
         //    foreach (var s in names)
         //    {
         //        string si = s.Trim('\t', ' ');
-        //        if (!si.Equals("#END") && !string.IsNullOrEmpty(si))
+        //        if (!si.Equals("#END") && !si))
         //        {
         //            list.Add(Create(s.Remove(0, 1)));
         //        }
@@ -148,7 +143,7 @@ namespace LX29_ChatClient
         //        try
         //        {
         //            string s = si.Trim('\t', ' ');
-        //            if (!string.IsNullOrEmpty(s))
+        //            if (!s))
         //            {
         //                if (s.StartsWith("#"))
         //                {
@@ -216,25 +211,32 @@ namespace LX29_ChatClient
     {
         public static readonly SettingClasses[] ChatBasic = new SettingClasses[]
         {
-            new SettingClasses("_ChatHistory", "Chat History Amount", 100, Int16.MaxValue, 1)
+            new SettingClasses("_ChatHistory", "Chat History Amount", 100.0, Int16.MaxValue * 1.0, 1.0),
+            new SettingClasses("_ShowTimeoutMessages", "Show Timeouts/Bans")
         };
 
         public static readonly SettingClasses[] EmoteBasic = new SettingClasses[]
         {
-            new SettingClasses("_BadgePadding", "Badge Padding", 1, 100, 1),
+            new SettingClasses("_BadgePadding", "Badge Padding", 1.0, 100.0, 1.0),
             new SettingClasses("_BadgeSizeFac", "Badge Size", 0.1, 10, 0.1),
-            new SettingClasses("_EmotePadding", "Emote Padding", 1, 100, 1),
+            new SettingClasses("_EmotePadding", "Emote Padding", 1.0, 100.0, 1.0),
             new SettingClasses("_EmoteSizeFac", "Emote Size", 0.1, 10, 0.1),
-            new SettingClasses("_EmoteSize", "Emote Quality", 1, 3, 1)
+            new SettingClasses("_EmoteSize", "Emote Quality", 1.0, 3.0, 1.0)
        };
+
+        public static readonly SettingClasses[] PlayerBasic = new SettingClasses[]
+        {
+            new SettingClasses("_MpvBufferBytes", "Player Buffer(Kbytes)", 100.0, UInt16.MaxValue * 10.0, 1000.0),
+            new SettingClasses("_MpvBufferSeconds", "Player Buffer(Sec)", 1.0, 120.0, 1.0)
+        };
 
         public static readonly SettingClasses[] TextBasic = new SettingClasses[]
         {
-            new SettingClasses("_ChatFontSize", "Chat Font Size", 4,32, 0.1),
-            new SettingClasses("_LinePadding", "Line Padding", 1, 100, 0.1),
-            new SettingClasses("_LineSpacing", "Line Spacing", 1, 100, 0.1),
-            new SettingClasses("_WordPadding", "Word Padding", 1, 100, 0.1),
-            new SettingClasses("_TimePadding","Time Padding", 1, 100, 0.1)
+            new SettingClasses("_ChatFontSize", "Chat Font Size", 4.0, 32.0, 0.1),
+            new SettingClasses("_LinePadding", "Line Padding", 1.0, 100.0, 0.1),
+            new SettingClasses("_LineSpacing", "Line Spacing", 1.0, 100.0, 0.1),
+            new SettingClasses("_WordPadding", "Word Padding", 1.0, 100.0, 0.1),
+            new SettingClasses("_TimePadding","Time Padding", 1.0, 100.0, 0.1)
         };
 
         public static readonly SettingClasses[] UserBasic = new SettingClasses[]
@@ -250,6 +252,11 @@ namespace LX29_ChatClient
         public readonly string Name;
         public readonly string Text;
         public readonly object Value;
+
+        public SettingClasses(string name, string text)
+            : this(name, text, 0, 0, 0)
+        {
+        }
 
         public SettingClasses(string name, string text, double min, double max, double inc)
         {
@@ -462,8 +469,11 @@ namespace LX29_ChatClient
         private static int _ChatBackGround = Color.FromArgb(35, 35, 35).ToArgb();
         private static string _ChatFontName = "Calibri";
         private static Rectangle _MainBounds = Rectangle.Empty;
+        private static double _MpvBufferBytes = 64000;
+        private static double _MpvBufferSeconds = 10;
         private static bool _ShowErrors = false;
-        private static int _UpdateInterval = 60000;
+        private static bool _ShowTimeoutMessages = true;
+        private static double _UpdateInterval = 60000;
         private int _ChatHistory = 1024;
 
         #endregion PrivateFields
@@ -474,7 +484,7 @@ namespace LX29_ChatClient
         {
             get
             {
-                if (string.IsNullOrEmpty(_BrowserPath))
+                if (_BrowserPath.IsEmpty())
                 {
                     _BrowserPath = LX29_Tools.GetSystemDefaultBrowser();
                     _BrowserName = Path.GetFileNameWithoutExtension(_BrowserPath);
@@ -496,7 +506,7 @@ namespace LX29_ChatClient
         {
             get
             {
-                if (string.IsNullOrEmpty(_BrowserPath))
+                if (_BrowserPath.IsEmpty())
                 {
                     _BrowserPath = LX29_Tools.GetSystemDefaultBrowser();
                     _BrowserName = Path.GetFileNameWithoutExtension(_BrowserPath).ToLower();
@@ -546,6 +556,26 @@ namespace LX29_ChatClient
             set { MainBounds = new Rectangle(_MainBounds.Location, value); }
         }
 
+        public static double MpvBufferBytes
+        {
+            get { return _MpvBufferBytes; }
+            set
+            {
+                _MpvBufferBytes = value;
+                Save();
+            }
+        }
+
+        public static double MpvBufferSeconds
+        {
+            get { return _MpvBufferSeconds; }
+            set
+            {
+                _MpvBufferSeconds = value;
+                Save();
+            }
+        }
+
         public static bool ShowErrors
         {
             get { return _ShowErrors; }
@@ -556,7 +586,17 @@ namespace LX29_ChatClient
             }
         }
 
-        public static int UpdateInterval
+        public static bool ShowTimeoutMessages
+        {
+            get { return _ShowTimeoutMessages; }
+            set
+            {
+                _ShowTimeoutMessages = value;
+                Save();
+            }
+        }
+
+        public static double UpdateInterval
         {
             get { return _UpdateInterval; }
             set
@@ -601,7 +641,7 @@ namespace LX29_ChatClient
         public static DialogResult GetBrowserPath(bool selectNew = true)
         {
             FormBrowserSelector form = new FormBrowserSelector();
-            if (selectNew || string.IsNullOrEmpty(_BrowserPath))
+            if (selectNew || _BrowserPath.IsEmpty())
             {
                 if (selectNew)
                 {

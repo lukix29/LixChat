@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace LX29_ChatClient.Emotes
 {
-    public enum EmoteOrigin
+    public enum EmoteOrigin : int
     {
-        Twitch_Global,
-        BTTV_Global,
-        FFZ_Global,
-        Twitch,
-        BTTV,
-        FFZ,
-        Emoji
+        Twitch_Global = 0,
+        BTTV_Global = 1,
+        FFZ_Global = 2,
+        Twitch = 3,
+        BTTV = 4,
+        FFZ = 5,
+        Emoji = 6,
+        Badge = 7
     }
 
     public interface EmoteBase : IEqualityComparer<EmoteBase>
@@ -30,12 +32,13 @@ namespace LX29_ChatClient.Emotes
             set;
         }
 
-        // public static readonly EmoteBase Empty = new EmoteBase();
+        [JsonIgnore]
         bool IsEmpty
         {
             get;
         }
 
+        [JsonIgnore]
         TimeSpan LoadedTime
         {
             get;
@@ -65,11 +68,10 @@ namespace LX29_ChatClient.Emotes
     public class Emote : EmoteBase
     {
         public const int EmoteHeight = 32;
-
         private static readonly SolidBrush GrayOutBrush = new SolidBrush(Color.FromArgb(200, LX29_ChatClient.UserColors.ChatBackground));
 
-        public Emote(string id, string name, IEnumerable<string> urls, string channel, string emoteSet, EmoteOrigin origin, string channelName)
-        {
+        public Emote(string id, string name, string channel, string emoteSet, EmoteOrigin origin, string channelName)
+        {//IEnumerable<string> urls,
             Name = name.Trim();
             Channel = channel.Trim();
             ChannelName = channelName;
@@ -80,17 +82,14 @@ namespace LX29_ChatClient.Emotes
             {
                 Name = EmoteCollection.StandardEmotes[id];
             }
-            //hashcode = id + Name.HashCode();
 
-            var arr = urls.Select((v, i) => new { url = v, idx = i }).ToArray();
-            if (arr.Length > 0)
-            {
-                var dict = arr.ToDictionary(k => k.idx.ToString(), v => (v.url.StartsWith("http") ? v.url : "http://" + v.url));
-                Image = new EmoteImage(dict, Name);
-            }
-            else
-            {
-            }
+            Image = new EmoteImage(origin, id, Name);
+        }
+
+        [JsonRequired]
+        public int _origin
+        {
+            get { return (int)Origin; }
         }
 
         public string Channel
@@ -102,7 +101,7 @@ namespace LX29_ChatClient.Emotes
         public string ChannelName
         {
             get;
-            private set;
+            set;
         }
 
         public string ID
@@ -111,16 +110,19 @@ namespace LX29_ChatClient.Emotes
             set;
         }
 
+        [JsonIgnore]
         public bool IsEmpty
         {
-            get { return string.IsNullOrEmpty(ID) || string.IsNullOrEmpty(Name) || Image == null; }
+            get { return ID.IsEmpty() || Name.IsEmpty() || Image == null; }
         }
 
+        [JsonIgnore]
         public bool IsGif
         {
             get { return Image.IsGif; }
         }
 
+        [JsonIgnore]
         public TimeSpan LoadedTime
         {
             get { return DateTime.Now.Subtract(Image.LoadTime); }
@@ -132,6 +134,7 @@ namespace LX29_ChatClient.Emotes
             set;
         }
 
+        [JsonIgnore]
         public EmoteOrigin Origin
         {
             get;
@@ -141,14 +144,16 @@ namespace LX29_ChatClient.Emotes
         public string Set
         {
             get;
-            private set;
+            set;
         }
 
+        [JsonIgnore]
         public IEnumerable<string> URLs
         {
             get { return Image.URLs.Values; }
         }
 
+        [JsonIgnore]
         private EmoteImage Image
         {
             get;
@@ -203,7 +208,7 @@ namespace LX29_ChatClient.Emotes
 
         public override string ToString()
         {
-            return ID + " " + Name + " " + Channel + " " + Set + " " + Enum.GetName(typeof(EmoteOrigin), Origin);
+            return ID + " " + Name + " " + Channel + " " + Set + " " + Enum.GetName(typeof(EmoteOrigin), Origin) + " " + ChannelName;
         }
     }
 }

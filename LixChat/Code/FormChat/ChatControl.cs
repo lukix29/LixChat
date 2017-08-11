@@ -132,7 +132,6 @@ namespace LX29_ChatClient.Forms
 
         public void SetChannel(ChannelInfo ci, MsgType type, string name = "")
         {
-            ChatClient.TryConnect(ci.Name);
             channel = ci;
             SetAllMessages(type, ci, name);
             Stop();
@@ -281,7 +280,7 @@ namespace LX29_ChatClient.Forms
                         }
                         selectedText = sb.ToString().TrimEnd(' ');
 
-                        if (!string.IsNullOrEmpty(selectedText))
+                        if (!selectedText.IsEmpty())
                         {
                             tSMi_Text.Text = selectedText;
                             cMS_TextOptions.Show(this.PointToScreen(e.Location));
@@ -504,7 +503,7 @@ namespace LX29_ChatClient.Forms
 
         private void tSMi_Copy_Click(object sender, System.EventArgs e)
         {
-            if (!string.IsNullOrEmpty(selectedText))
+            if (!selectedText.IsEmpty())
             {
                 Clipboard.SetText(selectedText, TextDataFormat.UnicodeText);
             }
@@ -642,6 +641,14 @@ namespace LX29_ChatClient.Forms
                 ClickableList.Clear();
 
                 //gifVisible = true;
+            }
+        }
+
+        private bool ShowTimeoutMessages
+        {
+            get
+            {
+                return Settings.ShowTimeoutMessages;
             }
         }
 
@@ -899,7 +906,7 @@ namespace LX29_ChatClient.Forms
                             break;
                     }
 
-                    if (!string.IsNullOrEmpty(Text))
+                    if (!Text.IsEmpty())
                     {
                         SolidBrush BackColor = new SolidBrush(Color.FromArgb(240, 0, 0, 0));
 
@@ -1005,6 +1012,11 @@ namespace LX29_ChatClient.Forms
             float emote_Y_Offset = 4;
 
             var user = message.User;
+
+            if (!message.Timeout.IsEmpty && !ShowTimeoutMessages && !user.IsEmpty)
+            {
+                return 0;
+            }
 
             Color userColor = user.GetColor();
             Color msgColor = MSG_Color;
@@ -1175,24 +1187,25 @@ namespace LX29_ChatClient.Forms
 
                 if (w.IsEmote)
                 {
-                    EmoteBase em = w.Emote;
-
-                    sf = em.CalcSize(emoteHeight, Settings.EmoteQuality);
-                    lineSpace = _LineSpacing * 2f;
-                    if (x + sf.Width > bounds.Right)
+                    foreach (EmoteBase em in w.Emote)
                     {
-                        x = time_Right;//Linepadding
-                        y += (sf.Height + lineSpace) - emote_Y_Offset;
-                    }
+                        sf = em.CalcSize(emoteHeight, Settings.EmoteQuality);
+                        lineSpace = _LineSpacing * 2f;
+                        if (x + sf.Width > bounds.Right)
+                        {
+                            x = time_Right;//Linepadding
+                            y += (sf.Height + lineSpace) - emote_Y_Offset;
+                        }
 
-                    if (!measure)
-                    {
-                        ClickableList.Add(new SLRect(x, y, sf.Width, sf.Height, em, RectType.Emote));
+                        if (!measure)
+                        {
+                            ClickableList.Add(new SLRect(x, y, sf.Width, sf.Height, em, RectType.Emote));
 
-                        var gif = em.Draw(graphics, x, y - emote_Y_Offset, sf.Width, sf.Height, Settings.EmoteQuality, isTimeout) == EmoteImageDrawResult.IsGif;
-                        if (gif && !measure) gifVisible = true;
+                            var gif = em.Draw(graphics, x, y - emote_Y_Offset, sf.Width, sf.Height, Settings.EmoteQuality, isTimeout) == EmoteImageDrawResult.IsGif;
+                            if (gif && !measure) gifVisible = true;
+                        }
+                        x += sf.Width + _EmotePadding + _WordPadding;
                     }
-                    x += sf.Width + _EmotePadding + _WordPadding;
                 }
                 else
                 {

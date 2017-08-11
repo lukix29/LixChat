@@ -4,8 +4,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Collections;
 using System.Net;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace LX29_ChatClient.Emotes
 {
@@ -22,6 +24,18 @@ namespace LX29_ChatClient.Emotes
         {
             this.ID = ID;
             this.Name = Name;
+
+            //if (!ID.IsEmpty())
+            //{
+            //    var arr = ID.Split("-");
+            //    Unicode = new HashSet<int>();
+            //    foreach (var id in arr)
+            //    {
+            //        //int val = int.Parse(ID, NumberStyles.HexNumber);
+            //        var text = int.Parse(id, NumberStyles.HexNumber);
+            //        Unicode.Add(text);
+            //    }
+            //}
         }
 
         /// <summary>
@@ -62,7 +76,7 @@ namespace LX29_ChatClient.Emotes
 
         public bool IsEmpty
         {
-            get { return string.IsNullOrEmpty(ID); }
+            get { return ID.IsEmpty(); }
         }
 
         public TimeSpan LoadedTime

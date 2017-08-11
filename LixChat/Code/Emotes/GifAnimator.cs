@@ -28,21 +28,36 @@ namespace LX29_ChatClient.Emotes
         public static readonly EmoteImage Wait =
             new EmoteImage("WAITING");
 
+        private static readonly string[] BTTV_EMOTE_BASE_URL = new string[] { "https://cdn.betterttv.net/emote/{id}/1x", "https://cdn.betterttv.net/emote/{id}/2x", "https://cdn.betterttv.net/emote/{id}/3x" };
+        private static readonly string[] FFZ_EMOTE_BASE_URL = new string[] { "https://cdn.frankerfacez.com/emoticon/{id}/1", "https://cdn.frankerfacez.com/emoticon/{id}/2", "https://cdn.frankerfacez.com/emoticon/{id}/4" };
+        private static readonly string[] TWITCH_EMOTE_BASE_URL = new string[] { "https://static-cdn.jtvnw.net/emoticons/v1/{id}/1.0", "https://static-cdn.jtvnw.net/emoticons/v1/{id}/2.0", "https://static-cdn.jtvnw.net/emoticons/v1/{id}/3.0" };
         private readonly object LockObject = new object();
 
         private Dictionary<EmoteImageSize, Image[]> _images = new Dictionary<EmoteImageSize, Image[]>();
         private Dictionary<EmoteImageSize, Size> _sizes = new Dictionary<EmoteImageSize, Size>();
 
+        private Dictionary<EmoteImageSize, string> _urls = null;
         private bool isDownloading = false;
 
         private long lasTime = 0;
 
         private object locko = new object();
 
+        public EmoteImage(Dictionary<string, string> urls, string name, EmoteOrigin origin)
+        {
+            Name = name.Trim();
+            this.Origin = origin;
+            _urls = urls.Values
+                .Select((u, i) => new { url = u, idx = i })
+                .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => !t0.url.StartsWith("http") ? "https://" + t0.url : t0.url);
+            //_urls = urls;
+            //EmoteImage(badge.urls, Name)
+        }
+
         public EmoteImage(string name, Image image)
         {
-            FilePaths = new Dictionary<EmoteImageSize, string>();
-            URLs = new Dictionary<EmoteImageSize, string>();
+            //FilePaths = new Dictionary<EmoteImageSize, string>();
+            //URLs = new Dictionary<EmoteImageSize, string>();
             Name = name;
             _images = new Dictionary<EmoteImageSize, Image[]>();
             Type = image.RawFormat;
@@ -50,6 +65,7 @@ namespace LX29_ChatClient.Emotes
             if (!SetGif(image, EmoteImageSize.Small))
             {
                 _images.Add(EmoteImageSize.Small, new Image[] { (Image)image.Clone() });
+                _sizes.Add(EmoteImageSize.Small, image.Size);
             }
             LoadTime = DateTime.MaxValue;
         }
@@ -58,8 +74,8 @@ namespace LX29_ChatClient.Emotes
         {
             if (name.Equals("WAITING"))
             {
-                FilePaths = new Dictionary<EmoteImageSize, string>();
-                URLs = new Dictionary<EmoteImageSize, string>();
+                //FilePaths = new Dictionary<EmoteImageSize, string>();
+                //URLs = new Dictionary<EmoteImageSize, string>();
                 Name = name;
                 _images = new Dictionary<EmoteImageSize, Image[]>();
                 Type = LX29_LixChat.Properties.Resources.loading.RawFormat;
@@ -69,33 +85,42 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public EmoteImage(Dictionary<string, string> urls, string name)
+        public EmoteImage(EmoteOrigin Origin, string ID, string name)
         {
             //Caller = caller;
             Name = name.Trim();
-            this.URLs = new Dictionary<EmoteImageSize, string>();
-            this.FilePaths = new Dictionary<EmoteImageSize, string>();
+            //this.URLs = new Dictionary<EmoteImageSize, string>();
+            //this.FilePaths = new Dictionary<EmoteImageSize, string>();
 
-            foreach (var url in urls)
-            {
-                int i = 1;
-                if (int.TryParse(url.Key, out i))
-                {
-                }
-                i = Math.Max(1, Math.Min(3, i));
-                var emimgs = (EmoteImageSize)i;
+            this.Origin = Origin;
+            this.ID = ID;
 
-                if (!this.URLs.ContainsKey(emimgs))
-                {
-                    string uri = url.Value;
-                    if (!uri.StartsWith("http"))
-                    {
-                        uri = "http:" + uri;
-                    }
-                    this.URLs.Add(emimgs, uri);
-                    this.FilePaths.Add(emimgs, Path.GetFullPath(GetLocalfileName(uri)));
-                }
-            }
+            //var arr = urls.Select((v, i) => new { url = v, idx = i }).ToArray();
+            //if (arr.Length > 0)
+            //{
+            //var urls = arr.ToDictionary(k => k.idx.ToString(), v => (v.url.StartsWith("http") ? v.url : "http://" + v.url));
+            //    Image = new EmoteImage(dict, Name);
+            //}
+            //else
+            //{
+            //}
+
+            //for (int i = 0; i < urls.Count(); i++)
+            //{
+            //    //int i = 1;
+            //    //if (int.TryParse(url.Key, out i))
+            //    //{
+            //    //}
+            //    i = Math.Max(1, Math.Min(3, i));
+            //    var emimgs = (EmoteImageSize)i;
+
+            //    if (!this.URLs.ContainsKey(emimgs))
+            //    {
+            //        //string uri = urls[i];
+            //        //this.URLs.Add(emimgs, uri);
+            //        this.FilePaths.Add(emimgs, Path.GetFullPath(GetLocalfileName(uri)));
+            //    }
+            //}
             LoadTime = DateTime.MaxValue;
         }
 
@@ -107,8 +132,10 @@ namespace LX29_ChatClient.Emotes
 
         public Dictionary<EmoteImageSize, string> FilePaths
         {
-            get;
-            private set;
+            get
+            {
+                return URLs.ToDictionary(t => t.Key, t0 => Path.GetFullPath(GetLocalfileName(t0.Value)));
+            }
         }
 
         public int FrameCount
@@ -118,6 +145,12 @@ namespace LX29_ChatClient.Emotes
         }
 
         public int FrameIndex
+        {
+            get;
+            private set;
+        }
+
+        public string ID
         {
             get;
             private set;
@@ -141,6 +174,12 @@ namespace LX29_ChatClient.Emotes
             private set;
         }
 
+        public EmoteOrigin Origin
+        {
+            get;
+            private set;
+        }
+
         public ImageFormat Type
         {
             get;
@@ -149,8 +188,32 @@ namespace LX29_ChatClient.Emotes
 
         public Dictionary<EmoteImageSize, string> URLs
         {
-            get;
-            set;
+            get
+            {
+                if (Origin == EmoteOrigin.BTTV || Origin == EmoteOrigin.BTTV_Global)
+                {
+                    return BTTV_EMOTE_BASE_URL
+                        .Select((u, i) => new { url = u.Replace("{id}", ID), idx = i })
+                        .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
+                }
+                else if (Origin == EmoteOrigin.FFZ || Origin == EmoteOrigin.FFZ_Global)
+                {
+                    return FFZ_EMOTE_BASE_URL
+                        .Select((u, i) => new { url = u.Replace("{id}", ID), idx = i })
+                        .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
+                }
+                else if (Origin == EmoteOrigin.Twitch || Origin == EmoteOrigin.Twitch_Global)
+                {
+                    return TWITCH_EMOTE_BASE_URL
+                        .Select((u, i) => new { url = u.Replace("{id}", ID), idx = i })
+                        .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
+                }
+                else if (Origin == EmoteOrigin.Badge)
+                {
+                    return _urls;
+                }
+                return new Dictionary<EmoteImageSize, string>();
+            }
         }
 
         public static string GetLocalfileName(string imageUri)

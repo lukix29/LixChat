@@ -29,7 +29,7 @@ namespace LX29_ChatClient.Channels
     //Add Control for Settings
     // fg;
 
-    public class ChannelInfo : CustomSettings<ChannelInfo, ChannelSettings>, IDisposable
+    public class ChannelInfo : CustomSettings<ChannelInfo, ChannelSettings>, IDisposable, IEqualityComparer<ChannelInfo>, IEquatable<ChannelInfo>
     {
         public readonly bool IsFixed = false;
         public readonly object LockObject = new object();
@@ -37,9 +37,7 @@ namespace LX29_ChatClient.Channels
         private static int fetchCnt = 0;
         private bool _AutoLoginChat = false;
         private Bitmap[] _previewImages = new Bitmap[2];
-
         private FormChat chatForm = null;
-        //private Task dwnldr = new Task(() => { });
 
         //public void DownloadBitmap()
         //{
@@ -50,9 +48,11 @@ namespace LX29_ChatClient.Channels
         //}
         private DateTime lastCall = DateTime.Now;
 
+        //private Task dwnldr = new Task(() => { });
         private FormPlayer playerForm = null;
 
         private ApiResult result;
+
         private VideoInfoCollection streamInfos = new VideoInfoCollection();
 
         private SubResult subInfo = null;
@@ -122,6 +122,11 @@ namespace LX29_ChatClient.Channels
                     _AutoLoginChat = value;
                 }
             }// { Settings.SetValue(ChannelSettings.AutoLoginChat, value); }
+        }
+
+        public FormChat ChatForm
+        {
+            get { return chatForm; }
         }
 
         public Rectangle ChatPosition
@@ -387,7 +392,7 @@ namespace LX29_ChatClient.Channels
                 }
                 string s = (online == true ? result.GetValue<string>(ApiInfo.large) : result.GetValue<string>(ApiInfo.video_banner));
 
-                if (!string.IsNullOrEmpty(s))
+                if (!s.IsEmpty())
                 {
                     using (WebClient wc = new WebClient())
                     {
@@ -402,6 +407,21 @@ namespace LX29_ChatClient.Channels
                 }
             }
             catch { }
+        }
+
+        public bool Equals(ChannelInfo obj)
+        {
+            return this.ID.Equals(obj.ID);
+        }
+
+        public bool Equals(ChannelInfo obj, ChannelInfo obj1)
+        {
+            return obj1.ID.Equals(obj.ID);
+        }
+
+        public int GetHashCode(ChannelInfo info)
+        {
+            return int.Parse(info.ID);
         }
 
         public T GetValue<T>(ApiInfo type)
@@ -589,7 +609,7 @@ namespace LX29_ChatClient.Channels
             if (!sdf.IsEmpty)
             {
                 string url = sdf[quali].URL;
-                MPV.Start(this.Name, url, 64000, 5, this.PlayerPosition);
+                MPV.Start(this.Name, url, (int)Settings.MpvBufferBytes, (int)Settings.MpvBufferSeconds, this.PlayerPosition);
                 //MessageBox.Show(MPV.GetProperty(MPV_Property.ca).ToString());
                 return true;
             }
