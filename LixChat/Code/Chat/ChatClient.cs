@@ -1223,7 +1223,7 @@ namespace LX29_ChatClient
         public static void FetchEmotes()
         {
             //File.Delete(Settings.dataDir + "Emotes.txt");
-
+            Emotes.Values.Dispose();
             Emotes.FetchEmotes(channels.Values.ToList(), true);
         }
 
@@ -1433,7 +1433,7 @@ namespace LX29_ChatClient
                             }
                         }
                     }
-                    else if (users[channel].ContainsKey(name))
+                    else if (users.ContainsKey(channel) && users[channel].ContainsKey(name))
                     {
                         return users[channel][name];
                     }

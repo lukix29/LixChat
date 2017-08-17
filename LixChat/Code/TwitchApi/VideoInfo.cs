@@ -108,11 +108,15 @@ namespace LX29_Twitch.Api.Video
         {
             get
             {
-                var qual = quality.ToLower();
-                if (videoInfos.ContainsKey(qual))
+                try
                 {
-                    return videoInfos[qual];
+                    var qual = quality.ToLower();
+                    if (videoInfos.ContainsKey(qual))
+                    {
+                        return videoInfos[qual];
+                    }
                 }
+                catch { }
                 return null;
             }
         }
@@ -179,7 +183,10 @@ namespace LX29_Twitch.Api.Video
                 if (url.StartsWith("http"))
                 {
                     VideoInfo vi = new VideoInfo(url, sa[i - 1]);
-                    videoInfos.Add(vi.Quality.ToLower(), vi);
+                    if (!videoInfos.ContainsKey(vi.Quality.ToLower()))
+                    {
+                        videoInfos.Add(vi.Quality.ToLower(), vi);
+                    }
                 }
             }
             return VideoInfoError.None;

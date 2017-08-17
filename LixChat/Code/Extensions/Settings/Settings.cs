@@ -83,95 +83,11 @@ namespace LX29_ChatClient
             string vari = sw.ToString();
 
             return vari;
-
-            //using (TextWriter tw = new StringWriter())
-            //{
-            //    var seri = Newtonsoft.Json.JsonSerializer.Create();
-            //    var _settingsInfo = Enum.GetNames(typeof(Tenum));
-            //    foreach (var s in _settingsInfo)
-            //    {
-            //        var type = Class.GetType();
-            //        var prop = type.GetProperty(s);
-            //        if (null != prop)
-            //        {
-            //            var value = prop.GetValue(Class);
-            //            // sw.WriteLine("\t" + s + ": " + value);
-            //            seri.Serialize(tw, value, prop.PropertyType);
-            //        }
-            //    }
-            //    var stg = tw.ToString();
-            //    return stg;
-            //}
         }
     }
 
     public class CustomSettings
     {
-        //public static string GetSettings<Tclass, Tenum>(
-        //    IEnumerable<Tclass> chatactions,
-        //    Func<Tclass, string> NameSelector)
-        //{
-        //    StringBuilder sb = new StringBuilder();
-        //    foreach (var item in chatactions)
-        //    {
-        //        sb.AppendLine("#" + NameSelector(item));
-        //        var sett = (item as CustomSettings<Tclass, Tenum>);
-        //        // sb.AppendLine("\t" + sett.Save(item));
-        //        sb.AppendLine();
-        //    }
-        //    sb.AppendLine("#END");
-        //    return sb.ToString();
-        //}
-
-        //public static List<Tclass> Load<Tclass, Tenum>(IEnumerable<string> raw,
-        //    Func<Tclass, string, bool> Predicate, Func<string, Tclass> Create)
-        //{
-        //    List<string> temp = new List<string>();
-        //    List<Tclass> list = new List<Tclass>();
-        //    string name = "";
-        //    var names = raw.Where(t => t.StartsWith("#")).ToArray();
-        //    foreach (var s in names)
-        //    {
-        //        string si = s.Trim('\t', ' ');
-        //        if (!si.Equals("#END") && !si))
-        //        {
-        //            list.Add(Create(s.Remove(0, 1)));
-        //        }
-        //    }
-        //    foreach (var si in raw)
-        //    {
-        //        try
-        //        {
-        //            string s = si.Trim('\t', ' ');
-        //            if (!s))
-        //            {
-        //                if (s.StartsWith("#"))
-        //                {
-        //                    if (temp.Count > 0)
-        //                    {
-        //                        var cl = list.FirstOrDefault(t => Predicate(t, name));
-        //                        var sett = (cl as CustomSettings<Tclass, Tenum>);
-        //                        sett.Load(temp, cl);
-        //                        temp.Clear();
-
-        //                        if (!list.Contains(cl))
-        //                            list.Add(cl);
-        //                    }
-        //                    if (s.Equals("#END")) break;
-
-        //                    name = s.Remove(0, 1);
-        //                }
-        //                else
-        //                {
-        //                    temp.Add(s);
-        //                }
-        //            }
-        //        }
-        //        catch { }
-        //    }
-        //    return list;
-        //}
-
         public static List<Dictionary<string, string>> LoadList(string input)
         {
             try
@@ -212,7 +128,8 @@ namespace LX29_ChatClient
         public static readonly SettingClasses[] ChatBasic = new SettingClasses[]
         {
             new SettingClasses("_ChatHistory", "Chat History Amount", 100.0, Int16.MaxValue * 1.0, 1.0),
-            new SettingClasses("_ShowTimeoutMessages", "Show Timeouts/Bans")
+            new SettingClasses("_ShowTimeoutMessages", "Show Timeouts/Bans"),
+            new SettingClasses("_ShowTimeStamp", "Show Time Stamp")
         };
 
         public static readonly SettingClasses[] EmoteBasic = new SettingClasses[]
@@ -221,7 +138,9 @@ namespace LX29_ChatClient
             new SettingClasses("_BadgeSizeFac", "Badge Size", 0.1, 10, 0.1),
             new SettingClasses("_EmotePadding", "Emote Padding", 1.0, 100.0, 1.0),
             new SettingClasses("_EmoteSizeFac", "Emote Size", 0.1, 10, 0.1),
-            new SettingClasses("_EmoteSize", "Emote Quality", 1.0, 3.0, 1.0)
+            new SettingClasses("_EmoteSize", "Emote Quality", 1.0, 3.0, 1.0),
+            new SettingClasses("_HwEmoteDrawing", "Hardware Accel"),
+            new SettingClasses("_AnimatedEmotes", "Animated Gif Emotes")
        };
 
         public static readonly SettingClasses[] PlayerBasic = new SettingClasses[]
@@ -296,12 +215,24 @@ namespace LX29_ChatClient
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\LixChat\\";
 
         public static readonly string chatLogDir = caonfigBaseDir + "Chatlogs\\";
+
         public static readonly string dataDir = caonfigBaseDir + "Data\\";
+
         public static readonly string emojiDir = ".\\Emojis\\";
+
         public static readonly string emoteDir = caonfigBaseDir + "Emotes\\";
+
         public static readonly string pluginDir = ".\\Plugins\\";
+
         public static readonly string scriptDir = caonfigBaseDir + "Scripts\\";
+
         private static readonly string settings_ini_path = caonfigBaseDir + "settings.ini";
+
+        public static Dictionary<string, object> Standard
+        {
+            get;
+            private set;
+        }
 
         #region EmoteBadge
 
@@ -312,6 +243,8 @@ namespace LX29_ChatClient
         private static double _EmotePadding = 2;
         private static double _EmoteSize = (int)Emotes.EmoteImageSize.Medium;
         private static double _EmoteSizeFac = 1.5;
+        private static bool _HwEmoteDrawing = false;
+        private static bool _ShowTimeStamp = true;
 
         public static bool AnimatedEmotes
         {
@@ -379,6 +312,26 @@ namespace LX29_ChatClient
             set
             {
                 _EmoteSizeFac = value;
+                Save();
+            }
+        }
+
+        public static bool HwEmoteDrawing
+        {
+            get { return _HwEmoteDrawing; }
+            set
+            {
+                _HwEmoteDrawing = value;
+                Save();
+            }
+        }
+
+        public static bool ShowTimeStamp
+        {
+            get { return _ShowTimeStamp; }
+            set
+            {
+                _ShowTimeStamp = value;
                 Save();
             }
         }
@@ -670,7 +623,13 @@ namespace LX29_ChatClient
 
         public static bool Load()
         {
-            try { Directory.CreateDirectory(chatLogDir); }
+            try
+            {
+                Standard = typeof(Settings).GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                    .Where(t => t.Name.StartsWith("_")).ToDictionary(t => t.Name, t0 => t0.GetValue(null));
+
+                Directory.CreateDirectory(chatLogDir);
+            }
             catch { }
             try { Directory.CreateDirectory(dataDir); }
             catch { }
@@ -753,6 +712,17 @@ namespace LX29_ChatClient
                         }
                     }
                 }
+            }
+        }
+
+        public static void SetValue(string Name, object value)
+        {
+            var sa = typeof(Settings).GetFields(
+                  System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                  .FirstOrDefault(t => t.Name.Equals(Name));
+            if (sa != null)
+            {
+                sa.SetValue(null, value);
             }
         }
 

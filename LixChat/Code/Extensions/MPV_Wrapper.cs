@@ -441,6 +441,13 @@ namespace LX29_Helpers
             //string sout = "";
             try
             {
+                //if (HasStarted)
+                //{
+                //    //{ "command": ["command_name", "param1", "param2", ...] }
+                //    var com = "{ \"command\": [\"stop\"] }";
+                //    SendRaw(com);
+                //    return true;
+                //}
                 Stop();
                 HasStarted = false;
 
@@ -497,8 +504,8 @@ namespace LX29_Helpers
                 process.StartInfo.Arguments = (@"--input-ipc-server=\\.\pipe\" + socketName +
                     " --osc=yes --no-ytdl --af=format=channels=2.0" + geom +//--no-osc
                     " --title=\"" + Title + WindowIdentifier + "\"" +
-                    cash + " --hls-bitrate=max" +
-                    " --volume=" + Math.Max(0, Math.Min(100, volume)) +
+                    cash + " --hls-bitrate=max --network-timeout=10"//--loop-playlist=inf  --stop-playback-on-init-failure=no" +
+                    + " --volume=" + Math.Max(0, Math.Min(100, volume)) +
                     intPtr + fileName);
                 process.Start();
 
@@ -561,6 +568,7 @@ namespace LX29_Helpers
             }
             catch (Exception x)
             {
+                Stop();
                 switch (x.Handle())
                 {
                     case MessageBoxResult.Retry:
@@ -585,16 +593,14 @@ namespace LX29_Helpers
         {
             try
             {
-                if (HasStarted)
+                pipe.Close();
+                if (!process.HasExited)
                 {
-                    pipe.Close();
-                    if (!process.HasExited)
-                    {
-                        process.Kill();
-                        while (!process.HasExited) ;
-                    }
-                    return true;
+                    process.Kill();
+                    while (!process.HasExited) ;
                 }
+                HasStarted = false;
+                return true;
             }
             catch { }
             return false;

@@ -626,6 +626,18 @@ namespace System
 
 #if Drawing
 
+        public static void DrawBitmap(this Graphics g, Bitmap image, float x, float y, float width, float height, bool drawHW)
+        {
+            if (drawHW)
+            {
+                ManagedGDI.AlphaBlend((Bitmap)image, g, new Rectangle((int)x, (int)y, (int)width, (int)height), 255);
+            }
+            else
+            {
+                g.DrawImage(image, x, y, width, height);
+            }
+        }
+
         public static bool IsGif(this Bitmap b)
         {
             return ImageFormat.Gif.Equals(b.RawFormat);
@@ -633,66 +645,67 @@ namespace System
 
         public static MessageBoxResult Handle(this Exception e, string extraInfo = "", bool showMsgBox = true)
         {
-            string err = DateTime.Now.ToString() + "\r\n" + e.ToString() + "\r\n\r\n";
-            try
+            lock (errorLock)
             {
-                lock (errorLock)
+                string err = DateTime.Now.ToString() + "\r\n" + e.ToString() + "\r\n\r\n";
+                try
                 {
                     File.AppendAllText(LX29_ChatClient.Settings.dataDir + "Error.log", err);
-                }
-                if (showMsgBox)
-                {
-                    var sa = e.ToString().Split("\r\n");
-                    StringBuilder sb = new StringBuilder();
 
-                    for (int i = 0; i < sa.Length; i++)
+                    if (showMsgBox)
                     {
-                        var s = sa[i];
-                        var si = s.Trim()
-                            .Replace("cs:", "cs-")
-                            .Replace(" in ", "\r\n");
-                        ////.LastLine("\\");
-                        //if (si.Contains(":\\"))
-                        //{
-                        //    var spl = si.GetBefore(":\\", " ");
-                        //    si = si.Replace(spl, "\r\n" + spl);
-                        //}
+                        var sa = e.ToString().Split("\r\n");
+                        StringBuilder sb = new StringBuilder();
 
-                        sb.AppendLine(si);
-                        if (i == 0)
+                        for (int i = 0; i < sa.Length; i++)
+                        {
+                            var s = sa[i];
+                            var si = s.Trim()
+                                .Replace("cs:", "cs-")
+                                .Replace(" in ", "\r\n");
+                            ////.LastLine("\\");
+                            //if (si.Contains(":\\"))
+                            //{
+                            //    var spl = si.GetBefore(":\\", " ");
+                            //    si = si.Replace(spl, "\r\n" + spl);
+                            //}
+
+                            sb.AppendLine(si);
+                            if (i == 0)
+                            {
+                                sb.AppendLine();
+                            }
+                        }
+                        if (!extraInfo.IsEmpty())
                         {
                             sb.AppendLine();
+                            sb.AppendLine(extraInfo);
                         }
-                    }
-                    if (!extraInfo.IsEmpty())
-                    {
-                        sb.AppendLine();
-                        sb.AppendLine(extraInfo);
-                    }
 
-                    if (LX29_ChatClient.Settings.ShowErrors)
-                    {
-                        if (errorCount >= 1)
+                        if (LX29_ChatClient.Settings.ShowErrors)
                         {
-                            errorCount = 0;
+                            //if (errorCount >= 1)
+                            //{
+                            //    errorCount = 0;
                             return LX29_MessageBox.Show(sb.ToString(), "Error!", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error);
+                            //}
                         }
-                    }
-                    else
-                    {
-                        if (errorCount >= 2)
+                        else
                         {
-                            errorCount = 0;
-                            return MessageBoxResult.Ignore;
+                            if (errorCount >= 2)
+                            {
+                                errorCount = 0;
+                                return MessageBoxResult.Ignore;
+                            }
                         }
+                        errorCount++;
+                        Threading.Thread.CurrentThread.Join(100);
+                        return MessageBoxResult.Retry;
                     }
-                    errorCount++;
-                    Threading.Thread.CurrentThread.Join(1000);
-                    return MessageBoxResult.Retry;
                 }
+                catch { }
+                return MessageBoxResult.None;
             }
-            catch { }
-            return MessageBoxResult.None;
         }
 
 #endif

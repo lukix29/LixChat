@@ -50,9 +50,11 @@
             this.btn_Help = new System.Windows.Forms.Button();
             this.txtB_Search = new System.Windows.Forms.TextBox();
             this.lstB_Main = new System.Windows.Forms.ListBox();
+            this.panel1 = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.nUD_Cooldown)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nUD_Delay)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtB_Username
@@ -63,9 +65,9 @@
             this.txtB_Username.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtB_Username.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtB_Username.ForeColor = System.Drawing.Color.Gainsboro;
-            this.txtB_Username.Location = new System.Drawing.Point(12, 28);
+            this.txtB_Username.Location = new System.Drawing.Point(6, 24);
             this.txtB_Username.Name = "txtB_Username";
-            this.txtB_Username.Size = new System.Drawing.Size(672, 22);
+            this.txtB_Username.Size = new System.Drawing.Size(687, 22);
             this.txtB_Username.TabIndex = 0;
             // 
             // txtB_Message
@@ -76,9 +78,9 @@
             this.txtB_Message.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtB_Message.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtB_Message.ForeColor = System.Drawing.Color.Gainsboro;
-            this.txtB_Message.Location = new System.Drawing.Point(12, 79);
+            this.txtB_Message.Location = new System.Drawing.Point(6, 75);
             this.txtB_Message.Name = "txtB_Message";
-            this.txtB_Message.Size = new System.Drawing.Size(672, 22);
+            this.txtB_Message.Size = new System.Drawing.Size(687, 22);
             this.txtB_Message.TabIndex = 1;
             // 
             // txtB_Action
@@ -89,9 +91,9 @@
             this.txtB_Action.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtB_Action.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtB_Action.ForeColor = System.Drawing.Color.Gainsboro;
-            this.txtB_Action.Location = new System.Drawing.Point(12, 123);
+            this.txtB_Action.Location = new System.Drawing.Point(6, 119);
             this.txtB_Action.Name = "txtB_Action";
-            this.txtB_Action.Size = new System.Drawing.Size(672, 22);
+            this.txtB_Action.Size = new System.Drawing.Size(687, 22);
             this.txtB_Action.TabIndex = 2;
             this.txtB_Action.TextChanged += new System.EventHandler(this.txtB_Action_TextChanged);
             // 
@@ -99,7 +101,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(9, 9);
+            this.label1.Location = new System.Drawing.Point(3, 5);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(71, 16);
             this.label1.TabIndex = 3;
@@ -109,7 +111,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(9, 57);
+            this.label2.Location = new System.Drawing.Point(3, 53);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(65, 16);
             this.label2.TabIndex = 4;
@@ -119,7 +121,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(9, 104);
+            this.label3.Location = new System.Drawing.Point(3, 100);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(45, 16);
             this.label3.TabIndex = 5;
@@ -145,7 +147,7 @@
             this.btn_save.AutoSize = true;
             this.btn_save.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_save.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save.Location = new System.Drawing.Point(343, 3);
+            this.btn_save.Location = new System.Drawing.Point(392, 3);
             this.btn_save.Name = "btn_save";
             this.btn_save.Size = new System.Drawing.Size(88, 28);
             this.btn_save.TabIndex = 9;
@@ -185,7 +187,7 @@
             this.nUD_Cooldown.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.nUD_Cooldown.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nUD_Cooldown.ForeColor = System.Drawing.Color.Gainsboro;
-            this.nUD_Cooldown.Location = new System.Drawing.Point(213, 19);
+            this.nUD_Cooldown.Location = new System.Drawing.Point(262, 19);
             this.nUD_Cooldown.Name = "nUD_Cooldown";
             this.nUD_Cooldown.Size = new System.Drawing.Size(124, 22);
             this.nUD_Cooldown.TabIndex = 12;
@@ -195,7 +197,7 @@
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(208, 0);
+            this.label4.Location = new System.Drawing.Point(257, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(129, 16);
             this.label4.TabIndex = 13;
@@ -206,7 +208,7 @@
             this.cB_Global.AutoSize = true;
             this.flowLayoutPanel1.SetFlowBreak(this.cB_Global, true);
             this.cB_Global.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cB_Global.Location = new System.Drawing.Point(84, 71);
+            this.cB_Global.Location = new System.Drawing.Point(84, 55);
             this.cB_Global.Name = "cB_Global";
             this.cB_Global.Size = new System.Drawing.Size(107, 20);
             this.cB_Global.TabIndex = 14;
@@ -220,7 +222,7 @@
             this.comboBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.comboBox1.ForeColor = System.Drawing.Color.Gainsboro;
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(89, 4);
+            this.comboBox1.Location = new System.Drawing.Point(83, 1);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(135, 21);
             this.comboBox1.TabIndex = 15;
@@ -244,9 +246,9 @@
             this.flowLayoutPanel1.Controls.Add(this.btn_save);
             this.flowLayoutPanel1.Controls.Add(this.btn_Help);
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(12, 151);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(6, 147);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(672, 109);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(687, 109);
             this.flowLayoutPanel1.TabIndex = 16;
             // 
             // btn_Change
@@ -268,9 +270,9 @@
             this.cB_FirstOrAll.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cB_FirstOrAll.Location = new System.Drawing.Point(84, 29);
             this.cB_FirstOrAll.Name = "cB_FirstOrAll";
-            this.cB_FirstOrAll.Size = new System.Drawing.Size(94, 36);
+            this.cB_FirstOrAll.Size = new System.Drawing.Size(167, 20);
             this.cB_FirstOrAll.TabIndex = 16;
-            this.cB_FirstOrAll.Text = "Match ANY\r\nPart of Msg\r\n";
+            this.cB_FirstOrAll.Text = "Match Start of Message\r\n";
             this.cB_FirstOrAll.UseVisualStyleBackColor = true;
             this.cB_FirstOrAll.CheckedChanged += new System.EventHandler(this.cB_FirstOrAll_CheckedChanged);
             // 
@@ -278,7 +280,7 @@
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(211, 44);
+            this.label5.Location = new System.Drawing.Point(260, 44);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(126, 16);
             this.label5.TabIndex = 18;
@@ -292,7 +294,7 @@
             this.flowLayoutPanel1.SetFlowBreak(this.nUD_Delay, true);
             this.nUD_Delay.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nUD_Delay.ForeColor = System.Drawing.Color.Gainsboro;
-            this.nUD_Delay.Location = new System.Drawing.Point(213, 63);
+            this.nUD_Delay.Location = new System.Drawing.Point(262, 63);
             this.nUD_Delay.Name = "nUD_Delay";
             this.nUD_Delay.Size = new System.Drawing.Size(124, 22);
             this.nUD_Delay.TabIndex = 17;
@@ -303,7 +305,7 @@
             this.btn_Help.AutoSize = true;
             this.btn_Help.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_Help.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_Help.Location = new System.Drawing.Point(343, 37);
+            this.btn_Help.Location = new System.Drawing.Point(392, 37);
             this.btn_Help.Name = "btn_Help";
             this.btn_Help.Size = new System.Drawing.Size(88, 28);
             this.btn_Help.TabIndex = 15;
@@ -317,7 +319,7 @@
             this.txtB_Search.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtB_Search.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtB_Search.ForeColor = System.Drawing.Color.Gainsboro;
-            this.txtB_Search.Location = new System.Drawing.Point(230, 4);
+            this.txtB_Search.Location = new System.Drawing.Point(224, 1);
             this.txtB_Search.Name = "txtB_Search";
             this.txtB_Search.Size = new System.Drawing.Size(134, 21);
             this.txtB_Search.TabIndex = 18;
@@ -335,28 +337,37 @@
             this.lstB_Main.ForeColor = System.Drawing.Color.Gainsboro;
             this.lstB_Main.FormattingEnabled = true;
             this.lstB_Main.ItemHeight = 19;
-            this.lstB_Main.Location = new System.Drawing.Point(12, 266);
+            this.lstB_Main.Location = new System.Drawing.Point(6, 262);
             this.lstB_Main.Name = "lstB_Main";
-            this.lstB_Main.Size = new System.Drawing.Size(672, 270);
+            this.lstB_Main.Size = new System.Drawing.Size(687, 289);
             this.lstB_Main.TabIndex = 19;
             this.lstB_Main.SelectedIndexChanged += new System.EventHandler(this.lstB_Main_SelectedIndexChanged);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.lstB_Main);
+            this.panel1.Controls.Add(this.txtB_Username);
+            this.panel1.Controls.Add(this.txtB_Search);
+            this.panel1.Controls.Add(this.txtB_Message);
+            this.panel1.Controls.Add(this.flowLayoutPanel1);
+            this.panel1.Controls.Add(this.txtB_Action);
+            this.panel1.Controls.Add(this.comboBox1);
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(696, 561);
+            this.panel1.TabIndex = 20;
             // 
             // FormAutoChatActions
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(696, 547);
-            this.Controls.Add(this.lstB_Main);
-            this.Controls.Add(this.txtB_Search);
-            this.Controls.Add(this.flowLayoutPanel1);
-            this.Controls.Add(this.comboBox1);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.txtB_Action);
-            this.Controls.Add(this.txtB_Message);
-            this.Controls.Add(this.txtB_Username);
+            this.ClientSize = new System.Drawing.Size(696, 561);
+            this.Controls.Add(this.panel1);
             this.ForeColor = System.Drawing.Color.White;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Name = "FormAutoChatActions";
@@ -369,8 +380,9 @@
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nUD_Delay)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -398,5 +410,6 @@
         private System.Windows.Forms.NumericUpDown nUD_Delay;
         private System.Windows.Forms.ListBox lstB_Main;
         private System.Windows.Forms.Button btn_Change;
+        private System.Windows.Forms.Panel panel1;
     }
 }

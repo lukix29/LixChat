@@ -2,582 +2,82 @@
 using LX29_ChatClient.Emotes;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LX29_ChatClient.Forms
 {
-    public partial class ChatView : UserControl
+    public enum RectType
     {
-        private ChannelInfo channel;
+        Link,
+        Emote,
+        Badge,
+        User,
+        Delegate,
+        Text,
+        ModActionBan,
+        ModActionTimeout,
+        //Word = Name | Link,
+        //Image = Badge | Emote
+    }
 
-        private bool loopRunning = false;
-        private Keys modifier_Key = Keys.None;
+    public struct SLRect
+    {
+        public readonly static SLRect Empty = new SLRect(0, 0, 0, 0, null, RectType.User);
+        public readonly RectangleF Bounds;
+        public readonly object Content;
+        public readonly RectType Type;
 
-        //private Point mouseLocation = Point.Empty;
-        private bool onMouseDown = false;
-
-        private RenderDevice renderer;
-
-        private string selectedText = "";
-
-        public ChatView()
+        public SLRect(float x, float y, float w, float h, object content, RectType type)
         {
-            try
+            Bounds = new RectangleF(x, y, w, h);
+            Content = content;
+            Type = type;
+        }
+
+        public SLRect(RectangleF rect, object content, RectType type)
+            : this(rect.X, rect.Y, rect.Width, rect.Height, content, type)
+        {
+        }
+
+        public bool IsEmpty
+        {
+            get { return Bounds.IsEmpty; }
+        }
+
+        public static implicit operator RectangleF(SLRect r)
+        {
+            return r.Bounds;
+        }
+
+        public bool Contains(Point p)
+        {
+            return Bounds.Contains(p);
+        }
+
+        public override int GetHashCode()
+        {
+            return 0;
+        }
+
+        public void Invoke()
+        {
+            if (Type == RectType.Delegate && Content != null)
             {
-                InitializeComponent();
-
-                this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-                this.SetStyle(ControlStyles.UserMouse, true);
-                this.SetStyle(ControlStyles.UserPaint, true);
-                this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-                this.SetStyle(ControlStyles.ResizeRedraw, true);
-
-                this.tSMi_Copy.Click += tSMi_Copy_Click;
-                this.tSMi_Search.Click += tSMi_Search_Click;
-                this.MouseWheel += ChatView_MouseWheel;
-
-                renderer = new RenderDevice(this);
+                ((Action)Content).Invoke();
             }
-            catch
-            {
-            }
-        }
-
-        public delegate void BadgeClicked(ChatView sender, Badge user);
-
-        public delegate void EmoteClicked(ChatView sender, Emote emote);
-
-        public delegate void LinkClicked(ChatView sender, string url);
-
-        public delegate void MessageReceived(ChatView sender, ChatMessage message);
-
-        public delegate void UserNameClicked(ChatView sender, ChatUser emote, Point mouse);
-
-        public event BadgeClicked OnBadgeClicked;
-
-        public event EmoteClicked OnEmoteClicked;
-
-        public event LinkClicked OnLinkClicked;
-
-        public event MessageReceived OnMessageReceived;
-
-        public event UserNameClicked OnUserNameClicked;
-
-        [ReadOnly(true)]
-        [Browsable(false)]
-        public ChannelInfo Channel
-        {
-            get { return channel; }
-        }
-
-        [ReadOnly(true)]
-        [Browsable(false)]
-        public new Font Font
-        {
-            get { return renderer.Font; }
-            set { renderer.Font = value; }
-        }
-
-        [ReadOnly(true)]
-        [Browsable(false)]
-        public int MessageCount
-        {
-            get { return renderer.ViewStart; }
-        }
-
-        [ReadOnly(true)]
-        [Browsable(false)]
-        public bool Pause
-        {
-            get { return renderer.Pause; }
-            set { renderer.Pause = value; }
-        }
-
-        [ReadOnly(true)]
-        [Browsable(false)]
-        public bool ShowEmotes
-        {
-            get { return renderer.ShowEmotes; }
-            set { renderer.ShowEmotes = value; }
-        }
-
-        [ReadOnly(true)]
-        [Browsable(false)]
-        public bool ShowName
-        {
-            get { return renderer.ShowName; }
-            set { renderer.ShowName = value; }
-        }
-
-        [ReadOnly(true)]
-        [Browsable(false)]
-        public string UserMessageName
-        {
-            get { return renderer.WhisperName; }
-            //set { renderer.UserMessageName = value; }
-        }
-
-        public void SetAllMessages(MsgType type, ChannelInfo ci = null, string name = "")
-        {
-            if (ci != null) renderer.Channel = ci;
-            renderer.SetAllMessages(type, name);
-        }
-
-        public void SetChannel(ChannelInfo ci, MsgType type, string name = "")
-        {
-            channel = ci;
-            SetAllMessages(type, ci, name);
-            Stop();
-            ChatClient.OnMessageReceived += ChatClient_MessageReceived;
-            ChatClient.OnTimeout += ChatClient_UserHasTimeouted;
-
-            ChatClient.Messages.OnWhisperReceived += ChatClient_OnWhisperReceived;
-
-            if (!loopRunning)
-            {
-                loopRunning = true;
-                Task.Run(new Action(RefreshLoop));
-                //Task.Run(() => EmoteLoop());
-            }
-        }
-
-        public void SetFontSize(bool incement)
-        {
-            renderer.SetFontSize(incement);
-        }
-
-        public void SetFontSize(decimal value)
-        {
-            renderer.SetFontSize(value);
-        }
-
-        public void Stop()
-        {
-            if (channel != null)
-            {
-                ChatClient.OnMessageReceived -= ChatClient_MessageReceived;
-                ChatClient.OnTimeout -= ChatClient_UserHasTimeouted;
-            }
-            ChatClient.Messages.OnWhisperReceived -= ChatClient_OnWhisperReceived;
-            //stop = true;
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            modifier_Key = e.Modifiers;
-            KeysConverter kc = new KeysConverter();
-            char keyChar = kc.ConvertToString(e.KeyCode)[0];
-            if (e.KeyValue == 187 || e.KeyValue == 189)
-            {
-                renderer.SetFontSize(e.KeyValue == 187);
-            }
-
-            base.OnKeyDown(e);
-
-            e.SuppressKeyPress = true;
-        }
-
-        protected override void OnKeyUp(KeyEventArgs e)
-        {
-            modifier_Key = Keys.None;
-            base.OnKeyUp(e);
-        }
-
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            this.Focus();
-            renderer.SelectRect.Location = e.Location;
-            onMouseDown = true;
-            //renderer.AutoScroll = false;
-
-            base.OnMouseDown(e);
-        }
-
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            //mouseLocation = e.Location;
-            if (onMouseDown)
-            {
-                int x0 = (int)renderer.SelectRect.X;
-                int x1 = e.X;
-                if (x0 > x1)
-                {
-                    //fgh
-                    x0 = e.X;
-                    x1 = (int)renderer.SelectRect.X;
-                }
-                renderer.SelectRect = RectangleF.FromLTRB(x0, renderer.SelectRect.Y, x1, renderer.SelectRect.Y + 1);
-            }
-            else
-            {
-                renderer.SelectRect = new RectangleF(e.X, e.Y, 0, 0);
-            }
-            try
-            {
-                var list = renderer.ClickableList;
-                SLRect curSelected = list.FirstOrDefault(t => t.Contains(e.Location));
-                if (curSelected.IsEmpty)
-                {
-                    Cursor = Cursors.Arrow;
-                    //renderer.AutoScroll = true;
-                }
-                else if (curSelected.Type != RectType.Text)
-                {
-                    Cursor = Cursors.Hand;
-                    //renderer.AutoScroll = false;
-                }
-                // this.Invalidate();
-            }
-            catch
-            {
-                Cursor = Cursors.Arrow;
-                // renderer.AutoScroll = true;
-            }
-            base.OnMouseMove(e);
-        }
-
-        protected override void OnMouseUp(MouseEventArgs e)
-        {
-            try
-            {
-                if (renderer.SelectRect.Width > 0)
-                {
-                    var list = renderer.ClickableList.ToList();
-                    var selects = list.Where(t => t.Bounds.IntersectsWith(renderer.SelectRect));
-                    if (selects.Count() > 0)
-                    {
-                        StringBuilder sb = new StringBuilder();
-                        foreach (var s in selects)
-                        {
-                            switch (s.Type)
-                            {
-                                case RectType.User:
-                                    var user = (ChatUser)s.Content;
-                                    sb.Append(user.Name + ": ");
-                                    break;
-
-                                case RectType.Emote:
-                                    var emote = (Emote)s.Content;
-                                    sb.Append(emote.Name + " ");
-                                    break;
-
-                                case RectType.Badge:
-                                    var badge = (BadgeBase)s.Content;
-                                    sb.Append(badge.Name + " ");
-                                    break;
-
-                                default:
-                                    sb.Append(s.Content + " ");
-                                    break;
-                            }
-                        }
-                        selectedText = sb.ToString().TrimEnd(' ');
-
-                        if (!selectedText.IsEmpty())
-                        {
-                            tSMi_Text.Text = selectedText;
-                            cMS_TextOptions.Show(this.PointToScreen(e.Location));
-                        }
-                    }
-                }
-                CheckClick(e.Location);
-
-                renderer.SelectRect = Rectangle.Empty;
-            }
-            catch { }
-            onMouseDown = false;
-            base.OnMouseUp(e);
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            //if (!renderer.gifVisible)
-            //    renderer.Render(e.Graphics);
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            if (renderer != null) renderer.Invalidate();
-        }
-
-        private void ChatClient_MessageReceived(ChatMessage message)
-        {
-            if (!this.Visible) return;
-
-            //if (message.IsType(renderer.MessageType))
-            //{
-            //    renderer.SetAllMessages(renderer.MessageType, "");
-            //}
-
-            if (OnMessageReceived != null)
-                OnMessageReceived(this, message);
-        }
-
-        private void ChatClient_OnWhisperReceived(ChatMessage message)
-        {
-            if (!this.Visible) return;
-
-            //if (renderer.MessageType == MsgType.Whisper)
-            //{
-            //    renderer.SetAllMessages(renderer.MessageType, renderer.WhisperName);
-            //    //renderer.MessageCount = ChatClient.Messages.Count(string.Empty, renderer.MessageType, renderer.UserMessageName);
-            //}
-        }
-
-        private void ChatClient_UserHasTimeouted(TimeOutResult result)
-        {
-            if (!this.Visible) return;
-            //if (renderer.MessageType == MsgType.All_Messages)
-            //{
-            //    if (result.Channel.Equals(channel.Name, StringComparison.OrdinalIgnoreCase))
-            //    {
-            //        renderer.SetAllMessages(MsgType.All_Messages);
-            //        //curSelected.Clear();// SLRect.Empty;
-            //        if (!Pause) this.Invalidate();
-            //    }
-            //}
-        }
-
-        private void ChatView_MouseLeave(object sender, EventArgs e)
-        {
-            renderer.SelectRect = Rectangle.Empty;
-            onMouseDown = false;
-        }
-
-        private void ChatView_MouseWheel(object sender, MouseEventArgs e)
-        {
-            if (modifier_Key == Keys.Control)
-            {
-                renderer.SetFontSize(e.Delta > 0);
-            }
-            else
-            {
-                renderer.ScrollEmotes(e.Delta);
-
-                if (renderer.ViewStart > 0)
-                {
-                    lbl_ScrollDown.Visible = true;
-                    lbl_ScrollDown.BringToFront();
-                }
-                else
-                {
-                    lbl_ScrollDown.Visible = false;
-                }
-            }
-            // this.Invalidate();
-        }
-
-        private void CheckClick(Point Location)
-        {
-            SLRect curSelected = renderer.ClickableList.FirstOrDefault(t => t.Bounds.Contains(Location));
-            if (!curSelected.IsEmpty)
-            {
-                switch (curSelected.Type)
-                {
-                    case RectType.ModActionBan:
-                        {
-                            string name = curSelected.Content.ToString();
-                            ChatClient.SendMessage("/ban " + name, Channel.Name);
-                        }
-                        break;
-
-                    case RectType.ModActionTimeout:
-                        {
-                            string name = curSelected.Content.ToString();
-                            ChatClient.SendMessage("/timeout " + name, Channel.Name);
-                        }
-                        break;
-
-                    case RectType.Link:
-                        if (OnLinkClicked != null)
-                            OnLinkClicked(this, curSelected.Content.ToString());
-                        break;
-
-                    case RectType.Emote:
-                        Emote em = (Emote)curSelected.Content;
-                        if (OnEmoteClicked != null)
-                            OnEmoteClicked(this, em);
-                        break;
-
-                    case RectType.User:
-                        ChatUser cu = (ChatUser)curSelected.Content;
-                        if (OnUserNameClicked != null)
-                            OnUserNameClicked(this, cu, Location);
-                        break;
-
-                    case RectType.Badge:
-                        Badge bd = (Badge)curSelected.Content;
-                        if (OnBadgeClicked != null)
-                            OnBadgeClicked(this, bd);
-                        break;
-
-                    case RectType.Delegate:
-                        curSelected.Invoke();
-                        break;
-                }
-            }
-            else
-            {
-            }
-        }
-
-        private void lbl_ScrollDown_Click(object sender, EventArgs e)
-        {
-            if (lbl_ScrollDown.Visible)
-            {
-                renderer.ViewStart = 0;
-                lbl_ScrollDown.Visible = false;
-            }
-        }
-
-        //private Renderer renderer;
-        private async void RefreshLoop()
-        {
-            long dt = DateTime.Now.Ticks;
-            while (true)
-            {
-                if (this.IsDisposed)
-                    break;
-
-                try
-                {
-                    double wait = 30;
-                    if (!Pause)
-                    {
-                        if (!renderer.gifVisible)
-                        {
-                            wait = 200;
-                        }
-                        if (renderer.Render())
-                        {
-                            if (this.InvokeRequired)
-                            {
-                                this.Invoke(new Action(ShowScrollDownLabel));
-                            }
-                            else
-                            {
-                                ShowScrollDownLabel();
-                            }
-                        }
-                        //}
-                        //else
-                        //{
-                        //    if (this.InvokeRequired)
-                        //    {
-                        //        this.Invoke(new Action(this.Invalidate));
-                        //    }
-                        //    else
-                        //    {
-                        //        this.Invalidate();
-                        //    }
-
-                        //    wait = 200;
-                        //}
-                    }
-                    else wait = 1000;
-
-                    double tt = ((DateTime.Now.Ticks - dt) / (double)TimeSpan.TicksPerMillisecond);
-                    if (tt < wait)
-                    {
-                        await Task.Delay((int)(wait - tt));
-                    }
-                    dt = DateTime.Now.Ticks;
-                }
-                catch
-                {
-                }
-            }
-        }
-
-        private void ShowScrollDownLabel()
-        {
-            lbl_ScrollDown.Visible = true;
-        }
-
-        private void tSMi_Copy_Click(object sender, System.EventArgs e)
-        {
-            if (!selectedText.IsEmpty())
-            {
-                Clipboard.SetText(selectedText, TextDataFormat.UnicodeText);
-            }
-        }
-
-        private void tSMi_Search_Click(object sender, System.EventArgs e)
-        {
-            System.Diagnostics.Process.Start("https://www.google.at/search?q=" + selectedText);
         }
     }
-}
-
-namespace LX29_ChatClient.Forms
-{
-    //public partial class ChatView
-    //{
-    //public class DX_Renderer
-    //{
-    //    private SlimDX.Direct2D.WindowRenderTarget d2dWindowRenderTarget;
-
-    //    public void BeginDrawing()
-    //    {
-    //        d2dWindowRenderTarget.BeginDraw();
-    //    }
-
-    //    public void Clear()
-    //    {
-    //        d2dWindowRenderTarget.Clear(new SlimDX.Color4(Color.LightSteelBlue));
-    //    }
-
-    //    public void Create(Control targetControl)
-    //    {
-    //        SlimDX.Direct2D.Factory d2dFactory = new SlimDX.Direct2D.Factory(SlimDX.Direct2D.FactoryType.Multithreaded, SlimDX.Direct2D.DebugLevel.None);
-    //        SlimDX.Direct2D.WindowRenderTarget renderer =
-    //            new SlimDX.Direct2D.WindowRenderTarget(d2dFactory,
-    //                new SlimDX.Direct2D.WindowRenderTargetProperties()
-    //                {
-    //                    Handle = targetControl.Handle,
-    //                    PixelSize = targetControl.Size,
-    //                    PresentOptions = SlimDX.Direct2D.PresentOptions.Immediately
-    //                });
-
-    //        d2dWindowRenderTarget = renderer;
-    //    }
-
-    //    public void DrawImage(SlimDX.Direct2D.Bitmap d2dBitmap, RectangleF rect)
-    //    {
-    //        d2dWindowRenderTarget.DrawBitmap(d2dBitmap, rect);// new Rectangle(0, 0, (int)d2dBitmap.Size.Width, (int)d2dBitmap.Size.Height));/**/
-    //    }
-
-    //    public void EndDrawing()
-    //    {
-    //        d2dWindowRenderTarget.EndDraw();
-    //    }
-
-    //    public SlimDX.Direct2D.Bitmap MakeBitmap(Bitmap bitmap)
-    //    {
-    //        // SlimDX.Direct2D.Bitmap d2dBitmap = null;
-    //        System.Drawing.Imaging.BitmapData bitmapData = bitmap.LockBits(new Rectangle(new Point(0, 0), bitmap.Size), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);//TODO: PixelFormat is very important!!! Check!
-    //        SlimDX.DataStream dataStream = new SlimDX.DataStream(bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, true, false);
-    //        SlimDX.Direct2D.PixelFormat d2dPixelFormat = new SlimDX.Direct2D.PixelFormat(SlimDX.DXGI.Format.B8G8R8A8_UNorm, SlimDX.Direct2D.AlphaMode.Premultiplied);
-    //        SlimDX.Direct2D.BitmapProperties d2dBitmapProperties = new SlimDX.Direct2D.BitmapProperties();
-    //        d2dBitmapProperties.PixelFormat = d2dPixelFormat;
-    //        var d2dBitmap = new SlimDX.Direct2D.Bitmap(d2dWindowRenderTarget, new Size(bitmap.Width, bitmap.Height), dataStream, bitmapData.Stride, d2dBitmapProperties);
-    //        bitmap.UnlockBits(bitmapData);
-    //        return d2dBitmap;
-    //    }
-    //}
 
     public class RenderDevice
     {
         public bool ShowName = true;
 
-        private bool _showEmotes = false;
+        private bool _showAllEmotes = false;
 
         private int emoteDlCnt = 0;
 
@@ -632,12 +132,12 @@ namespace LX29_ChatClient.Forms
             Timeout,
         }
 
-        public bool ShowEmotes
+        public bool ShowAllEmotes
         {
-            get { return _showEmotes; }
+            get { return _showAllEmotes; }
             set
             {
-                _showEmotes = value;
+                _showAllEmotes = value;
                 ClickableList.Clear();
 
                 //gifVisible = true;
@@ -652,8 +152,13 @@ namespace LX29_ChatClient.Forms
             }
         }
 
-        [DllImport("coredll.dll")]
-        public static extern int BitBlt(IntPtr hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, uint dwRop);
+        private bool ShowTimeStamp
+        {
+            get
+            {
+                return Settings.ShowTimeStamp;
+            }
+        }
 
         public void Invalidate()
         {
@@ -687,7 +192,7 @@ namespace LX29_ChatClient.Forms
             lock (drawLock)
             {
                 g.Clear(UserColors.ChatBackground);
-                if (ShowEmotes)
+                if (ShowAllEmotes)
                 {
                     DrawEmotes(g);
                 }
@@ -719,7 +224,7 @@ namespace LX29_ChatClient.Forms
 
         public void ScrollEmotes(int delta)
         {
-            if (!_showEmotes)
+            if (!_showAllEmotes)
             {
                 int d = (int)((Math.Abs(delta) / 100f) + 0.5);
 
@@ -734,7 +239,7 @@ namespace LX29_ChatClient.Forms
 
         public void SetAllMessages(MsgType Type, string name = null)
         {
-            _showEmotes = false;
+            _showAllEmotes = false;
             WhisperName = name;
             MessageType = Type;
             var user = ChatClient.Users.Get(ChatClient.SelfUserName, Channel.Name);
@@ -807,7 +312,7 @@ namespace LX29_ChatClient.Forms
                         y += size.Height + _EmotePadding;
                         x = _EmotePadding;
                     }
-                    if (!_showEmotes) return;
+                    if (!_showAllEmotes) return;
                     var result = em.Draw(g, x, y, size.Width, size.Height, EmoteImageSize.Small, false);
                     if (result == EmoteImageDrawResult.IsGif)
                     {
@@ -972,7 +477,7 @@ namespace LX29_ChatClient.Forms
                     int start = Math.Min(messages.Count - 1, Math.Max(0, (msgCount - viewStart) - 1));
                     for (i = start; i >= 0; i--)
                     {
-                        if (isChangingGraphics || ShowEmotes)
+                        if (isChangingGraphics || ShowAllEmotes)
                         {
                             return;
                         }
@@ -1075,16 +580,19 @@ namespace LX29_ChatClient.Forms
 
             #endregion Style&Font
 
-            string time = (ShowName) ? message.SendTime.ToLongTimeString() : message.SendTime.ToShortTimeString();
-            SizeF sf = graphics.MeasureText(time, timeFont);
-            //list.Add(new DrawItem(time, timeFont, Color.Gray, x, y, sf));
-            if (!measure)
+            SizeF sf = SizeF.Empty;
+            if (ShowTimeStamp)
             {
-                graphics.DrawText(time, timeFont, Color.Gray, x, y + timeSizeFac);
+                string time = (ShowName) ? message.SendTime.ToLongTimeString() : message.SendTime.ToShortTimeString();
+                sf = graphics.MeasureText(time, timeFont);
+
+                if (!measure)
+                {
+                    graphics.DrawText(time, timeFont, Color.Gray, x, y + timeSizeFac);
+                }
+
+                x += sf.Width + _WordPadding + _TimePadding;
             }
-
-            x += sf.Width + _WordPadding + _TimePadding;
-
             if (!measure)
             {
                 if (UserIsMod && user != null && !user.IsEmpty && user.Types.All(t => ((int)t < (int)UserType.moderator)))
@@ -1398,73 +906,6 @@ namespace LX29_ChatClient.Forms
         }
 
         #endregion Properties
-    }
-}
-
-//}
-
-namespace LX29_ChatClient.Forms
-{
-    public enum RectType
-    {
-        Link,
-        Emote,
-        Badge,
-        User,
-        Delegate,
-        Text,
-        ModActionBan,
-        ModActionTimeout,
-        //Word = Name | Link,
-        //Image = Badge | Emote
-    }
-
-    public struct SLRect
-    {
-        public readonly static SLRect Empty = new SLRect(0, 0, 0, 0, null, RectType.User);
-        public readonly RectangleF Bounds;
-        public readonly object Content;
-        public readonly RectType Type;
-
-        public SLRect(float x, float y, float w, float h, object content, RectType type)
-        {
-            Bounds = new RectangleF(x, y, w, h);
-            Content = content;
-            Type = type;
-        }
-
-        public SLRect(RectangleF rect, object content, RectType type)
-            : this(rect.X, rect.Y, rect.Width, rect.Height, content, type)
-        {
-        }
-
-        public bool IsEmpty
-        {
-            get { return Bounds.IsEmpty; }
-        }
-
-        public static implicit operator RectangleF(SLRect r)
-        {
-            return r.Bounds;
-        }
-
-        public bool Contains(Point p)
-        {
-            return Bounds.Contains(p);
-        }
-
-        public override int GetHashCode()
-        {
-            return 0;
-        }
-
-        public void Invoke()
-        {
-            if (Type == RectType.Delegate && Content != null)
-            {
-                ((Action)Content).Invoke();
-            }
-        }
     }
 
     //public struct DrawRect

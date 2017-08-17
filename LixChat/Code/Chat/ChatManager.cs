@@ -524,7 +524,10 @@ namespace LX29_ChatClient
             for (int i = 0; i < ChatWords.Count; i++)
             {
                 var word = ChatWords[i];
-                ChatWords[i] = new ChatWord(word.Text, Channel);//typelist.Contains(MsgType.Outgoing));
+                if (!word.IsEmote)
+                {
+                    ChatWords[i] = new ChatWord(word.Text, Channel);//typelist.Contains(MsgType.Outgoing));
+                }
             }
         }
 
@@ -892,32 +895,11 @@ namespace LX29_ChatClient
             Text = name;
 
             string temp = name;
-            //try
-            //{
-            //    for (int i = 0; i < temp.Length - 1; i++)
-            //    {
-            //        int uni = char.ConvertToUtf32(temp, i);
-            //        if (ChatClient.Emotes.Values._emoji_unicodes.ContainsKey(uni))
-            //        {
-            //            Emote.Add(ChatClient.Emotes.GetEmote(name, channel, outgoing));
-            //            name = name.Remove(i, 1);
-            //        }
-            //    }
-            //}
-            //catch
-            //{
-            //}
             var em = ChatClient.Emotes.GetEmote(name, channel, outgoing);
             if (em != null)
             {
                 Emote = em;
             }
-            //if (IsEmote)
-            //{
-            //    //Emote_ID = Emote.ID;
-            //    Set_ID = Emote.Set;
-            //}
-            //HashCode = Name.HashCode();
         }
 
         public ChatWord(string name, string channel)

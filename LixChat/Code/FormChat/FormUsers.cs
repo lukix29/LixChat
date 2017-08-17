@@ -12,6 +12,7 @@ namespace LX29_ChatClient.Forms
         private ChannelInfo channel = null;
 
         private bool lockListBox = false;
+        private string search = "";
 
         //private int treeMax = 0;
         private Dictionary<string, ChatUser> users = new Dictionary<string, ChatUser>();
@@ -59,6 +60,10 @@ namespace LX29_ChatClient.Forms
                 url = "https://" + url;
             }
             System.Diagnostics.Process.Start(url);
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
         }
 
         private void FormUsers_Load(object sender, EventArgs e)
@@ -149,8 +154,8 @@ namespace LX29_ChatClient.Forms
             Task.Run(() =>
             {
                 this.users = users;
-                //  var names = Enum.GetNames(typeof(UserType));
-                var sa = users.Keys.Select(t => new { name = t, count = ChatClient.Messages.Count(channel.Name, MsgType.All_Messages, t) })
+
+                var sa = users.Keys.Where(t => t.ToLower().StartsWith(search)).Select(t => new { name = t, count = ChatClient.Messages.Count(channel.Name, MsgType.All_Messages, t) })
                 .OrderByDescending(t => t.count).Select(t => string.Format("{0,-4:####}", t.count) + " - " + t.name).ToArray();
 
                 this.BeginInvoke(new Action(() =>
@@ -159,11 +164,16 @@ namespace LX29_ChatClient.Forms
                         lstB_Users.BeginUpdate();
                         lstB_Users.Items.Clear();
                         lstB_Users.Items.AddRange(sa);
+                        lstB_Users.EndUpdate();
                         this.Text = "Users: " + sa.Length;
                         lstB_Users.SelectedItem = selidx;
-                        lstB_Users.EndUpdate();
                     }));
             });
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            search = textBox1.Text.ToLower();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -171,10 +181,9 @@ namespace LX29_ChatClient.Forms
             try
             {
                 var users = ChatClient.Users.Get(channel.Name);
-                //if (users.Count != this.users.Count)
-                //{
+
                 SetUsers(users);
-                //}
+
                 if (lstB_Users.SelectedItem != null)
                 {
                     string item = lstB_Users.SelectedItem.ToString().Trim();

@@ -262,6 +262,15 @@ namespace LX29_Twitch.JSON_Parser
                 public int slot { get; set; }
                 public string title { get; set; }
                 public Dictionary<string, string> urls { get; set; }
+
+                public Dictionary<string, string> URLS
+                {
+                    get
+                    {
+                        return urls.ToDictionary(t => t.Key,
+                            t0 => (t0.Value.StartsWith("https:") ? t0.Value : "https:" + t0.Value));
+                    }
+                }
             }
 
             public class Badges

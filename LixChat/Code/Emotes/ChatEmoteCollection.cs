@@ -68,8 +68,6 @@ namespace LX29_ChatClient.Emotes
         {
             try
             {
-                Dictionary<string, string> _emotesetename = new Dictionary<string, string>();
-
                 #region FromFile
 
                 ////if (File.Exists(Settings.dataDir + "emote_sets.txt"))
@@ -124,8 +122,8 @@ namespace LX29_ChatClient.Emotes
 
                 #endregion FromFile
 
-                //   JsonWriter sw = new JsonTextWriter(new StreamWriter(Settings.dataDir + "emote_sets.txt", false));
-                //  sw.WriteStartObject();
+                Dictionary<string, string> _emotesetename = new Dictionary<string, string>();
+
                 using (JsonTextReader reader = new JsonTextReader(new StreamReader(wc.OpenRead("https://twitchemotes.com/api_cache/v3/sets.json"))))
                 {
                     int cnt = 0;
@@ -147,11 +145,8 @@ namespace LX29_ChatClient.Emotes
                                         break;
                                     channel_name = reader.Value.ToString();
 
-                                    //   sw.WritePropertyName(setid);
-                                    //   sw.WriteValue(channel_name);
-
                                     _emotesetename.Add(setid, channel_name);
-                                    if (cnt % 1000 == 0)
+                                    if (cnt % 1000 == 0 || cnt == 0)
                                     {
                                         _loaded_channel(null, cnt, Int32.MaxValue / 10000, "Loading Emote Set/Channel");
                                     }
@@ -163,7 +158,6 @@ namespace LX29_ChatClient.Emotes
                                 {
                                     if (!reader.Read())
                                         break;
-                                    //var channel_id = reader.Value.ToString();
                                 }
                                 else
                                 {
@@ -173,8 +167,6 @@ namespace LX29_ChatClient.Emotes
                         }
                     }
                 }
-                // sw.WriteEndObject();
-                // sw.Close();
 
                 return _emotesetename;
             }
@@ -185,7 +177,6 @@ namespace LX29_ChatClient.Emotes
                     case MessageBoxResult.Retry:
                         return _load_EmoteSet_IDs(wc);
                 }
-                //File.Delete(Settings.dataDir + "emote_sets.txt");
             }
             return new Dictionary<string, string>();
         }
@@ -328,7 +319,7 @@ namespace LX29_ChatClient.Emotes
                     {
                         channel = bttv_api_url.LastLine("/");
                     }
-                    Add(id, emote.code, channel, emorig, origChannel);
+                    Add_FFZ_BTTV(id, emote.code, channel, emorig, origChannel);
                 }
             }
             catch (Exception x)
@@ -391,7 +382,7 @@ namespace LX29_ChatClient.Emotes
                         channel = owner;
                     }
 
-                    Add(id, name, channel, emorig, owner);
+                    Add_FFZ_BTTV(id, name, channel, emorig, owner);
                 }
             }
             catch (Exception x)
@@ -431,6 +422,7 @@ namespace LX29_ChatClient.Emotes
         {
             try
             {
+                _loaded_channel(null, 0, 100, "Loading Emotes");
                 using (WebClient wc = new WebClient())
                 {
                     wc.Headers.Add("Client-ID", TwitchApi.CLIENT_ID);
@@ -489,9 +481,13 @@ namespace LX29_ChatClient.Emotes
                                         Name = obj.code;// list["code"];
                                     }
                                     Emote em = new Emote(obj.id, Name, channel, set, emorig, channel);
+                                    //if (set.Equals("33") || set.Equals("42") || set.Equals("0"))
+                                    //{
+                                    //    File.AppendAllText("emotestwerfgsd.txt", obj.id + " | " + Name + " | " + set + "\r\n");
+                                    //}
                                     Add(em);
 
-                                    if (cnt % 1000 == 0)
+                                    if (cnt % 1000 == 0 || cnt == 0)
                                     {
                                         _loaded_channel(null, cnt, Int32.MaxValue / 10000, "Loading Emotes");
                                     }
@@ -614,6 +610,8 @@ namespace LX29_ChatClient.Emotes
 
     public partial class EmoteCollection
     {
+        #region StandardEMotes
+
         public static readonly Dictionary<string, string> StandardEmotes = new Dictionary<string, string>()
         {
         {"1", ":)"},
@@ -624,12 +622,49 @@ namespace LX29_ChatClient.Emotes
         {"6", "o_o"},
         {"7", "B)"},
         {"8", ":o"},
-        {"10",":/"},
-        {"11",";)"},
-        {"12",":p"},
-        {"13",";p"},
-        {"14","R)"},
+        {"10", ":/"},
+        {"11", ";)"},
+        {"12", ":p"},
+        {"13", ";p"},
+        {"14", "R)"},
+
+        {"432",	">("},
+        {"433",	":\\"},
+        {"434",	":("},
+        {"435",	"R)"},
+        {"436",	":o"},
+        {"437",	"o_o"},
+        {"438",	":p"},
+        {"439",	";)"},
+        {"440",	":)"},
+        {"441",	"B)"},
+        {"442",	";p"},
+        {"443",	":D"},
+        {"444",	":z"},
+        {"445",	"<3"},
+
+        {"483",	"<3"},
+        {"484",	"R)"},
+        {"485",	"#/"},
+        {"486",	":>"},
+        {"487",	"<]"},
+        {"488",	":7"},
+        {"489",	":("},
+        {"490",	":p"},
+        {"491",	";p"},
+        {"492",	":o"},
+        {"493",	":\\"},
+        {"494",	":z"},
+        {"495",	":s"},
+        {"496",	":D"},
+        {"497",	"o_o"},
+        {"498",	">("},
+        {"499",	":)"},
+        {"500",	"B)"},
+        {"501",	";)"},
         };
+
+        #endregion StandardEMotes
 
         public int MaxEmoteFetchCount = 6;
 
@@ -654,39 +689,30 @@ namespace LX29_ChatClient.Emotes
             private set;
         }
 
-        public EmoteBase Add(string id, string name, string channel, EmoteOrigin origin, string channelName)
-        {
-            string emoteSet = "";
-            //var emSet = emotess.EmoteSets.FirstOrDefault(t => t.Name.Equals(channel, StringComparison.OrdinalIgnoreCase));
-            //if (emSet != null)
-            //{
-            //    emoteSet = emSet.Set;
-            //}
-            if (StandardEmotes.ContainsKey(id))
-            {
-                name = StandardEmotes[id];
-            }
-            Emote em = new Emote(id, name, channel, emoteSet, origin, channelName);
-            return Add(em);
-        }
-
         public EmoteBase Add(Emote e)
         {
             if (e.IsEmpty) return null;
 
-            if (!emotess.Contains(e))
+            lock (locjo)
             {
-                lock (locjo)
+                if (!emotess.Contains(e))
                 {
                     emotess.Add(e);
+                    return e;
+                    //_append_to_save(e);
                 }
-                return e;
-                //_append_to_save(e);
             }
-            else
+            return emotess[e];
+        }
+
+        public EmoteBase Add_FFZ_BTTV(string id, string name, string channel, EmoteOrigin origin, string channelName)
+        {
+            if (StandardEmotes.ContainsKey(id))
             {
-                return emotess[e];
+                name = StandardEmotes[id];
             }
+            Emote em = new Emote(id, name, channel, channel, origin, channelName);
+            return Add(em);
         }
 
         public void DownloadAllEmotes()
@@ -727,8 +753,7 @@ namespace LX29_ChatClient.Emotes
                     Directory.CreateDirectory(Settings.emoteDir);
                 }
 
-                _loaded_channel(null, 0, emotess.UserEmotes.Count, "Loading User Emotes");
-                emotess.UserEmotes = LX29_Twitch.Api.TwitchApi.GetUserEmotes().ToList();
+                _loaded_channel(null, 0, 100, "Loading User Emotes");
 
                 //_loaded_channel(null, emotess.UserEmotes.Count, emotess.UserEmotes.Count, "Loading User Emotes");
 
@@ -736,7 +761,7 @@ namespace LX29_ChatClient.Emotes
                 var tb1 = Task.Run(() => Badges.Parse_FFZ_Badges());
                 var tb2 = Task.Run(() => Badges.Parse_FFZ_Addon_Badges());
 
-                _loaded_channel(null, 0, emotess.UserEmotes.Count, "Loading Badges");
+                _loaded_channel(null, 0, 100, "Loading Badges");
 
                 if (LoadEmotes(loadnew))
                 {
@@ -763,17 +788,23 @@ namespace LX29_ChatClient.Emotes
                 {
                     _loaded_channel(null, 1, 1, "Loaded Emote Cache.");
                 }
+                var tb3 = Task.Run(() =>
+                  {
+                      var usem = LX29_Twitch.Api.TwitchApi.GetUserEmotes();
+                      emotess._UserEmotes = emotess.Twitch.Values.Where(t => usem.Any(t0 => t0.id.Equals(t.ID))).ToDictionary(t => t.ID, t => t);
+                  });
+
+                _loaded_channel(null, 0, 2666, "Loading Emoji's");
+                var emojicnt = emotess.LoadEmojis();
+                _loaded_channel(null, emojicnt, emojicnt, "Loading Emoji's");
 
                 try
                 {
-                    Task.WaitAll(new Task[] { tb1, tb2 }, Int32.MaxValue);
+                    Task.WaitAll(new Task[] { tb1, tb2, tb3 }, Int32.MaxValue);
                 }
                 catch
                 {
                 }
-                _loaded_channel(null, 0, 2666, "Loading Emoji's");
-                var emojicnt = emotess.LoadEmojis();
-                _loaded_channel(null, emojicnt, emojicnt, "Loading Emoji's");
 
                 Finished = true;
 
@@ -803,6 +834,24 @@ namespace LX29_ChatClient.Emotes
         {
             if (!Finished) return null;
 
+            string id = null;
+            if (outgoing)
+            {
+                var emi = emotess._UserEmotes.FirstOrDefault(t => t.Value.Name.Equals(name));
+                if (emi.Value != null)
+                {
+                    id = emi.Key;
+                }
+            }
+            var em = emotess[id, name];
+            if (em != null)
+            {
+                if (!(((em.Origin == EmoteOrigin.FFZ) || (em.Origin == EmoteOrigin.BTTV)) &&
+                    ((!em.Channel.Contains(channel)) && (!em.Channel.ToLower().Contains("global")))))
+                {
+                    return new EmoteBase[] { em };
+                }
+            }
             if (!string.IsNullOrEmpty(name))
             {
                 if (name.StartsWith(":"))// && _emoji_names.ContainsKey(Name))
@@ -830,28 +879,6 @@ namespace LX29_ChatClient.Emotes
                     catch
                     {
                     }
-                }
-            }
-
-            string id = null;
-            if (outgoing)
-            {
-                var emi = emotess.UserEmotes.LastOrDefault(t => t.code.Equals(name));
-                if (emi != null)
-                {
-                    id = emi.id.ToString();
-                }
-            }
-            var em = emotess[id, name];
-            if (em != null)
-            {
-                if (!(((em.Origin == EmoteOrigin.FFZ) || (em.Origin == EmoteOrigin.BTTV)) &&
-                    ((!em.Channel.Contains(channel)) && (!em.Channel.ToLower().Contains("global")))))
-                {
-                    return new EmoteBase[] { em };
-                }
-                else
-                {
                 }
             }
             return null;
@@ -904,8 +931,7 @@ namespace LX29_ChatClient.Emotes
                                             int i1 = int.Parse(si[1]);
                                             string nme = message.GetBetween(i0, i1).Trim();
 
-                                            var channelName = channel;
-                                            var emorig = EmoteOrigin.Twitch_Global;
+                                            // var channelName = channel;
                                             //var setid = emotess.EmoteSets.FirstOrDefault(t => t.ID.Equals(id));
                                             //if (setid != null)
                                             //{
@@ -917,8 +943,8 @@ namespace LX29_ChatClient.Emotes
                                             //    channel = "NlC";
                                             //}
 
-                                            var urls = EmoteCollection.TWITCH_EMOTE_BASE_URL.Select(t => t.Replace("{id}", id));
-                                            var addedEmote = ChatClient.Emotes.Add(id, nme, channel, emorig, channelName);
+                                            // var urls = EmoteCollection.TWITCH_EMOTE_BASE_URL.Select(t => t.Replace("{id}", id));
+                                            var addedEmote = ChatClient.Emotes.Values[id, nme];// ChatClient.Emotes.Add(id, nme, channel, channelName);
 
                                             list.Add(i0, new ChatWord.TempWord(i0, i1, addedEmote));// nme, id, set));
                                         }

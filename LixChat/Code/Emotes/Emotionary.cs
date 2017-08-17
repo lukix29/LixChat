@@ -28,7 +28,16 @@ namespace LX29_ChatClient.Emotes
 
         public Emoteionary()
         {
-            UserEmotes = new List<JSON.Twitch_Api.Emoticon>();
+            _UserEmotes = new Dictionary<string, EmoteBase>();
+            _ffzbttv = new Dictionary<string, EmoteBase>();
+            _twitch = new Dictionary<string, EmoteBase>();
+            _emoji_unicodes = new Dictionary<int, Emoji>();
+        }
+
+        public Dictionary<string, EmoteBase> _UserEmotes
+        {
+            get;
+            set;
         }
 
         public IEnumerable<EmoteBase> All
@@ -41,21 +50,20 @@ namespace LX29_ChatClient.Emotes
             get { return _ffzbttv.Count + _twitch.Count + _emoji_unicodes.Count; }
         }
 
-        public List<JSON.Twitch_Api.Emoticon> UserEmotes
+        public Dictionary<string, EmoteBase> Twitch
         {
-            get;
-            set;
+            get { return _twitch; }
         }
 
         public EmoteBase this[string ID, string Name]
         {
             get
             {
-                if (!string.IsNullOrEmpty(ID) && _twitch.ContainsKey(ID))
+                if (!ID.IsEmpty() && _twitch.ContainsKey(ID))
                 {
                     return _twitch[ID];
                 }
-                if (!string.IsNullOrEmpty(Name) && _ffzbttv.ContainsKey(Name))
+                if (!Name.IsEmpty() && _ffzbttv.ContainsKey(Name))
                 {
                     return _ffzbttv[Name];
                 }
@@ -159,7 +167,7 @@ namespace LX29_ChatClient.Emotes
                    {
                        if (e.Name.ToLower().StartsWith(name))
                        {
-                           return UserEmotes.Any(t => t.id.Equals(e.ID));
+                           return _UserEmotes.Values.Any(t => t.ID.Equals(e.ID));
                        }
                        return false;
                    });
@@ -185,8 +193,9 @@ namespace LX29_ChatClient.Emotes
 
         public IEnumerable<EmoteBase> GetEmotes(string channel)
         {
-            var ems = _twitch.Values
-                .Where(t => UserEmotes.Any(t0 => t.ID.Equals(t0.id))).ToList();
+            var ems = _UserEmotes.Values;
+            //_twitch.Values
+            //    .Where(t => _UserEmotes.Any(t0 => t.ID.Equals(t0.id))).ToList();
 
             //  int i = null;
             var ffz = _ffzbttv.Values.Where((t) =>

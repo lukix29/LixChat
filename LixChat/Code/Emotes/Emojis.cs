@@ -15,7 +15,7 @@ namespace LX29_ChatClient.Emotes
     {
         public static readonly Emoji Empty = new Emoji("", "");
         private static readonly SolidBrush GrayOutBrush = new SolidBrush(Color.FromArgb(200, LX29_ChatClient.UserColors.ChatBackground));
-        private Image _image = null;
+        private Bitmap _image = null;
 
         private DateTime loadTime = DateTime.MaxValue;
         private object LockObject = new object();
@@ -60,13 +60,13 @@ namespace LX29_ChatClient.Emotes
             set;
         }
 
-        public Image Image
+        public Bitmap Image
         {
             get
             {
                 if (_image == null)
                 {
-                    _image = (Image)Image.FromFile(FilePath).Clone();
+                    _image = (Bitmap)Bitmap.FromFile(FilePath).Clone();
                     Size = _image.Size;
                 }
                 loadTime = DateTime.Now;
@@ -132,9 +132,13 @@ namespace LX29_ChatClient.Emotes
 
         public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size, bool grayOut = false)
         {
+            Width *= 0.75f;
+            Height *= 0.75f;
+            X += (Width / 4f);
+            Y += (Height / 4f);
             lock (LockObject)
             {
-                g.DrawImage(Image, X, Y, Width, Height);
+                g.DrawBitmap(Image, X, Y, Width, Height, Settings.HwEmoteDrawing);
             }
             if (grayOut)
             {

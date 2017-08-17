@@ -79,7 +79,7 @@ namespace LX29_LixChat
                     foreach (var si in sa)
                     {
                         ChatClient.Disconnect(si.Name);
-                        while (ChatClient.HasJoined(si.Name)) ;
+                        while (ChatClient.HasJoined(si.Name)) System.Threading.Thread.Sleep(100);
                         ChatClient.TryConnect(si.Name, true);
                     }
                     //this.LoadList(ChatClient.Channels);
@@ -201,6 +201,13 @@ namespace LX29_LixChat
             //ChatClient.Emotes.Save();
         }
 
+        //protected override void OnPaint(PaintEventArgs e)
+        //{
+        //    //ManagedGDI.AlphaBlend(LX29_LixChat.Properties.Resources.temp, e.Graphics, new Rectangle(0, 0, 100, 100), 255);
+
+        //    base.OnPaint(e);
+        //}
+
         protected override bool ProcessCmdKey(ref System.Windows.Forms.Message msg, Keys keyData)
         {
             if (keyData != Keys.Tab)
@@ -246,7 +253,7 @@ namespace LX29_LixChat
                     if (ChatClient.HasJoined(name.Name))
                     {
                         ChatClient.Disconnect(name.Name);
-                        while (ChatClient.HasJoined(name.Name)) ;
+                        while (ChatClient.HasJoined(name.Name)) System.Threading.Thread.Sleep(100);
                         ChatClient.TryConnect(name.Name, true);
                     }
                 }
@@ -349,33 +356,39 @@ namespace LX29_LixChat
 
         private void btn_ShowPreview_Click(object sender, EventArgs e)
         {
-            var sa = GetCurrentInfo();
-            if (sa != null)
+            try
             {
-                string quali = "SOURCE";
-                if (comBox_StreamQuali.SelectedIndex >= 0)
+                var sa = GetCurrentInfo();
+                if (sa != null)
                 {
-                    quali = comBox_StreamQuali.SelectedItem.ToString();
-                }
-                if (!MPV_Downloader.MPV_Exists)
-                {
-                    MPV_Downloader.DownloadMPV(SetProgressInfo, () => this.Invoke(new Action(() => btn_ShowPreview.PerformClick())));
-                }
-                else
-                {
-                    if (!mpvPreview.IsRunning)
+                    string quali = "SOURCE";
+                    if (comBox_StreamQuali.SelectedIndex >= 0)
                     {
-                        var video = sa[0].StreamURLS[quali];
-                        if (video != null)
-                        {
-                            mpvPreview.StartAsync(video.URL, 0, splitContainer_Preview.Panel1.Handle);
-                        }
+                        quali = comBox_StreamQuali.SelectedItem.ToString();
+                    }
+                    if (!MPV_Downloader.MPV_Exists)
+                    {
+                        MPV_Downloader.DownloadMPV(SetProgressInfo, () => this.Invoke(new Action(() => btn_ShowPreview.PerformClick())));
                     }
                     else
                     {
-                        mpvPreview.Stop();
+                        if (!mpvPreview.IsRunning)
+                        {
+                            var video = sa[0].StreamURLS[quali];
+                            if (video != null)
+                            {
+                                mpvPreview.StartAsync(video.URL, 0, splitContainer_Preview.Panel1.Handle);
+                            }
+                        }
+                        else
+                        {
+                            mpvPreview.Stop();
+                        }
                     }
                 }
+            }
+            catch
+            {
             }
         }
 
@@ -503,28 +516,6 @@ namespace LX29_LixChat
             }
         }
 
-        private void comboBox1_MouseClick(object sender, MouseEventArgs e)
-        {
-            //var sa = GetCurrentInfo();
-            //if (sa != null)
-            //{
-            //    comBox_StreamQuali.Text = "Loading...";
-            //    this.BeginInvoke(new Action(() =>
-            //        {
-            //            comBox_StreamQuali.BeginUpdate();
-            //            comBox_StreamQuali.Items.Clear();
-            //            comBox_StreamQuali.Items.AddRange(sa[0].StreamURLS.KeysUpper);
-            //            comBox_StreamQuali.EndUpdate();
-            //            //comBox_StreamQuali.SelectedIndex = 0;
-            //            comBox_StreamQuali.DroppedDown = true;
-            //        }));
-            //}
-        }
-
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-        }
-
         private void Emotes_LoadedChannel(ChannelInfo ci, int count, int max, string info)
         {
             SetProgressInfo(count, max, info);
@@ -559,14 +550,6 @@ namespace LX29_LixChat
                     lstB_Channels.SelectedIndex--;
                     break;
             }
-        }
-
-        private void lstB_Channels_Load(object sender, EventArgs e)
-        {
-        }
-
-        private void lstB_Channels_Load_1(object sender, EventArgs e)
-        {
         }
 
         private void Main_LocationChanged(object sender, EventArgs e)
@@ -667,22 +650,32 @@ namespace LX29_LixChat
 
             pb_Preview.SizeMode = si.PreviewImage.IsGif() ? PictureBoxSizeMode.CenterImage : PictureBoxSizeMode.Zoom;
 
-            comBox_StreamQuali.Text = "Loading...";
+            comBox_StreamQuali.Text = "Loading";
+            comBox_StreamQuali.Items.Add("SOURCE");
             Task.Run(() =>
             {
                 var items = si.StreamURLS.KeysUpper;
                 this.Invoke(new Action(() =>
                 {
+                    int idx = comBox_StreamQuali.SelectedIndex;
                     comBox_StreamQuali.BeginUpdate();
                     comBox_StreamQuali.Items.Clear();
                     comBox_StreamQuali.Items.AddRange(items);
                     comBox_StreamQuali.EndUpdate();
-                    //if (comBox_StreamQuali.Items.Count > 0)
-                    //{
-                    //    comBox_StreamQuali.SelectedIndex = 0;
-                    //}
-                    //comBox_StreamQuali.SelectedIndex = 0;
-                    // comBox_StreamQuali.DroppedDown = true;
+                    if (comBox_StreamQuali.Items.Count > 0)
+                    {
+                        comBox_StreamQuali.Enabled = true;
+                        comBox_StreamQuali.SelectedIndex = idx;
+                        if (idx >= 0)
+                            comBox_StreamQuali.Text = comBox_StreamQuali.SelectedItem.ToString();
+                        else
+                            comBox_StreamQuali.SelectedIndex = 0;
+                    }
+                    else
+                    {
+                        comBox_StreamQuali.Text = "Offline";
+                        comBox_StreamQuali.Enabled = false;
+                    }
                 }));
             });
 
@@ -690,10 +683,11 @@ namespace LX29_LixChat
             cB_AutoLogin.Checked = si.AutoLoginChat;
             cB_Favorite.Checked = si.IsFavorited;
             cB_LogChat.Checked = si.LogChat;
-            btn_openSubpage.Visible = !si.SubInfo.IsEmpty;
+            //btn_openSubpage.Visible = !si.SubInfo.IsEmpty;
 
             cB_AutoLogin.Enabled = btn_Disconnect.Enabled = !si.IsFixed;
 
+            // btn_openSubpage.Visible = true;
             if (si.SubInfo.IsSub)
             {
                 btn_openSubpage.Text = "Subscribed!";
@@ -717,7 +711,14 @@ namespace LX29_LixChat
 
             if (mpvPreview.IsRunning && !si.Name.Equals(lastSelectedName, StringComparison.OrdinalIgnoreCase))
             {
-                mpvPreview.Start(si.StreamURLS[comBox_StreamQuali.SelectedItem.ToString()].URL, 0, splitContainer_Preview.Panel1.Handle);
+                var quali = comBox_StreamQuali.SelectedItem;
+                if (quali == null) quali = "SOURCE";
+
+                var vi = si.StreamURLS[quali.ToString()];
+                if (vi != null)
+                    mpvPreview.Start(vi.URL, 0, splitContainer_Preview.Panel1.Handle);
+                else
+                    mpvPreview.Stop();
             }
             lastSelectedName = si.Name;
             //this.ResumeLayout();
@@ -783,7 +784,6 @@ namespace LX29_LixChat
 
         private void toolStripMenuItem2_Click(object sender, EventArgs e)
         {
-            Task.Run(() => ChatClient.FetchEmotes());
         }
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
@@ -847,6 +847,7 @@ namespace LX29_LixChat
 
         private void tSMi_ReloadEmotes_Click(object sender, EventArgs e)
         {
+            Task.Run(() => ChatClient.FetchEmotes());
         }
 
         private void tSMi_ShowSettings_Click(object sender, EventArgs e)
@@ -904,7 +905,7 @@ namespace LX29_LixChat
                     foreach (var si in sa)
                     {
                         ChatClient.Disconnect(si.Key);
-                        while (ChatClient.HasJoined(si.Key)) ;
+                        while (ChatClient.HasJoined(si.Key)) System.Threading.Thread.Sleep(100);
                         ChatClient.TryConnect(si.Key, true);
                     }
                 });

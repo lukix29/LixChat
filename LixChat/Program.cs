@@ -19,7 +19,13 @@ namespace LX29_LixChat
             }
             catch (Exception x)
             {
-                MessageBox.Show(x.ToString());
+                switch (x.Handle("", true))// LX29_MessageBox.Show(x.ToString(),"Error", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error))
+                {
+                    case MessageBoxResult.Retry:
+                        System.Diagnostics.Process.Start(Application.ExecutablePath);
+                        Application.Exit();
+                        break;
+                }
             }
         }
     }

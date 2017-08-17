@@ -33,7 +33,7 @@ namespace LX29_ChatClient.Emotes
         private static readonly string[] TWITCH_EMOTE_BASE_URL = new string[] { "https://static-cdn.jtvnw.net/emoticons/v1/{id}/1.0", "https://static-cdn.jtvnw.net/emoticons/v1/{id}/2.0", "https://static-cdn.jtvnw.net/emoticons/v1/{id}/3.0" };
         private readonly object LockObject = new object();
 
-        private Dictionary<EmoteImageSize, Image[]> _images = new Dictionary<EmoteImageSize, Image[]>();
+        private Dictionary<EmoteImageSize, Bitmap[]> _images = new Dictionary<EmoteImageSize, Bitmap[]>();
         private Dictionary<EmoteImageSize, Size> _sizes = new Dictionary<EmoteImageSize, Size>();
 
         private Dictionary<EmoteImageSize, string> _urls = null;
@@ -49,7 +49,7 @@ namespace LX29_ChatClient.Emotes
             this.Origin = origin;
             _urls = urls.Values
                 .Select((u, i) => new { url = u, idx = i })
-                .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => !t0.url.StartsWith("http") ? "https://" + t0.url : t0.url);
+                .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
             //_urls = urls;
             //EmoteImage(badge.urls, Name)
         }
@@ -59,12 +59,12 @@ namespace LX29_ChatClient.Emotes
             //FilePaths = new Dictionary<EmoteImageSize, string>();
             //URLs = new Dictionary<EmoteImageSize, string>();
             Name = name;
-            _images = new Dictionary<EmoteImageSize, Image[]>();
+            _images = new Dictionary<EmoteImageSize, Bitmap[]>();
             Type = image.RawFormat;
 
             if (!SetGif(image, EmoteImageSize.Small))
             {
-                _images.Add(EmoteImageSize.Small, new Image[] { (Image)image.Clone() });
+                _images.Add(EmoteImageSize.Small, new Bitmap[] { new Bitmap(image).Clone(new Rectangle(0, 0, image.Width, image.Height), PixelFormat.Format32bppPArgb) });
                 _sizes.Add(EmoteImageSize.Small, image.Size);
             }
             LoadTime = DateTime.MaxValue;
@@ -77,7 +77,7 @@ namespace LX29_ChatClient.Emotes
                 //FilePaths = new Dictionary<EmoteImageSize, string>();
                 //URLs = new Dictionary<EmoteImageSize, string>();
                 Name = name;
-                _images = new Dictionary<EmoteImageSize, Image[]>();
+                _images = new Dictionary<EmoteImageSize, Bitmap[]>();
                 Type = LX29_LixChat.Properties.Resources.loading.RawFormat;
                 IsGif = true;
                 SetGif(LX29_LixChat.Properties.Resources.loading, EmoteImageSize.Small);
@@ -349,12 +349,12 @@ namespace LX29_ChatClient.Emotes
                     {
                         FrameIndex = 0;
                     }
+
                     lock (LockObject)
                     {
-                        g.DrawImage(images[FrameIndex], X, Y, Width, Height);
+                        g.DrawBitmap(images[FrameIndex], X, Y, Width, Height, Settings.HwEmoteDrawing);
                     }
                     LoadTime = DateTime.Now;
-                    //g.DrawImage(images[FrameIndex], X, Y, Width, Height);
                 }
             }
             catch
@@ -363,7 +363,7 @@ namespace LX29_ChatClient.Emotes
             return result;
         }
 
-        public Image[] GetImage(EmoteImageSize size)
+        public Bitmap[] GetImage(EmoteImageSize size)
         {
             //lock (LockObject)
             //{
@@ -412,8 +412,7 @@ namespace LX29_ChatClient.Emotes
                         using (WebClient wc = new WebClient())
                         {
                             wc.Proxy = null;
-                            using (MemoryStream ms =
-                                new MemoryStream(wc.DownloadData(new Uri(url))))
+                            using (var ms = wc.OpenRead(new Uri(url)))
                             {
                                 using (Image img0 = Image.FromStream(ms))
                                 {
@@ -436,24 +435,10 @@ namespace LX29_ChatClient.Emotes
             }
             catch
             {
-                //images = null;
+                _images = new Dictionary<EmoteImageSize, Bitmap[]>();
             }
             isDownloading = false;
         }
-
-        //private Image[] getFrames(Image originalImg)
-        //{
-        //    int numberOfFrames = originalImg.GetFrameCount(FrameDimension.Time);
-        //    Image[] frames = new Image[numberOfFrames];
-
-        //    for (int i = 0; i < numberOfFrames; i++)
-        //    {
-        //        originalImg.SelectActiveFrame(FrameDimension.Time, i);
-        //        frames[i] = ((Image)originalImg.Clone());
-        //    }
-
-        //    return frames;
-        //}
 
         private bool SetGif(Image img, EmoteImageSize size, int cnt = 0)
         {
@@ -464,12 +449,12 @@ namespace LX29_ChatClient.Emotes
                 IsGif = true;
                 FrameDimension dimension = new FrameDimension(img.FrameDimensionsList[0]);
                 FrameCount = img.GetFrameCount(dimension);
-                Image[] list = new Image[FrameCount];
+                Bitmap[] list = new Bitmap[FrameCount];
                 int[] delays = new int[FrameCount];
                 for (int i = 0; i < FrameCount; i++)
                 {
                     img.SelectActiveFrame(dimension, i);
-                    list[i] = (Image)img.Clone();
+                    list[i] = new Bitmap(img).Clone(new Rectangle(0, 0, img.Width, img.Height), PixelFormat.Format32bppPArgb);
                 }
 
                 var val = img.PropertyItems.FirstOrDefault(t => t.Id == 0x5100);
@@ -514,7 +499,8 @@ namespace LX29_ChatClient.Emotes
                     img = ResizeBitmap(img, emS.Width * 1f, emS.Height * 1.5f);
                 }
                 if (!_images.ContainsKey(size))
-                    _images.Add(size, new Image[] { (Image)img.Clone() });
+                    _images.Add(size,
+                        new Bitmap[] { new Bitmap(img).Clone(new Rectangle(0, 0, img.Width, img.Height), PixelFormat.Format32bppPArgb) });
                 if (!_sizes.ContainsKey(size))
                     _sizes.Add(size, img.Size);
             }

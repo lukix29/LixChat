@@ -38,7 +38,7 @@ namespace LX29_ChatClient.Emotes
             Type = badge.name.Trim() + "_FFZ";
             Name = Type;
             URLS = new Dictionary<string, EmoteImage>();
-            URLS.Add("1", new EmoteImage(badge.urls, Name, EmoteOrigin.Badge));
+            URLS.Add("1", new EmoteImage(badge.URLS, Name, EmoteOrigin.Badge));
         }
 
         public Badge(JSON.Twitch_Badges.BadgeData lst)
@@ -146,6 +146,7 @@ namespace LX29_ChatClient.Emotes
         public BadgeCollection()
         {
             badges = new Dictionary<string, Badge>();
+            FFZ_Users = new List<FFZBadgeUser>();
         }
 
         public int Count
@@ -185,6 +186,8 @@ namespace LX29_ChatClient.Emotes
         {
             try
             {
+                if (badges == null) badges = new Dictionary<string, Badge>();
+
                 string url = (ci == null) ? "https://badges.twitch.tv/v1/badges/global/display" : "https://badges.twitch.tv/v1/badges/channels/" + ci.ID + "/display";
                 using (WebClient wc = new WebClient())
                 {
@@ -216,20 +219,6 @@ namespace LX29_ChatClient.Emotes
                             }
                         }
                     }
-                    //}
-                    //else
-                    //{
-                    //    var result = JSON.ParseBadges(str);
-                    //    if (result.badge_sets.subscriber != null)
-                    //    {
-                    //        string name = ci.Name;
-                    //        Badge badge = new Badge(name, result);
-                    //        if (!badges.ContainsKey(name))
-                    //        {
-                    //            badges.Add(name, badge);
-                    //        }
-                    //    }
-                    //}
                 }
             }
             catch (Exception x)
@@ -252,24 +241,23 @@ namespace LX29_ChatClient.Emotes
                 string temp = wc.DownloadString("https://cdn.ffzap.download/supporters.json");
                 wc.Dispose();
                 var result = JSON.ParseFFZAddonBadges(temp);
-
+                if (FFZ_Users == null) FFZ_Users = new List<FFZBadgeUser>();
                 //FFZ_Users = new List<FFZBadgeUser>();
                 var badge = result.badges[0];
-                Badge b = new Badge(badge.name + "_ffzap", badge.title, badge.urls);
-                badges.Add(b.Type, b);
+                Badge b = new Badge(badge.name + "_ffzap", badge.title, badge.URLS);
+                if (!badges.ContainsKey(b.Type))
+                    badges.Add(b.Type, b);
+
                 foreach (var user in result.users)
                 {
-                    FFZ_Users.Add(new FFZBadgeUser(user.username, b));
+                    if (user.username.Equals("cwar97"))
+                    {
+                    }
+                    FFZ_Users.Add(new FFZBadgeUser(user, b));
                 }
             }
-            catch (Exception x)
+            catch
             {
-                switch (x.Handle())
-                {
-                    case System.Windows.Forms.MessageBoxResult.Retry:
-                        Parse_FFZ_Addon_Badges();
-                        break;
-                }
             }
         }
 
@@ -283,11 +271,14 @@ namespace LX29_ChatClient.Emotes
                 wc.Dispose();
                 var result = JSON.ParseFFZBadges(temp);
 
-                FFZ_Users = new List<FFZBadgeUser>();
+                if (FFZ_Users == null) FFZ_Users = new List<FFZBadgeUser>();
                 foreach (var badge in result.badges)
                 {
                     Badge b = new Badge(badge);
-                    badges.Add(b.Name, b);
+                    if (!badges.ContainsKey(b.Name))
+                    {
+                        badges.Add(b.Name, b);
+                    }
                     var user = result.users[badge.id];
                     foreach (var u in user)
                     {
@@ -295,20 +286,29 @@ namespace LX29_ChatClient.Emotes
                     }
                 }
             }
-            catch (Exception x)
+            catch
             {
-                switch (x.Handle())
-                {
-                    case System.Windows.Forms.MessageBoxResult.Retry:
-                        Parse_FFZ_Badges();
-                        break;
-                }
             }
         }
     }
 
     public class FFZBadgeUser
     {
+        public FFZBadgeUser(JSON.FFZ_Emotes.FFZ_Addon_Pack_User user, Badge badge)
+            : this(user.username, badge)
+        {
+            try
+            {
+                if (!user.badge_color.IsEmpty())
+                {
+                    Color = UserColors.ToColor(user.badge_color);
+                }
+            }
+            catch
+            {
+            }
+        }
+
         public FFZBadgeUser(string user, Badge badge)
         {
             Badge = badge;
@@ -316,6 +316,12 @@ namespace LX29_ChatClient.Emotes
         }
 
         public Badge Badge
+        {
+            get;
+            private set;
+        }
+
+        public Color Color
         {
             get;
             private set;

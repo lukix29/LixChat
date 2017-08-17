@@ -79,8 +79,6 @@
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshChannelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_ReloadEmotes = new System.Windows.Forms.ToolStripMenuItem();
-            this.tSMi_CacheEmotes = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_Sync = new System.Windows.Forms.ToolStripMenuItem();
             this.tsMi_SyncOnlyOnline = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_SyncAll = new System.Windows.Forms.ToolStripMenuItem();
@@ -192,8 +190,6 @@
             this.comBox_StreamQuali.ForeColor = System.Drawing.Color.Gainsboro;
             this.comBox_StreamQuali.FormattingEnabled = true;
             this.comBox_StreamQuali.Name = "comBox_StreamQuali";
-            this.comBox_StreamQuali.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
-            this.comBox_StreamQuali.MouseClick += new System.Windows.Forms.MouseEventHandler(this.comboBox1_MouseClick);
             // 
             // btn_Show_Video_Info
             // 
@@ -551,29 +547,10 @@
             // tSMi_ReloadEmotes
             // 
             this.tSMi_ReloadEmotes.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.tSMi_ReloadEmotes.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tSMi_CacheEmotes,
-            this.toolStripMenuItem2});
             this.tSMi_ReloadEmotes.ForeColor = System.Drawing.Color.Gainsboro;
             this.tSMi_ReloadEmotes.Name = "tSMi_ReloadEmotes";
             resources.ApplyResources(this.tSMi_ReloadEmotes, "tSMi_ReloadEmotes");
             this.tSMi_ReloadEmotes.Click += new System.EventHandler(this.tSMi_ReloadEmotes_Click);
-            // 
-            // tSMi_CacheEmotes
-            // 
-            this.tSMi_CacheEmotes.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.tSMi_CacheEmotes.ForeColor = System.Drawing.Color.Gainsboro;
-            this.tSMi_CacheEmotes.Name = "tSMi_CacheEmotes";
-            resources.ApplyResources(this.tSMi_CacheEmotes, "tSMi_CacheEmotes");
-            this.tSMi_CacheEmotes.Click += new System.EventHandler(this.tSMi_CacheEmotes_Click);
-            // 
-            // toolStripMenuItem2
-            // 
-            this.toolStripMenuItem2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.toolStripMenuItem2.ForeColor = System.Drawing.Color.Gainsboro;
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            resources.ApplyResources(this.toolStripMenuItem2, "toolStripMenuItem2");
-            this.toolStripMenuItem2.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
             // 
             // tSMi_Sync
             // 
@@ -691,7 +668,6 @@
             this.lstB_Channels.Name = "lstB_Channels";
             this.lstB_Channels.SelectedIndex = 0;
             this.lstB_Channels.SelectedIndexChanged += new LX29_Twitch.Forms.ChannelListBox.OnSelectedIndexChanged(this.lstB_Channels_SelectedIndexChanged);
-            this.lstB_Channels.Load += new System.EventHandler(this.lstB_Channels_Load_1);
             this.lstB_Channels.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstB_Channels_MouseDoubleClick);
             // 
             // apiInfoPanel1
@@ -705,6 +681,7 @@
             // controlSettings1
             // 
             resources.ApplyResources(this.controlSettings1, "controlSettings1");
+            this.controlSettings1.BackColor = System.Drawing.Color.Black;
             this.controlSettings1.ForeColor = System.Drawing.Color.LightGray;
             this.controlSettings1.Name = "controlSettings1";
             // 
@@ -813,8 +790,6 @@
         private System.Windows.Forms.ToolStripMenuItem tSMI_UpdateProgramm;
         private System.Windows.Forms.ToolStripMenuItem tSMI_About;
         private System.Windows.Forms.Button btn_AutostartStream;
-        private System.Windows.Forms.ToolStripMenuItem tSMi_CacheEmotes;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.PictureBox pb_Preview;
         private LX29_Twitch.Forms.ChannelListBox lstB_Channels;
         private LX29_Twitch.Forms.ApiInfoPanel apiInfoPanel1;
