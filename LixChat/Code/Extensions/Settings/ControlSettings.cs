@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Drawing;
-using System.Windows.Forms;
 using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace LX29_ChatClient.Forms
 {
@@ -17,17 +15,6 @@ namespace LX29_ChatClient.Forms
             {
                 UpdateColorControls(c);
             }
-        }
-
-        public ChatView ChatView
-        {
-            get;
-            private set;
-        }
-
-        public new void BringToFront()
-        {
-            this.Show(null);
         }
 
         public Control GetSettingCheckBox(Size clientSize, bool value, SettingClasses classe, Action<bool, string> onselect)
@@ -66,6 +53,10 @@ namespace LX29_ChatClient.Forms
             //return panel1;
         }
 
+        //public new void BringToFront()
+        //{
+        //    this.Show(null);
+        //}
         public Control GetSettingPanel(Size clientSize, double value, SettingClasses classe, Action<decimal, string> onselect)
         {
             //
@@ -126,27 +117,43 @@ namespace LX29_ChatClient.Forms
             return panel1;
         }
 
-        public void Show(ChatView chatView)
+        public void SetChatViewFont(Font font)
         {
-            try
+            foreach (var chanel in ChatClient.Channels.Values)
             {
-                this.ChatView = chatView;
-                this.Visible = !this.Visible;
-                if (this.Visible)
-                {
-                    SetControlSettings();
-
-                    base.BringToFront();
-                }
-                else
-                {
-                    Settings.Save();
-                }
-            }
-            catch
-            {
+                chanel.ChatForm.chatView.Font = font;
             }
         }
+
+        public void SetChatViewFont(decimal a)
+        {
+            foreach (var channel in ChatClient.Channels)
+            {
+                if (channel.Value.ChatForm != null)
+                {
+                    channel.Value.ChatForm.chatView.SetFontSize(a);
+                }
+            }
+        }
+
+        //public new void Show()
+        //{
+        //    try
+        //    {
+        //        this.Visible = !this.Visible;
+        //        if (this.Visible)
+        //        {
+        //            base.BringToFront();
+        //        }
+        //        else
+        //        {
+        //            Settings.Save();
+        //        }
+        //    }
+        //    catch
+        //    {
+        //    }
+        //}
 
         public void UpdateColorControls(Control myControl)
         {
@@ -232,8 +239,7 @@ namespace LX29_ChatClient.Forms
             FontDialog fd = new FontDialog();
             try
             {
-                Font oldFont = ChatView.Font;
-                fd.Font = ChatView.Font;
+                fd.Font = new Font(Settings.ChatFontName, (float)Settings.ChatFontSize);
                 fd.AllowVerticalFonts = false;
                 fd.FontMustExist = true;
                 fd.ShowEffects = false;
@@ -241,32 +247,12 @@ namespace LX29_ChatClient.Forms
                 fd.AllowVectorFonts = true;
                 fd.AllowSimulations = true;
                 fd.ShowApply = true;
-                fd.Apply += delegate(object sender0, EventArgs e0)
-                {
-                    if (ChatView != null)
-                    {
-                        //ChatView.FontBaseSize = fd.Font.Size;
-                        ChatView.Font = fd.Font;
-                    }
-                };
 
                 if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    if (ChatView != null)
-                    {
-                        //ChatView.FontBaseSize = fd.Font.Size;
-                        ChatView.Font = fd.Font;
-                    }
-                    Settings.ChatFontSize = ChatView.Font.Size;
-                    Settings.ChatFontName = ChatView.Font.Name;
-                }
-                else
-                {
-                    if (ChatView != null)
-                    {
-                        //ChatView.FontBaseSize = oldFont.Size;
-                        ChatView.Font = oldFont;
-                    }
+                    SetChatViewFont(fd.Font);
+                    Settings.ChatFontSize = fd.Font.Size;
+                    Settings.ChatFontName = fd.Font.Name;
                 }
             }
             catch (Exception x)
@@ -287,7 +273,7 @@ namespace LX29_ChatClient.Forms
 
         private void button1_Click(object sender, EventArgs e)
         {
-            this.Visible = false;
+            ((Form)this.Parent).Close();
         }
 
         private void cB_DrawThreaded_CheckedChanged(object sender, EventArgs e)
@@ -302,7 +288,25 @@ namespace LX29_ChatClient.Forms
             Settings.ShowErrors = cb_ShowErrors.Checked;
         }
 
+        private void checkedListBox1_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            int i = e.Index;
+            var item = checkedListBox1.Items[i].ToString();
+            var enabled = e.NewValue == CheckState.Checked;
+            ChatClient.Emotes.Badges.SetEnabled(item, enabled);
+        }
+
+        private void ControlSettings_Load(object sender, EventArgs e)
+        {
+            rTB_HighlightWords.AddContextMenu();
+            SetControlSettings();
+        }
+
         private void ControlSettings_SizeChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void flowLayoutPanel5_Paint(object sender, PaintEventArgs e)
         {
         }
 
@@ -333,15 +337,9 @@ namespace LX29_ChatClient.Forms
                             value, set, (a, s) =>
                             {
                                 Settings.SetValue(set, (double)a);
-                                if (s.Equals("_ChatFontSize") && ChatView != null)
+                                if (s.Equals("_ChatFontSize"))
                                 {
-                                    foreach (var channel in ChatClient.Channels)
-                                    {
-                                        if (channel.Value.ChatForm != null)
-                                        {
-                                            channel.Value.ChatForm.chatView.SetFontSize(a);
-                                        }
-                                    }
+                                    SetChatViewFont(a);
                                 }
                             }));
                     }
@@ -369,22 +367,36 @@ namespace LX29_ChatClient.Forms
 
         private void SetControlSettings()
         {
-            SetControls(flowLayoutPanel_TextOptions, SettingClasses.TextBasic);
-
-            SetControls(flowLayoutPanel_RenderOptions, SettingClasses.EmoteBasic);
-
-            SetControls(flowLayoutPanel_UserOptions, SettingClasses.UserBasic);
-
-            SetControls(flowLayoutPanel_ChatOptions, SettingClasses.ChatBasic, btn_SelectChatBG, btn_SelectFont);
-
-            SetControls(flowLayoutPanel_PlayerOptions, SettingClasses.PlayerBasic);
-
-            cb_ShowErrors.Checked = Settings.ShowErrors;
-
-            rTB_HighlightWords.Clear();
-            foreach (var hl in ChatClient.ChatHighlights)
+            try
             {
-                rTB_HighlightWords.AppendText(hl + "\r\n");
+                SetControls(flowLayoutPanel_TextOptions, SettingClasses.TextBasic);
+
+                SetControls(flowLayoutPanel_RenderOptions, SettingClasses.EmoteBasic);
+
+                SetControls(flowLayoutPanel_UserOptions, SettingClasses.UserBasic);
+
+                SetControls(flowLayoutPanel_ChatOptions, SettingClasses.ChatBasic, btn_SelectChatBG, btn_SelectFont);
+
+                SetControls(flowLayoutPanel_PlayerOptions, SettingClasses.PlayerBasic);
+
+                cb_ShowErrors.Checked = Settings.ShowErrors;
+
+                rTB_HighlightWords.Clear();
+                foreach (var hl in ChatClient.ChatHighlights)
+                {
+                    rTB_HighlightWords.AppendText(hl + "\r\n");
+                }
+
+                checkedListBox1.Items.Clear();
+                foreach (var badge in ChatClient.Emotes.Badges)
+                {
+                    checkedListBox1.Items.Add(badge, true);
+                }
+            }
+            catch (Exception x)
+            {
+                x.Handle();
+                this.btn_Close.PerformClick();
             }
         }
 

@@ -19,6 +19,20 @@ namespace LX29_Twitch.Forms
         private bool mouseDown = false;
 
         private Point mousePoint = Point.Empty;
+        private Point oldMousePoint = Point.Empty;
+
+        private Rectangle oldSize = new Rectangle();
+
+        private ChannelInfo stream = null;
+
+        //private int oldVolume = 100;
+        public FormPlayer()
+        {
+            InitializeComponent();
+            panelVideo.MouseEnter += panelVideo_MouseEnter;
+            panelVideo.MouseMove += panelVideo_MouseMove;
+        }
+
         private MPV_Wrapper mpv
         {
             get
@@ -26,19 +40,6 @@ namespace LX29_Twitch.Forms
                 if (stream == null) return null;
                 return stream.MPV;
             }
-        }
-        private Point oldMousePoint = Point.Empty;
-        private Rectangle oldSize = new Rectangle();
-
-        //private int oldVolume = 100;
-
-        private ChannelInfo stream = null;
-
-        public FormPlayer()
-        {
-            InitializeComponent();
-            panelVideo.MouseEnter += panelVideo_MouseEnter;
-            panelVideo.MouseMove += panelVideo_MouseMove;
         }
 
         public void Show(ChannelInfo si, string quality)

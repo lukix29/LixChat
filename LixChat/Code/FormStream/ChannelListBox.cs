@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace LX29_Twitch.Forms
+namespace LX29_ChatClient.Forms
 {
     public partial class ChannelListBox : UserControl
     {

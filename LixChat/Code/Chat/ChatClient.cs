@@ -238,7 +238,7 @@ namespace LX29_ChatClient
                                     }
                                     if (parameters.ContainsKey(irc_params.msg_param_sub_plan))
                                     {
-                                        SubType st = SubType.None;
+                                        SubType st = SubType.NoSub;
                                         if (Enum.TryParse<SubType>(parameters[irc_params.msg_param_sub_plan], out st))
                                         {
                                             subType = Enum.GetName(typeof(SubType), st);
@@ -353,9 +353,8 @@ namespace LX29_ChatClient
         //private static int connectCnt = 0;
 
         private readonly static string[] commands = new string[] { ".ban", ".timeout", ".unban" };
+        private readonly static object lockChannels = new object();
         private static DateTime lastSend = DateTime.MinValue;
-        private static Dictionary<string, object> lockChannels = new Dictionary<string, object>();
-
         private static int reconectTimeout = 8000;
         private static SortMode[] sortArr;
 
@@ -567,7 +566,7 @@ namespace LX29_ChatClient
             try
             {
                 channel = GetOnlyName(channel).ToLower().Trim();
-                lock (channels[channel].LockObject)
+                lock (lockChannels)
                 {
                     if (!clients.ContainsKey(channel) || force)
                     {
@@ -585,6 +584,47 @@ namespace LX29_ChatClient
                 }
             }
             //connectCnt = Math.Max(0, connectCnt - 1);
+        }
+
+        private static void client_AddClient(IRC c, string Message)
+        {
+            try
+            {
+                if (Message.Contains("JOIN") && Message.Contains(SelfUserName))
+                {
+                    bool hasAdded = false;
+                    lock (lockChannels)
+                    {
+                        if (!clients.ContainsKey(c.Channel))
+                        {
+                            c.NetworkError += client_NetworkError;
+                            c.UserJoinedChannel += client_UserJoinedChannel;
+                            c.UserKicked += client_UserKicked;
+                            c.UserPartedChannel += client_UserPartedChannel;
+                            c.UserQuit += client_UserQuit;
+
+                            if (clients == null) clients = new Dictionary<string, IRC>();
+                            clients.Add(c.Channel, c);
+                            hasAdded = true;
+                        }
+                    }
+                    if (hasAdded)
+                    {
+                        reconectTimeout = 2000;
+                        Task.Run(() => FetchChatUsers(c.Channel));
+                        ListUpdated();
+                    }
+                }
+            }
+            catch (Exception x)
+            {
+                switch (x.Handle())
+                {
+                    case MessageBoxResult.Retry:
+                        client_AddClient(c, Message);
+                        break;
+                }
+            }
         }
 
         private static void client_ConnectionComplete(object sender, EventArgs e)
@@ -626,31 +666,7 @@ namespace LX29_ChatClient
         private static void client_RawMessageRecieved(object sender, RawMessageEventArgs e)
         {
             IRC c = (IRC)sender;
-            try
-            {
-                //if (e.Message.Contains("JOIN") && e.Message.Contains(SelfUserName))
-                {
-                    if (!clients.ContainsKey(c.Channel))
-                    {
-                        c.NetworkError += client_NetworkError;
-                        c.UserJoinedChannel += client_UserJoinedChannel;
-                        c.UserKicked += client_UserKicked;
-                        c.UserPartedChannel += client_UserPartedChannel;
-                        c.UserQuit += client_UserQuit;
-
-                        //Task.Run(() => Emotes.LoadChannelEmotes(c.Channel));
-
-                        clients.Add(c.Channel, c);
-                        reconectTimeout = 2000;
-                        Task.Run(() => FetchChatUsers(c.Channel));
-                        ListUpdated();
-                    }
-                }
-            }
-            catch (Exception x)
-            {
-                x.Handle();
-            }
+            client_AddClient(c, e.Message);
             TryParseRawMessage(e.Message);
             LogMessage(c.Channel, e.Message);
         }
@@ -862,7 +878,7 @@ namespace LX29_ChatClient
 
             private Dictionary<string, int> messageCount = new Dictionary<string, int>();
 
-            private Dictionary<string, List<ChatMessage>> messages = new Dictionary<string, List<ChatMessage>>();
+            private Dictionary<string, SortedList<long, ChatMessage>> messages = new Dictionary<string, SortedList<long, ChatMessage>>();//new Dictionary<string, List<ChatMessage>>();
 
             private Dictionary<string, List<ChatMessage>> whisper = new Dictionary<string, List<ChatMessage>>();
 
@@ -870,7 +886,7 @@ namespace LX29_ChatClient
 
             public event WhisperReceivedHandler OnWhisperReceived;
 
-            public Dictionary<string, List<ChatMessage>> Messages
+            public Dictionary<string, SortedList<long, ChatMessage>> Values
             {
                 get { return messages; }
             }
@@ -891,11 +907,11 @@ namespace LX29_ChatClient
                         {
                             if (type == MsgType.All_Messages)
                             {
-                                return messages[channel];
+                                return messages[channel].Values.ToList();
                             }
                             else
                             {
-                                return messages[channel].Where(t => t.IsType(type)).ToList();
+                                return messages[channel].Values.Where(t => t.IsType(type)).ToList();
                             }
                         }
                     }
@@ -908,7 +924,7 @@ namespace LX29_ChatClient
                         }
                         else
                         {
-                            return messages[channel].Where(t => t.Name.Equals(name)).ToList();
+                            return messages[channel].Values.Where(t => t.Name.Equals(name)).ToList();
                         }
                     }
                     return null;
@@ -944,7 +960,7 @@ namespace LX29_ChatClient
                             {
                                 AddChannel(channelName);
                             }
-                            messages[channelName].Add(msg);
+                            messages[channelName].Add(msg.SendTime.Ticks, msg);
                             messageCount[channelName]++;
 
                             while (messages.Count > maxMessages)
@@ -993,7 +1009,7 @@ namespace LX29_ChatClient
             public void AddChannel(string Channel)
             {
                 if (!messages.ContainsKey(Channel))
-                    messages.Add(Channel, new List<ChatMessage>());
+                    messages.Add(Channel, new SortedList<long, ChatMessage>());
 
                 if (!messageCount.ContainsKey(Channel))
                     messageCount.Add(Channel, 0);
@@ -1047,11 +1063,11 @@ namespace LX29_ChatClient
                                 {
                                     if (name.IsEmpty())
                                     {
-                                        return messages[channel].Count(t => t.IsType(type));
+                                        return messages[channel].Values.Count(t => t.IsType(type));
                                     }
                                     else
                                     {
-                                        return messages[channel]
+                                        return messages[channel].Values
                                              .Count(t => (t.IsType(type) &&
                                                  t.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
                                     }
@@ -1095,18 +1111,18 @@ namespace LX29_ChatClient
                             {
                                 if (name.IsEmpty())
                                 {
-                                    if (messages[channel].Count(t => t.IsType(type)) > 0)
+                                    if (messages[channel].Values.Count(t => t.IsType(type)) > 0)
                                     {
-                                        return messages[channel].Where(t => t.IsType(type));
+                                        return messages[channel].Values.Where(t => t.IsType(type));
                                     }
                                 }
                                 else
                                 {
-                                    if (messages[channel]
+                                    if (messages[channel].Values
                                         .Count(t => (t.IsType(type) &&
                                             t.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) > 0)
                                     {
-                                        return messages[channel].Where(t => (t.IsType(type) &&
+                                        return messages[channel].Values.Where(t => (t.IsType(type) &&
                                             t.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
                                     }
                                 }
@@ -1157,7 +1173,7 @@ namespace LX29_ChatClient
 
             public int MessageCount(string channel, string user)
             {
-                return messages[channel].Count(t => t.Name.Equals(user, StringComparison.OrdinalIgnoreCase));
+                return messages[channel].Values.Count(t => t.Name.Equals(user, StringComparison.OrdinalIgnoreCase));
             }
         }
     }

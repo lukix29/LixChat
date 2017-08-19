@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -75,6 +74,7 @@ namespace LX29_ChatClient.Forms
 
     public class RenderDevice
     {
+        public int msgCount = 0;
         public bool ShowName = true;
 
         private bool _showAllEmotes = false;
@@ -90,12 +90,13 @@ namespace LX29_ChatClient.Forms
         private float emoteDrawStart = 0;
 
         private Color Link_Color = Color.DodgerBlue;
-
-        private int msgCount = 0;
-
         private bool swapColor = true;
 
-        public RenderDevice(Control form)
+        private IOrderedEnumerable<EmoteBase> tempEmotes = null;
+
+        private int visibleMessages = 0;
+
+        public RenderDevice(ChatView form)
         {
             control = form;
 
@@ -138,10 +139,19 @@ namespace LX29_ChatClient.Forms
             set
             {
                 _showAllEmotes = value;
+                tempEmotes = null;
                 ClickableList.Clear();
-
-                //gifVisible = true;
             }
+        }
+
+        public int VisibleMessages
+        {
+            get { return visibleMessages; }
+        }
+
+        private bool alternateBG
+        {
+            get { return Settings.AlternateBG; }
         }
 
         private bool ShowTimeoutMessages
@@ -201,6 +211,7 @@ namespace LX29_ChatClient.Forms
                     DrawMessagesNew(g);
                 }
                 DrawInfoOverlay(g);
+                //  control.Scrollbar.OnPaint(g);
                 bufferedGraphics.Render();
             }
 
@@ -282,12 +293,15 @@ namespace LX29_ChatClient.Forms
                 float x = _EmotePadding;
                 float y = emoteDrawStart + _EmotePadding;
 
-                var emotes = ChatClient.Emotes.GetEmotes(Channel.Name)
-                    .OrderByDescending(t => t.Origin == EmoteOrigin.Twitch_Global)
-                    .ThenByDescending(t => t.Origin == EmoteOrigin.BTTV_Global)
-                    .ThenByDescending(t => t.Origin == EmoteOrigin.FFZ_Global)
-                    .ThenBy(t => t.Channel);
-                string lastChannel = emotes.ElementAt(0).Channel;
+                if (tempEmotes == null)
+                {
+                    tempEmotes = ChatClient.Emotes.GetEmotes(Channel.Name)
+                        .OrderByDescending(t => t.Origin == EmoteOrigin.Twitch_Global)
+                        .ThenByDescending(t => t.Origin == EmoteOrigin.BTTV_Global)
+                        .ThenByDescending(t => t.Origin == EmoteOrigin.FFZ_Global)
+                        .ThenBy(t => t.Channel);
+                }
+                string lastChannel = tempEmotes.ElementAt(0).Channel;
 
                 g.DrawString(lastChannel, this.font, Brushes.Gainsboro, x, y);
                 y += g.MeasureString(lastChannel, this.font).Height + _EmotePadding;
@@ -296,7 +310,7 @@ namespace LX29_ChatClient.Forms
 
                 SizeF size = SizeF.Empty;
                 ClickableList.Clear();
-                foreach (var em in emotes)
+                foreach (var em in tempEmotes)
                 {
                     size = em.CalcSize(32, Settings.EmoteQuality);
                     if (!lastChannel.Contains(em.Channel))
@@ -474,6 +488,7 @@ namespace LX29_ChatClient.Forms
                     }
                     gifVisible = false;
                     ClickableList.Clear();
+                    visibleMessages = 0;
                     int start = Math.Min(messages.Count - 1, Math.Max(0, (msgCount - viewStart) - 1));
                     for (i = start; i >= 0; i--)
                     {
@@ -492,6 +507,7 @@ namespace LX29_ChatClient.Forms
 
                         swapColor = (i % 2 > 0);
                         DrawMessage(g, messages[i], bounds, y, height);
+                        visibleMessages++;
                     }
                 }
                 else
@@ -570,12 +586,14 @@ namespace LX29_ChatClient.Forms
                     msgColor = TO_Color;
                     style = TimeOutStyle;// FontStyle.Strikeout;
                 }
-
-                using (SolidBrush sb = new SolidBrush(bgColor))
+                if (alternateBG)
                 {
-                    graphics.FillRectangle(sb, 0, y - _LineSpacing, bounds.Width, height - (_LineSpacing - 2));
+                    using (SolidBrush sb = new SolidBrush(bgColor))
+                    {
+                        graphics.FillRectangle(sb, 0, y - _LineSpacing, bounds.Width, height - (_LineSpacing - 2));
+                    }
+                    graphics.FillRectangle(Brushes.Black, 0, y - (_LineSpacing + 3), bounds.Width, 2);
                 }
-                graphics.FillRectangle(Brushes.Black, 0, y - (_LineSpacing + 3), bounds.Width, 2);
             }
 
             #endregion Style&Font
@@ -657,7 +675,7 @@ namespace LX29_ChatClient.Forms
                         foreach (var bt in user.Badges)
                         {
                             var badge = ChatClient.Emotes.Badges[bt];
-                            if (badge != null)
+                            if (badge != null && badge.IsEnabled)
                             {
                                 if (!measure)
                                 {
@@ -762,7 +780,7 @@ namespace LX29_ChatClient.Forms
 
         private BufferedGraphicsContext bufferedGraphicsContex = null;
         private StringFormat centerStrFormat = new StringFormat();
-        private Control control;
+        private ChatView control;
         private long dtFps = DateTime.Now.Ticks;
         private long dtFPS_Lock = DateTime.Now.Ticks;
         private Font font = new Font("Arial", 12f);
@@ -894,6 +912,9 @@ namespace LX29_ChatClient.Forms
                     int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType);
                     viewStart = Math.Max(0, Math.Min(msgcnt, value));
                     AutoScroll = (viewStart > 0) ? false : true;
+                    if (AutoScroll)
+                    {
+                    }
                     //if (AutoScroll) MessageCount = msgcnt;
                 }
             }
@@ -906,6 +927,159 @@ namespace LX29_ChatClient.Forms
         }
 
         #endregion Properties
+    }
+
+    public class Scroller
+    {
+        private ChatView device;
+        private bool isMouseDown = false;
+        private bool isScrolling = false;
+        private object locko = new object();
+
+        private Rectangle scrollRect = new Rectangle();
+
+        private bool scrollVisible = false;
+
+        public Scroller(ChatView view)
+        {
+            device = view;
+        }
+
+        private Rectangle ClientRectangle
+        {
+            get { return device.ClientRectangle; }
+        }
+
+        private Size ClientSize
+        {
+            get { return ClientRectangle.Size; }
+        }
+
+        private int itemCount
+        {
+            get { return device.Renderer.msgCount; }
+        }
+
+        private int maxVisibleItems
+        {
+            get { return device.Renderer.VisibleMessages; }
+        }
+
+        private int scrollBarHeight
+        {
+            get
+            {
+                return 20;
+            }
+        }
+
+        private int scrollOffset
+        {
+            get { return device.Renderer.ViewStart; }
+            set { device.Renderer.ViewStart = value; }
+        }
+
+        public void OnMouseDown(MouseEventArgs e)
+        {
+            if (new Rectangle(scrollRect.X - 5, 0, scrollRect.Width + 10, this.ClientSize.Height).
+                    Contains(e.Location))
+            {
+                if (new Rectangle(scrollRect.X - 5, scrollRect.Y, scrollRect.Width + 10, scrollRect.Height).
+                     Contains(e.Location))
+                {
+                    isScrolling = true;
+                }
+            }
+            isMouseDown = true;
+        }
+
+        public void OnMouseMove(MouseEventArgs e)
+        {
+            if (isMouseDown)
+            {
+                if (isScrolling)
+                {
+                    CalcScrolling(e.Y);
+                }
+                else if (!isScrolling)
+                {
+                    if (e.Y >= this.ClientRectangle.Bottom)
+                    {
+                        scrollOffset = Math.Min(itemCount - maxVisibleItems, scrollOffset + 1);
+                    }
+                    else if (e.Y <= 0)
+                    {
+                        scrollOffset = Math.Max(0, scrollOffset - 1);
+                    }
+                }
+            }
+        }
+
+        public void OnMouseUp(MouseEventArgs e)
+        {
+            if (new Rectangle(scrollRect.X - 5, 0, scrollRect.Width + 10, this.ClientSize.Height).
+                 Contains(e.Location))
+            {
+                CalcScrolling(e.Y);
+            }
+
+            isScrolling = false;
+            isMouseDown = false;
+        }
+
+        public void OnMouseWheel(MouseEventArgs e)
+        {
+            //scrollOffset = Math.Max(0, Math.Min(itemCount - maxVisibleItems, scrollOffset - Math.Sign(e.Delta)));
+
+            int ys = LXMath.Map(scrollOffset, 0, itemCount - maxVisibleItems, 0, this.ClientSize.Height);
+            ys = Math.Min(this.ClientRectangle.Bottom - scrollBarHeight, Math.Max(0, ys - scrollBarHeight / 2));
+            scrollRect = new Rectangle(this.ClientRectangle.Right - 12, ys, 10, scrollBarHeight);
+        }
+
+        public void OnPaint(Graphics g)
+        {
+            try
+            {
+                // e.Graphics.SetGraphicQuality(true, true);
+                if (maxVisibleItems == 0)
+                {
+                    scrollOffset = 0;
+                    scrollVisible = false;
+                }
+                else
+                {
+                    scrollVisible = true;
+                }
+                if (scrollVisible)
+                {
+                    g.DrawRectangle(Pens.DarkGray, new Rectangle(scrollRect.X - 1, 0, scrollRect.Width + 1, this.ClientSize.Height - 1));
+                    g.FillRectangle(Brushes.DarkGray, scrollRect);
+                }
+                else
+                {
+                    isScrolling = false;
+                }
+            }
+            catch (Exception x)
+            {
+                //e.Graphics.DrawString(x.Message, this.Font, Brushes.Gainsboro, e.ClipRectangle, new StringFormat() { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+            }
+        }
+
+        public void OnResize(EventArgs e)
+        {
+            scrollRect = new Rectangle(this.ClientRectangle.Right - 12, scrollRect.Y, 10, scrollBarHeight);
+        }
+
+        private void CalcScrolling(int Y)
+        {
+            int ys = Math.Min(this.ClientRectangle.Bottom - scrollBarHeight, Math.Max(0, Y - scrollBarHeight / 2));
+            scrollRect = new Rectangle(this.ClientRectangle.Right - 12, ys, 10, scrollBarHeight);
+
+            var offset = LXMath.Map(Y, scrollBarHeight / 2,
+                this.ClientSize.Height - scrollBarHeight / 2, 0, itemCount - maxVisibleItems);
+            scrollOffset = Math.Max(0, Math.Min(itemCount - maxVisibleItems, offset));
+        }
     }
 
     //public struct DrawRect

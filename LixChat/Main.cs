@@ -19,6 +19,7 @@ namespace LX29_LixChat
     {
         private bool finishedLaoding = false;
 
+        private DateTime last_Info_Update = DateTime.Now;
         private string lastSelectedName = "";
 
         private bool lockChatSettings = false;
@@ -28,6 +29,8 @@ namespace LX29_LixChat
         //private bool lockRTB = false;
         //private MPV_Wrapper mpv = new MPV_Wrapper("external");
         private MPV_Wrapper mpvPreview = new MPV_Wrapper("preview");
+
+        private LX29_ChatClient.Forms.FormSettings settings = new LX29_ChatClient.Forms.FormSettings();
 
         public Main()
         {
@@ -185,16 +188,25 @@ namespace LX29_LixChat
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (ChatClient.Channels.Any(t => t.Value.IsChatOpen) && !Updater.Updating)
+            try
             {
-                if (LX29_MessageBox.Show("Some Chats are open, close anyway?", "Close Client?", MessageBoxButtons.YesNo) == MessageBoxResult.No)
+                if (e.CloseReason != CloseReason.WindowsShutDown)
                 {
-                    e.Cancel = true;
-                    return;
+                    if (ChatClient.Channels.Any(t => t.Value.IsChatOpen) && !Updater.Updating)
+                    {
+                        if (LX29_MessageBox.Show("Some Chats are open, close anyway?", "Close Client?", MessageBoxButtons.YesNo) == MessageBoxResult.No)
+                        {
+                            e.Cancel = true;
+                            return;
+                        }
+                    }
                 }
+                ChatClient.DisconnectAll();
             }
-
-            ChatClient.DisconnectAll();
+            catch (Exception x)
+            {
+                x.Handle("", false);
+            }
             ChatClient.SaveChannels();
 
             base.OnFormClosing(e);
@@ -221,6 +233,12 @@ namespace LX29_LixChat
         {
             try
             {
+                if (tsLabel_Info.Visible && DateTime.Now.Subtract(last_Info_Update).TotalSeconds >= 10)
+                {
+                    tsLabel_Info.Visible = false;
+                    tSProgBar_Loading.Visible = false;
+                    tsLbl_Infotext.Visible = false;
+                }
                 var sa = GetCurrentInfo();
                 if (sa != null)
                 {
@@ -320,13 +338,12 @@ namespace LX29_LixChat
             var sa = GetCurrentInfo();
             if (sa != null)
             {
-                if (!sa[0].SubInfo.IsEmpty && !sa[0].SubInfo.IsSub)
+                if (sa[0].SubInfo.CanSub)
                 {
-                    //TwitchApi.GetSubscription(ChatClient.TwitchUsers.Selected.ID, sa[0].ID, ChatClient.TwitchUsers.Selected.Token);
                     Settings.StartBrowser(
                         "https://www.twitch.tv/products/" + sa[0].Name + "/ticket/new?ref=in_chat_subscriber_link");
                 }
-                else
+                else if (sa[0].SubInfo.IsSub)
                 {
                     LX29_MessageBox.Show(sa[0].SubInfo.ToString(), sa[0].SubInfo.PlanName);
                 }
@@ -687,14 +704,18 @@ namespace LX29_LixChat
 
             cB_AutoLogin.Enabled = btn_Disconnect.Enabled = !si.IsFixed;
 
-            // btn_openSubpage.Visible = true;
+            btn_openSubpage.Visible = true;
             if (si.SubInfo.IsSub)
             {
                 btn_openSubpage.Text = "Subscribed!";
             }
-            else
+            else if (si.SubInfo.CanSub)
             {
                 btn_openSubpage.Text = "Subscribe";
+            }
+            else
+            {
+                btn_openSubpage.Visible = false;
             }
             apiInfoPanel1.SetChatInfos(si);
             SetChatInfoBox(si);
@@ -734,12 +755,13 @@ namespace LX29_LixChat
                         tsLabel_Info.Visible = true;
                         tSProgBar_Loading.Visible = true;
                         tSProgBar_Loading.Maximum = 100;
-                        tSProgBar_Loading.Value = Math.Min(100, (int)(((count / (float)max) * 100) + 0.5f));
+                        tSProgBar_Loading.Value = Math.Min(100, (int)(((count / (float)max) * 100) + 1f));
                         if (!info.IsEmpty())
                         {
                             tsLbl_Infotext.Text = info + " - " + tSProgBar_Loading.Value + "%";
-                            if ((max > 0 && max >= count) || info.ToLower().Contains("finished"))
-                                timer2.Enabled = true;
+                            last_Info_Update = DateTime.Now;
+                            //if ((max > 0 && max >= count) || info.ToLower().Contains("finished"))
+                            //    timer2.Enabled = true;
                         }
                     }));
             }
@@ -774,14 +796,6 @@ namespace LX29_LixChat
             }
         }
 
-        private void timer2_Tick(object sender, EventArgs e)
-        {
-            tsLabel_Info.Visible = false;
-            tSProgBar_Loading.Visible = false;
-            timer2.Enabled = false;
-            tsLbl_Infotext.Visible = false;
-        }
-
         private void toolStripMenuItem2_Click(object sender, EventArgs e)
         {
         }
@@ -801,11 +815,6 @@ namespace LX29_LixChat
             DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
             LX29_MessageBox.Show("Programmed by Lukix29 ©" + cur.Year + "\r\n\r\nEmoji artwork provided by EmojiOne." +
                 "\r\n\r\nhttps://lixchat.com\r\n(Domain provided by ChoosenEye)\r\n\r\nIf you want to Support me:\r\nhttps://paypal.me/lukix29");
-        }
-
-        private void tSMi_CacheEmotes_Click(object sender, EventArgs e)
-        {
-            Task.Run(() => ChatClient.Emotes.DownloadAllEmotes());
         }
 
         private void tSMi_LogOut_Click(object sender, EventArgs e)
@@ -852,10 +861,17 @@ namespace LX29_LixChat
 
         private void tSMi_ShowSettings_Click(object sender, EventArgs e)
         {
-            controlSettings1.BringToFront();
-            //controlSettings1.Location = new Point(0, toolStrip1.Bottom);
-            //controlSettings1.Size = new Size(this.ClientSize.Width, this.ClientSize.Height - toolStrip1.Height);
-            controlSettings1.Dock = DockStyle.Fill;
+            try
+            {
+                if (settings.IsDisposed) settings = new LX29_ChatClient.Forms.FormSettings();
+                if (settings.IsClosed)
+                {
+                    settings.Show();
+                }
+            }
+            catch
+            {
+            }
         }
 
         private void tSMi_SyncAll_Click(object sender, EventArgs e)

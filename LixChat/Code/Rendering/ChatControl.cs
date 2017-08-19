@@ -1,40 +1,28 @@
 ﻿using LX29_ChatClient.Channels;
 using LX29_ChatClient.Emotes;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using Microsoft.VisualBasic;
-
-using System;
-
-using System.Collections;
-
-using System.Collections.Generic;
-
-using System.Data;
-using System.Diagnostics;
 
 namespace LX29_ChatClient.Forms
 {
     public partial class ChatView : UserControl
     {
-        private ChannelInfo channel;
+        public readonly RenderDevice Renderer;
 
+        //public readonly Scroller Scrollbar;
+        private bool _isscrolldownvisible = false;
+
+        private ChannelInfo channel;
         private bool loopRunning = false;
         private Keys modifier_Key = Keys.None;
 
         //private Point mouseLocation = Point.Empty;
         private bool onMouseDown = false;
-
-        private RenderDevice renderer;
 
         private string selectedText = "";
 
@@ -53,8 +41,9 @@ namespace LX29_ChatClient.Forms
                 this.tSMi_Copy.Click += tSMi_Copy_Click;
                 this.tSMi_Search.Click += tSMi_Search_Click;
                 this.MouseWheel += ChatView_MouseWheel;
+                //Scrollbar = new Scroller(this);
 
-                renderer = new RenderDevice(this);
+                Renderer = new RenderDevice(this);
             }
             catch
             {
@@ -92,53 +81,53 @@ namespace LX29_ChatClient.Forms
         [Browsable(false)]
         public new Font Font
         {
-            get { return renderer.Font; }
-            set { renderer.Font = value; }
+            get { return Renderer.Font; }
+            set { Renderer.Font = value; }
         }
 
         [ReadOnly(true)]
         [Browsable(false)]
         public int MessageCount
         {
-            get { return renderer.ViewStart; }
+            get { return Renderer.ViewStart; }
         }
 
         [ReadOnly(true)]
         [Browsable(false)]
         public bool Pause
         {
-            get { return renderer.Pause; }
-            set { renderer.Pause = value; }
+            get { return Renderer.Pause; }
+            set { Renderer.Pause = value; }
         }
 
         [ReadOnly(true)]
         [Browsable(false)]
         public bool ShowEmotes
         {
-            get { return renderer.ShowAllEmotes; }
-            set { renderer.ShowAllEmotes = value; }
+            get { return Renderer.ShowAllEmotes; }
+            set { Renderer.ShowAllEmotes = value; }
         }
 
         [ReadOnly(true)]
         [Browsable(false)]
         public bool ShowName
         {
-            get { return renderer.ShowName; }
-            set { renderer.ShowName = value; }
+            get { return Renderer.ShowName; }
+            set { Renderer.ShowName = value; }
         }
 
         [ReadOnly(true)]
         [Browsable(false)]
         public string UserMessageName
         {
-            get { return renderer.WhisperName; }
+            get { return Renderer.WhisperName; }
             //set { renderer.UserMessageName = value; }
         }
 
         public void SetAllMessages(MsgType type, ChannelInfo ci = null, string name = "")
         {
-            if (ci != null) renderer.Channel = ci;
-            renderer.SetAllMessages(type, name);
+            if (ci != null) Renderer.Channel = ci;
+            Renderer.SetAllMessages(type, name);
         }
 
         public void SetChannel(ChannelInfo ci, MsgType type, string name = "")
@@ -161,12 +150,12 @@ namespace LX29_ChatClient.Forms
 
         public void SetFontSize(bool incement)
         {
-            renderer.SetFontSize(incement);
+            Renderer.SetFontSize(incement);
         }
 
         public void SetFontSize(decimal value)
         {
-            renderer.SetFontSize(value);
+            Renderer.SetFontSize(value);
         }
 
         public void Stop()
@@ -187,7 +176,7 @@ namespace LX29_ChatClient.Forms
             char keyChar = kc.ConvertToString(e.KeyCode)[0];
             if (e.KeyValue == 187 || e.KeyValue == 189)
             {
-                renderer.SetFontSize(e.KeyValue == 187);
+                Renderer.SetFontSize(e.KeyValue == 187);
             }
 
             base.OnKeyDown(e);
@@ -204,7 +193,8 @@ namespace LX29_ChatClient.Forms
         protected override void OnMouseDown(MouseEventArgs e)
         {
             this.Focus();
-            renderer.SelectRect.Location = e.Location;
+            Renderer.SelectRect.Location = e.Location;
+            //Scrollbar.OnMouseDown(e);
             onMouseDown = true;
             //renderer.AutoScroll = false;
 
@@ -216,23 +206,23 @@ namespace LX29_ChatClient.Forms
             //mouseLocation = e.Location;
             if (onMouseDown)
             {
-                int x0 = (int)renderer.SelectRect.X;
+                int x0 = (int)Renderer.SelectRect.X;
                 int x1 = e.X;
                 if (x0 > x1)
                 {
                     //fgh
                     x0 = e.X;
-                    x1 = (int)renderer.SelectRect.X;
+                    x1 = (int)Renderer.SelectRect.X;
                 }
-                renderer.SelectRect = RectangleF.FromLTRB(x0, renderer.SelectRect.Y, x1, renderer.SelectRect.Y + 1);
+                Renderer.SelectRect = RectangleF.FromLTRB(x0, Renderer.SelectRect.Y, x1, Renderer.SelectRect.Y + 1);
             }
             else
             {
-                renderer.SelectRect = new RectangleF(e.X, e.Y, 0, 0);
+                Renderer.SelectRect = new RectangleF(e.X, e.Y, 0, 0);
             }
             try
             {
-                var list = renderer.ClickableList;
+                var list = Renderer.ClickableList;
                 SLRect curSelected = list.FirstOrDefault(t => t.Contains(e.Location));
                 if (curSelected.IsEmpty)
                 {
@@ -251,6 +241,7 @@ namespace LX29_ChatClient.Forms
                 Cursor = Cursors.Arrow;
                 // renderer.AutoScroll = true;
             }
+            //Scrollbar.OnMouseMove(e);
             base.OnMouseMove(e);
         }
 
@@ -258,10 +249,10 @@ namespace LX29_ChatClient.Forms
         {
             try
             {
-                if (renderer.SelectRect.Width > 0)
+                if (Renderer.SelectRect.Width > 0)
                 {
-                    var list = renderer.ClickableList.ToList();
-                    var selects = list.Where(t => t.Bounds.IntersectsWith(renderer.SelectRect));
+                    var list = Renderer.ClickableList.ToList();
+                    var selects = list.Where(t => t.Bounds.IntersectsWith(Renderer.SelectRect));
                     if (selects.Count() > 0)
                     {
                         StringBuilder sb = new StringBuilder();
@@ -300,9 +291,10 @@ namespace LX29_ChatClient.Forms
                 }
                 CheckClick(e.Location);
 
-                renderer.SelectRect = Rectangle.Empty;
+                Renderer.SelectRect = Rectangle.Empty;
             }
             catch { }
+            //Scrollbar.OnMouseUp(e);
             onMouseDown = false;
             base.OnMouseUp(e);
         }
@@ -315,7 +307,8 @@ namespace LX29_ChatClient.Forms
 
         protected override void OnResize(EventArgs e)
         {
-            if (renderer != null) renderer.Invalidate();
+            if (Renderer != null) Renderer.Invalidate();
+            // if (Scrollbar != null) Scrollbar.OnResize(e);
         }
 
         private void ChatClient_MessageReceived(ChatMessage message)
@@ -358,7 +351,7 @@ namespace LX29_ChatClient.Forms
 
         private void ChatView_MouseLeave(object sender, EventArgs e)
         {
-            renderer.SelectRect = Rectangle.Empty;
+            Renderer.SelectRect = Rectangle.Empty;
             onMouseDown = false;
         }
 
@@ -366,13 +359,13 @@ namespace LX29_ChatClient.Forms
         {
             if (modifier_Key == Keys.Control)
             {
-                renderer.SetFontSize(e.Delta > 0);
+                Renderer.SetFontSize(e.Delta > 0);
             }
             else
             {
-                renderer.ScrollEmotes(e.Delta);
-
-                if (renderer.ViewStart > 0)
+                Renderer.ScrollEmotes(e.Delta);
+                //Scrollbar.OnMouseWheel(e);
+                if (Renderer.ViewStart > 0)
                 {
                     lbl_ScrollDown.Visible = true;
                     lbl_ScrollDown.BringToFront();
@@ -387,7 +380,7 @@ namespace LX29_ChatClient.Forms
 
         private void CheckClick(Point Location)
         {
-            SLRect curSelected = renderer.ClickableList.FirstOrDefault(t => t.Bounds.Contains(Location));
+            SLRect curSelected = Renderer.ClickableList.FirstOrDefault(t => t.Bounds.Contains(Location));
             if (!curSelected.IsEmpty)
             {
                 switch (curSelected.Type)
@@ -439,12 +432,17 @@ namespace LX29_ChatClient.Forms
             }
         }
 
+        private void HideScrollDownLabel()
+        {
+            lbl_ScrollDown.Visible = false;
+        }
+
         private void lbl_ScrollDown_Click(object sender, EventArgs e)
         {
             if (lbl_ScrollDown.Visible)
             {
-                renderer.ViewStart = 0;
-                lbl_ScrollDown.Visible = false;
+                Renderer.ViewStart = 0;
+                HideScrollDownLabel();
             }
         }
 
@@ -462,19 +460,38 @@ namespace LX29_ChatClient.Forms
                     double wait = 30;
                     if (!Pause)
                     {
-                        if (!renderer.gifVisible)
+                        if (!Renderer.gifVisible)
                         {
                             wait = 200;
                         }
-                        if (renderer.Render())
+                        if (Renderer.Render())
                         {
-                            if (this.InvokeRequired)
+                            if (!_isscrolldownvisible)
                             {
-                                this.Invoke(new Action(ShowScrollDownLabel));
+                                if (this.InvokeRequired)
+                                {
+                                    this.Invoke(new Action(ShowScrollDownLabel));
+                                }
+                                else
+                                {
+                                    ShowScrollDownLabel();
+                                }
+                                _isscrolldownvisible = true;
                             }
-                            else
+                        }
+                        else
+                        {
+                            if (_isscrolldownvisible)
                             {
-                                ShowScrollDownLabel();
+                                if (this.InvokeRequired)
+                                {
+                                    this.Invoke(new Action(HideScrollDownLabel));
+                                }
+                                else
+                                {
+                                    HideScrollDownLabel();
+                                }
+                                _isscrolldownvisible = false;
                             }
                         }
                         //}

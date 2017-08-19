@@ -1,4 +1,4 @@
-﻿namespace LX29_Twitch.Forms
+﻿namespace LX29_ChatClient.Forms
 {
     partial class ChannelListBox : System.Windows.Forms.UserControl
     {

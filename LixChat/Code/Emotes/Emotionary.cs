@@ -1,19 +1,8 @@
-﻿using LX29_ChatClient.Channels;
-using LX29_Twitch.Api;
-using LX29_Twitch.JSON_Parser;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Windows.Forms;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Utilities;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json.Schema;
-using Newtonsoft.Json.Converters;
-using System.Globalization;
 
 namespace LX29_ChatClient.Emotes
 {
@@ -28,13 +17,13 @@ namespace LX29_ChatClient.Emotes
 
         public Emoteionary()
         {
-            _UserEmotes = new Dictionary<string, EmoteBase>();
+            _UserEmotes = new List<EmoteBase>();
             _ffzbttv = new Dictionary<string, EmoteBase>();
             _twitch = new Dictionary<string, EmoteBase>();
             _emoji_unicodes = new Dictionary<int, Emoji>();
         }
 
-        public Dictionary<string, EmoteBase> _UserEmotes
+        public IEnumerable<EmoteBase> _UserEmotes
         {
             get;
             set;
@@ -167,7 +156,7 @@ namespace LX29_ChatClient.Emotes
                    {
                        if (e.Name.ToLower().StartsWith(name))
                        {
-                           return _UserEmotes.Values.Any(t => t.ID.Equals(e.ID));
+                           return _UserEmotes.Any(t => t.ID.Equals(e.ID));
                        }
                        return false;
                    });
@@ -193,11 +182,6 @@ namespace LX29_ChatClient.Emotes
 
         public IEnumerable<EmoteBase> GetEmotes(string channel)
         {
-            var ems = _UserEmotes.Values;
-            //_twitch.Values
-            //    .Where(t => _UserEmotes.Any(t0 => t.ID.Equals(t0.id))).ToList();
-
-            //  int i = null;
             var ffz = _ffzbttv.Values.Where((t) =>
                 {
                     if (t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase)
@@ -211,7 +195,7 @@ namespace LX29_ChatClient.Emotes
                     }
                 }).ToList();
 
-            return ems.Concat(ffz);
+            return _UserEmotes.Concat(ffz);
         }
 
         public int LoadEmojis()
@@ -242,6 +226,20 @@ namespace LX29_ChatClient.Emotes
                 }
             }
             return _emoji_unicodes.Count;
+        }
+
+        public void LoadUserEmotes()
+        {
+            var usem = new HashSet<string>(LX29_Twitch.Api.TwitchApi.GetUserEmotes().Select(t => t.id));
+            var ems = _twitch.Values.Where(t => usem.Contains(t.ID)).ToList();
+            if (ems.Any(t => EmoteCollection.PrimeEmotes.Any(t0 => t.ID.Equals(t0.Key))))
+            {
+                _UserEmotes = ems.Where(t => !EmoteCollection.StandardEmoteID.Contains(t.ID));
+            }
+            else
+            {
+                _UserEmotes = ems;
+            }
         }
     }
 }
