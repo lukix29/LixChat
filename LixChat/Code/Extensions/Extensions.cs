@@ -598,6 +598,25 @@ namespace System
 
 #endif
 
+        public static DateTime GetOnlineLinkerTime(this Stream stream, out byte[] buffer)
+        {
+            buffer = new byte[512];
+            stream.Read(buffer, 0, 512);
+
+            const int c_PeHeaderOffset = 60;
+            const int c_LinkerTimestampOffset = 8;
+            var offset = BitConverter.ToInt32(buffer, c_PeHeaderOffset);
+            var secondsSince1970 = BitConverter.ToInt32(buffer, offset + c_LinkerTimestampOffset);
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            var linkTimeUtc = epoch.AddSeconds(secondsSince1970);
+
+            var tz = TimeZoneInfo.Local;
+            var localTime = TimeZoneInfo.ConvertTimeFromUtc(linkTimeUtc, tz);
+
+            return localTime;
+        }
+
         public static DateTime GetOnlineLinkerTime(string url)
         {
             WebClient wc = new WebClient();

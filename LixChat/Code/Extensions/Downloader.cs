@@ -106,6 +106,28 @@ namespace LX29_Helpers
         public static void CheckNightlyUpdate(Action<int, int, string> progAction)
         {
             string url = "https://github.com/lukix29/LixChat/blob/master/LixChat/Data/LixChat_Nightly_Updater.7z";
+            DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+            req.Proxy = null;
+
+            using (var resp = req.GetResponse())
+            {
+                long length = resp.ContentLength;
+
+                using (var sr = resp.GetResponseStream())
+                {
+                    byte[] buffer;
+                    DateTime online = sr.GetOnlineLinkerTime(out buffer);
+                    if (online.Ticks > cur.Ticks)
+                    {
+                        using (var fs = File.OpenWrite("temp.exe"))
+                        {
+                            fs.Write(buffer, 0, buffer.Length);
+                            sr.CopyTo(fs);
+                        }
+                    }
+                }
+            }
         }
 
         public static void CheckUpdate(Action<int, int, string> progAction)
