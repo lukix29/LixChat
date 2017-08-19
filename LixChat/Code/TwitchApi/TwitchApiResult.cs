@@ -70,7 +70,8 @@ namespace LX29_Twitch.Api
 
     public enum SubType
     {
-        None = -1000,
+        NoSubProgram = -2000,
+        NoSub = -1000,
         Prime = 0000,
         Tier1 = 1000,
         Tier2 = 2000,
@@ -847,30 +848,31 @@ namespace LX29_Twitch.Api
 
     public class SubResult
     {
-        public static readonly SubResult Empty = new SubResult(ApiResult.Empty);
+        public static readonly SubResult NonSub = new SubResult() { Type = SubType.NoSub };
+        public static readonly SubResult NoSubProgram = new SubResult() { Type = SubType.NoSubProgram };
 
         private static readonly byte[] subTypePrice = new byte[] { 0, 5, 10, 25 };
 
         public SubResult()
         {
             Base = ApiResult.Empty;
-            IsEmpty = false;
-            IsSub = false;
         }
 
         public SubResult(ApiResult result)
         {
-            IsEmpty = result.IsEmpty;
-
-            IsSub = !result.IsEmpty;
-
             Base = result;
+            Type = Base.GetValue<SubType>(ApiInfo.sub_plan);
         }
 
         public ApiResult Base
         {
             get;
             private set;
+        }
+
+        public bool CanSub
+        {
+            get { return Type == SubType.NoSub; }
         }
 
         public string ChannelName
@@ -907,18 +909,10 @@ namespace LX29_Twitch.Api
             }
         }
 
-        //If no sub-programm, True
-        public bool IsEmpty
-        {
-            get;
-            private set;
-        }
-
         //If user can sub & is sub, True
         public bool IsSub
         {
-            get;
-            private set;
+            get { return (int)Type >= 0; }
         }
 
         //Sub Plan Name
@@ -949,15 +943,21 @@ namespace LX29_Twitch.Api
         //Sub Type (Prime=0, Tier1=1000, Tier2=2000, Tier3=3000)
         public SubType Type
         {
-            get { return Base.GetValue<SubType>(ApiInfo.sub_plan); }
+            get;// { return Base.GetValue<SubType>(ApiInfo.sub_plan); }
+            private set;
         }
 
         public static SubResult Parse(string res)
         {
             if (res.Equals("404"))
             {
-                //Has sub Programm but User is no Sub (404 == User has no sub at Channel)
-                return SubResult.Empty;
+                //Has sub-Programm but User is no Sub (404 == User has no sub at Channel)
+                return SubResult.NonSub;
+            }
+            else if (res.Equals("422"))
+            {
+                //Has NO sub-Programm (422 == Channel no sub programm)
+                return SubResult.NoSubProgram;
             }
             else
             {

@@ -113,6 +113,12 @@
     <EmbeddedResource Include="Code\Chat\ChatExtras\ChatScripts\BaseScripts\CommandScript.cs" />
     <Compile Include="Code\Emotes\Emojis.cs" />
     <Compile Include="Code\Emotes\Emotionary.cs" />
+    <Compile Include="Code\FormChat\FormSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Code\FormChat\FormSettings.Designer.cs">
+      <DependentUpon>FormSettings.cs</DependentUpon>
+    </Compile>
     <Compile Include="Code\Rendering\ChatControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -261,6 +267,9 @@
     <EmbeddedResource Include="Code\Extensions\Settings\ControlSettings.resx">
       <DependentUpon>ControlSettings.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormChat\FormSettings.resx">
+      <DependentUpon>FormSettings.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Code\Rendering\ChatControl.resx">
       <DependentUpon>ChatControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -323,7 +332,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Data\LixChat_Nightly_Updater.7z" />
     <None Include="Resources\BLACK.png" />
   </ItemGroup>
   <ItemGroup>
@@ -8332,7 +8340,7 @@
     <None Include="Plugins\7za.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Data\LixChat_Nightly_Updater.exe" />
+    <Content Include="Data\LixChat.exe" />
     <Content Include="Resources\ban.png" />
     <None Include="Resources\emojis.txt" />
     <Content Include="Resources\emojis.exe" />
@@ -8342,9 +8350,6 @@
     <Content Include="Resources\success.html" />
     <None Include="Resources\received.html" />
     <None Include="Resources\index.html" />
-    <None Include="Data\Empty.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Resources\404_preview-320x180.jpg" />
     <None Include="Resources\bild-16-9.png" />
     <None Include="Resources\loading.gif" />
@@ -8372,8 +8377,7 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>E:\Backup\LixChat\LixChat\bin\Release\Plugins\7za a -y E:\Backup\LixChat\LixChat\bin\Release\LixChat_Nightly_Updater.7z E:\Backup\LixChat\LixChat\bin\Release\LixChat.exe
-move E:\Backup\LixChat\LixChat\bin\Release\LixChat_Nightly_Updater.7z E:\Backup\LixChat\LixChat\Data\LixChat_Nightly_Updater.7z</PostBuildEvent>
+    <PostBuildEvent>move E:\Backup\LixChat\LixChat\bin\Release\LixChat.exe E:\Backup\LixChat\LixChat\Data\LixChat.exe</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

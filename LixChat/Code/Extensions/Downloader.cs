@@ -103,6 +103,11 @@ namespace LX29_Helpers
             private set;
         }
 
+        public static void CheckNightlyUpdate(Action<int, int, string> progAction)
+        {
+            string url = "https://github.com/lukix29/LixChat/blob/master/LixChat/Data/LixChat_Nightly_Updater.7z";
+        }
+
         public static void CheckUpdate(Action<int, int, string> progAction)
         {
             try

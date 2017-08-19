@@ -1,13 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Collections;
-using System.Net;
-using System.Threading.Tasks;
-using System.Globalization;
 
 namespace LX29_ChatClient.Emotes
 {

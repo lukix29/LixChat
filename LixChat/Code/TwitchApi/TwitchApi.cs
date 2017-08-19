@@ -248,7 +248,9 @@ namespace LX29_Twitch.Api
             {
                 int code = 0;
                 var info = TwitchApiErrors.GetError(x, out code);
-
+                if (code != 422)
+                {
+                }
                 if (handleError)
                 {
                     if (code == (int)HttpStatusCode.GatewayTimeout || code == (int)HttpStatusCode.RequestTimeout)

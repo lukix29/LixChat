@@ -1,14 +1,13 @@
 ﻿using LX29_ChatClient.Channels;
 using LX29_Twitch.JSON_Parser;
+using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.IO;
 
 namespace LX29_ChatClient.Emotes
 {
@@ -25,6 +24,7 @@ namespace LX29_ChatClient.Emotes
 
         public Badge(string name, string type, Dictionary<string, string> urls)
         {
+            IsEnabled = true;
             Origin = BadgeOrigin.FFZ_AP;
             Type = name;
             Name = type;
@@ -34,6 +34,7 @@ namespace LX29_ChatClient.Emotes
 
         public Badge(LX29_Twitch.JSON_Parser.JSON.FFZ_Emotes.Badge badge)
         {
+            IsEnabled = true;
             Origin = BadgeOrigin.FFZ;
             Type = badge.name.Trim() + "_FFZ";
             Name = Type;
@@ -43,6 +44,7 @@ namespace LX29_ChatClient.Emotes
 
         public Badge(JSON.Twitch_Badges.BadgeData lst)
         {
+            IsEnabled = true;
             Origin = BadgeOrigin.Twitch;
             Type = "None";
             Name = lst.Name.Trim();
@@ -54,6 +56,7 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
+        [JsonIgnore]
         private Dictionary<string, EmoteImage> URLS
         {
             get;
@@ -114,24 +117,33 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
+        public bool IsEnabled
+        {
+            get;
+            set;
+        }
+
         public string Name
         {
             get;
             set;
         }
 
+        [JsonIgnore]
         public BadgeOrigin Origin
         {
             get;
             set;
         }
 
+        [JsonIgnore]
         public string Type
         {
             get;
             set;
         }
 
+        [JsonIgnore]
         public string Version
         {
             get;
@@ -139,7 +151,7 @@ namespace LX29_ChatClient.Emotes
         }
     }
 
-    public class BadgeCollection
+    public class BadgeCollection : IEnumerable<string>
     {
         private static Dictionary<string, Badge> badges;
 
@@ -158,6 +170,11 @@ namespace LX29_ChatClient.Emotes
         {
             get;
             private set;
+        }
+
+        public Badge this[string name]
+        {
+            get { return badges[name]; }
         }
 
         public Badge this[BadgeBase name]
@@ -232,10 +249,42 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public void Parse_FFZ_Addon_Badges()
+        public IEnumerator<string> GetEnumerator()
+        {
+            return badges.Keys.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)badges.Keys).GetEnumerator();
+        }
+
+        public void Load()
+        {
+            string path = Settings.dataDir + "Badges.txt";
+            if (!File.Exists(path)) return;
+            using (JsonTextReader reader = new JsonTextReader(new StreamReader(File.OpenRead(path))))
+            {
+                JsonSerializer jss = new JsonSerializer();
+                var badgedata = jss.Deserialize<JSON.Twitch_Badges.SavedBadge>(reader);
+                foreach (var b in badgedata.badges)
+                {
+                    if (badges.ContainsKey(b.Name))
+                    {
+                        badges[b.Name].IsEnabled = b.IsEnabled;
+                    }
+                    else
+                    {
+                    }
+                }
+            }
+        }
+
+        public void Parse_FFZ_Addon_Badges(int i = 0)
         {
             try
             {
+                if (i >= 3) return;
                 WebClient wc = new WebClient();
                 wc.Proxy = null;
                 string temp = wc.DownloadString("https://cdn.ffzap.download/supporters.json");
@@ -258,13 +307,15 @@ namespace LX29_ChatClient.Emotes
             }
             catch
             {
+                Parse_FFZ_Badges(i + 1);
             }
         }
 
-        public void Parse_FFZ_Badges()
+        public void Parse_FFZ_Badges(int i = 0)
         {
             try
             {
+                if (i >= 3) return;
                 WebClient wc = new WebClient();
                 wc.Proxy = null;
                 string temp = wc.DownloadString("http://api.frankerfacez.com/v1/badges");
@@ -288,6 +339,52 @@ namespace LX29_ChatClient.Emotes
             }
             catch
             {
+                Parse_FFZ_Badges(i + 1);
+            }
+        }
+
+        public void SetEnabled(string item, bool enabled)
+        {
+            badges[item].IsEnabled = enabled;
+            Save(Settings.dataDir + "Badges.txt");
+        }
+
+        private void Save(string path)
+        {
+            try
+            {
+                JsonSerializer serializer = new JsonSerializer();
+
+                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(path)))
+                {
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("created");
+                    writer.WriteValue(DateTime.Now);
+
+                    int max = badges.Count;
+                    writer.WritePropertyName("count");
+                    writer.WriteValue(max);
+
+                    writer.WritePropertyName("badges");
+                    writer.WriteStartArray();
+                    int cnt = 0;
+                    foreach (var item in badges.Values)
+                    {
+                        serializer.Serialize(writer, item);
+                        cnt++;
+                    }
+                    writer.WriteEndArray();
+                    writer.WriteEndObject();
+                }
+            }
+            catch (Exception x)
+            {
+                switch (x.Handle())
+                {
+                    case System.Windows.Forms.MessageBoxResult.Retry:
+                        Save(path);
+                        break;
+                }
             }
         }
     }

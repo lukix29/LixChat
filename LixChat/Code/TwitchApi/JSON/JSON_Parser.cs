@@ -1,6 +1,5 @@
 ﻿using LX29_Twitch.Api;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -502,6 +501,12 @@ namespace LX29_Twitch.JSON_Parser
 
         public class Twitch_Badges
         {
+            public class Badge
+            {
+                public bool IsEnabled { get; set; }
+                public string Name { get; set; }
+            }
+
             public class BadgeData
             {
                 public string Name { get; set; }
@@ -530,6 +535,13 @@ namespace LX29_Twitch.JSON_Parser
                         };
                     }
                 }
+            }
+
+            public class SavedBadge
+            {
+                public List<Badge> badges { get; set; }
+                public int count { get; set; }
+                public string created { get; set; }
             }
         }
     }

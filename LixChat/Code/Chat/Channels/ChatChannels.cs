@@ -272,7 +272,7 @@ namespace LX29_ChatClient.Channels
             {
                 if (subInfo == null)
                 {
-                    return SubResult.Empty;
+                    return SubResult.NoSubProgram;
                 }
                 else
                 {
