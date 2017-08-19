@@ -44,19 +44,16 @@
             this.flowLayoutPanel5 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanel_UserOptions = new System.Windows.Forms.FlowLayoutPanel();
-            this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.flowLayoutPanel_PlayerOptions = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.flowLayoutPanel_BadgeOptions = new System.Windows.Forms.FlowLayoutPanel();
-            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
+            this.flowLayoutPanel_PlayerOptions = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanel9 = new System.Windows.Forms.FlowLayoutPanel();
             this.btn_SelectBrowser = new System.Windows.Forms.Button();
             this.btn_OpenScriptFolder = new System.Windows.Forms.Button();
-            this.btn_Reset = new System.Windows.Forms.Button();
             this.cb_ShowErrors = new System.Windows.Forms.CheckBox();
             this.btn_Close = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.btn_Reset = new System.Windows.Forms.Button();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.flowLayoutPanel_ChatOptions.SuspendLayout();
@@ -65,9 +62,7 @@
             this.groupBox4.SuspendLayout();
             this.flowLayoutPanel5.SuspendLayout();
             this.groupBox5.SuspendLayout();
-            this.groupBox8.SuspendLayout();
             this.groupBox6.SuspendLayout();
-            this.flowLayoutPanel_BadgeOptions.SuspendLayout();
             this.groupBox7.SuspendLayout();
             this.flowLayoutPanel9.SuspendLayout();
             this.SuspendLayout();
@@ -220,7 +215,6 @@
             this.flowLayoutPanel5.Controls.Add(this.groupBox2);
             this.flowLayoutPanel5.Controls.Add(this.groupBox4);
             this.flowLayoutPanel5.Controls.Add(this.groupBox5);
-            this.flowLayoutPanel5.Controls.Add(this.groupBox8);
             this.flowLayoutPanel5.Controls.Add(this.groupBox6);
             this.flowLayoutPanel5.Controls.Add(this.groupBox7);
             this.flowLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -228,7 +222,6 @@
             this.flowLayoutPanel5.Name = "flowLayoutPanel5";
             this.flowLayoutPanel5.Size = new System.Drawing.Size(773, 536);
             this.flowLayoutPanel5.TabIndex = 0;
-            this.flowLayoutPanel5.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel5_Paint);
             // 
             // groupBox5
             // 
@@ -254,19 +247,19 @@
             this.flowLayoutPanel_UserOptions.Size = new System.Drawing.Size(185, 186);
             this.flowLayoutPanel_UserOptions.TabIndex = 0;
             // 
-            // groupBox8
+            // groupBox6
             // 
-            this.groupBox8.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.groupBox8.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.groupBox8.Controls.Add(this.flowLayoutPanel_PlayerOptions);
-            this.groupBox8.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox8.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.groupBox8.Location = new System.Drawing.Point(200, 311);
-            this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(206, 208);
-            this.groupBox8.TabIndex = 39;
-            this.groupBox8.TabStop = false;
-            this.groupBox8.Text = "Player Options";
+            this.groupBox6.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.groupBox6.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.groupBox6.Controls.Add(this.flowLayoutPanel_PlayerOptions);
+            this.groupBox6.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox6.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.groupBox6.Location = new System.Drawing.Point(200, 311);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(206, 208);
+            this.groupBox6.TabIndex = 38;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Player Options";
             // 
             // flowLayoutPanel_PlayerOptions
             // 
@@ -278,42 +271,6 @@
             this.flowLayoutPanel_PlayerOptions.Size = new System.Drawing.Size(200, 186);
             this.flowLayoutPanel_PlayerOptions.TabIndex = 0;
             // 
-            // groupBox6
-            // 
-            this.groupBox6.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.groupBox6.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.groupBox6.Controls.Add(this.flowLayoutPanel_BadgeOptions);
-            this.groupBox6.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox6.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.groupBox6.Location = new System.Drawing.Point(412, 311);
-            this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(181, 208);
-            this.groupBox6.TabIndex = 38;
-            this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "Badge Options";
-            // 
-            // flowLayoutPanel_BadgeOptions
-            // 
-            this.flowLayoutPanel_BadgeOptions.AutoSize = true;
-            this.flowLayoutPanel_BadgeOptions.Controls.Add(this.checkedListBox1);
-            this.flowLayoutPanel_BadgeOptions.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel_BadgeOptions.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel_BadgeOptions.Location = new System.Drawing.Point(3, 19);
-            this.flowLayoutPanel_BadgeOptions.Name = "flowLayoutPanel_BadgeOptions";
-            this.flowLayoutPanel_BadgeOptions.Size = new System.Drawing.Size(175, 186);
-            this.flowLayoutPanel_BadgeOptions.TabIndex = 0;
-            // 
-            // checkedListBox1
-            // 
-            this.checkedListBox1.BackColor = System.Drawing.Color.Black;
-            this.checkedListBox1.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.checkedListBox1.FormattingEnabled = true;
-            this.checkedListBox1.Location = new System.Drawing.Point(3, 3);
-            this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(169, 184);
-            this.checkedListBox1.TabIndex = 0;
-            this.checkedListBox1.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.checkedListBox1_ItemCheck);
-            // 
             // groupBox7
             // 
             this.groupBox7.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -321,7 +278,7 @@
             this.groupBox7.Controls.Add(this.flowLayoutPanel9);
             this.groupBox7.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox7.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.groupBox7.Location = new System.Drawing.Point(599, 311);
+            this.groupBox7.Location = new System.Drawing.Point(412, 311);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Size = new System.Drawing.Size(159, 208);
             this.groupBox7.TabIndex = 36;
@@ -370,20 +327,6 @@
             this.btn_OpenScriptFolder.UseVisualStyleBackColor = false;
             this.btn_OpenScriptFolder.Click += new System.EventHandler(this.btn_OpenScriptFolder_Click);
             // 
-            // btn_Reset
-            // 
-            this.btn_Reset.BackColor = System.Drawing.Color.Black;
-            this.btn_Reset.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.btn_Reset.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_Reset.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.btn_Reset.Location = new System.Drawing.Point(3, 75);
-            this.btn_Reset.Name = "btn_Reset";
-            this.btn_Reset.Size = new System.Drawing.Size(150, 30);
-            this.btn_Reset.TabIndex = 37;
-            this.btn_Reset.Text = "Reset Settings";
-            this.btn_Reset.UseVisualStyleBackColor = false;
-            this.btn_Reset.Click += new System.EventHandler(this.btn_Reset_Click);
-            // 
             // cb_ShowErrors
             // 
             this.cb_ShowErrors.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -417,6 +360,20 @@
             this.btn_Close.UseVisualStyleBackColor = false;
             this.btn_Close.Click += new System.EventHandler(this.button1_Click);
             // 
+            // btn_Reset
+            // 
+            this.btn_Reset.BackColor = System.Drawing.Color.Black;
+            this.btn_Reset.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btn_Reset.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_Reset.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btn_Reset.Location = new System.Drawing.Point(3, 75);
+            this.btn_Reset.Name = "btn_Reset";
+            this.btn_Reset.Size = new System.Drawing.Size(150, 30);
+            this.btn_Reset.TabIndex = 37;
+            this.btn_Reset.Text = "Reset Settings";
+            this.btn_Reset.UseVisualStyleBackColor = false;
+            this.btn_Reset.Click += new System.EventHandler(this.btn_Reset_Click);
+            // 
             // ControlSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -429,7 +386,6 @@
             this.MinimumSize = new System.Drawing.Size(747, 312);
             this.Name = "ControlSettings";
             this.Size = new System.Drawing.Size(773, 536);
-            this.Load += new System.EventHandler(this.ControlSettings_Load);
             this.SizeChanged += new System.EventHandler(this.ControlSettings_SizeChanged);
             this.groupBox3.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -440,11 +396,8 @@
             this.flowLayoutPanel5.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
-            this.groupBox8.ResumeLayout(false);
-            this.groupBox8.PerformLayout();
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
-            this.flowLayoutPanel_BadgeOptions.ResumeLayout(false);
             this.groupBox7.ResumeLayout(false);
             this.groupBox7.PerformLayout();
             this.flowLayoutPanel9.ResumeLayout(false);
@@ -481,10 +434,7 @@
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel_UserOptions;
         private System.Windows.Forms.GroupBox groupBox6;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel_BadgeOptions;
-        private System.Windows.Forms.Button btn_Reset;
-        private System.Windows.Forms.GroupBox groupBox8;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel_PlayerOptions;
-        private System.Windows.Forms.CheckedListBox checkedListBox1;
+        private System.Windows.Forms.Button btn_Reset;
     }
 }

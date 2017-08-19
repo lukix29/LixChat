@@ -21,8 +21,7 @@ namespace System.Windows.Forms
         public MessageBoxForm()
         {
             InitializeComponent();
-            rtB_Main.LinkClicked += txtB_Main_LinkClicked;
-            rtB_Main.AddContextMenu();
+            txtB_Main.LinkClicked += txtB_Main_LinkClicked;
         }
 
         public new Color BackColor
@@ -31,7 +30,7 @@ namespace System.Windows.Forms
             set
             {
                 base.BackColor = value;
-                rtB_Main.BackColor = value;
+                txtB_Main.BackColor = value;
                 button1.BackColor = Color.FromArgb(40, 40, 40);
                 button2.BackColor = button1.BackColor;
                 button3.BackColor = button1.BackColor;
@@ -40,10 +39,10 @@ namespace System.Windows.Forms
 
         public new string Text
         {
-            get { return rtB_Main.Text; }
+            get { return txtB_Main.Text; }
             set
             {
-                rtB_Main.Text = value;
+                txtB_Main.Text = value;
             }
         }
 
@@ -79,13 +78,13 @@ namespace System.Windows.Forms
             if (!ShowTextbox)
             {
                 label1.Location = button1.Location;
-                rtB_Main.Height = (label1.Top - rtB_Main.Top) - 5;
+                txtB_Main.Height = (label1.Top - txtB_Main.Top) - 5;
             }
             var border = this.GetBorderSize();
-            var s = rtB_Main.GetPreferredSize(Size.Empty);
-            int width = Math.Max(520, s.Width + (border.SmallBorder * 4) + rtB_Main.Left + (this.ClientSize.Width - rtB_Main.Right));
+            var s = txtB_Main.GetPreferredSize(Size.Empty);
+            int width = Math.Max(520, s.Width + (border.SmallBorder * 4) + txtB_Main.Left + (this.ClientSize.Width - txtB_Main.Right));
             int height = Math.Min(640, s.Height + (this.ClientSize.Height - label1.Top) +
-                rtB_Main.Top + border.BigSmall + 10);
+                txtB_Main.Top + border.BigSmall + 10);
 
             Screen screen = Screen.FromControl(this);
             this.Width = Math.Min(screen.Bounds.Width - this.Left, width);

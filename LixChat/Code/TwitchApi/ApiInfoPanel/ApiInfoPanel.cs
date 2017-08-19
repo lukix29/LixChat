@@ -20,7 +20,7 @@ namespace LX29_Twitch.Forms
             InitializeComponent();
             InfosToShow = new ApiInfo[0];
             rTB_Infos.AutoScrollOffset = new Point(0, 0);
-            rTB_Infos.AddContextMenu();
+
             // Set maximum position of your panel beyond the point your panel items reach.
             // You'll have to change this size depending on the total size of items for your case.
             // rTB_Infos.ScrollBars VerticalScroll.Maximum = 280;

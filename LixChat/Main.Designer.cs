@@ -47,7 +47,6 @@
             this.btn_AutostartStream = new System.Windows.Forms.Button();
             this.btn_StartStream = new System.Windows.Forms.Button();
             this.splitC_Main = new System.Windows.Forms.SplitContainer();
-            this.lstB_Channels = new LX29_ChatClient.Forms.ChannelListBox();
             this.cMS_ListBox = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tSMI_OpenChatInBrowser = new System.Windows.Forms.ToolStripMenuItem();
             this.openStreamInBrowserPopoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -69,11 +68,11 @@
             this.btn_openSubpage = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.treeView1 = new System.Windows.Forms.TreeView();
-            this.apiInfoPanel1 = new LX29_Twitch.Forms.ApiInfoPanel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.btn_AddChannel = new System.Windows.Forms.Button();
             this.btn_removeChannel = new System.Windows.Forms.Button();
+            this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.tSMi_Accounts = new System.Windows.Forms.ToolStripMenuItem();
@@ -94,6 +93,9 @@
             this.tSProgBar_Loading = new System.Windows.Forms.ToolStripProgressBar();
             this.tsLabel_Info = new System.Windows.Forms.ToolStripLabel();
             this.toolTip_Main = new System.Windows.Forms.ToolTip(this.components);
+            this.lstB_Channels = new LX29_Twitch.Forms.ChannelListBox();
+            this.apiInfoPanel1 = new LX29_Twitch.Forms.ApiInfoPanel();
+            this.controlSettings1 = new LX29_ChatClient.Forms.ControlSettings();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Preview)).BeginInit();
             this.splitContainer_Preview.Panel1.SuspendLayout();
             this.splitContainer_Preview.Panel2.SuspendLayout();
@@ -231,16 +233,6 @@
             // splitC_Main.Panel2
             // 
             this.splitC_Main.Panel2.Controls.Add(this.tLP_Preview);
-            // 
-            // lstB_Channels
-            // 
-            this.lstB_Channels.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.lstB_Channels.ContextMenuStrip = this.cMS_ListBox;
-            resources.ApplyResources(this.lstB_Channels, "lstB_Channels");
-            this.lstB_Channels.Name = "lstB_Channels";
-            this.lstB_Channels.SelectedIndex = 0;
-            this.lstB_Channels.SelectedIndexChanged += new LX29_ChatClient.Forms.ChannelListBox.OnSelectedIndexChanged(this.lstB_Channels_SelectedIndexChanged);
-            this.lstB_Channels.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstB_Channels_MouseDoubleClick);
             // 
             // cMS_ListBox
             // 
@@ -458,14 +450,6 @@
             this.treeView1.TabStop = false;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             // 
-            // apiInfoPanel1
-            // 
-            this.apiInfoPanel1.BackColor = System.Drawing.Color.Black;
-            resources.ApplyResources(this.apiInfoPanel1, "apiInfoPanel1");
-            this.apiInfoPanel1.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.apiInfoPanel1.InfosToShow = new LX29_Twitch.Api.ApiInfo[0];
-            this.apiInfoPanel1.Name = "apiInfoPanel1";
-            // 
             // timer1
             // 
             this.timer1.Enabled = true;
@@ -500,6 +484,11 @@
             this.btn_removeChannel.TabStop = false;
             this.btn_removeChannel.UseVisualStyleBackColor = false;
             this.btn_removeChannel.Click += new System.EventHandler(this.btn_removeChannel_Click);
+            // 
+            // timer2
+            // 
+            this.timer2.Interval = 5000;
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
             // toolStrip1
             // 
@@ -671,6 +660,31 @@
             this.toolTip_Main.UseAnimation = false;
             this.toolTip_Main.UseFading = false;
             // 
+            // lstB_Channels
+            // 
+            this.lstB_Channels.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.lstB_Channels.ContextMenuStrip = this.cMS_ListBox;
+            resources.ApplyResources(this.lstB_Channels, "lstB_Channels");
+            this.lstB_Channels.Name = "lstB_Channels";
+            this.lstB_Channels.SelectedIndex = 0;
+            this.lstB_Channels.SelectedIndexChanged += new LX29_Twitch.Forms.ChannelListBox.OnSelectedIndexChanged(this.lstB_Channels_SelectedIndexChanged);
+            this.lstB_Channels.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstB_Channels_MouseDoubleClick);
+            // 
+            // apiInfoPanel1
+            // 
+            this.apiInfoPanel1.BackColor = System.Drawing.Color.Black;
+            resources.ApplyResources(this.apiInfoPanel1, "apiInfoPanel1");
+            this.apiInfoPanel1.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.apiInfoPanel1.InfosToShow = new LX29_Twitch.Api.ApiInfo[0];
+            this.apiInfoPanel1.Name = "apiInfoPanel1";
+            // 
+            // controlSettings1
+            // 
+            resources.ApplyResources(this.controlSettings1, "controlSettings1");
+            this.controlSettings1.BackColor = System.Drawing.Color.Black;
+            this.controlSettings1.ForeColor = System.Drawing.Color.LightGray;
+            this.controlSettings1.Name = "controlSettings1";
+            // 
             // Main
             // 
             resources.ApplyResources(this, "$this");
@@ -681,6 +695,7 @@
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.splitC_Main);
+            this.Controls.Add(this.controlSettings1);
             this.DoubleBuffered = true;
             this.ForeColor = System.Drawing.Color.White;
             this.HelpButton = true;
@@ -733,6 +748,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button btn_AddChannel;
         private System.Windows.Forms.Button btn_removeChannel;
+        private System.Windows.Forms.Timer timer2;
         private System.Windows.Forms.ToolStripLabel tsLbl_Infotext;
         private System.Windows.Forms.TableLayoutPanel tLP_Preview;
         private System.Windows.Forms.Panel pn_Preview;
@@ -775,8 +791,9 @@
         private System.Windows.Forms.ToolStripMenuItem tSMI_About;
         private System.Windows.Forms.Button btn_AutostartStream;
         private System.Windows.Forms.PictureBox pb_Preview;
-        private LX29_ChatClient.Forms.ChannelListBox lstB_Channels;
+        private LX29_Twitch.Forms.ChannelListBox lstB_Channels;
         private LX29_Twitch.Forms.ApiInfoPanel apiInfoPanel1;
+        private LX29_ChatClient.Forms.ControlSettings controlSettings1;
         private System.Windows.Forms.ToolStripMenuItem refreshChannelsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openStreamInBrowserPopoutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openChannelInBrowserToolStripMenuItem;

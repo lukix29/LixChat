@@ -393,20 +393,23 @@ namespace LX29_ChatClient
 
         private static void startRefresher()
         {
-            LXTimer o = new LXTimer(new Action<LXTimer>(updateChannels), (int)Settings.UpdateInterval, System.Threading.Timeout.Infinite);
+            TTData o = new TTData();
+            System.Threading.Timer t =
+                new System.Threading.Timer(new TimerCallback(updateChannels), o, (int)Settings.UpdateInterval, System.Threading.Timeout.Infinite);
+            o.t = t;
         }
 
-        private static void updateChannels(LXTimer obj)
+        private static void updateChannels(object obj)
         {
-            LXTimer o = obj;
+            TTData o = (TTData)obj;
             UpdateChannels();
             if (LX29_Tools.HasInternetConnection)
             {
-                o.Change((int)Settings.UpdateInterval, System.Threading.Timeout.Infinite);
+                o.t.Change((int)Settings.UpdateInterval, System.Threading.Timeout.Infinite);
             }
             else
             {
-                o.Change(10000, System.Threading.Timeout.Infinite);
+                o.t.Change(10000, System.Threading.Timeout.Infinite);
             }
         }
 
@@ -420,6 +423,11 @@ namespace LX29_ChatClient
                 name = Name;
                 span = Span;
             }
+        }
+
+        private class TTData
+        {
+            public System.Threading.Timer t;
         }
     }
 }

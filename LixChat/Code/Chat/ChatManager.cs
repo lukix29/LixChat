@@ -234,7 +234,7 @@ namespace LX29_ChatClient
         }
     }
 
-    public class ChatMessage : IEquatable<ChatMessage>, IComparer<ChatMessage>
+    public class ChatMessage : IEquatable<ChatMessage>
     {
         public const string ACTION = "ACTION";
         public const string CLEARCHAT = "CLEARCHAT";
@@ -337,9 +337,6 @@ namespace LX29_ChatClient
 
             Parameters = parameters;
             Message = message;
-
-            if (Message.StartsWith(".")) Message = Message.Remove(0, 1);
-
             Channel = channel;
             Timeout = toResult;
 
@@ -351,9 +348,6 @@ namespace LX29_ChatClient
         public ChatMessage(string message, ChatUser user, string channel, bool isSent, params MsgType[] types)
         {
             this.Message = message;
-
-            if (Message.StartsWith(".")) Message = Message.Remove(0, 1);
-
             Channel = channel;
             Timeout = TimeOutResult.Empty;
 
@@ -500,11 +494,6 @@ namespace LX29_ChatClient
             get { return ChatWords[Index]; }
         }
 
-        public int Compare(ChatMessage x, ChatMessage y)
-        {
-            return (int)(x.SendTime.Ticks - y.SendTime.Ticks);
-        }
-
         public bool Equals(ChatMessage m)
         {
             return (m.SendTime.Second == SendTime.Second && m.SendTime.Minute == SendTime.Minute) &&
@@ -532,19 +521,13 @@ namespace LX29_ChatClient
 
         public void ReloadEmotes()
         {
-            try
+            for (int i = 0; i < ChatWords.Count; i++)
             {
-                for (int i = 0; i < ChatWords.Count; i++)
+                var word = ChatWords[i];
+                if (!word.IsEmote)
                 {
-                    var word = ChatWords[i];
-                    if (!word.IsEmote)
-                    {
-                        ChatWords[i] = new ChatWord(word.Text, Channel);//typelist.Contains(MsgType.Outgoing));
-                    }
+                    ChatWords[i] = new ChatWord(word.Text, Channel);//typelist.Contains(MsgType.Outgoing));
                 }
-            }
-            catch
-            {
             }
         }
 
@@ -903,9 +886,6 @@ namespace LX29_ChatClient
     {
         public ChatWord(TempWord input)
         {
-            if (input.Emote == null)
-            {
-            }
             Text = input.Emote.Name;
             Emote = new EmoteBase[] { input.Emote };
         }

@@ -129,8 +129,7 @@ namespace LX29_ChatClient
         {
             new SettingClasses("_ChatHistory", "Chat History Amount", 100.0, Int16.MaxValue * 1.0, 1.0),
             new SettingClasses("_ShowTimeoutMessages", "Show Timeouts/Bans"),
-            new SettingClasses("_ShowTimeStamp", "Show Time Stamp"),
-            new SettingClasses("_AlternateBG", "Alternate Message\r\nBackground")
+            new SettingClasses("_ShowTimeStamp", "Show Time Stamp")
         };
 
         public static readonly SettingClasses[] EmoteBasic = new SettingClasses[]
@@ -216,10 +215,13 @@ namespace LX29_ChatClient
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\LixChat\\";
 
         public static readonly string chatLogDir = caonfigBaseDir + "Chatlogs\\";
+
         public static readonly string dataDir = caonfigBaseDir + "Data\\";
+
         public static readonly string emojiDir = ".\\Emojis\\";
+
         public static readonly string emoteDir = caonfigBaseDir + "Emotes\\";
-        public static readonly bool isDebug = Application.StartupPath.Contains("Debug");
+
         public static readonly string pluginDir = ".\\Plugins\\";
 
         public static readonly string scriptDir = caonfigBaseDir + "Scripts\\";
@@ -234,7 +236,6 @@ namespace LX29_ChatClient
 
         #region EmoteBadge
 
-        private static bool _AlternateBG = true;
         private static bool _AnimatedEmotes = true;
         private static bool _AnimateGifInSearch = true;
         private static double _BadgePadding = 2;
@@ -244,16 +245,6 @@ namespace LX29_ChatClient
         private static double _EmoteSizeFac = 1.5;
         private static bool _HwEmoteDrawing = false;
         private static bool _ShowTimeStamp = true;
-
-        public static bool AlternateBG
-        {
-            get { return _AlternateBG; }
-            set
-            {
-                _AlternateBG = value;
-                Save();
-            }
-        }
 
         public static bool AnimatedEmotes
         {

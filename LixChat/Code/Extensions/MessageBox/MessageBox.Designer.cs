@@ -32,7 +32,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.btn_Copy = new System.Windows.Forms.Button();
-            this.rtB_Main = new System.Windows.Forms.RichTextBox();
+            this.txtB_Main = new System.Windows.Forms.RichTextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -102,19 +102,19 @@
             // 
             // txtB_Main
             // 
-            this.rtB_Main.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.txtB_Main.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.rtB_Main.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            this.rtB_Main.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.rtB_Main.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold);
-            this.rtB_Main.ForeColor = System.Drawing.Color.Gainsboro;
-            this.rtB_Main.Location = new System.Drawing.Point(12, 12);
-            this.rtB_Main.Name = "txtB_Main";
-            this.rtB_Main.ReadOnly = true;
-            this.rtB_Main.Size = new System.Drawing.Size(557, 142);
-            this.rtB_Main.TabIndex = 6;
-            this.rtB_Main.Text = "";
+            this.txtB_Main.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.txtB_Main.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtB_Main.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold);
+            this.txtB_Main.ForeColor = System.Drawing.Color.Gainsboro;
+            this.txtB_Main.Location = new System.Drawing.Point(12, 12);
+            this.txtB_Main.Name = "txtB_Main";
+            this.txtB_Main.ReadOnly = true;
+            this.txtB_Main.Size = new System.Drawing.Size(557, 142);
+            this.txtB_Main.TabIndex = 6;
+            this.txtB_Main.Text = "";
             // 
             // textBox1
             // 
@@ -149,7 +149,7 @@
             this.ClientSize = new System.Drawing.Size(581, 234);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.rtB_Main);
+            this.Controls.Add(this.txtB_Main);
             this.Controls.Add(this.btn_Copy);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
@@ -173,7 +173,7 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
         private Button btn_Copy;
-        private RichTextBox rtB_Main;
+        private RichTextBox txtB_Main;
         private TextBox textBox1;
         private Label label1;
     }

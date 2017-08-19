@@ -1,7 +1,8 @@
 ﻿using Microsoft.Win32;
+
+//using IWshRuntimeLibrary;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace System
@@ -83,6 +84,51 @@ namespace System
             }
         }
 
+        public static string GetDataPath()
+        {
+            try
+            {
+                // No version!
+                return System.Environment.GetEnvironmentVariable("AppData").Trim() + "\\" + System.Windows.Forms.Application.CompanyName + "\\" + System.Windows.Forms.Application.ProductName;
+            }
+            catch { }
+
+            try
+            {
+                // Version, but chopped out
+                return System.Windows.Forms.Application.UserAppDataPath.Substring(0, System.Windows.Forms.Application.UserAppDataPath.LastIndexOf("\\"));
+            }
+            catch
+            {
+                try
+                {
+                    // App launch folder
+                    return System.Windows.Forms.Application.ExecutablePath.Substring(0, System.Windows.Forms.Application.ExecutablePath.LastIndexOf("\\"));
+                }
+                catch
+                {
+                    try
+                    {
+                        // Current working folder
+                        return System.Environment.CurrentDirectory;
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            // Desktop
+                            return System.Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                        }
+                        catch
+                        {
+                            // Also current working folder
+                            return ".";
+                        }
+                    }
+                }
+            }
+        }
+
         public static Dictionary<string, string> GetInstalledBrowsers()
         {
             Dictionary<string, string> browsers = new Dictionary<string, string>();
@@ -134,65 +180,6 @@ namespace System
         {
             return (input.Contains(".") && !input.Contains("..")
                             && reg.IsMatch(input));
-        }
-    }
-
-    public class LXTimer : IDisposable
-    {
-        public LXTimer(Action<LXTimer> action, int dueTime, int interval)
-        {
-            Action = action;
-            timer = new TTData();
-            var t =
-                 new System.Threading.Timer(
-                     new TimerCallback((ob) => { Action.Invoke((LXTimer)ob); }),
-                     this, dueTime, interval);
-            timer.timer = t;
-        }
-
-        public Action<LXTimer> Action
-        {
-            get;
-            private set;
-        }
-
-        private TTData timer
-        {
-            get;
-            set;
-        }
-
-        public void Change(int dueTime, int signalTime)
-        {
-            timer.timer.Change(dueTime, signalTime);
-        }
-
-        public void Dispose(bool b)
-        {
-            if (b) Dispose();
-        }
-
-        public void Dispose()
-        {
-            if (timer.timer != null)
-            {
-                timer.timer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
-                timer.timer.Dispose();
-            }
-        }
-
-        public void Invoke()
-        {
-            Action.Invoke(this);
-        }
-
-        public class TTData
-        {
-            public System.Threading.Timer timer
-            {
-                get;
-                set;
-            }
         }
     }
 }

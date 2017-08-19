@@ -121,6 +121,8 @@ namespace LX29_ChatClient.Forms
                     AddTSMItem(name);
                 }
 
+                SetColor(tS_Btn_ChatSettings, false);
+
                 ChatClient.Messages.OnWhisperReceived += ChatClient_OnWhisperReceived;
 
                 chatPanel1.OnWhisperSent += chatPanel1_OnWhisperSent;
@@ -218,6 +220,17 @@ namespace LX29_ChatClient.Forms
 
         private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
+        }
+
+        private void tS_Btn_ChatSettings_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                controlSettings1.Show(chatView);
+            }
+            catch
+            {
+            }
         }
 
         private void tS_Btn_Emotes_Click(object sender, EventArgs e)
