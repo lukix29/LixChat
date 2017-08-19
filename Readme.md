@@ -42,5 +42,5 @@ This is free software under the terms of MIT the license.
 
 # Third Party Software
 
-7Zip - http://www.7-zip.org/
-MPV  - https://mpv.io/
+* 7Zip - http://www.7-zip.org/
+* MPV  - https://mpv.io/
