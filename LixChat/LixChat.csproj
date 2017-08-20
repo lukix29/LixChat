@@ -8377,7 +8377,7 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>move E:\Backup\LixChat\LixChat\bin\Release\LixChat.exe E:\Backup\LixChat\LixChat\Data\LixChat.exe</PostBuildEvent>
+    <PostBuildEvent>xcopy E:\Backup\LixChat\LixChat\bin\Release\LixChat.exe E:\Backup\LixChat\LixChat\Data\LixChat.exe /y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

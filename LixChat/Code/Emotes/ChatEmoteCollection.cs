@@ -924,7 +924,7 @@ namespace LX29_ChatClient.Emotes
             {
                 if (!message.IsEmpty())
                 {
-                    Dictionary<int, ChatWord.TempWord> list = new Dictionary<int, ChatWord.TempWord>();
+                    Dictionary<int, ChatWord.TempEmoteWord> list = new Dictionary<int, ChatWord.TempEmoteWord>();
                     if (Finished && parameters != null && parameters.ContainsKey(irc_params.emotes))
                     {
                         string[] sem;
@@ -966,7 +966,7 @@ namespace LX29_ChatClient.Emotes
                                             // var urls = EmoteCollection.TWITCH_EMOTE_BASE_URL.Select(t => t.Replace("{id}", id));
                                             var addedEmote = ChatClient.Emotes.Values[id, nme];// ChatClient.Emotes.Add(id, nme, channel, channelName);
 
-                                            list.Add(i0, new ChatWord.TempWord(i0, i1, addedEmote));// nme, id, set));
+                                            list.Add(i0, new ChatWord.TempEmoteWord(i0, i1, addedEmote));// nme, id, set));
                                         }
                                     }
                                 }
@@ -989,7 +989,7 @@ namespace LX29_ChatClient.Emotes
                                 if (list.Count > 0 && list.ContainsKey(index - (word.Length - 1)))
                                 {
                                     var item = list[index - (word.Length - 1)];
-                                    ChatWords.Add(new ChatWord(item));
+                                    ChatWords.Add(new ChatWord(item, word));
                                     index = item.End;
                                 }
                                 else

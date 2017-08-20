@@ -899,15 +899,20 @@ namespace LX29_ChatClient
         }
     }
 
-    public class ChatWord //: IEquatable<ChatWord>
+    public class ChatWord
     {
-        public ChatWord(TempWord input)
+        public ChatWord(TempEmoteWord input, string word)
         {
             if (input.Emote == null)
             {
+                Text = word;
             }
-            Text = input.Emote.Name;
-            Emote = new EmoteBase[] { input.Emote };
+            else
+            {
+                Text = input.Emote.Name;
+                Emote = new EmoteBase[] { input.Emote };
+                IsEmote = true;
+            }
         }
 
         public ChatWord(string name, string channel, bool outgoing)
@@ -916,9 +921,10 @@ namespace LX29_ChatClient
 
             string temp = name;
             var em = ChatClient.Emotes.GetEmote(name, channel, outgoing);
-            if (em != null)
+            if (em != null && em.Count() > 0)
             {
-                Emote = em;
+                Emote = em.ToArray();
+                IsEmote = true;
             }
         }
 
@@ -927,39 +933,24 @@ namespace LX29_ChatClient
             Text = name;
 
             var em = ChatClient.Emotes.Values.All.Where(t => t.Name.Equals(name));
-            if (em != null)
+            if (em != null && em.Count() > 0)
             {
-                Emote = em;
+                Emote = em.ToArray();
+                IsEmote = true;
             }
         }
 
-        public IEnumerable<EmoteBase> Emote
+        public EmoteBase[] Emote
         {
             get;
             private set;
         }
 
-        //public string Emote_ID
-        //{
-        //    get;
-        //    private set;
-        //}
-
         public bool IsEmote
         {
-            get { return Emote != null; }
+            get;
+            private set;
         }
-
-        //public string HashCode
-        //{
-        //    get;
-        //    private set;
-        //}
-        //public string Set_ID
-        //{
-        //    get;
-        //    private set;
-        //}
 
         public string Text
         {
@@ -972,31 +963,20 @@ namespace LX29_ChatClient
             return Text;
         }
 
-        public struct TempWord
+        public struct TempEmoteWord
         {
-            //public string Name;
-            //public string ID;
-            //public string Set;
             public EmoteBase Emote;
 
             public int End;
             public int Start;
 
-            public TempWord(int Start, int End, EmoteBase Emote)// string Name, string ID, string Set)
+            public TempEmoteWord(int Start, int End, EmoteBase Emote)
             {
                 this.Start = Start;
                 this.End = End;
                 this.Emote = Emote;
-                //this.Name = Name;
-                //this.ID = ID;
-                //this.Set = Set;
             }
         }
-
-        //public bool Equals(ChatWord info)
-        //{
-        //    return info.HashCode == HashCode;
-        //}
     }
 
     public class TimeoutTimer

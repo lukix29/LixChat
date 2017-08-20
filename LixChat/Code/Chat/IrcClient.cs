@@ -543,8 +543,8 @@ namespace IRC_Client
                 var socketException = e.InnerException as SocketException;
                 if (socketException != null)
                     OnNetworkError(socketException);
-                else
-                    e.Handle();
+                //else
+                //e.Handle();
                 return;
             }
             finally

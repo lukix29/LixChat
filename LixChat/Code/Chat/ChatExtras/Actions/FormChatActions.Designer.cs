@@ -51,6 +51,7 @@
             this.txtB_Search = new System.Windows.Forms.TextBox();
             this.lstB_Main = new System.Windows.Forms.ListBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.nUD_Cooldown)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nUD_Delay)).BeginInit();
@@ -345,6 +346,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.panel2);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.lstB_Main);
             this.panel1.Controls.Add(this.txtB_Username);
@@ -360,6 +362,16 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(696, 561);
             this.panel1.TabIndex = 20;
+            // 
+            // panel2
+            // 
+            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel2.Location = new System.Drawing.Point(6, 262);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(687, 296);
+            this.panel2.TabIndex = 20;
             // 
             // FormAutoChatActions
             // 
@@ -411,5 +423,6 @@
         private System.Windows.Forms.ListBox lstB_Main;
         private System.Windows.Forms.Button btn_Change;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panel2;
     }
 }

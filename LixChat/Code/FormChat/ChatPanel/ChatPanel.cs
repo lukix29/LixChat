@@ -188,7 +188,7 @@ namespace LX29_ChatClient.Forms
 
                 userInfoPanel1.Font = new Font(chatView1.Font.FontFamily, 10);
 
-                this.ParentForm.AcceptButton = this.btn_Send;
+                //this.ParentForm.AcceptButton = this.btn_Send;
                 rTB_Send.AddContextMenu();
             }
             catch (Exception x)
@@ -280,13 +280,13 @@ namespace LX29_ChatClient.Forms
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
-            rTB_Send.SuspendLayout();
-            string text = rTB_Send.Text;
-            int sel = rTB_Send.SelectionStart;
-            rTB_Send.SelectAll();
-            rTB_Send.SelectedText = text.RemoveControlChars();
-            rTB_Send.SelectionStart = sel;
-            rTB_Send.ResumeLayout();
+            //rTB_Send.SuspendLayout();
+            //string text = rTB_Send.Text;
+            //int sel = rTB_Send.SelectionStart;
+            //rTB_Send.SelectAll();
+            //rTB_Send.SelectedText = text.RemoveControlChars();
+            //rTB_Send.SelectionStart = sel;
+            //rTB_Send.ResumeLayout();
         }
 
         private void rTB_Send_KeyDown(object sender, KeyEventArgs e)
@@ -355,7 +355,7 @@ namespace LX29_ChatClient.Forms
                         var arr = rTB_Send.Text.Trim().Split(" ");
                         lastSearch = arr.Select(t => t.Trim()).Last();
 
-                        if (!lastSearch.IsEmpty())
+                        if (lastSearch.Length > 1)
                         {
                             // System.Threading.Tasks.Task.Run(() =>
                             {

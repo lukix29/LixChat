@@ -1,6 +1,7 @@
 ﻿using LX29_ChatClient.Channels;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace LX29_ChatClient.Addons
@@ -167,25 +168,90 @@ namespace LX29_ChatClient.Addons
         {
             lstB_Main.Items.Clear();
             var actions = ChatClient.AutoActions.GetChannelActions(channelName);
-            foreach (ChatAction ca in actions)
+            if (Settings.isDebug)
             {
-                lstB_Main.Items.Add(ca.ToString());
+                var header = typeof(ChatAction).GetProperties().Where(t => !t.Name.Equals("IsEmpty"))
+                        .OrderByDescending(t => t.PropertyType.Equals(typeof(string)))
+                        .ThenByDescending(t => t.PropertyType.Equals(typeof(bool)))
+                        .ThenByDescending(t => t.PropertyType.Equals(typeof(int)))
+                        .Select(t => (new Label() { Text = t.Name }) as Control).ToList();
+
+                var pn = Creator.CreatePanel(header, "Header", panel2.Width);
+                pn.Location = new System.Drawing.Point(0, 0);
+
+                panel2.Controls.Add(pn);
+
+                List<Panel> panels = new List<Panel>();
+                int y = pn.Height + 5;
+                foreach (ChatAction ca in actions)
+                {
+                    List<Control> list = new List<Control>();
+                    var props = ca.GetType().GetProperties().Where(t => !t.Name.Equals("IsEmpty"))
+                        .OrderByDescending(t => t.PropertyType.Equals(typeof(string)))
+                        .ThenByDescending(t => t.PropertyType.Equals(typeof(bool)))
+                        .ThenByDescending(t => t.PropertyType.Equals(typeof(int)));
+                    foreach (var prop in props)
+                    {
+                        if (prop.PropertyType.Equals(typeof(int)))
+                        {
+                            var i = (int)prop.GetValue(ca);
+                            var nud = Creator.CreateNuD(i, prop.Name);
+                            nud.ValueChanged += (o, e) =>
+                                {
+                                    prop.SetValue(ca, (int)nud.Value);
+                                };
+                            list.Add(nud);
+                        }
+                        else if (prop.PropertyType.Equals(typeof(bool)))
+                        {
+                            var b = (bool)prop.GetValue(ca);
+                            var nud = Creator.CreateCheckBox(b, prop.Name);
+                            nud.CheckedChanged += (o, e) =>
+                            {
+                                prop.SetValue(ca, nud.Checked);
+                            };
+                            list.Add(nud);
+                        }
+                        else if (prop.PropertyType.Equals(typeof(string)))
+                        {
+                            var s = (string)prop.GetValue(ca);
+                            var nud = Creator.CreateRtB(prop.Name, s);
+                            nud.TextChanged += (o, e) =>
+                            {
+                                prop.SetValue(ca, nud.Text);
+                            };
+                            list.Add(nud);
+                        }
+                    }
+                    // list = list.OrderByDescending(t => t is RichTextBox).ToList();
+
+                    pn = Creator.CreatePanel(list, ca.Message, panel2.Width);
+                    pn.Location = new System.Drawing.Point(0, y);
+                    y += pn.Height + 5;
+                    panel2.Controls.Add(pn);
+                }
             }
-            //txtB_Username.Text =
-            //txtB_Message.Text =
-            //txtB_Action.Text = "";
-            //numericUpDown1.Value = 0;
-            //numericUpDown2.Value = 0;
-            //cb
+            else
+            {
+                panel2.Visible = false;
+                lstB_Main.Items.Clear();
+                lstB_Main.Items.AddRange(actions.Select(t => t.ToString()).ToArray());
+            }
             if (withuser)
             {
                 comboBox1.Items.Clear();
-                var names = ChatClient.Users.GetAllNames();
-                if (names != null)
+                System.Threading.Tasks.Task.Run(() =>
                 {
-                    comboBox1.Items.AddRange(names);
-                    comboBox1.SelectedIndex = 0;
-                }
+                    var names = ChatClient.Users.GetAllNames();
+                    if (names != null)
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            comboBox1.Items.AddRange(names);
+                            comboBox1.SelectedIndex = 0;
+                        }));
+                    }
+                });
             }
             //cB_MsgTypes.Items.Clear();
             //Array values = Enum.GetValues(typeof(MsgType));
@@ -220,6 +286,14 @@ namespace LX29_ChatClient.Addons
             }
         }
 
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+        }
+
+        private void panel2_Paint_1(object sender, PaintEventArgs e)
+        {
+        }
+
         private void txtB_Action_TextChanged(object sender, EventArgs e)
         {
             txtB_Action.Text = txtB_Action.Text.Replace("(", "[").Replace(")", "]");
@@ -235,6 +309,67 @@ namespace LX29_ChatClient.Addons
             string text = txtB_Search.Text.ToLower();
             var find = comboBox1.Items.Cast<string>().ToList().FindIndex(t => t.ToLower().Contains(text));
             comboBox1.SelectedIndex = find;
+        }
+
+        public static class Creator
+        {
+            public static CheckBox CreateCheckBox(bool check, string name)
+            {
+                var cB = new CheckBox();
+                cB.Anchor = System.Windows.Forms.AnchorStyles.Left;
+                cB.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                cB.Name = name;
+                cB.Checked = check;
+                cB.Text = name;
+                cB.UseVisualStyleBackColor = true;
+                cB.AutoSize = true;
+                return cB;
+            }
+
+            public static NumericUpDown CreateNuD(decimal value, string name)
+            {
+                var nUD = new NumericUpDown();
+                nUD.Anchor = System.Windows.Forms.AnchorStyles.Left;
+                nUD.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+                nUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                nUD.ForeColor = System.Drawing.Color.Gainsboro;
+                nUD.Name = name;
+                nUD.Size = new System.Drawing.Size(50, 22);
+                nUD.Minimum = 0;
+                //nUD.AutoSize = true;
+                nUD.Maximum = Int16.MaxValue;
+                nUD.Value = value;
+                return nUD;
+            }
+
+            public static Panel CreatePanel(List<Control> controls, string name, int width)
+            {
+                Panel panel2 = new Panel();
+                panel2.Size = new System.Drawing.Size(width, 50);
+                panel2.AutoScroll = true;
+                panel2.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+                int x = 0;
+                foreach (var ctrl in controls)
+                {
+                    ctrl.Location = new System.Drawing.Point(x, panel2.Height / 2 - ctrl.Height / 2);
+                    x += ctrl.Width + 5;
+                }
+                panel2.Controls.AddRange(controls.ToArray());
+                panel2.Name = name;
+                return panel2;
+            }
+
+            public static RichTextBox CreateRtB(string name, string text)
+            {
+                var rTB = new RichTextBox();
+                rTB.Anchor = System.Windows.Forms.AnchorStyles.Left;
+                rTB.Multiline = false;
+                rTB.Name = name;
+                rTB.Size = new System.Drawing.Size(132, 22);
+                rTB.TabIndex = 21;
+                rTB.Text = text;
+                return rTB;
+            }
         }
     }
 }

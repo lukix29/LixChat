@@ -105,7 +105,7 @@ namespace LX29_Helpers
 
         public static void CheckNightlyUpdate(Action<int, int, string> progAction)
         {
-            string url = "https://github.com/lukix29/LixChat/blob/master/LixChat/Data/LixChat_Nightly_Updater.7z";
+            string url = "https://github.com/lukix29/LixChat/raw/master/LixChat/Data/LixChat.exe";
             DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
             HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
             req.Proxy = null;
