@@ -140,6 +140,17 @@ namespace LX29_Helpers
                         Process.Start("updater.exe", path + " " + Application.StartupPath + "LixChat.exe");
                     }
                 }
+                //private static void Main(string[] args)
+                //{
+                //    string source = args[0];
+                //    string dest = args[1];
+                //    var procs = Process.GetProcesses().Where(t => t.StartInfo.FileName.Equals("lixchat.exe", StringComparison.OrdinalIgnoreCase));
+                //    foreach (var proc in procs)
+                //    {
+                //        proc.Close();
+                //    }
+                //    File.Move(source, dest);
+                //}
             }
             catch (Exception x)
             {
