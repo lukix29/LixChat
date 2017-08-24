@@ -233,7 +233,7 @@ namespace LX29_LixChat
         {
             try
             {
-                if (tsLabel_Info.Visible && DateTime.Now.Subtract(last_Info_Update).TotalSeconds >= 10)
+                if (tsLabel_Info.Visible && DateTime.Now.Subtract(last_Info_Update).TotalSeconds >= 5)
                 {
                     tsLabel_Info.Visible = false;
                     tSProgBar_Loading.Visible = false;
@@ -814,7 +814,7 @@ namespace LX29_LixChat
         {
             DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
             LX29_MessageBox.Show("Programmed by Lukix29 ©" + cur.Year + "\r\n\r\nEmoji artwork provided by EmojiOne." +
-                "\r\n\r\nhttps://lixchat.com\r\n(Domain provided by ChoosenEye)\r\n\r\nIf you want to Support me:\r\nhttps://paypal.me/lukix29");
+                "\r\n\r\nhttps://lixchat.com\r\nFeedback:\r\nfeedback@lixchat.com\r\n(Domain provided by ChoosenEye)\r\n\r\nIf you want to Support me:\r\nhttps://paypal.me/lukix29");
         }
 
         private void tSMi_LogOut_Click(object sender, EventArgs e)

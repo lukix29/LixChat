@@ -35,7 +35,7 @@ namespace LX29_ChatClient.Emotes
                 int max = channels.Count() * 2;
                 int cnt = 0;
 
-                var timer = new LXTimer((o) => _loaded_channel(null, cnt, max, "Loading FFZ/BTTV Channels"), 1000, 500);
+                var timer = new LXTimer((o) => On_Loaded_channel(null, cnt, max, "Loading FFZ/BTTV Channels"), 1000, 500);
 
                 var t0 = Task.Run(() =>
                     Parallel.ForEach(channels, new Action<ChannelInfo>((channel) =>
@@ -77,6 +77,12 @@ namespace LX29_ChatClient.Emotes
             var chans = new ChannelInfo[] { channel };
             LoadChannelEmotes(chans, showprogress);
             LoadChannelBadges(chans, showprogress);
+        }
+
+        public void On_Loaded_channel(ChannelInfo ci, int count, int max, string info)
+        {
+            if (OnChannelLoaded != null)
+                OnChannelLoaded(ci, (int)count, (int)max, info.Trim(':'));
         }
 
         private Dictionary<string, _emotesetchannelid> _load_EmoteSet_IDs(WebClient wc)
@@ -158,12 +164,6 @@ namespace LX29_ChatClient.Emotes
                 }
             }
             return new Dictionary<string, _emotesetchannelid>();
-        }
-
-        private void _loaded_channel(ChannelInfo ci, int count, int max, string info)
-        {
-            if (OnChannelLoaded != null)
-                OnChannelLoaded(ci, (int)count, (int)max, info.Trim(':'));
         }
 
         private void LoadChannelBadges(IEnumerable<ChannelInfo> channels, bool showprogress = false)
@@ -262,7 +262,7 @@ namespace LX29_ChatClient.Emotes
                                 emotionary.Add(em);
                                 if (cnt % 2000 == 0)
                                 {
-                                    _loaded_channel(null, cnt, max, "Loading Emote Cache");
+                                    On_Loaded_channel(null, cnt, max, "Loading Emote Cache");
                                 }
                                 cnt++;
                             }
@@ -409,7 +409,7 @@ namespace LX29_ChatClient.Emotes
                     wc.Proxy = null;
                     wc.Headers.Add("Client-ID", TwitchApi.CLIENT_ID);
 
-                    var timer = new LXTimer((o) => _loaded_channel(null, cnt, Int32.MaxValue / 10000, "Loading Emotes"), 1000, 500);
+                    var timer = new LXTimer((o) => On_Loaded_channel(null, cnt, Int32.MaxValue / 10000, "Loading Emotes"), 1000, 500);
 
                     var _emotesetename = _load_EmoteSet_IDs(wc);
                     string url = "https://api.twitch.tv/kraken/chat/emoticon_images";
@@ -514,7 +514,7 @@ namespace LX29_ChatClient.Emotes
                         // writer.WriteValue(json);
                         if (cnt % 2000 == 0)
                         {
-                            _loaded_channel(null, cnt, max, "Saving Emotes");
+                            On_Loaded_channel(null, cnt, max, "Saving Emotes");
                         }
                         cnt++;
                     }
@@ -779,7 +779,7 @@ namespace LX29_ChatClient.Emotes
                     Directory.CreateDirectory(Settings.emoteDir);
                 }
 
-                _loaded_channel(null, 0, 100, "Loading User Emotes");
+                On_Loaded_channel(null, 0, 100, "Loading User Emotes");
 
                 //_loaded_channel(null, emotess.UserEmotes.Count, emotess.UserEmotes.Count, "Loading User Emotes");
 
@@ -787,54 +787,55 @@ namespace LX29_ChatClient.Emotes
                 var tb1 = Task.Run(() => Badges.Parse_FFZ_Badges());
                 var tb2 = Task.Run(() => Badges.Parse_FFZ_Addon_Badges());
 
-                _loaded_channel(null, 0, 100, "Loading Badges");
+                On_Loaded_channel(null, 0, 100, "Loading Badges");
 
                 if (LoadEmotes(loadnew))
                 {
-                    _loaded_channel(null, 0, 1, "Loading Global Emotes");
+                    On_Loaded_channel(null, 0, 1, "Loading Global Emotes");
                     var t0 = Task.Run(() => parse_FFZ());
                     var t1 = Task.Run(() => parse_BTTV());
 
                     parse_Twitch_EmoteList();
 
                     LoadChannelEmotes(Channels, true);
-                    //var chans = Channels.Where(s => s.IsOnline ||
-                    //        s.AutoLoginChat ||
-                    //        s.IsFavorited ||
-                    //        s.SubInfo.IsSub).ToArray();
-                    //var restchans = Channels.Except(chans).ToArray();
-                    //LoadChannelEmotes(restchans, false);
 
                     Task.WaitAll(t0, t1);
                     Save();
                 }
                 else
                 {
-                    _loaded_channel(null, 1, 1, "Loaded Emote Cache.");
+                    On_Loaded_channel(null, 1, 1, "Loaded Emote Cache.");
                 }
                 var tb3 = Task.Run(() => emotionary.LoadUserEmotes());
 
-                _loaded_channel(null, 0, 2666, "Loading Emoji's");
+                On_Loaded_channel(null, 0, 2666, "Loading Emoji's");
                 var emojicnt = emotionary.LoadEmojis();
-                //_loaded_channel(null, emojicnt, emojicnt, "Loading Emoji's");
+                On_Loaded_channel(null, emojicnt, emojicnt, "Loading Emoji's");
 
-                Task.WaitAll(new Task[] { tb0, tb1, tb2, tb3 }, Int32.MaxValue);
+                bool success = Task.WaitAll(new Task[] { tb0, tb1, tb2, tb3 }, 60000);
+                if (!success) throw new TimeoutException();
                 Badges.Load();
 
+                long finish = DateTime.Now.Ticks;
                 Finished = true;
 
-                _loaded_channel(null, emotionary.Count, emotionary.Count,
+                On_Loaded_channel(null, emotionary.Count, emotionary.Count,
                     "Finished Loading of " + emotionary.Count + " Emotes && " + Badges.Count + " Badges");
 
                 Task.Run(() =>
                 {
                     //DateTime now = DateTime.Now;
-                    Parallel.ForEach(ChatClient.Messages.Values.Values, new Action<SortedList<long, ChatMessage>>((msg) =>
+                    int cnt = 0;
+                    int max = ChatClient.Messages.Values.Count;
+                    Parallel.ForEach(ChatClient.Messages.Values.Values, new Action<List<ChatMessage>>((msg) =>
                     {
-                        Parallel.ForEach(msg.Values, new Action<ChatMessage>((val) =>
+                        var msges = msg.Where(t => (t.SendTime.Ticks <= finish));
+                        foreach (var val in msges)
                         {
                             val.ReloadEmotes();
-                        }));
+                        }
+                        cnt++;
+                        On_Loaded_channel(null, cnt, max, "Reloading Emotes in Messages");
                     }));
                     //MessageBox.Show(DateTime.Now.Subtract(now).ToString());
                 });
@@ -883,13 +884,13 @@ namespace LX29_ChatClient.Emotes
                     try
                     {
                         List<EmoteBase> unis = new List<EmoteBase>();
-                        for (int i = 0; i < name.Length - 2; i += 2)
+                        var arr = name.ToArray();
+                        for (int i = 0; i < name.Length; i += 2)
                         {
-                            //string ch = name.Substring(i, 2);
-                            int uni = char.ConvertToUtf32(name[i], name[i + 1]);
-                            if (emotionary._emoji_unicodes.ContainsKey(uni))
+                            var ch = name.Substring(i, 2);
+                            if (emotionary._emoji_unicodes.ContainsKey(ch))
                             {
-                                var emoj = emotionary._emoji_unicodes[uni];
+                                var emoj = emotionary._emoji_unicodes[ch];
                                 unis.Add(emoj);
                             }
                         }

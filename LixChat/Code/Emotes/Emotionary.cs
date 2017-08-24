@@ -9,7 +9,7 @@ namespace LX29_ChatClient.Emotes
     public class Emoteionary
     {
         //public Dictionary<string, Emoji> _emoji_names = new Dictionary<string, Emoji>();
-        public Dictionary<int, Emoji> _emoji_unicodes = new Dictionary<int, Emoji>();
+        public Dictionary<string, Emoji> _emoji_unicodes = new Dictionary<string, Emoji>();
 
         private Dictionary<string, EmoteBase> _ffzbttv = new Dictionary<string, EmoteBase>();
 
@@ -20,7 +20,7 @@ namespace LX29_ChatClient.Emotes
             _UserEmotes = new List<EmoteBase>();
             _ffzbttv = new Dictionary<string, EmoteBase>();
             _twitch = new Dictionary<string, EmoteBase>();
-            _emoji_unicodes = new Dictionary<int, Emoji>();
+            _emoji_unicodes = new Dictionary<string, Emoji>();
         }
 
         public IEnumerable<EmoteBase> _UserEmotes
@@ -201,7 +201,7 @@ namespace LX29_ChatClient.Emotes
         public int LoadEmojis()
         {
             string line = "";
-            _emoji_unicodes = new Dictionary<int, Emoji>();
+            _emoji_unicodes = new Dictionary<string, Emoji>();
             using (StringReader sr = new StringReader(LX29_LixChat.Properties.Resources.emojis))
             {
                 while ((line = sr.ReadLine()) != null)
@@ -215,11 +215,13 @@ namespace LX29_ChatClient.Emotes
                         var arr0 = id.Split("-");
                         foreach (var vak in arr0)
                         {
-                            //int val = int.Parse(ID, NumberStyles.HexNumber);
-                            var uni = int.Parse(vak, NumberStyles.HexNumber);
-                            if (!_emoji_unicodes.ContainsKey(uni))
+                            int uni = int.Parse(vak, NumberStyles.HexNumber);
+                            string unis = char.ConvertFromUtf32(uni);
+                            if (!_emoji_unicodes.ContainsKey(unis))
                             {
-                                _emoji_unicodes.Add(uni, emo);
+                                _emoji_unicodes.Add(unis, emo);
+
+                                //_loaded_channel(null, emojicnt, emojicnt, "Loading Emoji's");
                             }
                         }
                     }

@@ -124,7 +124,7 @@ namespace IRC_Client
 
     public partial class IRC
     {
-        public readonly Encoding Encoding = Encoding.Unicode;
+        public readonly Encoding Encoding = Encoding.UTF8;
         private const int ReadBufferLength = 4096;
 
         //internal RequestManager RequestManager { get; set; }
@@ -132,7 +132,7 @@ namespace IRC_Client
 
         private static readonly byte endLineChar = Encoding.UTF8.GetBytes("\n")[0];
 
-        public IRC(string serverAddress, string Channel, string name, string tokken, bool useSSL = false)
+        public IRC(string serverAddress, string Channel, string name, string tokken)
         {
             this.Channel = Channel;
             if (serverAddress == null) throw new ArgumentNullException("serverAddress");
@@ -141,13 +141,11 @@ namespace IRC_Client
                      "oauth:" + tokken);
 
             ServerAddress = serverAddress;
-            Encoding = Encoding.UTF8;
-            // Channels = new ChannelCollection();
 
             Handlers = new Dictionary<string, MessageHandler>();
             RegisterDefaultHandlers();
-            //RequestManager = new RequestManager();
-            UseSSL = useSSL;
+
+            //UseSSL = useSSL;
             WriteQueue = new ConcurrentQueue<string>();
 
             PrivmsgPrefix = "";
@@ -249,7 +247,7 @@ namespace IRC_Client
             get { return UserQuit == null; }
         }
 
-        public bool UseSSL { get; private set; }
+        //public bool UseSSL { get; private set; }
         private Dictionary<string, MessageHandler> Handlers { get; set; }
 
         private bool IsWriting { get; set; }
@@ -419,18 +417,18 @@ namespace IRC_Client
                 Socket.EndConnect(result);
 
                 NetworkStream = new NetworkStream(Socket);
-                if (UseSSL)
-                {
-                    if (IgnoreInvalidSSL)
-                    {
-                        NetworkStream = new SslStream(NetworkStream, false, (sender, certificate, chain, policyErrors) => true);
-                    }
-                    else
-                    {
-                        NetworkStream = new SslStream(NetworkStream);
-                    }
-                    ((SslStream)NetworkStream).AuthenticateAsClient(ServerHostname);
-                }
+                //if (UseSSL)
+                //{
+                //    if (IgnoreInvalidSSL)
+                //    {
+                //        NetworkStream = new SslStream(NetworkStream, false, (sender, certificate, chain, policyErrors) => true);
+                //    }
+                //    else
+                //    {
+                //        NetworkStream = new SslStream(NetworkStream);
+                //    }
+                //    ((SslStream)NetworkStream).AuthenticateAsClient(ServerHostname);
+                //}
 
                 NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length, DataRecieved, null);
 

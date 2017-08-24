@@ -878,7 +878,7 @@ namespace LX29_ChatClient
 
             private Dictionary<string, int> messageCount = new Dictionary<string, int>();
 
-            private Dictionary<string, SortedList<long, ChatMessage>> messages = new Dictionary<string, SortedList<long, ChatMessage>>();//new Dictionary<string, List<ChatMessage>>();
+            private Dictionary<string, List<ChatMessage>> messages = new Dictionary<string, List<ChatMessage>>();//new Dictionary<string, List<ChatMessage>>();
 
             private Dictionary<string, List<ChatMessage>> whisper = new Dictionary<string, List<ChatMessage>>();
 
@@ -886,7 +886,7 @@ namespace LX29_ChatClient
 
             public event WhisperReceivedHandler OnWhisperReceived;
 
-            public Dictionary<string, SortedList<long, ChatMessage>> Values
+            public Dictionary<string, List<ChatMessage>> Values
             {
                 get { return messages; }
             }
@@ -907,11 +907,11 @@ namespace LX29_ChatClient
                         {
                             if (type == MsgType.All_Messages)
                             {
-                                return messages[channel].Values.ToList();
+                                return messages[channel];
                             }
                             else
                             {
-                                return messages[channel].Values.Where(t => t.IsType(type)).ToList();
+                                return messages[channel].Where(t => t.IsType(type)).ToList();
                             }
                         }
                     }
@@ -924,7 +924,7 @@ namespace LX29_ChatClient
                         }
                         else
                         {
-                            return messages[channel].Values.Where(t => t.Name.Equals(name)).ToList();
+                            return messages[channel].Where(t => t.Name.Equals(name)).ToList();
                         }
                     }
                     return null;
@@ -960,7 +960,7 @@ namespace LX29_ChatClient
                             {
                                 AddChannel(channelName);
                             }
-                            messages[channelName].Add(msg.SendTime.Ticks, msg);
+                            messages[channelName].Add(msg);
                             messageCount[channelName]++;
 
                             while (messages.Count > maxMessages)
@@ -1009,7 +1009,7 @@ namespace LX29_ChatClient
             public void AddChannel(string Channel)
             {
                 if (!messages.ContainsKey(Channel))
-                    messages.Add(Channel, new SortedList<long, ChatMessage>());
+                    messages.Add(Channel, new List<ChatMessage>());
 
                 if (!messageCount.ContainsKey(Channel))
                     messageCount.Add(Channel, 0);
@@ -1063,11 +1063,11 @@ namespace LX29_ChatClient
                                 {
                                     if (name.IsEmpty())
                                     {
-                                        return messages[channel].Values.Count(t => t.IsType(type));
+                                        return messages[channel].Count(t => t.IsType(type));
                                     }
                                     else
                                     {
-                                        return messages[channel].Values
+                                        return messages[channel]
                                              .Count(t => (t.IsType(type) &&
                                                  t.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
                                     }
@@ -1111,18 +1111,18 @@ namespace LX29_ChatClient
                             {
                                 if (name.IsEmpty())
                                 {
-                                    if (messages[channel].Values.Count(t => t.IsType(type)) > 0)
+                                    if (messages[channel].Count(t => t.IsType(type)) > 0)
                                     {
-                                        return messages[channel].Values.Where(t => t.IsType(type));
+                                        return messages[channel].Where(t => t.IsType(type));
                                     }
                                 }
                                 else
                                 {
-                                    if (messages[channel].Values
+                                    if (messages[channel]
                                         .Count(t => (t.IsType(type) &&
                                             t.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) > 0)
                                     {
-                                        return messages[channel].Values.Where(t => (t.IsType(type) &&
+                                        return messages[channel].Where(t => (t.IsType(type) &&
                                             t.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
                                     }
                                 }
@@ -1173,7 +1173,7 @@ namespace LX29_ChatClient
 
             public int MessageCount(string channel, string user)
             {
-                return messages[channel].Values.Count(t => t.Name.Equals(user, StringComparison.OrdinalIgnoreCase));
+                return messages[channel].Count(t => t.Name.Equals(user, StringComparison.OrdinalIgnoreCase));
             }
         }
     }

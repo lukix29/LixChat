@@ -147,7 +147,8 @@ namespace LX29_ChatClient
         public static readonly SettingClasses[] PlayerBasic = new SettingClasses[]
         {
             new SettingClasses("_MpvBufferBytes", "Player Buffer(Kbytes)", 100.0, UInt16.MaxValue * 10.0, 1000.0),
-            new SettingClasses("_MpvBufferSeconds", "Player Buffer(Sec)", 1.0, 120.0, 1.0)
+            new SettingClasses("_MpvBufferSeconds", "Player Buffer(Sec)", 1.0, 120.0, 1.0),
+            new SettingClasses("_DevUpdates", "Nightly Updates")
         };
 
         public static readonly SettingClasses[] TextBasic = new SettingClasses[]
@@ -430,6 +431,7 @@ namespace LX29_ChatClient
         private static string _BrowserPath = "";
         private static int _ChatBackGround = Color.FromArgb(35, 35, 35).ToArgb();
         private static string _ChatFontName = "Calibri";
+        private static bool _DevUpdates = false;
         private static Rectangle _MainBounds = Rectangle.Empty;
         private static double _MpvBufferBytes = 64000;
         private static double _MpvBufferSeconds = 10;
@@ -492,6 +494,16 @@ namespace LX29_ChatClient
             set
             {
                 _ChatBackGround = value;
+                Save();
+            }
+        }
+
+        public static bool DevUpdates
+        {
+            get { return _DevUpdates; }
+            set
+            {
+                _DevUpdates = value;
                 Save();
             }
         }

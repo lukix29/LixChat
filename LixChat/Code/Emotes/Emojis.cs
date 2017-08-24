@@ -88,9 +88,7 @@ namespace LX29_ChatClient.Emotes
         public EmoteOrigin Origin
         {
             get { return EmoteOrigin.Emoji; }
-            set
-            {
-            }
+            set { }
         }
 
         public Size Size

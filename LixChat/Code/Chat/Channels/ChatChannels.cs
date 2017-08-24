@@ -497,6 +497,14 @@ namespace LX29_ChatClient.Channels
             }
         }
 
+        public void GetMpvWindow()
+        {
+            if (MPV != null && MPV.IsRunning)
+            {
+                PlayerPosition = MPV.Position;
+            }
+        }
+
         public void ShowVideoPlayer(string quality, bool external = false, Action<int, int, string> a = null)
         {
             if (isStartingStream) return;
@@ -609,9 +617,9 @@ namespace LX29_ChatClient.Channels
             if (!sdf.IsEmpty)
             {
                 string url = sdf[quali].URL;
-                MPV.Start(this.Name, url, (int)Settings.MpvBufferBytes, (int)Settings.MpvBufferSeconds, this.PlayerPosition);
+                return MPV.Start(this.Name, url, (int)Settings.MpvBufferBytes, (int)Settings.MpvBufferSeconds, this.PlayerPosition);
                 //MessageBox.Show(MPV.GetProperty(MPV_Property.ca).ToString());
-                return true;
+                //return true;
             }
             else
             {

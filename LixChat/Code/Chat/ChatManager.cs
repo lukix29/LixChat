@@ -534,14 +534,14 @@ namespace LX29_ChatClient
         {
             try
             {
-                for (int i = 0; i < ChatWords.Count; i++)
-                {
-                    var word = ChatWords[i];
-                    if (!word.IsEmote)
-                    {
-                        ChatWords[i] = new ChatWord(word.Text, Channel);//typelist.Contains(MsgType.Outgoing));
-                    }
-                }
+                ChatWords = ChatWords.Select(t =>
+                 {
+                     if (!t.IsEmote)
+                     {
+                         return new ChatWord(t.Text, Channel);//typelist.Contains(MsgType.Outgoing));
+                     }
+                     else return t;
+                 }).ToList();
             }
             catch
             {

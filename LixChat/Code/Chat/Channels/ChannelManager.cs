@@ -315,6 +315,7 @@ namespace LX29_ChatClient
                     {
                         channel.ResetStreamStatus();
                     }
+                    channel.GetMpvWindow();
                 }
                 Emotes.Values.CheckLoadingTime();
 

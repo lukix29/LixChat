@@ -358,7 +358,7 @@ namespace LX29_ChatClient.Addons
                 {
                     if (File.Exists(Settings.scriptDir + mi))
                     {
-                        var arr = File.ReadLines(Settings.scriptDir + mi, System.Text.Encoding.UTF8).Where(t => t.Length >= 3);
+                        var arr = File.ReadLines(Settings.scriptDir + mi).Where(t => t.Length >= 3);
                         int index = lastRDmsg;
                         while (index == lastRDmsg)
                         {

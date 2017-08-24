@@ -462,9 +462,7 @@ namespace LX29_Helpers
                     cash = " --cache-initial=" + cache +
                             " --cache-backbuffer=" + cache +
                             " --cache-default=" + cache +
-                            " --demuxer-readahead-secs=" + cacheSecs;// +
-                    //" --demuxer-max-bytes=" + cache * 1000;
-                    //" "
+                            " --demuxer-readahead-secs=" + cacheSecs;
                 }
                 string geom = "";
                 if (!rect.IsEmpty)
@@ -478,15 +476,16 @@ namespace LX29_Helpers
                     {
                         rect.X = sc.Bounds.X + leftBH;
                     }
-                    if (rect.Width > sc.Bounds.Width / 1.5)
+                    if (rect.Width > sc.Bounds.Width / 2)
                     {
                         rect.Width = sc.Bounds.Width / 2;
+                        rect.X = sc.Bounds.X + rect.Width / 2;
                     }
-                    else if (rect.Height > sc.Bounds.Height / 1.5)
+                    if (rect.Height > sc.Bounds.Height / 2)
                     {
                         rect.Height = sc.Bounds.Height / 2;
+                        rect.Y = sc.Bounds.Y + rect.Height / 2;
                     }
-                    //geom = " --geometry=" + rect.X + ":" + rect.Y;
                     geom = " --geometry=" + rect.Width + "x" + rect.Height +
                         ((rect.X < 0) ? "-" : "+") + Math.Abs(rect.X) +
                         ((rect.Y < 0) ? "-" : "+") + Math.Abs(rect.Y);

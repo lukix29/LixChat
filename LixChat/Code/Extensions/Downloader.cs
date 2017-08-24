@@ -105,27 +105,49 @@ namespace LX29_Helpers
 
         public static void CheckNightlyUpdate(Action<int, int, string> progAction)
         {
-            string url = "https://github.com/lukix29/LixChat/raw/master/LixChat/Data/LixChat.exe";
-            DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
-            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-            req.Proxy = null;
-
-            using (var resp = req.GetResponse())
+            try
             {
-                long length = resp.ContentLength;
-
-                using (var sr = resp.GetResponseStream())
+                string url = "https://github.com/lukix29/LixChat/raw/master/LixChat/Data/LixChat.exe";
+                DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
+                HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+                req.Proxy = null;
+                string path = Path.GetFullPath(Path.GetTempPath() + "temp.exe");
+                bool doUpdate = false;
+                using (var resp = req.GetResponse())
                 {
-                    byte[] buffer;
-                    DateTime online = sr.GetOnlineLinkerTime(out buffer);
-                    if (online.Ticks > cur.Ticks)
+                    long length = resp.ContentLength;
+
+                    using (var sr = resp.GetResponseStream())
                     {
-                        using (var fs = File.OpenWrite("temp.exe"))
+                        byte[] buffer;
+                        DateTime online = sr.GetOnlineLinkerTime(out buffer);
+                        if (online.Ticks > cur.Ticks)
                         {
-                            fs.Write(buffer, 0, buffer.Length);
-                            sr.CopyTo(fs);
+                            using (var fs = File.OpenWrite(path))
+                            {
+                                fs.Write(buffer, 0, buffer.Length);
+                                sr.CopyTo(fs);
+                            }
+                            doUpdate = true;
                         }
                     }
+                }
+                if (doUpdate)
+                {
+                    if (LX29_MessageBox.Show("Update found!\r\nDownload now?", "Update", MessageBoxButtons.YesNo) == MessageBoxResult.Yes)
+                    {
+                        File.WriteAllBytes("updater.exe", LX29_LixChat.Properties.Resources.updater);
+                        Process.Start("updater.exe", path + " " + Application.StartupPath + "LixChat.exe");
+                    }
+                }
+            }
+            catch (Exception x)
+            {
+                switch (x.Handle("Update Error!"))
+                {
+                    case MessageBoxResult.Retry:
+                        CheckUpdate(progAction);
+                        break;
                 }
             }
         }

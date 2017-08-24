@@ -76,10 +76,17 @@ namespace LX29_ChatClient.Addons
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (txtB_Username.TextLength > 0)
+            if (!Settings.isDebug)
             {
-                AddItem();
-                isSaved = false;
+                if (txtB_Username.TextLength > 0)
+                {
+                    AddItem();
+                    isSaved = false;
+                }
+            }
+            else
+            {
+                CreateChatActionControls(panel2.Controls.Cast<Control>().Max(t => t.Bottom) + 5, new ChatAction(channel.Name));
             }
         }
 
@@ -119,6 +126,70 @@ namespace LX29_ChatClient.Addons
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             txtB_Username.Text = comboBox1.SelectedItem.ToString();
+        }
+
+        private List<Label> CreateChatActionControls(int y, params ChatAction[] actions)
+        {
+            List<Panel> panels = new List<Panel>();
+            List<Label> labels = new List<Label>();
+            bool fillLabels = true;
+            foreach (ChatAction ca in actions)
+            {
+                labels.Clear();
+                List<Control> list = new List<Control>();
+                var props = ca.GetType().GetProperties().Where(t => !t.Name.Equals("IsEmpty"))
+                    .OrderByDescending(t => t.PropertyType.Equals(typeof(string)))
+                    .ThenByDescending(t => t.PropertyType.Equals(typeof(bool)))
+                    .ThenByDescending(t => t.PropertyType.Equals(typeof(int)));
+                foreach (var prop in props)
+                {
+                    if (prop.PropertyType.Equals(typeof(int)))
+                    {
+                        var i = (int)prop.GetValue(ca);
+                        var nud = Creator.CreateNuD(i, prop.Name);
+                        nud.ValueChanged += (o, e) =>
+                            {
+                                prop.SetValue(ca, (int)nud.Value);
+                            };
+                        list.Add(nud);
+                    }
+                    else if (prop.PropertyType.Equals(typeof(bool)))
+                    {
+                        var b = (bool)prop.GetValue(ca);
+                        var nud = Creator.CreateCheckBox(b, prop.Name);
+                        nud.CheckedChanged += (o, e) =>
+                        {
+                            prop.SetValue(ca, nud.Checked);
+                        };
+                        list.Add(nud);
+                    }
+                    else if (prop.PropertyType.Equals(typeof(string)))
+                    {
+                        var s = (string)prop.GetValue(ca);
+                        var nud = Creator.CreateRtB(prop.Name, s);
+                        nud.TextChanged += (o, e) =>
+                        {
+                            prop.SetValue(ca, nud.Text);
+                        };
+                        list.Add(nud);
+                    }
+                }
+
+                int height = list.Max(t => t.Height);
+                int x = 0;
+                foreach (var ctrl in list)
+                {
+                    ctrl.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+                    ctrl.Location = new System.Drawing.Point(x, y);
+                    if (fillLabels) labels.Add(new Label() { Text = ctrl.Name, Location = new System.Drawing.Point(x, 0) });
+                    x += ctrl.Width + 5;
+                    panel2.Controls.Add(ctrl);
+                }
+                fillLabels = false;
+
+                y += height + 5;
+            }
+            return labels;
         }
 
         private void FormChatSettings_FormClosing(object sender, FormClosingEventArgs e)
@@ -170,73 +241,25 @@ namespace LX29_ChatClient.Addons
             var actions = ChatClient.AutoActions.GetChannelActions(channelName);
             if (Settings.isDebug)
             {
-                var header = typeof(ChatAction).GetProperties().Where(t => !t.Name.Equals("IsEmpty"))
-                        .OrderByDescending(t => t.PropertyType.Equals(typeof(string)))
-                        .ThenByDescending(t => t.PropertyType.Equals(typeof(bool)))
-                        .ThenByDescending(t => t.PropertyType.Equals(typeof(int)))
-                        .Select(t => (new Label() { Text = t.Name }) as Control).ToList();
+                var header = CreateChatActionControls(25, actions.ToArray());
 
-                var pn = Creator.CreatePanel(header, "Header", panel2.Width);
-                pn.Location = new System.Drawing.Point(0, 0);
-
-                panel2.Controls.Add(pn);
-
-                List<Panel> panels = new List<Panel>();
-                int y = pn.Height + 5;
-                foreach (ChatAction ca in actions)
+                //  int x = 0;
+                // int bottom = header.Max(t => t.Bottom) + 5;
+                foreach (var ctrl in header)
                 {
-                    List<Control> list = new List<Control>();
-                    var props = ca.GetType().GetProperties().Where(t => !t.Name.Equals("IsEmpty"))
-                        .OrderByDescending(t => t.PropertyType.Equals(typeof(string)))
-                        .ThenByDescending(t => t.PropertyType.Equals(typeof(bool)))
-                        .ThenByDescending(t => t.PropertyType.Equals(typeof(int)));
-                    foreach (var prop in props)
-                    {
-                        if (prop.PropertyType.Equals(typeof(int)))
-                        {
-                            var i = (int)prop.GetValue(ca);
-                            var nud = Creator.CreateNuD(i, prop.Name);
-                            nud.ValueChanged += (o, e) =>
-                                {
-                                    prop.SetValue(ca, (int)nud.Value);
-                                };
-                            list.Add(nud);
-                        }
-                        else if (prop.PropertyType.Equals(typeof(bool)))
-                        {
-                            var b = (bool)prop.GetValue(ca);
-                            var nud = Creator.CreateCheckBox(b, prop.Name);
-                            nud.CheckedChanged += (o, e) =>
-                            {
-                                prop.SetValue(ca, nud.Checked);
-                            };
-                            list.Add(nud);
-                        }
-                        else if (prop.PropertyType.Equals(typeof(string)))
-                        {
-                            var s = (string)prop.GetValue(ca);
-                            var nud = Creator.CreateRtB(prop.Name, s);
-                            nud.TextChanged += (o, e) =>
-                            {
-                                prop.SetValue(ca, nud.Text);
-                            };
-                            list.Add(nud);
-                        }
-                    }
-                    // list = list.OrderByDescending(t => t is RichTextBox).ToList();
-
-                    pn = Creator.CreatePanel(list, ca.Message, panel2.Width);
-                    pn.Location = new System.Drawing.Point(0, y);
-                    y += pn.Height + 5;
-                    panel2.Controls.Add(pn);
+                    ctrl.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+                    //ctrl.Location = new System.Drawing.Point(x, 0);
+                    panel2.Controls.Add(ctrl);
                 }
             }
             else
             {
                 panel2.Visible = false;
                 lstB_Main.Items.Clear();
+
                 lstB_Main.Items.AddRange(actions.Select(t => t.ToString()).ToArray());
             }
+
             if (withuser)
             {
                 comboBox1.Items.Clear();
@@ -344,8 +367,10 @@ namespace LX29_ChatClient.Addons
 
             public static Panel CreatePanel(List<Control> controls, string name, int width)
             {
+                int height = controls.Max(t => t.Height);
+                height += 32;
                 Panel panel2 = new Panel();
-                panel2.Size = new System.Drawing.Size(width, 50);
+                panel2.Size = new System.Drawing.Size(width, height);
                 panel2.AutoScroll = true;
                 panel2.Anchor = AnchorStyles.Left | AnchorStyles.Right;
                 int x = 0;

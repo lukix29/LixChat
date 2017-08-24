@@ -338,6 +338,7 @@
     <Folder Include="bin\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\updater.exe" />
     <None Include="Resources\1463551454_16.ico" />
     <None Include="Emojis\0023-20e3.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -8340,10 +8341,9 @@
     <None Include="Plugins\7za.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="Data\LixChat.exe" />
+    <None Include="Data\LixChat.exe" />
     <Content Include="Resources\ban.png" />
     <None Include="Resources\emojis.txt" />
-    <Content Include="Resources\emojis.exe" />
     <Content Include="Resources\timeout.png" />
     <None Include="Resources\ActionHelp.txt" />
     <Content Include="Resources\resize.png" />
