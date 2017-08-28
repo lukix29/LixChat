@@ -207,8 +207,8 @@ namespace LX29_ChatClient.Emotes
                 while ((line = sr.ReadLine()) != null)
                 {
                     var arr = line.Split('=');
-                    var name = arr[1];
-                    var id = arr[0];
+                    var name = arr[0];
+                    var id = arr[1];
                     if (!id.IsEmpty())
                     {
                         Emoji emo = new Emoji(id, name);
@@ -220,8 +220,6 @@ namespace LX29_ChatClient.Emotes
                             if (!_emoji_unicodes.ContainsKey(unis))
                             {
                                 _emoji_unicodes.Add(unis, emo);
-
-                                //_loaded_channel(null, emojicnt, emojicnt, "Loading Emoji's");
                             }
                         }
                     }
