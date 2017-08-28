@@ -165,6 +165,11 @@ namespace LX29_Helpers
 
         public static void CheckUpdate(Action<int, int, string> progAction)
         {
+            if (Settings.DevUpdates)
+            {
+                CheckNightlyUpdate(progAction);
+                return;
+            }
             try
             {
                 DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
