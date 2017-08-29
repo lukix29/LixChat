@@ -10,6 +10,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
+using System.IO.MemoryMappedFiles;
 
 namespace LX29_ChatClient
 {
@@ -871,10 +873,78 @@ namespace LX29_ChatClient
 
     public static partial class ChatClient
     {
+        public class MessageBuffer
+        {
+            private FileStream mfile;
+            private List<KeyValuePair<long, long>> positions = new List<KeyValuePair<long, long>>();
+
+            public MessageBuffer(string channel)
+            {
+                mfile = new FileStream(channel + ".cache", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                //mfile = MemoryMappedFile.CreateNew(
+                //    channel + "_page",
+                //    512 * (Settings.ChatHistory * 8),
+                //    MemoryMappedFileAccess.ReadWrite,
+                //    MemoryMappedFileOptions.DelayAllocatePages,
+                //    new MemoryMappedFileSecurity(),
+                //    HandleInheritability.Inheritable);
+            }
+
+            public int Count
+            {
+                get;
+                set;
+            }
+
+            public void Add(ChatMessage message)
+            {
+                try
+                {
+                    string s = JsonConvert.SerializeObject(message);
+                    byte[] buff = System.Text.Encoding.Default.GetBytes(s);
+
+                    positions.Add(new KeyValuePair<long, long>(mfile.Position, buff.Length));
+                    mfile.Lock(mfile.Position, buff.Length);
+                    mfile.Write(buff, 0, buff.Length);
+                    mfile.Unlock(mfile.Position, buff.Length);
+                }
+                catch
+                {
+                }
+            }
+
+            public ChatMessage GetMessage(int index)
+            {
+                long pos = mfile.Position;
+                var kvp = positions[index];
+                byte[] ba = new byte[kvp.Value];
+                mfile.Lock(kvp.Key, kvp.Value);
+                mfile.Seek(kvp.Key, SeekOrigin.Begin);
+                mfile.Read(ba, 0, ba.Length);
+                mfile.Unlock(kvp.Key, kvp.Value);
+                var json = System.Text.Encoding.Default.GetString(ba);
+                return JsonConvert.DeserializeObject<ChatMessage>(json);
+            }
+
+            //public class RootObject
+            //{
+            //    public string Message { get; set; }
+            //    public string Name { get; set; }
+            //    public string SendTime { get; set; }
+            //    public List<int> Types { get; set; }
+            //}
+        }
+
         public class MessageCollection // : IDictionary<string, Dictionary<string, ChatUser>>
         {
+            //private JsonSerializer jss = new JsonSerializer()
+            //            {
+            //                DefaultValueHandling = DefaultValueHandling.Ignore,
+            //                ObjectCreationHandling = ObjectCreationHandling.Reuse,
+            //                MissingMemberHandling = MissingMemberHandling.Ignore
+            //            };
+
             //count bytes received in IRC-client
-            private int maxMessages = 1024;
 
             private Dictionary<string, int> messageCount = new Dictionary<string, int>();
 
@@ -953,6 +1023,10 @@ namespace LX29_ChatClient
                         if (msg.IsType(MsgType.Whisper))
                         {
                             AddWhisper(channelName, msg);
+                            if (Settings.BeepOnWhisper)
+                            {
+                                System.Media.SystemSounds.Beep.Play();
+                            }
                         }
                         else
                         {
@@ -960,10 +1034,18 @@ namespace LX29_ChatClient
                             {
                                 AddChannel(channelName);
                             }
+                            //try
+                            //{
+                            //    string s = JsonConvert.SerializeObject(msg);
+                            //    File.AppendAllText(channelName + ".cache", s + "\r\n");
+                            //}
+                            //catch
+                            //{
+                            //}
                             messages[channelName].Add(msg);
                             messageCount[channelName]++;
 
-                            while (messages.Count > maxMessages)
+                            while (messages.Count > Settings.ChatHistory)
                             {
                                 messages[channelName].RemoveAt(0);
                             }

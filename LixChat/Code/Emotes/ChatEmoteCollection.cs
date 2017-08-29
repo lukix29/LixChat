@@ -37,29 +37,28 @@ namespace LX29_ChatClient.Emotes
 
                 var timer = new LXTimer((o) => On_Loaded_channel(null, cnt, max, "Loading FFZ/BTTV Channels"), 1000, 500);
 
-                var t0 = Task.Run(() =>
-                    Parallel.ForEach(channels, new Action<ChannelInfo>((channel) =>
-                 {
-                     parse_BTTV_Channel(channel.Name);
-                     cnt++;
-                     //if (showprogress) _loaded_channel(null, cnt, max, "Loading BTTV/FFZ Channel");
-                 })));
-
-                var t1 = Task.Run(() =>
-                    Parallel.ForEach(channels, new Action<ChannelInfo>((channel) =>
-               {
-                   parse_FFZ_Channel(channel.Name);
-                   cnt++;
-               })));
-
-                Task.WaitAll(t0, t1);
+                List<Task> tasks = new List<Task>();
+                foreach (var channel in channels)
+                {
+                    var t0 = Task.Run(() =>
+                    {
+                        parse_BTTV_Channel(channel.Name);
+                        cnt++;
+                    });
+                    var t1 = Task.Run(() =>
+                    {
+                        parse_FFZ_Channel(channel.Name);
+                        cnt++;
+                    });
+                    tasks.Add(t0);
+                    tasks.Add(t1);
+                    if (tasks.Count >= 8)
+                    {
+                        Task.WaitAll(tasks.ToArray());
+                        tasks.Clear();
+                    }
+                }
                 timer.Dispose();
-                //while (tasks.Count > 0)
-                //{
-                //    var index = Task.WaitAny(tasks.ToArray());
-                //    var name = tasks[index].Result;
-                //    tasks.RemoveAt(index);
-                //}
             }
             catch (Exception x)
             {
@@ -353,7 +352,7 @@ namespace LX29_ChatClient.Emotes
 
                     //tring url = "http:" + urls.Split(",")[0].GetBetween(":", "");
 
-                    string id = (emote.id + Int32.MinValue).ToString();
+                    string id = emote.id.ToString();
 
                     var emorig = (uri.EndsWith("global")) ? EmoteOrigin.FFZ_Global : EmoteOrigin.FFZ;
                     string owner = (emorig == EmoteOrigin.FFZ_Global) ? "Global_FFZ" : emote.owner.display_name;

@@ -148,7 +148,8 @@ namespace LX29_ChatClient
         {
             new SettingClasses("_MpvBufferBytes", "Player Buffer(Kbytes)", 100.0, UInt16.MaxValue * 10.0, 1000.0),
             new SettingClasses("_MpvBufferSeconds", "Player Buffer(Sec)", 1.0, 120.0, 1.0),
-            new SettingClasses("_DevUpdates", "Nightly Updates")
+            new SettingClasses("_DevUpdates", "Nightly Updates"),
+            new SettingClasses("_BeepOnWhisper", "Beep on Whisper")
         };
 
         public static readonly SettingClasses[] TextBasic = new SettingClasses[]
@@ -427,10 +428,12 @@ namespace LX29_ChatClient
 
         #region PrivateFields
 
+        private static bool _BeepOnWhisper = false;
         private static string _BrowserName = "";
         private static string _BrowserPath = "";
         private static int _ChatBackGround = Color.FromArgb(35, 35, 35).ToArgb();
         private static string _ChatFontName = "Calibri";
+        private static int _ChatHistory = 1024;
         private static bool _DevUpdates = false;
         private static Rectangle _MainBounds = Rectangle.Empty;
         private static double _MpvBufferBytes = 64000;
@@ -438,11 +441,20 @@ namespace LX29_ChatClient
         private static bool _ShowErrors = false;
         private static bool _ShowTimeoutMessages = true;
         private static double _UpdateInterval = 60000;
-        private int _ChatHistory = 1024;
 
         #endregion PrivateFields
 
         #region PublicProperties
+
+        public static bool BeepOnWhisper
+        {
+            get { return _BeepOnWhisper; }
+            set
+            {
+                _BeepOnWhisper = value;
+                Save();
+            }
+        }
 
         public static string BrowserName
         {
@@ -494,6 +506,16 @@ namespace LX29_ChatClient
             set
             {
                 _ChatBackGround = value;
+                Save();
+            }
+        }
+
+        public static int ChatHistory
+        {
+            get { return _ChatHistory; }
+            set
+            {
+                _ChatHistory = Math.Max(10, value);
                 Save();
             }
         }
@@ -596,16 +618,6 @@ namespace LX29_ChatClient
             set
             {
                 _UserColorSaturation = Math.Max(0, Math.Min(1, value));
-                Save();
-            }
-        }
-
-        public int ChatHistory
-        {
-            get { return _ChatHistory; }
-            set
-            {
-                _ChatHistory = value;
                 Save();
             }
         }
@@ -744,6 +756,7 @@ namespace LX29_ChatClient
             if (sa != null)
             {
                 sa.SetValue(null, value);
+                Save();
             }
         }
 
@@ -755,6 +768,7 @@ namespace LX29_ChatClient
             if (sa != null)
             {
                 sa.SetValue(null, value);
+                Save();
             }
         }
 

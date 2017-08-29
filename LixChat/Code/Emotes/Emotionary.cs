@@ -211,17 +211,17 @@ namespace LX29_ChatClient.Emotes
                     var id = arr[1];
                     if (!id.IsEmpty())
                     {
-                        Emoji emo = new Emoji(id, name);
-                        var arr0 = id.Split("-");
-                        foreach (var vak in arr0)
+                        //var arr0 = id.Split("-");
+                        //foreach (var vak in arr0)
+                        //{
+                        int uni = int.Parse(id, NumberStyles.HexNumber);
+                        string unis = char.ConvertFromUtf32(uni);
+                        if (!_emoji_unicodes.ContainsKey(unis))
                         {
-                            int uni = int.Parse(vak, NumberStyles.HexNumber);
-                            string unis = char.ConvertFromUtf32(uni);
-                            if (!_emoji_unicodes.ContainsKey(unis))
-                            {
-                                _emoji_unicodes.Add(unis, emo);
-                            }
+                            Emoji emo = new Emoji(id, name);
+                            _emoji_unicodes.Add(unis, emo);
                         }
+                        //}
                     }
                 }
             }

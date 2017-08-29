@@ -468,23 +468,16 @@ namespace LX29_Helpers
                 if (!rect.IsEmpty)
                 {
                     Screen sc = Screen.FromRectangle(rect);
-                    if (rect.Y < sc.Bounds.Y)
-                    {
-                        rect.Y = sc.Bounds.Y + topBH;
-                    }
-                    if (rect.X < sc.Bounds.X)
-                    {
-                        rect.X = sc.Bounds.X + leftBH;
-                    }
-                    if (rect.Width > sc.Bounds.Width / 2)
+
+                    if (rect.X < sc.Bounds.X || rect.Width > sc.Bounds.Width / 2)
                     {
                         rect.Width = sc.Bounds.Width / 2;
-                        rect.X = sc.Bounds.X + rect.Width / 2;
+                        rect.X = sc.Bounds.X + rect.Width / 4;
                     }
-                    if (rect.Height > sc.Bounds.Height / 2)
+                    if (rect.Y < sc.Bounds.Y || rect.Height > sc.Bounds.Height / 2)
                     {
                         rect.Height = sc.Bounds.Height / 2;
-                        rect.Y = sc.Bounds.Y + rect.Height / 2;
+                        rect.Y = sc.Bounds.Y + rect.Height / 4;
                     }
                     geom = " --geometry=" + rect.Width + "x" + rect.Height +
                         ((rect.X < 0) ? "-" : "+") + Math.Abs(rect.X) +

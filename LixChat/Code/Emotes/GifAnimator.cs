@@ -91,7 +91,9 @@ namespace LX29_ChatClient.Emotes
             Name = name.Trim();
             //this.URLs = new Dictionary<EmoteImageSize, string>();
             //this.FilePaths = new Dictionary<EmoteImageSize, string>();
-
+            if (Origin == EmoteOrigin.FFZ_Global)
+            {
+            }
             this.Origin = Origin;
             this.ID = ID;
 
