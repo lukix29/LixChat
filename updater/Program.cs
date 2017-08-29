@@ -19,9 +19,16 @@ namespace updater
                 var procs = Process.GetProcesses().Where(t => t.StartInfo.FileName.Equals("lixchat.exe", StringComparison.OrdinalIgnoreCase));
                 foreach (var proc in procs)
                 {
-                    proc.Close();
+                    try
+                    {
+                        proc.Close();
+                        proc.Kill();
+                    }
+                    catch
+                    {
+                    }
                 }
-                File.Move(source, dest);
+                File.Copy(source, dest, true);
             }
             catch (Exception x)
             {
