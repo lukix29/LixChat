@@ -4,7 +4,8 @@ using LX29_Twitch.Api;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using LX29_Cryptography;
+
+//using LX29_Cryptography;
 
 namespace LX29_Twitch.Forms
 {

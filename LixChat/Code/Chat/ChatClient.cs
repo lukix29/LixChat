@@ -1134,6 +1134,9 @@ namespace LX29_ChatClient
             {
                 try
                 {
+                    //Dont count internal messages
+                    //dont count resub as outgoing
+                    //int i = null;
                     channel = channel.ToLower().Trim();
                     lock (syncRootMessage)
                     {
