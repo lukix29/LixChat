@@ -204,7 +204,8 @@ namespace LX29_ChatClient.Forms
         private void btn_SaveHL_Click(object sender, EventArgs e)
         {
             ChatClient.ClearChatHighlightWord();
-            foreach (var s in rTB_HighlightWords.Lines)
+            var arr = rTB_HighlightWords.Text.SplitAtSpecial();
+            foreach (var s in arr)
             {
                 ChatClient.AddChatHighlightWord(s);
             }
@@ -386,11 +387,16 @@ namespace LX29_ChatClient.Forms
                 {
                     rTB_HighlightWords.AppendText(hl + "\r\n");
                 }
-
-                checkedListBox1.Items.Clear();
-                foreach (var badge in ChatClient.Emotes.Badges)
+                try
                 {
-                    checkedListBox1.Items.Add(badge, true);
+                    checkedListBox1.Items.Clear();
+                    foreach (var badge in ChatClient.Emotes.Badges)
+                    {
+                        checkedListBox1.Items.Add(badge, true);
+                    }
+                }
+                catch
+                {
                 }
             }
             catch (Exception x)

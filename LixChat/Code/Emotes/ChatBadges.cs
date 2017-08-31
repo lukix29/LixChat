@@ -107,7 +107,7 @@ namespace LX29_ChatClient.Emotes
             Name = name.Trim();
             Type = type.Trim();
             Origin = origin;
-            if (!version.IsEmpty())
+            if (!string.IsNullOrEmpty(version))
             {
                 Version = version.Trim();
             }
@@ -396,7 +396,7 @@ namespace LX29_ChatClient.Emotes
         {
             try
             {
-                if (!user.badge_color.IsEmpty())
+                if (!string.IsNullOrEmpty(user.badge_color))
                 {
                     Color = UserColors.ToColor(user.badge_color);
                 }

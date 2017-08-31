@@ -111,12 +111,12 @@ namespace LX29_ChatClient
         {
             get
             {
-                if (displayName.IsEmpty())
+                if (string.IsNullOrEmpty(displayName))
                 {
                     if (result != null && !result.IsEmpty)
                         displayName = result.GetValue<string>(ApiInfo.display_name);
                 }
-                if (displayName.IsEmpty())
+                if (string.IsNullOrEmpty(displayName))
                 {
                     return Name;
                 }
@@ -587,7 +587,7 @@ namespace LX29_ChatClient
 
         public static Color RandomColor(string name)
         {
-            if (name.IsEmpty())
+            if (string.IsNullOrEmpty(name))
             {
                 return standardColors[0];
             }
@@ -602,7 +602,7 @@ namespace LX29_ChatClient
         public static Color ToColor(string hex, string name = "")
         {
             hex = hex.Replace("#", "");
-            if (!hex.IsEmpty())
+            if (!string.IsNullOrEmpty(hex))
             {
                 if (hex.Length < 6)
                 {
@@ -614,7 +614,7 @@ namespace LX29_ChatClient
                 Color c = Color.FromArgb(r, g, b);
                 return c;
             }
-            if (name.IsEmpty())
+            if (string.IsNullOrEmpty(name))
             {
                 return Color.Gray;
             }

@@ -460,7 +460,7 @@ namespace LX29_ChatClient
         {
             get
             {
-                if (_BrowserPath.IsEmpty())
+                if (string.IsNullOrEmpty(_BrowserPath))
                 {
                     _BrowserPath = LX29_Tools.GetSystemDefaultBrowser();
                     _BrowserName = Path.GetFileNameWithoutExtension(_BrowserPath);
@@ -482,7 +482,7 @@ namespace LX29_ChatClient
         {
             get
             {
-                if (_BrowserPath.IsEmpty())
+                if (string.IsNullOrEmpty(_BrowserPath))
                 {
                     _BrowserPath = LX29_Tools.GetSystemDefaultBrowser();
                     _BrowserName = Path.GetFileNameWithoutExtension(_BrowserPath).ToLower();
@@ -627,7 +627,7 @@ namespace LX29_ChatClient
         public static DialogResult GetBrowserPath(bool selectNew = true)
         {
             FormBrowserSelector form = new FormBrowserSelector();
-            if (selectNew || _BrowserPath.IsEmpty())
+            if (selectNew || string.IsNullOrEmpty(_BrowserPath))
             {
                 if (selectNew)
                 {

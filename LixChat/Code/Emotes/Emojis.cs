@@ -17,7 +17,7 @@ namespace LX29_ChatClient.Emotes
             this.ID = ID;
             this.Name = Name;
 
-            //if (!ID.IsEmpty())
+            //if (!ID ))
             //{
             //    var arr = ID.Split("-");
             //    Unicode = new HashSet<int>();
@@ -68,7 +68,7 @@ namespace LX29_ChatClient.Emotes
 
         public bool IsEmpty
         {
-            get { return ID.IsEmpty(); }
+            get { return string.IsNullOrEmpty(ID); }
         }
 
         public TimeSpan LoadedTime

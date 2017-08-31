@@ -37,8 +37,8 @@ namespace LX29_Twitch.Api
         {
             try
             {
-                if (userID.IsEmpty()) userID = User_ID;
-                if (userToken.IsEmpty()) userToken = User_Token;
+                if (string.IsNullOrEmpty(userID)) userID = User_ID;
+                if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
 
                 bool wasFollowed = channelID.Followed;
                 string param = (wasFollowed) ? "DELETE" : "PUT";
@@ -107,8 +107,8 @@ namespace LX29_Twitch.Api
 
         public static List<ApiResult> GetFollowedStreams(string userID = "", string userToken = "")
         {
-            if (userID.IsEmpty()) userID = User_ID;
-            if (userToken.IsEmpty()) userToken = User_Token;
+            if (string.IsNullOrEmpty(userID)) userID = User_ID;
+            if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
 
             List<ApiResult> list = getResults("https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels", User_Token);
             string sb = getChannelList(list);
@@ -158,8 +158,8 @@ namespace LX29_Twitch.Api
 
         public static SubResult GetSubscription(string channel_ID, string userID = "", string userToken = "")
         {
-            if (userID.IsEmpty()) userID = User_ID;
-            if (userToken.IsEmpty()) userToken = User_Token;
+            if (string.IsNullOrEmpty(userID)) userID = User_ID;
+            if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
             var res = downloadString(
                 "https://api.twitch.tv/kraken/users/" + userID + "/subscriptions/" + channel_ID, userToken, 5, false);
             return SubResult.Parse(res);
@@ -167,8 +167,8 @@ namespace LX29_Twitch.Api
 
         public static IEnumerable<JSON.Twitch_Api.Emoticon> GetUserEmotes(string userID = "", string userToken = "")
         {
-            if (userID.IsEmpty()) userID = User_ID;
-            if (userToken.IsEmpty()) userToken = User_Token;
+            if (string.IsNullOrEmpty(userID)) userID = User_ID;
+            if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
 
             string s = downloadString("https://api.twitch.tv/kraken/users/" + userID + "/emotes", userToken);
             return JSON.ParseTwitchEmotes(s);
@@ -187,7 +187,7 @@ namespace LX29_Twitch.Api
             string url = "https://api.twitch.tv/kraken/users?login=" + name;
             string id = downloadString(url);
             var res = JSON.Parse(id);
-            if (res.Count > 0)
+            if (res != null && res.Count > 0)
             {
                 return res[0];
             }
@@ -196,10 +196,7 @@ namespace LX29_Twitch.Api
 
         public static ApiResult GetUserIDFromToken(string Token)
         {
-            WebClient wc = new WebClient();
-            wc.Encoding = Encoding.UTF8;
-            wc.Proxy = null;
-            string result = wc.DownloadString("https://api.twitch.tv/kraken?oauth_token=" + Token);
+            string result = downloadString("https://api.twitch.tv/kraken?oauth_token=" + Token, null, 5, false);
             result = result.GetBetween("https://api.twitch.tv/kraken/users/", "\"");
 
             return GetUserID(result);
@@ -236,7 +233,7 @@ namespace LX29_Twitch.Api
                     {
                         webclient.Headers.Add("Accept: application/vnd.twitchtv.v" + api_version + "+json");
                         webclient.Headers.Add("Client-ID: " + CLIENT_ID);
-                        if (!tokken.IsEmpty())
+                        if (!string.IsNullOrEmpty(tokken))
                         {
                             webclient.Headers.Add("Authorization: OAuth " + tokken);
                         }
@@ -336,7 +333,7 @@ namespace LX29_Twitch.Api
                     {
                         webclient.Headers.Add("Accept: application/vnd.twitchtv.v" + api_version + "+json");
                         webclient.Headers.Add("Client-ID: " + CLIENT_ID);
-                        if (!tokken.IsEmpty())
+                        if (!string.IsNullOrEmpty(tokken))
                         {
                             webclient.Headers.Add("Authorization: OAuth " + tokken);
                         }

@@ -282,7 +282,7 @@ namespace LX29_ChatClient.Forms
                         }
                         selectedText = sb.ToString().TrimEnd(' ');
 
-                        if (!selectedText.IsEmpty())
+                        if (!string.IsNullOrEmpty(selectedText))
                         {
                             tSMi_Text.Text = selectedText;
                             cMS_TextOptions.Show(this.PointToScreen(e.Location));
@@ -531,7 +531,7 @@ namespace LX29_ChatClient.Forms
 
         private void tSMi_Copy_Click(object sender, System.EventArgs e)
         {
-            if (!selectedText.IsEmpty())
+            if (!string.IsNullOrEmpty(selectedText))
             {
                 Clipboard.SetText(selectedText, TextDataFormat.UnicodeText);
             }

@@ -48,11 +48,11 @@ namespace LX29_ChatClient.Emotes
         {
             get
             {
-                if (!ID.IsEmpty() && _twitch.ContainsKey(ID))
+                if (!string.IsNullOrEmpty(ID) && _twitch.ContainsKey(ID))
                 {
                     return _twitch[ID];
                 }
-                if (!Name.IsEmpty() && _ffzbttv.ContainsKey(Name))
+                if (!string.IsNullOrEmpty(Name) && _ffzbttv.ContainsKey(Name))
                 {
                     return _ffzbttv[Name];
                 }
@@ -209,7 +209,7 @@ namespace LX29_ChatClient.Emotes
                     var arr = line.Split('=');
                     var name = arr[0];
                     var id = arr[1];
-                    if (!id.IsEmpty())
+                    if (!string.IsNullOrEmpty(id))
                     {
                         //var arr0 = id.Split("-");
                         //foreach (var vak in arr0)

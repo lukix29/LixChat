@@ -107,7 +107,7 @@ namespace LX29_ChatClient.Forms
                 System.Threading.Tasks.Task.Run(() =>
                 {
                     var msg = ChatMessage.Empty;
-                    if (chatView1.UserMessageName.IsEmpty())
+                    if (string.IsNullOrEmpty(chatView1.UserMessageName))
                     {
                         msg = ChatClient.SendMessage(text, Channel.Name);
                     }
@@ -134,7 +134,7 @@ namespace LX29_ChatClient.Forms
         {
             try
             {
-                if (!lastSearch.IsEmpty()) return;
+                if (!string.IsNullOrEmpty(lastSearch)) return;
 
                 e.SuppressKeyPress = true;
 
@@ -334,7 +334,7 @@ namespace LX29_ChatClient.Forms
                 if (e.KeyData == Keys.Enter)
                 {
                     e.SuppressKeyPress = true;
-                    if (!lastSearch.IsEmpty())
+                    if (!string.IsNullOrEmpty(lastSearch))
                     {
                         selectName();
                     }
@@ -348,7 +348,7 @@ namespace LX29_ChatClient.Forms
                 else if (e.KeyData == Keys.Tab)
                 {
                     lockListSearch = true;
-                    if (lastSearch.IsEmpty())
+                    if (string.IsNullOrEmpty(lastSearch))
                     {
                         e.SuppressKeyPress = true;
 
@@ -449,7 +449,7 @@ namespace LX29_ChatClient.Forms
         {
             try
             {
-                if ((lstB_Search.SelectedIndex >= 0 && !lastSearch.IsEmpty()))
+                if ((lstB_Search.SelectedIndex >= 0 && !string.IsNullOrEmpty(lastSearch)))
                 {
                     var text = rTB_Send.Text.Trim();
                     var repl = lstB_Search.SelectedItem;

@@ -49,7 +49,7 @@ namespace LX29_Twitch.Api
                 }
                 ErrorInfo = error;
                 Info = AddErrorStrings[ErrorInfo];
-                if (!info.IsEmpty())
+                if (!string.IsNullOrEmpty(info))
                 {
                     Info += "\r\n" + info;
                 }
@@ -252,7 +252,7 @@ namespace LX29_Twitch.Api
 
         public async void Load(System.Windows.Forms.Form Main, Action action = null)
         {
-            while (!LX29_Tools.HasInternetConnection) await Task.Delay(10000);
+            while (!LX29_Tools.HasInternetConnection) await Task.Delay(1000);
             var err = Load();
             if (err == AddError.None)
             {

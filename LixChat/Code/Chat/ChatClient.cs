@@ -275,7 +275,7 @@ namespace LX29_ChatClient
                             break;
                     }
 
-                    if (Name.IsEmpty())
+                    if (string.IsNullOrEmpty(Name))
                     {
                         if (parameters.ContainsKey(irc_params.display_name))
                         {
@@ -746,7 +746,7 @@ namespace LX29_ChatClient
         {
             var cus = TwitchApi.GetChatUsers(channelName);
             var cur = users.Get(channelName);
-
+            File.WriteAllLines("users.txt", cus.Keys.ToArray());
             try
             {
                 if (cus == null) return;
@@ -806,7 +806,7 @@ namespace LX29_ChatClient
 
         private static ChatMessage SendMessage(string Message, string user, IRC_Client.IRC irc)
         {
-            if (Message.IsEmpty() ||
+            if (string.IsNullOrEmpty(Message) ||
                 DateTime.Now.Subtract(lastSend).TotalSeconds < 1.0) return ChatMessage.Empty;
 
             lastSend = DateTime.Now;
@@ -830,7 +830,7 @@ namespace LX29_ChatClient
                         Message = Message.Remove(500);
                     }
 
-                    user = (user.IsEmpty()) ? SelfUserName.ToLower() : user;
+                    user = (string.IsNullOrEmpty(user)) ? SelfUserName.ToLower() : user;
                     ChatUser me = ChatClient.Users.Get(user, Channel);
 
                     bool mod = me.Types.Any(t => (((int)t) >= (int)UserType.moderator));
@@ -971,7 +971,7 @@ namespace LX29_ChatClient
                 get
                 {
                     channel = channel.ToLower().Trim();
-                    if (name.IsEmpty())
+                    if (string.IsNullOrEmpty(name))
                     {
                         if (messages.ContainsKey(channel))
                         {
@@ -1073,7 +1073,7 @@ namespace LX29_ChatClient
                 Dictionary<irc_params, string> parameters,
                string name, string Message, string outerMessageType, TimeOutResult isTO)
             {
-                if (!Message.IsEmpty() &&
+                if (!string.IsNullOrEmpty(Message) &&
                     (channelName.Length > 0 && parameters.Count > 0))
                 {
                     //Emotes.ParseEmoteFromMessage(parameters, Message, channelName);
@@ -1139,11 +1139,11 @@ namespace LX29_ChatClient
                     {
                         if (type != MsgType.Whisper)
                         {
-                            if (!channel.IsEmpty())
+                            if (!string.IsNullOrEmpty(channel))
                             {
                                 if (messages.ContainsKey(channel))
                                 {
-                                    if (name.IsEmpty())
+                                    if (string.IsNullOrEmpty(name))
                                     {
                                         return messages[channel].Count(t => t.IsType(type));
                                     }
@@ -1162,7 +1162,7 @@ namespace LX29_ChatClient
                         }
                         else
                         {
-                            if (!name.IsEmpty())
+                            if (!string.IsNullOrEmpty(name))
                             {
                                 if (whisper.ContainsKey(name))
                                 {
@@ -1191,7 +1191,7 @@ namespace LX29_ChatClient
                         {
                             if (messages.ContainsKey(channel))
                             {
-                                if (name.IsEmpty())
+                                if (string.IsNullOrEmpty(name))
                                 {
                                     if (messages[channel].Count(t => t.IsType(type)) > 0)
                                     {
@@ -1305,7 +1305,7 @@ namespace LX29_ChatClient
 
         public static void AddChatHighlightWord(string word, bool save = true)
         {
-            if (word.IsEmpty()) return;
+            if (string.IsNullOrEmpty(word)) return;
             if (!chatHighlights.Contains(word.ToLower()))
             {
                 chatHighlights.Add(word.ToLower());
@@ -1517,11 +1517,11 @@ namespace LX29_ChatClient
 
             public ChatUser Get(string name, string channel)
             {
-                if (!name.IsEmpty())
+                if (!string.IsNullOrEmpty(name))
                 {
                     channel = channel.ToLower().Trim();
                     name = name.ToLower().Trim();
-                    if (channel.IsEmpty())
+                    if (string.IsNullOrEmpty(channel))
                     {
                         foreach (string s in users.Keys)
                         {

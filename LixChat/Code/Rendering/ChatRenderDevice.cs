@@ -425,7 +425,7 @@ namespace LX29_ChatClient.Forms
                             break;
                     }
 
-                    if (!Text.IsEmpty())
+                    if (!string.IsNullOrEmpty(Text))
                     {
                         SolidBrush BackColor = new SolidBrush(Color.FromArgb(240, 0, 0, 0));
 

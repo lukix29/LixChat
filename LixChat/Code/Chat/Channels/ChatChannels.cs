@@ -392,7 +392,7 @@ namespace LX29_ChatClient.Channels
                 }
                 string s = (online == true ? result.GetValue<string>(ApiInfo.large) : result.GetValue<string>(ApiInfo.video_banner));
 
-                if (!s.IsEmpty())
+                if (!string.IsNullOrEmpty(s))
                 {
                     using (WebClient wc = new WebClient())
                     {

@@ -117,7 +117,7 @@ namespace LX29_ChatClient.Emotes
                 ////                        channel = jt.Name;
                 ////                        setid = jt.Value.ToString();
                 ////                    }
-                ////                    if (!setid.IsEmpty() && !channel.IsEmpty())
+                ////                    if (!setid ) && !channel ))
                 ////                    {
                 ////                        _emotesetename.Add(setid, channel);
                 ////                        setid = "";
@@ -357,7 +357,7 @@ namespace LX29_ChatClient.Emotes
                     var emorig = (uri.EndsWith("global")) ? EmoteOrigin.FFZ_Global : EmoteOrigin.FFZ;
                     string owner = (emorig == EmoteOrigin.FFZ_Global) ? "Global_FFZ" : emote.owner.display_name;
                     string channel = uri.GetBetween("room/", "");
-                    if (channel.IsEmpty())
+                    if (string.IsNullOrEmpty(channel))
                     {
                         channel = owner;
                     }
@@ -549,7 +549,7 @@ namespace LX29_ChatClient.Emotes
         //    [JsonIgnore]
         //    public bool IsEmpty
         //    {
-        //        get { return set.IsEmpty() || value.channel_name.IsEmpty(); }
+        //        get { return set ) || value.channel_name ); }
         //    }
 
         //    // public string id { get; set; }
@@ -922,7 +922,7 @@ namespace LX29_ChatClient.Emotes
         {
             try
             {
-                if (!message.IsEmpty())
+                if (!string.IsNullOrEmpty(message))
                 {
                     Dictionary<int, ChatWord.TempEmoteWord> list = new Dictionary<int, ChatWord.TempEmoteWord>();
                     if (Finished && parameters != null && parameters.ContainsKey(irc_params.emotes))
@@ -931,7 +931,7 @@ namespace LX29_ChatClient.Emotes
                         string[] sa;
 
                         string s = parameters[irc_params.emotes];
-                        if (!s.IsEmpty())
+                        if (!string.IsNullOrEmpty(s))
                         {
                             try
                             {

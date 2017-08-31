@@ -345,7 +345,7 @@ namespace LX29_LixChat
                 }
                 else if (sa[0].SubInfo.IsSub)
                 {
-                    LX29_MessageBox.Show(sa[0].SubInfo.ToString(), sa[0].SubInfo.PlanName);
+                    Task.Run(() => LX29_MessageBox.Show(sa[0].SubInfo.ToString(), sa[0].SubInfo.PlanName));
                 }
             }
         }
@@ -510,7 +510,7 @@ namespace LX29_LixChat
                     {
                         UpdateList();
 
-                        if (!info.IsEmpty()) SetProgressInfo(count, max, info);
+                        if (!string.IsNullOrEmpty(info)) SetProgressInfo(count, max, info);
                         lockUpdateList = false;
                     });
             }
@@ -628,7 +628,7 @@ namespace LX29_LixChat
                             arguments = "-new-window ";
                             break;
                     }
-                    Settings.StartBrowser(arguments + "https://player.twitch.tv/?volume=1&!muted&channel=" + channel.Name + "/chat");
+                    Settings.StartBrowser(arguments + "https://player.twitch.tv/?volume=1&!muted&channel=" + channel.Name);
                     ChatClient.TryConnect(channel.Name);
                 }
             }
@@ -756,7 +756,7 @@ namespace LX29_LixChat
                         tSProgBar_Loading.Visible = true;
                         tSProgBar_Loading.Maximum = 100;
                         tSProgBar_Loading.Value = Math.Min(100, (int)(((count / (float)max) * 100) + 1f));
-                        if (!info.IsEmpty())
+                        if (!string.IsNullOrEmpty(info))
                         {
                             tsLbl_Infotext.Text = info + " - " + tSProgBar_Loading.Value + "%";
                             last_Info_Update = DateTime.Now;

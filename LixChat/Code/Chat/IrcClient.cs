@@ -432,7 +432,7 @@ namespace IRC_Client
 
                 NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length, DataRecieved, null);
 
-                if (!User.Password.IsEmpty())
+                if (!string.IsNullOrEmpty(User.Password))
                 {
                     SendRawMessage("PASS {0}", User.Password);
                 }
@@ -562,7 +562,7 @@ namespace IRC_Client
 
         private void PingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (!ServerNameFromPing.IsEmpty())
+            if (!string.IsNullOrEmpty(ServerNameFromPing))
                 SendRawMessage("PONG :{0}", ServerNameFromPing);
         }
     }
@@ -588,7 +588,7 @@ namespace IRC_Client
                 rawMessage = rawMessage.Substring(rawMessage.IndexOf(' ') + 1);
 
                 var parameters = new List<string>();
-                while (!rawMessage.IsEmpty())
+                while (!string.IsNullOrEmpty(rawMessage))
                 {
                     if (rawMessage.StartsWith(":"))
                     {

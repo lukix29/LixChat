@@ -232,13 +232,13 @@ internal class Token_HTTP_Server
     {
         string filename = context.Request.Url.AbsolutePath;
         //Console.WriteLine(filename);
-        if (!filename.IsEmpty())
+        if (!string.IsNullOrEmpty(filename))
         {
             if (filename.Contains("token"))
             {
                 Token = filename.Replace("token", "").Replace("/", "");
 
-                if (!Token.IsEmpty())
+                if (!string.IsNullOrEmpty(Token))
                 {
                     WriteFile(_rootDirectory + "received.html", context);
                     if (ReceivedToken != null)
@@ -249,7 +249,7 @@ internal class Token_HTTP_Server
 
         filename = filename.Substring(1);
 
-        if (filename.IsEmpty())
+        if (string.IsNullOrEmpty(filename))
         {
             foreach (string indexFile in _indexFiles)
             {

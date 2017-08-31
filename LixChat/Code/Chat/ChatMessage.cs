@@ -118,7 +118,7 @@ namespace LX29_ChatClient
                 else if (HasTimeOut)
                 {
                     string msg = name + " has been timed out for " + TimeOutDuration + "s";
-                    if (!Reason.IsEmpty())
+                    if (!string.IsNullOrEmpty(Reason))
                     {
                         msg += " (" + Reason.Replace("\\s", " ") + ")";
                     }
@@ -305,10 +305,10 @@ namespace LX29_ChatClient
             Channel = channel;
             Timeout = toResult;
 
-            if (Types.Count == 0)
-            {
-                Types.Add(MsgType.All_Messages);
-            }
+            //if (Types.Count == 0)
+            //{
+            //    Types.Add(MsgType.All_Messages);
+            //}
 
             Name = user.ToLower();
             User = ChatClient.Users.Get(Name, channel);
@@ -317,9 +317,8 @@ namespace LX29_ChatClient
 
         public ChatMessage(string message, ChatUser user, string channel, bool isSent, params MsgType[] types)
         {
+            Types = new HashSet<MsgType>();
             this.Message = message;
-
-            if (Message.StartsWith(".")) Message = Message.Remove(0, 1);
 
             Channel = channel;
             Timeout = TimeOutResult.Empty;
@@ -329,10 +328,13 @@ namespace LX29_ChatClient
             User = user;
 
             SendTime = DateTime.Now;
-            if (message.StartsWith(".me"))
+            if (this.Message.StartsWith(".me"))
             {
                 Types.Add(MsgType.Action);
+                this.Message = this.Message.Remove(0, 3);
             }
+            if (Message.StartsWith(".")) Message = Message.Remove(0, 1);
+
             if (isSent)
             {
                 Types.Add(MsgType.Outgoing); //IsSentMessage = isSent;// (name.ToLower() == StreamManager.UserName);
@@ -387,7 +389,7 @@ namespace LX29_ChatClient
         {
             get
             {
-                return Message.Trim().IsEmpty();
+                return string.IsNullOrEmpty(Message.Trim());
             }
         }
 

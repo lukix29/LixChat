@@ -43,31 +43,6 @@ namespace LX29_ChatClient.Addons
             set;
         }
 
-        public ChatAction this[int index]
-        {
-            get { return chatactions[index]; }
-            set { chatactions[index] = value; }
-        }
-
-        public bool ChangeChatAction(ChatAction action)
-        {
-            if (!action.IsEmpty)
-            {
-                if (!chatactions.Contains(action))
-                {
-                    chatactions.Add(action);
-                    return true;
-                }
-                else
-                {
-                    var idx = chatactions.IndexOf(action);
-                    chatactions[idx] = action;
-                    return true;
-                }
-            }
-            return false;
-        }
-
         public void CheckActions(ChatMessage msg)
         {
             if (chatactions != null && chatactions.Count > 0)
@@ -123,28 +98,50 @@ namespace LX29_ChatClient.Addons
             }
         }
 
+        //public bool ChangeChatAction(ChatAction action)
+        //{
+        //    if (!action.IsEmpty)
+        //    {
+        //        if (!chatactions.Contains(action))
+        //        {
+        //            chatactions.Add(action);
+        //            return true;
+        //        }
+        //        else
+        //        {
+        //            var idx = chatactions.IndexOf(action);
+        //            chatactions[idx] = action;
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //}
         public ChatAction FirstOrDefault(Func<ChatAction, bool> predicate)
         {
             return chatactions.FirstOrDefault(predicate);
         }
 
-        public List<ChatAction> GetChannelActions(string Channel)
+        //public ChatAction this[int index]
+        //{
+        //    get { return chatactions[index]; }
+        //    set { chatactions[index] = value; }
+        //}
+        public IEnumerable<ChatAction> GetChannelActions(string Channel)
         {
             return chatactions.Where(t =>
-                (t.Channel.Equals(Channel, StringComparison.OrdinalIgnoreCase))).ToList();
+                (t.Channel.Equals(Channel, StringComparison.OrdinalIgnoreCase)));
             //||t.Channel.Equals("global")));
         }
-
-        //public ChatAction GetChatAction(Func<ChatAction, bool> predicate)
-        //{
-        //    return chatactions.FirstOrDefault(predicate);
-        //}
 
         public List<ChatAction>.Enumerator GetEnumerator()
         {
             return chatactions.GetEnumerator();
         }
 
+        //public ChatAction GetChatAction(Func<ChatAction, bool> predicate)
+        //{
+        //    return chatactions.FirstOrDefault(predicate);
+        //}
         public void Load()
         {
             string path = Settings.dataDir + "AutoActions.txt";
@@ -182,15 +179,24 @@ namespace LX29_ChatClient.Addons
             }
         }
 
-        public void RemoveAt(Predicate<ChatAction> match)
+        public void Save(IEnumerable<ChatAction> actions)
         {
-            chatactions.RemoveAll(match);
-        }
-
-        public void Save()
-        {
-            string path = Settings.dataDir + "AutoActions.txt";
-            System.IO.File.WriteAllText(path, GetChatActions());
+            try
+            {
+                chatactions.Clear();
+                chatactions.AddRange(actions);
+                string path = Settings.dataDir + "AutoActions.txt";
+                System.IO.File.WriteAllText(path, GetChatActions());
+            }
+            catch (Exception x)
+            {
+                switch (x.Handle())
+                {
+                    case System.Windows.Forms.MessageBoxResult.Retry:
+                        Save(actions);
+                        break;
+                }
+            }
         }
 
         //public void SetChatAction(int idx, ChatAction action)
@@ -210,13 +216,11 @@ namespace LX29_ChatClient.Addons
         {
             var list = chatactions.Select(t => t.Save());
             var s = CustomSettings.SaveList(list);
-            //var s = CustomSettings.GetSettings<ChatAction, ChatActionType>(
-            //chatactions, new Func<ChatAction, string>(t => t.Channel));
             return s;
         }
     }
 
-    public class ChatAction : CustomSettings<ChatAction, ChatActionType>, IEquatable<ChatAction>
+    public class ChatAction : CustomSettings<ChatAction, ChatActionType>, IEquatable<ChatAction>, ICloneable
     {
         private DateTime lastAction_TMi = DateTime.MinValue;
 
@@ -225,13 +229,6 @@ namespace LX29_ChatClient.Addons
         public ChatAction(string channel)
         {
             Channel = channel;
-        }
-
-        public ChatAction(string[] input)
-        {
-            //if (!Load(input, this))
-            //{
-            //}
         }
 
         public ChatAction(string username, string channel, string message,
@@ -299,9 +296,9 @@ namespace LX29_ChatClient.Addons
         {
             get
             {
-                return Username.IsEmpty() ||
-                    Message.IsEmpty() ||
-                    Action.IsEmpty();
+                return string.IsNullOrEmpty(Username) ||
+                    string.IsNullOrEmpty(Message) ||
+                    string.IsNullOrEmpty(Action);
             }
         }
 
@@ -315,6 +312,22 @@ namespace LX29_ChatClient.Addons
         {
             get;
             set;
+        }
+
+        public object Clone()
+        {
+            return new ChatAction(Channel)
+            {
+                Action = this.Action,
+                CheckStart = this.CheckStart,
+                Cooldown = this.Cooldown,
+                Delay = this.Delay,
+                Enabled = this.Enabled,
+                Message = this.Message,
+                Username = this.Username,
+                lastAction_TMi = this.lastAction_TMi,
+                lastRDmsg = this.lastRDmsg
+            };
         }
 
         public bool Contains(string message)

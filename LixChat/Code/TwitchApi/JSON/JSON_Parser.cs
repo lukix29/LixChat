@@ -47,7 +47,7 @@ namespace LX29_Twitch.JSON_Parser
                 {
                     lust.Add(new ApiResult(dataSet.follow));
                 }
-                else if (!dataSet._id.IsEmpty())
+                else if (!string.IsNullOrEmpty(dataSet._id))
                 {
                     lust.Add(new ApiResult(dataSet));
                 }

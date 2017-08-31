@@ -192,6 +192,8 @@ namespace LX29_ChatClient
 
                 var follows = TwitchApi.GetFollowedStreams(SelfApiResult.ID, SelfUserToken);
 
+                LoadChatHighlightWords();
+
                 var setts = LoadChannels();
 
                 var rest = new Dictionary<string, Dictionary<string, string>>(setts);
@@ -208,6 +210,7 @@ namespace LX29_ChatClient
                                 ci.Load(setts[ci.ID]);
                             }
                             channels.Add(ci.Name, ci);
+                            loginChannel(ci);
                             rest.Remove(ci.ID);
                         }
                     }
@@ -216,6 +219,7 @@ namespace LX29_ChatClient
                         if (!channels.ContainsKey(ci.Name))
                         {
                             channels.Add(ci.Name, ci);
+                            loginChannel(ci);
                         }
                     }
                 }
@@ -236,6 +240,7 @@ namespace LX29_ChatClient
                                 ci.Load(r);
                             }
                             channels.Add(ci.Name, ci);
+                            loginChannel(ci);
                         }
                     }
                 }
@@ -249,18 +254,9 @@ namespace LX29_ChatClient
                 if (ListLoaded != null)
                     ListLoaded(channels.Count, channels.Count, "Loaded " + channels.Count + " Channels");
 
-                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
-
-                List<Task> list = new List<Task>();
-                list.Add(Task.Run(() => LoadChatLog()));
-
-                list.Add(Task.Run(() => LoadChatHighlightWords()));
-
-                Task.WaitAll(list.ToArray());
-
                 Task.Run(() =>
                 {
-                    logInChats();
+                    //logInChats();
 
                     LX29_ChatClient.Addons.Scripts.ScriptClassCollection.LoadScripts();
 
@@ -379,18 +375,26 @@ namespace LX29_ChatClient
             }
         }
 
-        private static void logInChats()
+        private static void loginChannel(ChannelInfo channel)
         {
-            var list = channels.Where(
-                t => t.Value.AutoLoginChat).Select(t => t.Value)
-                .OrderBy(t => t.IsFixed).Select(t => t.Name).ToList();
-            foreach (var s in list)
+            if (channel.AutoLoginChat)
             {
-                ChatClient.TryConnect(s);
+                ChatClient.TryConnect(channel.Name);
             }
-            //TryConnect("lx29_tcvc");
-            ListUpdated();
         }
+
+        //private static void logInChats()
+        //{
+        //    var list = channels.Where(
+        //        t => t.Value.AutoLoginChat).Select(t => t.Value)
+        //        .OrderBy(t => t.IsFixed).Select(t => t.Name).ToList();
+        //    foreach (var s in list)
+        //    {
+        //        ChatClient.TryConnect(s);
+        //    }
+        //    //TryConnect("lx29_tcvc");
+        //    ListUpdated();
+        //}
 
         private static void startRefresher()
         {

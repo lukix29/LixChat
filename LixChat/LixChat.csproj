@@ -76,6 +76,9 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LX29_Crypt">
+      <HintPath>Plugins\LX29_Crypt.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Code\TwitchApi\JSON\Newtonsoft.Json.dll</HintPath>
@@ -111,6 +114,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Code\Chat\ChatExtras\ChatScripts\BaseScripts\CommandScript.cs" />
+    <Compile Include="Code\Chat\ChatExtras\TextPreviewControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Code\Chat\ChatExtras\TextPreviewControl.Designer.cs">
+      <DependentUpon>TextPreviewControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Code\Chat\ChatMessage.cs" />
     <Compile Include="Code\Emotes\Emojis.cs" />
     <Compile Include="Code\Emotes\Emotionary.cs" />
@@ -161,7 +170,6 @@
     <Compile Include="Code\Chat\IrcClient.cs" />
     <Compile Include="Code\Extensions\Downloader.cs" />
     <Compile Include="Code\Extensions\Extensions.cs" />
-    <Compile Include="Code\Extensions\LX29Crypt.cs" />
     <Compile Include="Code\Extensions\MessageBox\MessageBox.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -261,6 +269,9 @@
     <Compile Include="Code\TwitchApi\VideoInfo.cs" />
     <EmbeddedResource Include="Code\Chat\ChatExtras\QuickText\QuickTextControl.resx">
       <DependentUpon>QuickTextControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\Chat\ChatExtras\TextPreviewControl.resx">
+      <DependentUpon>TextPreviewControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Code\Extensions\MessageBox\MessageBox.resx">
       <DependentUpon>MessageBox.cs</DependentUpon>

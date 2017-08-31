@@ -112,7 +112,7 @@ namespace LX29_ChatClient.Emotes
         [JsonIgnore]
         public bool IsEmpty
         {
-            get { return ID.IsEmpty() || Name.IsEmpty() || Image == null; }
+            get { return string.IsNullOrEmpty(ID) || string.IsNullOrEmpty(Name) || Image == null; }
         }
 
         [JsonIgnore]

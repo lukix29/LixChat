@@ -716,7 +716,7 @@ namespace LX29_Twitch.Api
                     }
                     object o = prop.GetValue(channel);
                     o = ConvertValue(o, info);
-                    if (o is string && ((string)o).IsEmpty())
+                    if (o is string && string.IsNullOrEmpty(((string)o)))
                     {
                         ApiInfo[] test = new ApiInfo[] { ApiInfo.name, ApiInfo._id };
 
@@ -788,7 +788,7 @@ namespace LX29_Twitch.Api
                     try
                     {
                         string url = value.data.image;
-                        if (!url.IsEmpty())
+                        if (!string.IsNullOrEmpty(url))
                         {
                             image = new System.Drawing.Bitmap(1, 1);
                             WebClient wc = new WebClient();
