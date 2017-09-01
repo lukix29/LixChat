@@ -16,26 +16,25 @@ namespace updater
             {
                 string source = args[0];
                 string dest = args[1];
-                var procs = Process.GetProcesses().Where(t => t.StartInfo.FileName.Equals("lixchat.exe", StringComparison.OrdinalIgnoreCase));
+                var procs = Process.GetProcesses();
                 foreach (var proc in procs)
                 {
-                    try
+                    string filename = Path.GetFileNameWithoutExtension(dest);
+                    if (proc.ProcessName.Equals(filename))
                     {
-                        proc.Close();
                         proc.Kill();
-                    }
-                    catch
-                    {
                     }
                 }
                 File.Copy(source, dest, true);
+                Process.Start(Path.GetFileName(dest));
+                File.Delete(source);
             }
             catch (Exception x)
             {
                 try
                 {
                     Console.Clear();
-                    Console.WriteLine(x.ToString());
+                    Console.WriteLine(x.Message);
                     Console.WriteLine();
                     Console.WriteLine("Retry (y) or Abort (n)");
                     string resp = Console.ReadLine().Trim();
@@ -43,13 +42,13 @@ namespace updater
                     {
                         Main(args);
                     }
-                    else
-                    {
-                        Process.Start("LixChat.exe");
-                    }//Main(args);
                 }
-                catch
+                catch (Exception xi)
                 {
+                    Console.WriteLine(xi.Message);
+                    Console.WriteLine();
+                    Console.WriteLine("Press any Key to exit.");
+                    Console.ReadKey();
                 }
             }
         }

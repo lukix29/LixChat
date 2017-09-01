@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace LX29_ChatClient.Addons
 {
@@ -13,6 +14,7 @@ namespace LX29_ChatClient.Addons
         private ChannelInfo channel = null;
         private string channelName = "";
         private bool isSaved = true;
+        private List<Tuple<string, int>> labels = new List<Tuple<string, int>>();
         private string oldChannelname = string.Empty;
 
         private string[] UserNames;
@@ -52,6 +54,58 @@ namespace LX29_ChatClient.Addons
         //        LoadActions(false);
         //    }
         //}
+
+        public CheckBox CreateCheckBox(bool check, string name, string text)
+        {
+            var cB = new CheckBox();
+            cB.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            cB.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            cB.Name = name;
+            cB.Checked = check;
+            cB.Text = text;
+            cB.Size = new System.Drawing.Size(50, 22);
+            cB.UseVisualStyleBackColor = true;
+            cB.AutoSize = true;
+            return cB;
+        }
+
+        public NumericUpDown CreateNuD(decimal value, string name)
+        {
+            var nUD = new NumericUpDown();
+            nUD.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            nUD.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            nUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            nUD.ForeColor = System.Drawing.Color.Gainsboro;
+            nUD.Name = name;
+            nUD.Size = new System.Drawing.Size(60, 22);
+            nUD.Minimum = 0;
+            //nUD.AutoSize = true;
+            nUD.Maximum = Int16.MaxValue;
+            nUD.Value = value;
+            return nUD;
+        }
+
+        public RichTextBox CreateRtB(string name, string text)
+        {
+            var rTB = new RichTextBox();
+            rTB.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            rTB.Multiline = false;
+            rTB.Name = name;
+            rTB.Size = new System.Drawing.Size((int)addFacSize, 22);
+            rTB.Text = text;
+            return rTB;
+        }
+
+        public TextPreviewControl CreateTextPreviewControl(string name, string text)//, string[] items)
+        {
+            var rTB = new TextPreviewControl();
+            rTB.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            rTB.Name = name;
+            rTB.Size = new System.Drawing.Size((int)addFacSize, 22);
+            rTB.Text = text;
+            //rTB.Items.AddRange(items);
+            return rTB;
+        }
 
         private void btn_Help_Click(object sender, EventArgs e)
         {
@@ -125,33 +179,50 @@ namespace LX29_ChatClient.Addons
         {
             try
             {
-                int y = 0;
-                if (panel2.Controls.Count > 0)
-                {
-                    y = panel2.Controls.Cast<Control>().Max(t => t.Bottom) + 5;
-                }
-
                 panel2.Controls.Clear();
+
+                //var props = new ChatAction("").GetType().GetProperties().Where(t => !t.Name.StartsWith("Is"))
+                //    .OrderByDescending(t => t.PropertyType.Equals(typeof(string)))
+                //    .ThenByDescending(t => t.PropertyType.Equals(typeof(bool)))
+                //    .ThenByDescending(t => t.PropertyType.Equals(typeof(int)));
+                int x = 5;
+                Label lbl = new Label();
+                //foreach (var prop in props)
+                //{
+                lbl.Text = "A";// prop.Name;
+                lbl.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+                // lbl.ForeColor = System.Drawing.Color.White;
+                lbl.Location = new System.Drawing.Point(x, 5);
+                //lbl.Width = (int)addFacSize;
+                // lbl.Visible = true;
+                // panel2.Controls.Add(lbl);
+                // x += lbl.Width + 5;
+                //}
+
+                bool fillLabels = true;
+                int y = lbl.Bottom + 5;
+                labels.Clear();
                 for (int i = 0; i < actions.Count; i++)
                 {
                     ChatAction ca = actions[i];
                     List<Control> list = new List<Control>();
                     var props = ca.GetType().GetProperties().Where(t => !t.Name.StartsWith("Is"))
-                        .OrderByDescending(t => t.PropertyType.Equals(typeof(string)))
-                        .ThenByDescending(t => t.PropertyType.Equals(typeof(bool)))
-                        .ThenByDescending(t => t.PropertyType.Equals(typeof(int)));
+                         .OrderByDescending(t => t.PropertyType.Equals(typeof(string)))
+                         .ThenByDescending(t => t.PropertyType.Equals(typeof(bool)))
+                         .ThenByDescending(t => t.PropertyType.Equals(typeof(int)));
 
-                    var cb = Creator.CreateCheckBox(false, "sel_" + i, "");
-                    //cb.CheckedChanged += (o, e) =>
-                    //{
-                    //};
+                    addFacSize = panel2.Width / (float)props.Count();
+
+                    var cb = CreateCheckBox(false, "sel_" + i, "");
+                    cb.Width = cb.Height;
+                    // cb.AutoSize = true;
                     list.Add(cb);
                     foreach (var prop in props)
                     {
                         if (prop.PropertyType.Equals(typeof(int)))
                         {
                             var iv = (int)prop.GetValue(ca);
-                            var nud = Creator.CreateNuD(iv, prop.Name + "_" + i);
+                            var nud = CreateNuD(iv, prop.Name + "_" + i);
                             nud.ValueChanged += (o, e) =>
                                 {
                                     prop.SetValue(ca, (int)nud.Value);
@@ -162,7 +233,7 @@ namespace LX29_ChatClient.Addons
                         else if (prop.PropertyType.Equals(typeof(bool)))
                         {
                             var b = (bool)prop.GetValue(ca);
-                            var nud = Creator.CreateCheckBox(b, prop.Name + "_" + i, prop.Name);
+                            var nud = CreateCheckBox(b, prop.Name + "_" + i, prop.Name);
                             nud.CheckedChanged += (o, e) =>
                             {
                                 prop.SetValue(ca, nud.Checked);
@@ -175,7 +246,7 @@ namespace LX29_ChatClient.Addons
                             var s = (string)prop.GetValue(ca);
                             if (prop.Name.Equals("username", StringComparison.OrdinalIgnoreCase))
                             {
-                                var nud = Creator.CreateTextPreviewControl(prop.Name + "_" + i, s);
+                                var nud = CreateTextPreviewControl(prop.Name + "_" + i, s);
                                 nud.TextChanged += (o, e) =>
                                 {
                                     if (nud.Text.Equals("*"))
@@ -200,7 +271,7 @@ namespace LX29_ChatClient.Addons
                             }
                             else
                             {
-                                var nud = Creator.CreateRtB(prop.Name + "_" + i, s);
+                                var nud = CreateRtB(prop.Name + "_" + i, s);
                                 nud.TextChanged += (o, e) =>
                                 {
                                     prop.SetValue(ca, nud.Text);
@@ -212,20 +283,25 @@ namespace LX29_ChatClient.Addons
                     }
 
                     int height = list.Max(t => t.Height);
-                    int x = 5;
-                    foreach (var ctrl in list)
+                    x = 5;
+                    var g = panel2.CreateGraphics();
+                    for (int o = 0; o < list.Count; o++)
                     {
+                        var ctrl = list[o];
                         ctrl.Anchor = AnchorStyles.Top | AnchorStyles.Left;
                         ctrl.Location = new System.Drawing.Point(x, y);
-                        ctrl.Width = (int)addFacSize;
-                        //if (fillLabels) labels.Add(new Label() { Text = ctrl.Name, Location = new System.Drawing.Point(x, 0) });
+                        if (o > 0 && !(ctrl is NumericUpDown)) ctrl.Width = (int)addFacSize;
+                        if (fillLabels) //labels.Add(new Label() { Text = ctrl.Name, Location = new System.Drawing.Point(x, 0) });
+                            labels.Add(new Tuple<string, int>(ctrl.Name.Split('_').First(), x));
                         x += ctrl.Width + 5;
                         panel2.Controls.Add(ctrl);
                     }
-                    //fillLabels = false;
+                    g.Dispose();
+                    fillLabels = false;
 
                     y += height + 5;
                 }
+                this.Refresh();
                 //return labels;
             }
             catch
@@ -254,6 +330,7 @@ namespace LX29_ChatClient.Addons
 
         private void FormChatSettings_Load(object sender, EventArgs e)
         {
+            panel2.Paint += panel2_Paint;
             LoadActions(true);
 
             this.Text = "Chat Actions for Channel: " + channel.DisplayName;
@@ -265,22 +342,6 @@ namespace LX29_ChatClient.Addons
             {
                 actions = ChatClient.AutoActions.GetChannelActions(channelName).Select(t => (ChatAction)t.Clone()).ToList();
 
-                var props = new ChatAction("").GetType().GetProperties().Where(t => !t.Name.StartsWith("Is"))
-                    .OrderByDescending(t => t.PropertyType.Equals(typeof(string)))
-                    .ThenByDescending(t => t.PropertyType.Equals(typeof(bool)))
-                    .ThenByDescending(t => t.PropertyType.Equals(typeof(int)));
-                int x = 5;
-                addFacSize = panel2.Width / (float)props.Count();
-                foreach (var prop in props)
-                {
-                    Label ctrl = new Label();
-                    ctrl.Text = prop.Name;
-                    ctrl.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-                    ctrl.Location = new System.Drawing.Point(x, 5);
-                    ctrl.Width = (int)addFacSize;
-                    panel2.Controls.Add(ctrl);
-                    x += ctrl.Width + 5;
-                }
                 CreateChatActionControls();
 
                 if (withuser)
@@ -290,7 +351,6 @@ namespace LX29_ChatClient.Addons
                         UserNames = ChatClient.Users.GetAllNames();
                     });
                 }
-                btn_remove.Enabled = false;
             }
             catch (Exception x)
             {
@@ -298,57 +358,11 @@ namespace LX29_ChatClient.Addons
             }
         }
 
-        public static class Creator
+        private void panel2_Paint(object sender, PaintEventArgs e)
         {
-            public static CheckBox CreateCheckBox(bool check, string name, string text)
+            foreach (var lbl in labels)
             {
-                var cB = new CheckBox();
-                cB.Anchor = System.Windows.Forms.AnchorStyles.Left;
-                cB.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-                cB.Name = name;
-                cB.Checked = check;
-                cB.Text = text;
-                cB.UseVisualStyleBackColor = true;
-                cB.AutoSize = true;
-                return cB;
-            }
-
-            public static NumericUpDown CreateNuD(decimal value, string name)
-            {
-                var nUD = new NumericUpDown();
-                nUD.Anchor = System.Windows.Forms.AnchorStyles.Left;
-                nUD.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-                nUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-                nUD.ForeColor = System.Drawing.Color.Gainsboro;
-                nUD.Name = name;
-                nUD.Size = new System.Drawing.Size(40, 22);
-                nUD.Minimum = 0;
-                //nUD.AutoSize = true;
-                nUD.Maximum = Int16.MaxValue;
-                nUD.Value = value;
-                return nUD;
-            }
-
-            public static RichTextBox CreateRtB(string name, string text)
-            {
-                var rTB = new RichTextBox();
-                rTB.Anchor = System.Windows.Forms.AnchorStyles.Left;
-                rTB.Multiline = false;
-                rTB.Name = name;
-                rTB.Size = new System.Drawing.Size(132, 22);
-                rTB.Text = text;
-                return rTB;
-            }
-
-            public static TextPreviewControl CreateTextPreviewControl(string name, string text)//, string[] items)
-            {
-                var rTB = new TextPreviewControl();
-                rTB.Anchor = System.Windows.Forms.AnchorStyles.Left;
-                rTB.Name = name;
-                rTB.Size = new System.Drawing.Size(132, 22);
-                rTB.Text = text;
-                //rTB.Items.AddRange(items);
-                return rTB;
+                e.Graphics.DrawString(lbl.Item1, this.Font, Brushes.White, lbl.Item2, 5);
             }
         }
     }

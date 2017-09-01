@@ -197,9 +197,16 @@ namespace LX29_Twitch.Api
         public static ApiResult GetUserIDFromToken(string Token)
         {
             string result = downloadString("https://api.twitch.tv/kraken?oauth_token=" + Token, null, 5, false);
-            result = result.GetBetween("https://api.twitch.tv/kraken/users/", "\"");
+            var res = JSON.ParseAuth(result);
+            //result = result.GetBetween("https://api.twitch.tv/kraken/users/", "\"");
 
-            return GetUserID(result);
+            //Dictionary<ApiInfo, object> vals = new Dictionary<ApiInfo, object>();
+            //vals.Add(ApiInfo._id, res.token.user_id);
+            //vals.Add(ApiInfo.name, res.token.user_name);
+            //vals.Add(ApiInfo.created_at, res.token.authorization.created_at);
+            var apir = new ApiResult(res);// { Values = vals };
+            //return GetUserID(result);
+            return apir;
         }
 
         private static List<ApiResult> Combine(IEnumerable<ApiResult> channels, IEnumerable<ApiResult> streams)
@@ -245,9 +252,7 @@ namespace LX29_Twitch.Api
             {
                 int code = 0;
                 var info = TwitchApiErrors.GetError(x, out code);
-                if (code != 422)
-                {
-                }
+
                 if (handleError)
                 {
                     if (code == (int)HttpStatusCode.GatewayTimeout || code == (int)HttpStatusCode.RequestTimeout)

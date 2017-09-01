@@ -58,10 +58,16 @@ namespace LX29_Twitch.JSON_Parser
 
                 return list;
             }
-            catch
+            catch (Exception x)
             {
+                x.Handle("", false);
             }
             return null;
+        }
+
+        public static Twitch_Api.TokenBase ParseAuth(string input)
+        {
+            return JsonConvert.DeserializeObject<Twitch_Api.TokenBase>(input);
         }
 
         public static Twitch_Badges.BadgeData ParseBadges(string input)
@@ -323,6 +329,13 @@ namespace LX29_Twitch.JSON_Parser
 
         public class Twitch_Api
         {
+            public class Authorization
+            {
+                public string created_at { get; set; }
+                public List<string> scopes { get; set; }
+                public string updated_at { get; set; }
+            }
+
             public class Channel
             {
                 public int _id { get; set; }
@@ -484,6 +497,22 @@ namespace LX29_Twitch.JSON_Parser
                 public string created_at { get; set; }
                 public string sub_plan { get; set; }
                 public string sub_plan_name { get; set; }
+            }
+
+            public class Token
+            {
+                public Authorization authorization { get; set; }
+                public string client_id { get; set; }
+                public string user_id { get; set; }
+                public string user_name { get; set; }
+                public bool valid { get; set; }
+            }
+
+            public class TokenBase
+            {
+                public string _id { get { return token.user_id; } }
+                public string name { get { return token.user_name; } }
+                public Token token { get; set; }
             }
 
             public class User

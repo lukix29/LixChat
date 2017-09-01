@@ -3,7 +3,8 @@
 Keywords for Action:
 	&rd[minimum,maximum] = generates a random Number.
 	&rd[FileName] = takes a random Line from \"Filename\".
-	...File must be in Script Folder.(can be found in Settings)
+	  => File must be in Script Folder.(can be found in Settings)
 	&name = replace with caller name. (who has triggered the Action)
 	&channel = replace with channel name.
 	&word[index] = replace with word, at index, from calling Message.
+	&regex[expression] = (only in message) apply "Regular Expression" on search.

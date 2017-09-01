@@ -126,10 +126,10 @@
     <Compile Include="Code\FormChat\FormSettings.Designer.cs">
       <DependentUpon>FormSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Code\Rendering\ChatControl.cs">
+    <Compile Include="Code\FormChat\Rendering\ChatControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Code\Rendering\ChatControl.Designer.cs">
+    <Compile Include="Code\FormChat\Rendering\ChatControl.Designer.cs">
       <DependentUpon>ChatControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Code\FormChat\ChatPanel\UserInfoPanel.cs">
@@ -144,8 +144,8 @@
     <Compile Include="Code\FormStream\ChannelListBox.Designer.cs">
       <DependentUpon>ChannelListBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Code\Rendering\ChatRenderDevice.cs" />
-    <Compile Include="Code\Rendering\ManagedGDi.cs" />
+    <Compile Include="Code\FormChat\Rendering\ChatRenderDevice.cs" />
+    <Compile Include="Code\FormChat\Rendering\ManagedGDi.cs" />
     <Compile Include="Code\TwitchApi\TwitchUser\SimpleHTTPServer.cs" />
     <Compile Include="Resources\MyScripts.cs" />
     <Compile Include="Code\Chat\ChatExtras\ChatScripts\BaseScripts\DschibbsAktien.cs" />
@@ -279,7 +279,7 @@
     <EmbeddedResource Include="Code\FormChat\FormSettings.resx">
       <DependentUpon>FormSettings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Code\Rendering\ChatControl.resx">
+    <EmbeddedResource Include="Code\FormChat\Rendering\ChatControl.resx">
       <DependentUpon>ChatControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Code\FormChat\ChatPanel\ChatPanel.resx">

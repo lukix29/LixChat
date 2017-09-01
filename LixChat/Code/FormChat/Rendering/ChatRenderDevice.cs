@@ -530,6 +530,7 @@ namespace LX29_ChatClient.Forms
 
         private float MeasureMessage(Graphics graphics, ChatMessage message, RectangleF bounds, float yInput = 0, float height = 0, bool measure = true)
         {
+            bool drawImages = true;
             float emote_Y_Offset = 4;
 
             var user = message.User;
@@ -672,22 +673,24 @@ namespace LX29_ChatClient.Forms
 
                     else
                     {
-                        foreach (var bt in user.Badges)
+                        if (drawImages)
                         {
-                            var badge = ChatClient.Emotes.Badges[bt];
-                            if (badge != null && badge.IsEnabled)
+                            foreach (var bt in user.Badges)
                             {
-                                if (!measure)
+                                var badge = ChatClient.Emotes.Badges[bt];
+                                if (badge != null && badge.IsEnabled)
                                 {
-                                    ClickableList.Add(new SLRect(x, y, badgeHeight, badgeHeight, bt, RectType.Badge));
+                                    if (!measure)
+                                    {
+                                        ClickableList.Add(new SLRect(x, y, badgeHeight, badgeHeight, bt, RectType.Badge));
 
-                                    badge.Draw(bt, graphics, x, y, badgeHeight, badgeHeight);
+                                        badge.Draw(bt, graphics, x, y, badgeHeight, badgeHeight);
+                                    }
+                                    x += badgeHeight + _BadgePadding;
                                 }
-                                x += badgeHeight + _BadgePadding;
                             }
+                            x += _BadgePadding;
                         }
-                        x += _BadgePadding;
-
                         time_Right = x;
 
                         sf = graphics.MeasureText(user.DisplayName + ": ", userFont);
@@ -711,7 +714,7 @@ namespace LX29_ChatClient.Forms
                 bool isLink = false;
                 msgColor = msg_Color;
 
-                if (w.IsEmote)
+                if (drawImages && w.IsEmote)
                 {
                     foreach (EmoteBase em in w.Emote)
                     {
@@ -929,158 +932,158 @@ namespace LX29_ChatClient.Forms
         #endregion Properties
     }
 
-    public class Scroller
-    {
-        private ChatView device;
-        private bool isMouseDown = false;
-        private bool isScrolling = false;
-        private object locko = new object();
+    //public class Scroller
+    //{
+    //    private ChatView device;
+    //    private bool isMouseDown = false;
+    //    private bool isScrolling = false;
+    //    private object locko = new object();
 
-        private Rectangle scrollRect = new Rectangle();
+    //    private Rectangle scrollRect = new Rectangle();
 
-        private bool scrollVisible = false;
+    //    private bool scrollVisible = false;
 
-        public Scroller(ChatView view)
-        {
-            device = view;
-        }
+    //    public Scroller(ChatView view)
+    //    {
+    //        device = view;
+    //    }
 
-        private Rectangle ClientRectangle
-        {
-            get { return device.ClientRectangle; }
-        }
+    //    private Rectangle ClientRectangle
+    //    {
+    //        get { return device.ClientRectangle; }
+    //    }
 
-        private Size ClientSize
-        {
-            get { return ClientRectangle.Size; }
-        }
+    //    private Size ClientSize
+    //    {
+    //        get { return ClientRectangle.Size; }
+    //    }
 
-        private int itemCount
-        {
-            get { return device.Renderer.msgCount; }
-        }
+    //    private int itemCount
+    //    {
+    //        get { return device.Renderer.msgCount; }
+    //    }
 
-        private int maxVisibleItems
-        {
-            get { return device.Renderer.VisibleMessages; }
-        }
+    //    private int maxVisibleItems
+    //    {
+    //        get { return device.Renderer.VisibleMessages; }
+    //    }
 
-        private int scrollBarHeight
-        {
-            get
-            {
-                return 20;
-            }
-        }
+    //    private int scrollBarHeight
+    //    {
+    //        get
+    //        {
+    //            return 20;
+    //        }
+    //    }
 
-        private int scrollOffset
-        {
-            get { return device.Renderer.ViewStart; }
-            set { device.Renderer.ViewStart = value; }
-        }
+    //    private int scrollOffset
+    //    {
+    //        get { return device.Renderer.ViewStart; }
+    //        set { device.Renderer.ViewStart = value; }
+    //    }
 
-        public void OnMouseDown(MouseEventArgs e)
-        {
-            if (new Rectangle(scrollRect.X - 5, 0, scrollRect.Width + 10, this.ClientSize.Height).
-                    Contains(e.Location))
-            {
-                if (new Rectangle(scrollRect.X - 5, scrollRect.Y, scrollRect.Width + 10, scrollRect.Height).
-                     Contains(e.Location))
-                {
-                    isScrolling = true;
-                }
-            }
-            isMouseDown = true;
-        }
+    //    public void OnMouseDown(MouseEventArgs e)
+    //    {
+    //        if (new Rectangle(scrollRect.X - 5, 0, scrollRect.Width + 10, this.ClientSize.Height).
+    //                Contains(e.Location))
+    //        {
+    //            if (new Rectangle(scrollRect.X - 5, scrollRect.Y, scrollRect.Width + 10, scrollRect.Height).
+    //                 Contains(e.Location))
+    //            {
+    //                isScrolling = true;
+    //            }
+    //        }
+    //        isMouseDown = true;
+    //    }
 
-        public void OnMouseMove(MouseEventArgs e)
-        {
-            if (isMouseDown)
-            {
-                if (isScrolling)
-                {
-                    CalcScrolling(e.Y);
-                }
-                else if (!isScrolling)
-                {
-                    if (e.Y >= this.ClientRectangle.Bottom)
-                    {
-                        scrollOffset = Math.Min(itemCount - maxVisibleItems, scrollOffset + 1);
-                    }
-                    else if (e.Y <= 0)
-                    {
-                        scrollOffset = Math.Max(0, scrollOffset - 1);
-                    }
-                }
-            }
-        }
+    //    public void OnMouseMove(MouseEventArgs e)
+    //    {
+    //        if (isMouseDown)
+    //        {
+    //            if (isScrolling)
+    //            {
+    //                CalcScrolling(e.Y);
+    //            }
+    //            else if (!isScrolling)
+    //            {
+    //                if (e.Y >= this.ClientRectangle.Bottom)
+    //                {
+    //                    scrollOffset = Math.Min(itemCount - maxVisibleItems, scrollOffset + 1);
+    //                }
+    //                else if (e.Y <= 0)
+    //                {
+    //                    scrollOffset = Math.Max(0, scrollOffset - 1);
+    //                }
+    //            }
+    //        }
+    //    }
 
-        public void OnMouseUp(MouseEventArgs e)
-        {
-            if (new Rectangle(scrollRect.X - 5, 0, scrollRect.Width + 10, this.ClientSize.Height).
-                 Contains(e.Location))
-            {
-                CalcScrolling(e.Y);
-            }
+    //    public void OnMouseUp(MouseEventArgs e)
+    //    {
+    //        if (new Rectangle(scrollRect.X - 5, 0, scrollRect.Width + 10, this.ClientSize.Height).
+    //             Contains(e.Location))
+    //        {
+    //            CalcScrolling(e.Y);
+    //        }
 
-            isScrolling = false;
-            isMouseDown = false;
-        }
+    //        isScrolling = false;
+    //        isMouseDown = false;
+    //    }
 
-        public void OnMouseWheel(MouseEventArgs e)
-        {
-            //scrollOffset = Math.Max(0, Math.Min(itemCount - maxVisibleItems, scrollOffset - Math.Sign(e.Delta)));
+    //    public void OnMouseWheel(MouseEventArgs e)
+    //    {
+    //        //scrollOffset = Math.Max(0, Math.Min(itemCount - maxVisibleItems, scrollOffset - Math.Sign(e.Delta)));
 
-            int ys = LXMath.Map(scrollOffset, 0, itemCount - maxVisibleItems, 0, this.ClientSize.Height);
-            ys = Math.Min(this.ClientRectangle.Bottom - scrollBarHeight, Math.Max(0, ys - scrollBarHeight / 2));
-            scrollRect = new Rectangle(this.ClientRectangle.Right - 12, ys, 10, scrollBarHeight);
-        }
+    //        int ys = LXMath.Map(scrollOffset, 0, itemCount - maxVisibleItems, 0, this.ClientSize.Height);
+    //        ys = Math.Min(this.ClientRectangle.Bottom - scrollBarHeight, Math.Max(0, ys - scrollBarHeight / 2));
+    //        scrollRect = new Rectangle(this.ClientRectangle.Right - 12, ys, 10, scrollBarHeight);
+    //    }
 
-        public void OnPaint(Graphics g)
-        {
-            try
-            {
-                // e.Graphics.SetGraphicQuality(true, true);
-                if (maxVisibleItems == 0)
-                {
-                    scrollOffset = 0;
-                    scrollVisible = false;
-                }
-                else
-                {
-                    scrollVisible = true;
-                }
-                if (scrollVisible)
-                {
-                    g.DrawRectangle(Pens.DarkGray, new Rectangle(scrollRect.X - 1, 0, scrollRect.Width + 1, this.ClientSize.Height - 1));
-                    g.FillRectangle(Brushes.DarkGray, scrollRect);
-                }
-                else
-                {
-                    isScrolling = false;
-                }
-            }
-            catch (Exception x)
-            {
-                //e.Graphics.DrawString(x.Message, this.Font, Brushes.Gainsboro, e.ClipRectangle, new StringFormat() { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-            }
-        }
+    //    public void OnPaint(Graphics g)
+    //    {
+    //        try
+    //        {
+    //            // e.Graphics.SetGraphicQuality(true, true);
+    //            if (maxVisibleItems == 0)
+    //            {
+    //                scrollOffset = 0;
+    //                scrollVisible = false;
+    //            }
+    //            else
+    //            {
+    //                scrollVisible = true;
+    //            }
+    //            if (scrollVisible)
+    //            {
+    //                g.DrawRectangle(Pens.DarkGray, new Rectangle(scrollRect.X - 1, 0, scrollRect.Width + 1, this.ClientSize.Height - 1));
+    //                g.FillRectangle(Brushes.DarkGray, scrollRect);
+    //            }
+    //            else
+    //            {
+    //                isScrolling = false;
+    //            }
+    //        }
+    //        catch (Exception x)
+    //        {
+    //            //e.Graphics.DrawString(x.Message, this.Font, Brushes.Gainsboro, e.ClipRectangle, new StringFormat() { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+    //        }
+    //    }
 
-        public void OnResize(EventArgs e)
-        {
-            scrollRect = new Rectangle(this.ClientRectangle.Right - 12, scrollRect.Y, 10, scrollBarHeight);
-        }
+    //    public void OnResize(EventArgs e)
+    //    {
+    //        scrollRect = new Rectangle(this.ClientRectangle.Right - 12, scrollRect.Y, 10, scrollBarHeight);
+    //    }
 
-        private void CalcScrolling(int Y)
-        {
-            int ys = Math.Min(this.ClientRectangle.Bottom - scrollBarHeight, Math.Max(0, Y - scrollBarHeight / 2));
-            scrollRect = new Rectangle(this.ClientRectangle.Right - 12, ys, 10, scrollBarHeight);
+    //    private void CalcScrolling(int Y)
+    //    {
+    //        int ys = Math.Min(this.ClientRectangle.Bottom - scrollBarHeight, Math.Max(0, Y - scrollBarHeight / 2));
+    //        scrollRect = new Rectangle(this.ClientRectangle.Right - 12, ys, 10, scrollBarHeight);
 
-            var offset = LXMath.Map(Y, scrollBarHeight / 2,
-                this.ClientSize.Height - scrollBarHeight / 2, 0, itemCount - maxVisibleItems);
-            scrollOffset = Math.Max(0, Math.Min(itemCount - maxVisibleItems, offset));
-        }
-    }
+    //        var offset = LXMath.Map(Y, scrollBarHeight / 2,
+    //            this.ClientSize.Height - scrollBarHeight / 2, 0, itemCount - maxVisibleItems);
+    //        scrollOffset = Math.Max(0, Math.Min(itemCount - maxVisibleItems, offset));
+    //    }
+    //}
 
     //public struct DrawRect
     //{

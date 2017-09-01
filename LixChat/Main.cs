@@ -487,16 +487,34 @@ namespace LX29_LixChat
 
         private void cB_LogChat_CheckedChanged(object sender, EventArgs e)
         {
-            if (lockChatSettings) return;
-            var sa = GetCurrentInfo();
-            if (sa != null)
+            try
             {
-                foreach (var s in sa)
+                if (lockChatSettings) return;
+                var sa = GetCurrentInfo();
+                if (sa != null)
                 {
-                    s.LogChat = cB_LogChat.Checked;
+                    //if (sa[0].IsOnline)
+                    //{
+                    //    var md5 = Guid.NewGuid().ToString().Replace("-", "");
+                    //    string url = "player_backend_type=player-core" +
+                    //        "&channel=" + sa[0].Name +
+                    //        "&offset=" + (int)DateTime.Now.Subtract(sa[0].GetValue<DateTime>(ApiInfo.stream_created_at)).TotalSeconds +
+                    //        "&broadcast_id=" + sa[0].GetValue<string>(ApiInfo.stream_id) +
+                    //        "&play_session_id=" + md5 +
+                    //        "&show_view_page=false";
+                    //    System.Net.WebClient wc = new System.Net.WebClient();
+                    //    var back = wc.UploadString("https://clips.twitch.tv/clips", url);
+                    //}
+                    foreach (var s in sa)
+                    {
+                        s.LogChat = cB_LogChat.Checked;
+                    }
+                    ChatClient.SaveChannels();
+                    //this.LoadList(ChatClient.Channels);
                 }
-                ChatClient.SaveChannels();
-                //this.LoadList(ChatClient.Channels);
+            }
+            catch
+            {
             }
         }
 

@@ -826,7 +826,7 @@ namespace LX29_ChatClient.Emotes
                     //DateTime now = DateTime.Now;
                     int cnt = 0;
                     int max = ChatClient.Messages.Values.Count;
-                    Parallel.ForEach(ChatClient.Messages.Values.Values, new Action<List<ChatMessage>>((msg) =>
+                    foreach (var msg in ChatClient.Messages.Values.Values)
                     {
                         var msges = msg.Where(t => (t.SendTime.Ticks <= finish));
                         foreach (var val in msges)
@@ -835,7 +835,7 @@ namespace LX29_ChatClient.Emotes
                         }
                         cnt++;
                         On_Loaded_channel(null, cnt, max, "Reloading Emotes in Messages");
-                    }));
+                    }
                     //MessageBox.Show(DateTime.Now.Subtract(now).ToString());
                 });
             }

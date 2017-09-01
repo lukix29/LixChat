@@ -402,6 +402,13 @@ namespace LX29_Twitch.Api
             SetValues<JSON.Twitch_Api.User>(props, user);
         }
 
+        public ApiResult(JSON.Twitch_Api.TokenBase user)
+        {
+            var typ = user.GetType();
+            var props = typ.GetProperties();
+            SetValues<JSON.Twitch_Api.TokenBase>(props, user);
+        }
+
         public ApiResult(ApiResult result, ApiResult result1)
         {
             values = result.values;
@@ -561,6 +568,7 @@ namespace LX29_Twitch.Api
         public Dictionary<ApiInfo, object> Values
         {
             get { return values; }
+            set { values = value; }
         }
 
         public T GetValue<T>(ApiInfo type)
