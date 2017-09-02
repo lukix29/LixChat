@@ -127,10 +127,13 @@ namespace LX29_ChatClient
     {
         public static readonly SettingClasses[] ChatBasic = new SettingClasses[]
         {
-            new SettingClasses("_ChatHistory", "Chat History Amount", 100.0, Int16.MaxValue * 1.0, 1.0),
+            new SettingClasses("_ChatHistory", "Chat History Amount", 128.0, Int16.MaxValue * 1.0, 1.0),
             new SettingClasses("_ShowTimeoutMessages", "Show Timeouts/Bans"),
             new SettingClasses("_ShowTimeStamp", "Show Time Stamp"),
-            new SettingClasses("_AlternateBG", "Alternate Message\r\nBackground")
+            new SettingClasses("_AlternateBG", "Alternate Message\r\nBackground"),
+            new SettingClasses("_BeepOnWhisper", "Beep on Whisper"),
+            new SettingClasses("_BeepOnHighlight", "Beep On Highlight"),
+            new SettingClasses("_MessageCaching", "Message Caching")
         };
 
         public static readonly SettingClasses[] EmoteBasic = new SettingClasses[]
@@ -149,7 +152,6 @@ namespace LX29_ChatClient
             new SettingClasses("_MpvBufferBytes", "Player Buffer(Kbytes)", 100.0, UInt16.MaxValue * 10.0, 1000.0),
             new SettingClasses("_MpvBufferSeconds", "Player Buffer(Sec)", 1.0, 120.0, 1.0),
             new SettingClasses("_DevUpdates", "Nightly Updates"),
-            new SettingClasses("_BeepOnWhisper", "Beep on Whisper")
         };
 
         public static readonly SettingClasses[] TextBasic = new SettingClasses[]
@@ -223,6 +225,7 @@ namespace LX29_ChatClient
         public static readonly string emoteDir = caonfigBaseDir + "Emotes\\";
         public static readonly bool isDebug = Application.StartupPath.Contains("Debug");
         public static readonly string pluginDir = ".\\Plugins\\";
+        public static readonly string resourceDir = ".\\Resources\\";
 
         public static readonly string scriptDir = caonfigBaseDir + "Scripts\\";
 
@@ -428,14 +431,16 @@ namespace LX29_ChatClient
 
         #region PrivateFields
 
+        private static bool _BeepOnHighlight = false;
         private static bool _BeepOnWhisper = false;
         private static string _BrowserName = "";
         private static string _BrowserPath = "";
-        private static int _ChatBackGround = Color.FromArgb(35, 35, 35).ToArgb();
+        private static double _ChatBackGround = Color.FromArgb(35, 35, 35).ToArgb();
         private static string _ChatFontName = "Calibri";
-        private static int _ChatHistory = 1024;
+        private static double _ChatHistory = 1024;
         private static bool _DevUpdates = false;
         private static Rectangle _MainBounds = Rectangle.Empty;
+        private static bool _MessageCaching = false;
         private static double _MpvBufferBytes = 64000;
         private static double _MpvBufferSeconds = 10;
         private static bool _ShowErrors = false;
@@ -445,6 +450,16 @@ namespace LX29_ChatClient
         #endregion PrivateFields
 
         #region PublicProperties
+
+        public static bool BeepOnHighlight
+        {
+            get { return _BeepOnHighlight; }
+            set
+            {
+                _BeepOnHighlight = value;
+                Save();
+            }
+        }
 
         public static bool BeepOnWhisper
         {
@@ -502,7 +517,7 @@ namespace LX29_ChatClient
 
         public static int ChatBackGround
         {
-            get { return _ChatBackGround; }
+            get { return (int)_ChatBackGround; }
             set
             {
                 _ChatBackGround = value;
@@ -512,10 +527,10 @@ namespace LX29_ChatClient
 
         public static int ChatHistory
         {
-            get { return _ChatHistory; }
+            get { return (int)_ChatHistory; }
             set
             {
-                _ChatHistory = Math.Max(10, value);
+                _ChatHistory = Math.Max(100, value);
                 Save();
             }
         }
@@ -550,6 +565,16 @@ namespace LX29_ChatClient
         {
             get { return MainBounds.Size; }
             set { MainBounds = new Rectangle(_MainBounds.Location, value); }
+        }
+
+        public static bool MessageCaching
+        {
+            get { return _MessageCaching; }
+            set
+            {
+                _MessageCaching = value;
+                Save();
+            }
         }
 
         public static double MpvBufferBytes

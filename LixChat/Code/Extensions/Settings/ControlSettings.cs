@@ -86,11 +86,14 @@ namespace LX29_ChatClient.Forms
                     onselect(nud.Value, classe.Name);
                 };
 
-            nUD_LineHeight.MouseDoubleClick += (sender, e) =>
+            nUD_LineHeight.MouseClick += (sender, e) =>
                 {
-                    var nud = (NumericUpDown)sender;
-                    var val = Settings.Standard.FirstOrDefault(t => t.Key.Equals(nud.Name));
-                    nud.Value = (decimal)(double)val.Value;
+                    if (e.Button == MouseButtons.Middle)
+                    {
+                        var nud = (NumericUpDown)sender;
+                        var val = Settings.Standard.FirstOrDefault(t => t.Key.Equals(nud.Name));
+                        nud.Value = (decimal)(double)val.Value;
+                    }
                 };
             //
             // label1
@@ -103,6 +106,14 @@ namespace LX29_ChatClient.Forms
             label1.Name = "lbl_" + classe.Name;
             label1.Dock = DockStyle.Left;
             label1.Text = classe.Text;
+            label1.MouseClick += (sender, e) =>
+            {
+                if (e.Button == MouseButtons.Middle)
+                {
+                    var val = Settings.Standard.FirstOrDefault(t => t.Key.Equals(nUD_LineHeight.Name));
+                    nUD_LineHeight.Value = (decimal)(double)val.Value;
+                }
+            };
 
             Panel panel1 = new Panel();
             panel1.Controls.Add(nUD_LineHeight);
@@ -401,7 +412,7 @@ namespace LX29_ChatClient.Forms
             }
             catch (Exception x)
             {
-                x.Handle();
+                x.Handle("", true);
                 this.btn_Close.PerformClick();
             }
         }

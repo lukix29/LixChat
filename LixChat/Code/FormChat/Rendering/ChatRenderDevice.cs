@@ -479,7 +479,7 @@ namespace LX29_ChatClient.Forms
                 //{c
                 float y = bounds.Bottom - bottom;
 
-                var messages = ChatClient.Messages[Channel.Name, WhisperName, MessageType];
+                var messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType);
                 if (messages != null)
                 {
                     if (viewStart == 0 && AutoScroll)

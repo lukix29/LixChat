@@ -357,6 +357,11 @@ namespace LX29_ChatClient
             ChatWords = ChatClient.Emotes.ParseEmoteFromMessage(null, message, channel, Types);
         }
 
+        public int[] _types
+        {
+            get { return Types.Select(t => (int)t).ToArray(); }
+        }
+
         [JsonIgnore]
         public string Channel
         {
@@ -444,6 +449,7 @@ namespace LX29_ChatClient
             set;
         }
 
+        [JsonIgnore]
         public HashSet<MsgType> Types
         {
             get;

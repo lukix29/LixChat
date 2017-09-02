@@ -182,57 +182,91 @@ namespace LX29_ChatClient.Forms
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            if (isMouseDown)
+            try
             {
-                if (isScrolling)
+                if (isMouseDown)
                 {
-                    CalcScrolling(e.Y);
+                    if (isScrolling)
+                    {
+                        CalcScrolling(e.Y);
+                    }
+                    else if (!isScrolling)
+                    {
+                        int h = Math.Abs(e.Y - selStartY);
+                        for (int yi = 0; yi <= h; yi++)
+                        {
+                            int y = yi + selStartY;
+                            if (y >= this.ClientRectangle.Bottom)
+                            {
+                                scrollOffset = Math.Min(Items.Length - maxVisibleItems, scrollOffset + 1);
+                            }
+                            else if (y <= 0)
+                            {
+                                scrollOffset = Math.Max(0, scrollOffset - 1);
+                            }
+                            int index = scrollOffset + (y / ItemHeight);
+                            if (!isCtrPressed)
+                            {
+                                if (!selIndices.Contains(index))
+                                {
+                                    selIndices.Add(index);
+                                }
+                            }
+                            else
+                            {
+                                if (selIndices.Contains(index))
+                                {
+                                    selIndices.Remove(index);
+                                }
+                            }
+                        }
+                        selStartY = e.Y + 1;
+                    }
                 }
-                else if (!isScrolling)
-                {
-                    if (e.Y >= this.ClientRectangle.Bottom)
-                    {
-                        scrollOffset = Math.Min(Items.Length - maxVisibleItems, scrollOffset + 1);
-                    }
-                    else if (e.Y <= 0)
-                    {
-                        scrollOffset = Math.Max(0, scrollOffset - 1);
-                    }
-                    int index = scrollOffset + (e.Y / ItemHeight);
-                    if (!selIndices.Contains(index))
-                    {
-                        selIndices.Add(index);
-                    }
-                    else
-                    {
-                    }
-                }
-                this.Refresh();
             }
+            catch
+            {
+            }
+            this.Refresh();
             base.OnMouseMove(e);
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            if (new Rectangle(scrollRect.X - 5, 0, scrollRect.Width + 10, this.ClientSize.Height).
-                 Contains(e.Location))
+            try
             {
-                CalcScrolling(e.Y);
-            }
-            else
-            {
-                if (!isScrolling)
+                if (new Rectangle(scrollRect.X - 5, 0, scrollRect.Width + 10, this.ClientSize.Height).
+                     Contains(e.Location))
                 {
-                    int index = scrollOffset + (e.Y / ItemHeight);
-                    if (!selIndices.Contains(index))
+                    CalcScrolling(e.Y);
+                }
+                else
+                {
+                    if (!isScrolling)
                     {
-                        selIndices.Add(index);
+                        int index = scrollOffset + (e.Y / ItemHeight);
+                        if (!isCtrPressed)
+                        {
+                            if (!selIndices.Contains(index))
+                            {
+                                selIndices.Add(index);
+                            }
+                        }
+                        else
+                        {
+                            if (selIndices.Contains(index))
+                            {
+                                selIndices.Remove(index);
+                            }
+                        }
+                        if (SelectedIndexChanged != null)
+                            SelectedIndexChanged(this, new EventArgs());
                     }
-                    if (SelectedIndexChanged != null)
-                        SelectedIndexChanged(this, new EventArgs());
                 }
             }
-
+            catch
+            {
+            }
             isScrolling = false;
             isMouseDown = false;
             this.Refresh();

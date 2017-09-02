@@ -477,7 +477,7 @@ namespace LX29_ChatClient.Forms
                     {
                         if (!Renderer.gifVisible)
                         {
-                            wait = 10;
+                            wait = 40;
                         }
                         if (Renderer.Render())
                         {
@@ -524,7 +524,7 @@ namespace LX29_ChatClient.Forms
                         //    wait = 200;
                         //}
                     }
-                    else wait = 1000;
+                    else wait = 500;
 
                     double tt = ((DateTime.Now.Ticks - dt) / (double)TimeSpan.TicksPerMillisecond);
                     if (tt < wait)
