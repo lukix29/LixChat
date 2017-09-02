@@ -1,12 +1,9 @@
 ﻿using LX29_ChatClient.Emotes;
-using LX29_Twitch.Api;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 
 namespace LX29_ChatClient
 {

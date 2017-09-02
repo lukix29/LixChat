@@ -6,7 +6,6 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 
 namespace LX29_ChatClient
 {

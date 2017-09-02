@@ -1,5 +1,4 @@
-﻿using LX29_ChatClient;
-using LX29_ChatClient.Channels;
+﻿using LX29_ChatClient.Channels;
 using LX29_Twitch.Api;
 using System;
 using System.Collections.Generic;

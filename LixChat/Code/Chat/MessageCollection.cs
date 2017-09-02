@@ -1,22 +1,12 @@
-﻿using IRC_Client;
-using IRC_Client.Events;
-using LX29_ChatClient.Addons;
-using LX29_ChatClient.Channels;
-using LX29_ChatClient.Emotes;
-using LX29_Twitch.Api;
+﻿using LX29_ChatClient.Addons;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Collections;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Newtonsoft.Json;
-using System.IO.MemoryMappedFiles;
 using System.Media;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using Microsoft.Win32;
+using System.Windows.Forms;
 
 namespace LX29_ChatClient
 {

@@ -10,10 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Newtonsoft.Json;
-using System.IO.MemoryMappedFiles;
-using System.Media;
-using System.Reflection;
 
 namespace LX29_ChatClient
 {
