@@ -111,7 +111,7 @@ namespace LX29_Helpers
                 DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
                 HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
                 req.Proxy = null;
-                string path = Path.GetFullPath(Path.GetTempPath() + "temp.exe");
+                string path = Path.GetFullPath(Path.GetTempFileName().Replace(".tmp", ".exe"));
                 bool doUpdate = false;
                 using (var resp = req.GetResponse())
                 {
@@ -137,7 +137,7 @@ namespace LX29_Helpers
                     if (LX29_MessageBox.Show("Update found!\r\nDownload now?", "Update", MessageBoxButtons.YesNo) == MessageBoxResult.Yes)
                     {
                         File.WriteAllBytes("updater.exe", LX29_LixChat.Properties.Resources.updater);
-                        Process.Start("updater.exe", path + " " + Application.StartupPath + "LixChat.exe");
+                        Process.Start("updater.exe", path + " " + Application.StartupPath + "\\LixChat.exe");
                     }
                 }
                 //private static void Main(string[] args)

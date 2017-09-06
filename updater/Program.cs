@@ -22,6 +22,7 @@ namespace updater
                     string filename = Path.GetFileNameWithoutExtension(dest);
                     if (proc.ProcessName.Equals(filename))
                     {
+                        Console.WriteLine(filename);
                         proc.Kill();
                     }
                 }

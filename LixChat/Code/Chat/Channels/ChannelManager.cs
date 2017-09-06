@@ -97,27 +97,27 @@ namespace LX29_ChatClient
             }
         }
 
-        public static void LoadChatLog()
-        {
-            try
-            {
-                foreach (ChannelInfo ci in channels.Values)
-                {
-                    string path = Settings.chatLogDir + ci.Name + ".log";
-                    if (File.Exists(path))
-                    {
-                        var sa = File.ReadAllLines(path);
-                        foreach (var s in sa)
-                        {
-                            TryParseRawMessage(s);
-                        }
-                        messages.Add(ci.Name, "End of Log.");
-                    }
-                }
-            }
-            catch (Exception x) { x.Handle("", false); }
-            AutoActions.EnableActions = true;
-        }
+        //public static void LoadChatLog()
+        //{
+        //    try
+        //    {
+        //        foreach (ChannelInfo ci in channels.Values)
+        //        {
+        //            string path = Settings.chatLogDir + ci.Name + ".log";
+        //            if (File.Exists(path))
+        //            {
+        //                var sa = File.ReadAllLines(path);
+        //                foreach (var s in sa)
+        //                {
+        //                    TryParseRawMessage(s);
+        //                }
+        //                messages.Add(ci.Name, "End of Log.");
+        //            }
+        //        }
+        //    }
+        //    catch (Exception x) { x.Handle("", false); }
+        //    AutoActions.EnableActions = true;
+        //}
 
         public static void RemoveChannel(string channel)
         {

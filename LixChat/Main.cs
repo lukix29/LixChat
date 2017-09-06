@@ -157,7 +157,7 @@ namespace LX29_LixChat
             }
             catch (Exception x)
             {
-                switch (x.Handle())
+                switch (x.Handle("", true))
                 {
                     case MessageBoxResult.Retry:
                         Application.Restart();

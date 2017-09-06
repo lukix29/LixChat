@@ -28,7 +28,7 @@ namespace LX29_ChatClient.Addons
         public AutoActions()
         {
             chatactions = new List<ChatAction>();
-            EnableActions = false;
+            EnableActions = true;
         }
 
         public bool ChatActionShowing
