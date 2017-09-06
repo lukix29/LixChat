@@ -162,11 +162,6 @@ namespace LX29_ChatClient.Emotes
             return Image.CalcSize(height, size);
         }
 
-        public void Dispose()
-        {
-            Image.Dispose();
-        }
-
         public void DownloadImages()
         {
             Image.DownloadImages();
