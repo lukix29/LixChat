@@ -17,7 +17,6 @@ namespace LX29_ChatClient.Forms
         private ChannelInfo currentChannel;
 
         //private bool isSearch = false;
-
         private MsgType MessageType = MsgType.All_Messages;
 
         // private string prevMsg = "";
@@ -68,11 +67,11 @@ namespace LX29_ChatClient.Forms
             if (!toolStrip1.Items.ContainsKey(message.Channel))
             {
                 AddTSMItem(message.Channel);
-                this.BeginInvoke(new Action(() => SetNewMessageTSMi(message)));
+                this.Invoke(new Action(() => SetNewMessageTSMi(message)));
             }
             else
             {
-                this.BeginInvoke(new Action(() => SetNewMessageTSMi(message)));
+                this.Invoke(new Action(() => SetNewMessageTSMi(message)));
             }
         }
 
@@ -85,16 +84,20 @@ namespace LX29_ChatClient.Forms
             ChatClient_OnWhisperReceived(message);
         }
 
-        private void chatView_OnMessageReceived(ChatView sender, ChatMessage message)
+        private void chatView_OnMessageReceived(ChatMessage message)
         {
-            this.BeginInvoke(new Action(() => SetNewMessageTSMi(message)));
+            if (message.Channel.Equals(currentChannel.Name))
+            {
+                SetNewMessageTSMi(message);
+            }
         }
 
         private void FormChat_FormClosing(object sender, FormClosingEventArgs e)
         {
             chatView.Stop();
             ChatClient.Messages.OnWhisperReceived -= ChatClient_OnWhisperReceived;
-
+            ChatClient.OnMessageReceived -= chatView_OnMessageReceived;
+            chatPanel1.OnWhisperSent -= chatPanel1_OnWhisperSent;
             IsClosed = true;
         }
 
@@ -125,7 +128,7 @@ namespace LX29_ChatClient.Forms
 
                 chatPanel1.OnWhisperSent += chatPanel1_OnWhisperSent;
 
-                chatView.OnMessageReceived += chatView_OnMessageReceived;
+                ChatClient.OnMessageReceived += chatView_OnMessageReceived;
 
                 ChatClient.TryConnect(currentChannel.Name);
 

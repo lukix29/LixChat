@@ -101,8 +101,8 @@ namespace LX29_ChatClient.Addons
 
         protected override void OnTextChanged(EventArgs e)
         {
-            base.OnTextChanged(e);
             this.Refresh();
+            base.OnTextChanged(e);
         }
 
         [DllImport("user32.dll")]

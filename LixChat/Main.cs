@@ -284,13 +284,13 @@ namespace LX29_LixChat
             string name = textBox1.Text.LastLine("/");
             textBox1.Clear();
             Task.Run(new Action(delegate()
+            {
+                var error = ChatClient.AddChannel(name);
+                if (error != AddError.None)
                 {
-                    var error = ChatClient.AddChannel(name);
-                    if (error != AddError.None)
-                    {
-                        LX29_MessageBox.Show("User " + Enum.GetName(typeof(AddError), error) + "!");
-                    }
-                }));
+                    LX29_MessageBox.Show("User " + Enum.GetName(typeof(AddError), error) + "!");
+                }
+            }));
         }
 
         private void btn_AutoChatActions_Click(object sender, EventArgs e)
@@ -525,12 +525,12 @@ namespace LX29_LixChat
                 if (lockUpdateList) return;
                 lockUpdateList = true;
                 Task.Run(() =>
-                    {
-                        UpdateList();
+                {
+                    UpdateList();
 
-                        if (!string.IsNullOrEmpty(info)) SetProgressInfo(count, max, info);
-                        lockUpdateList = false;
-                    });
+                    if (!string.IsNullOrEmpty(info)) SetProgressInfo(count, max, info);
+                    lockUpdateList = false;
+                });
             }
             catch { }
         }
@@ -565,9 +565,9 @@ namespace LX29_LixChat
             try
             {
                 return (ChannelInfo[])this.Invoke(new Func<ChannelInfo[]>(() =>
-                 {
-                     return lstB_Channels.SelectedItems;
-                 }));
+                {
+                    return lstB_Channels.SelectedItems;
+                }));
             }
             catch { }
             return null;
@@ -654,7 +654,25 @@ namespace LX29_LixChat
 
         private void pb_Preview_DoubleClick(object sender, EventArgs e)
         {
-            btn_StartStream.PerformClick();
+            try
+            {
+                var sa = GetCurrentInfo();
+                if (sa != null)
+                {
+                    string temp = System.IO.Path.GetTempFileName().Replace(".tmp", ".bmp");
+                    using (var fs = System.IO.File.Create(temp))
+                    {
+                        using (var bit = new Bitmap(sa[0].PreviewImage))
+                        {
+                            bit.Save(fs, System.Drawing.Imaging.ImageFormat.Jpeg);
+                        }
+                    }
+                    Process.Start(temp);
+                }
+            }
+            catch
+            {
+            }
         }
 
         private void refreshChannelsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -768,20 +786,21 @@ namespace LX29_LixChat
             try
             {
                 this.Invoke(new Action(delegate()
+                {
+                    tsLbl_Infotext.Visible = true;
+                    tsLabel_Info.Visible = true;
+                    tSProgBar_Loading.Visible = true;
+                    tSProgBar_Loading.Maximum = 100;
+                    tSProgBar_Loading.Value =
+                        Math.Max(0, Math.Min(tSProgBar_Loading.Maximum, (int)(((count / (float)max) * 100) + 1f)));
+                    if (!string.IsNullOrEmpty(info))
                     {
-                        tsLbl_Infotext.Visible = true;
-                        tsLabel_Info.Visible = true;
-                        tSProgBar_Loading.Visible = true;
-                        tSProgBar_Loading.Maximum = 100;
-                        tSProgBar_Loading.Value = Math.Min(100, (int)(((count / (float)max) * 100) + 1f));
-                        if (!string.IsNullOrEmpty(info))
-                        {
-                            tsLbl_Infotext.Text = info + " - " + tSProgBar_Loading.Value + "%";
-                            last_Info_Update = DateTime.Now;
-                            //if ((max > 0 && max >= count) || info.ToLower().Contains("finished"))
-                            //    timer2.Enabled = true;
-                        }
-                    }));
+                        tsLbl_Infotext.Text = info + " - " + tSProgBar_Loading.Value + "%";
+                        last_Info_Update = DateTime.Now;
+                        //if ((max > 0 && max >= count) || info.ToLower().Contains("finished"))
+                        //    timer2.Enabled = true;
+                    }
+                }));
             }
             catch { }
         }
@@ -913,13 +932,13 @@ namespace LX29_LixChat
             if (lstB_Channels.InvokeRequired)
             {
                 this.Invoke(new Action(() =>
+                {
+                    lstB_Channels.Refresh();
+                    if (sa != null)
                     {
-                        lstB_Channels.Refresh();
-                        if (sa != null)
-                        {
-                            SetChatInfos(sa[0]);
-                        }
-                    }));
+                        SetChatInfos(sa[0]);
+                    }
+                }));
             }
             else
             {
@@ -934,15 +953,15 @@ namespace LX29_LixChat
         private void users_OnChangedToken(TwitchUser new_user)
         {
             Task.Run(() =>
+            {
+                var sa = ChatClient.Channels.Where(t => ChatClient.HasJoined(t.Key));
+                foreach (var si in sa)
                 {
-                    var sa = ChatClient.Channels.Where(t => ChatClient.HasJoined(t.Key));
-                    foreach (var si in sa)
-                    {
-                        ChatClient.Disconnect(si.Key);
-                        while (ChatClient.HasJoined(si.Key)) System.Threading.Thread.Sleep(100);
-                        ChatClient.TryConnect(si.Key, true);
-                    }
-                });
+                    ChatClient.Disconnect(si.Key);
+                    while (ChatClient.HasJoined(si.Key)) System.Threading.Thread.Sleep(100);
+                    ChatClient.TryConnect(si.Key, true);
+                }
+            });
         }
     }
 }

@@ -222,7 +222,7 @@ namespace LX29_ChatClient
             public MessageBuffer(string channel)
             {
                 this.channel = channel;
-                mfile = new FileStream(channel + ".cache", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                mfile = new FileStream(Settings.chatLogDir + channel + ".cache", FileMode.OpenOrCreate, FileAccess.ReadWrite);
                 //if cache exists at start and last message is not too old load cache
             }
 

@@ -170,6 +170,16 @@ namespace LX29_ChatClient.Forms
             }
         }
 
+        private List<ChatMessage> messages = new List<ChatMessage>();
+
+        public void MessageReceived(ChatMessage msg)
+        {
+            if (AutoScroll)
+            {
+                messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType);
+            }
+        }
+
         public void Invalidate()
         {
             try
@@ -478,9 +488,8 @@ namespace LX29_ChatClient.Forms
                 //if (count > 0)
                 //{c
                 float y = bounds.Bottom - bottom;
-
-                var messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType);
-                if (messages != null)
+                //var messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType);
+                if (messages != null && messages.Count > 0)
                 {
                     if (viewStart == 0 && AutoScroll)
                     {

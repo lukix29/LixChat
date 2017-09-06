@@ -182,7 +182,6 @@ namespace LX29_ChatClient.Forms
             try
             {
                 chatView1.OnLinkClicked += chatView1_OnLinkClicked;
-                chatView1.OnMessageReceived += chatView1_OnMessageReceived;
                 chatView1.OnUserNameClicked += chatView1_OnUserNameClicked;
                 chatView1.OnEmoteClicked += chatView1_OnEmoteClicked;
 
@@ -220,15 +219,6 @@ namespace LX29_ChatClient.Forms
             //    url = "https://" + url;
             //}
             Settings.StartBrowser(url);
-        }
-
-        private void chatView1_OnMessageReceived(ChatView sender, ChatMessage message)
-        {
-            if (message.IsType(MsgType.Outgoing))
-            {
-                //sentMessages.Add(message);
-                //lastMessageScrollMax = Math.Max(0, sentMessages.Count - 1);
-            }
         }
 
         private void chatView1_OnUserNameClicked(ChatView sender, ChatUser emote, Point mouse)

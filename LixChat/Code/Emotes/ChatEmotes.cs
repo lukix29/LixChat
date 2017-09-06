@@ -17,7 +17,7 @@ namespace LX29_ChatClient.Emotes
         Badge = 7
     }
 
-    public interface EmoteBase : IEqualityComparer<EmoteBase>
+    public interface EmoteBase : IEqualityComparer<EmoteBase>, IDisposable
     {
         string Channel
         {
@@ -56,8 +56,6 @@ namespace LX29_ChatClient.Emotes
         }
 
         SizeF CalcSize(float height, EmoteImageSize size);
-
-        void Dispose();
 
         void DownloadImages();
 
@@ -183,6 +181,11 @@ namespace LX29_ChatClient.Emotes
                 g.DrawLine(Pens.DarkGray, X, Y, X + Width, Y + Height);
             }
             return res;
+        }
+
+        public void Dispose()
+        {
+            Image.Dispose();
         }
 
         public bool Equals(EmoteBase obj, EmoteBase obj1)

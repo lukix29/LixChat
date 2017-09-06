@@ -127,7 +127,8 @@ namespace LX29_ChatClient.Addons
                         temp.Add(actions[idx]);
                     }
                 }
-                actions = new List<ChatAction>(temp);
+                actions.Clear();
+                actions.AddRange(temp);
                 LoadActions(false);
 
                 isSaved = false;
@@ -247,17 +248,22 @@ namespace LX29_ChatClient.Addons
                             if (prop.Name.Equals("username", StringComparison.OrdinalIgnoreCase))
                             {
                                 var nud = CreateTextPreviewControl(prop.Name + "_" + i, s);
+                                nud.Leave += (o, e) =>
+                                {
+                                    prop.SetValue(ca, nud.Text);
+                                    isSaved = false;
+                                };
                                 nud.TextChanged += (o, e) =>
                                 {
                                     if (nud.Text.Equals("*"))
                                     {
                                         prop.SetValue(ca, nud.Text);
-                                        isSaved = false;
                                     }
                                     else
                                     {
                                         nud.SearchArray(UserNames);
                                     }
+                                    isSaved = false;
                                 };
                                 nud.KeyUp += (o, e) =>
                                 {
@@ -340,7 +346,8 @@ namespace LX29_ChatClient.Addons
         {
             try
             {
-                actions = ChatClient.AutoActions.GetChannelActions(channelName).Select(t => (ChatAction)t.Clone()).ToList();
+                actions = ChatClient.AutoActions.GetChannelActions(channelName)
+                    .Select(t => (ChatAction)t.Clone()).ToList();
 
                 CreateChatActionControls();
 

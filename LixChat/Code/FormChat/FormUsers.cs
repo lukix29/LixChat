@@ -158,7 +158,7 @@ namespace LX29_ChatClient.Forms
                 var sa = users.Keys.Where(t => t.ToLower().StartsWith(search)).Select(t => new { name = t, count = ChatClient.Messages.Count(channel.Name, MsgType.All_Messages, t) })
                 .OrderByDescending(t => t.count).Select(t => string.Format("{0,-4:####}", t.count) + " - " + t.name).ToArray();
 
-                this.BeginInvoke(new Action(() =>
+                this.Invoke(new Action(() =>
                     {
                         var selidx = lstB_Users.SelectedItem;
                         lstB_Users.BeginUpdate();

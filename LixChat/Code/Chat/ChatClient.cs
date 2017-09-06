@@ -744,7 +744,7 @@ namespace LX29_ChatClient
         {
             var cus = TwitchApi.GetChatUsers(channelName);
             var cur = users.Get(channelName);
-            File.WriteAllLines("users.txt", cus.Keys.ToArray());
+            //  File.WriteAllLines("users.txt", cus.Keys.ToArray());
             try
             {
                 if (cus == null) return;

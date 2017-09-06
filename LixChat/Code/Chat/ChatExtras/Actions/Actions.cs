@@ -229,6 +229,9 @@ namespace LX29_ChatClient.Addons
         public ChatAction(string channel)
         {
             Channel = channel;
+            Username = "";
+            Message = "";
+            Action = "";
         }
 
         public ChatAction(string username, string channel, string message,

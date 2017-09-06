@@ -69,7 +69,7 @@ namespace LX29_ChatClient.Forms
 
         public event LinkClicked OnLinkClicked;
 
-        public event MessageReceived OnMessageReceived;
+        //public event MessageReceived OnMessageReceived;
 
         public event UserNameClicked OnUserNameClicked;
 
@@ -330,13 +330,16 @@ namespace LX29_ChatClient.Forms
         {
             if (!this.Visible) return;
 
-            //if (message.IsType(renderer.MessageType))
+            if (message.Channel.Equals(channel.Name))
+            {
+                Renderer.MessageReceived(message);
+            }
             //{
             //    renderer.SetAllMessages(renderer.MessageType, "");
             //}
 
-            if (OnMessageReceived != null)
-                OnMessageReceived(this, message);
+            //if (OnMessageReceived != null)
+            //    OnMessageReceived(this, message);
         }
 
         private void ChatClient_OnWhisperReceived(ChatMessage message)

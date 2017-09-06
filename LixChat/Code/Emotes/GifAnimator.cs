@@ -302,6 +302,7 @@ namespace LX29_ChatClient.Emotes
                         image.Dispose();
                     }
                 }
+                _sizes.Clear();
                 _images.Clear();
             }
             catch { }
