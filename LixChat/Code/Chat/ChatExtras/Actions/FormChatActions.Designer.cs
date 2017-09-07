@@ -32,7 +32,6 @@
             this.button1 = new System.Windows.Forms.Button();
             this.btn_save = new System.Windows.Forms.Button();
             this.btn_remove = new System.Windows.Forms.Button();
-            this.cB_Global = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btn_Help = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -82,19 +81,6 @@
             this.btn_remove.UseVisualStyleBackColor = true;
             this.btn_remove.Click += new System.EventHandler(this.btn_remove_Click);
             // 
-            // cB_Global
-            // 
-            this.cB_Global.AutoSize = true;
-            this.flowLayoutPanel1.SetFlowBreak(this.cB_Global, true);
-            this.cB_Global.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cB_Global.Location = new System.Drawing.Point(178, 3);
-            this.cB_Global.Name = "cB_Global";
-            this.cB_Global.Size = new System.Drawing.Size(107, 20);
-            this.cB_Global.TabIndex = 14;
-            this.cB_Global.Text = "Global Action";
-            this.cB_Global.UseVisualStyleBackColor = true;
-            this.cB_Global.CheckedChanged += new System.EventHandler(this.cB_Global_CheckedChanged);
-            // 
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -104,7 +90,6 @@
             this.flowLayoutPanel1.Controls.Add(this.btn_remove);
             this.flowLayoutPanel1.Controls.Add(this.btn_Help);
             this.flowLayoutPanel1.Controls.Add(this.btn_save);
-            this.flowLayoutPanel1.Controls.Add(this.cB_Global);
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
@@ -172,7 +157,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button btn_save;
         private System.Windows.Forms.Button btn_remove;
-        private System.Windows.Forms.CheckBox cB_Global;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Button btn_Help;
         private System.Windows.Forms.Panel panel1;
