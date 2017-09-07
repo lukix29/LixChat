@@ -90,6 +90,7 @@ namespace LX29_ChatClient.Forms
         private float emoteDrawStart = 0;
 
         private Color Link_Color = Color.DodgerBlue;
+        private List<ChatMessage> messages = new List<ChatMessage>();
         private bool swapColor = true;
 
         private IOrderedEnumerable<EmoteBase> tempEmotes = null;
@@ -170,16 +171,6 @@ namespace LX29_ChatClient.Forms
             }
         }
 
-        private List<ChatMessage> messages = new List<ChatMessage>();
-
-        public void MessageReceived(ChatMessage msg)
-        {
-            if (AutoScroll)
-            {
-                messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType);
-            }
-        }
-
         public void Invalidate()
         {
             try
@@ -197,6 +188,14 @@ namespace LX29_ChatClient.Forms
             }
             catch
             {
+            }
+        }
+
+        public void MessageReceived()
+        {
+            if (AutoScroll)
+            {
+                messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType);
             }
         }
 
@@ -924,10 +923,8 @@ namespace LX29_ChatClient.Forms
                     int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType);
                     viewStart = Math.Max(0, Math.Min(msgcnt, value));
                     AutoScroll = (viewStart > 0) ? false : true;
-                    if (AutoScroll)
-                    {
-                    }
-                    //if (AutoScroll) MessageCount = msgcnt;
+
+                    MessageReceived();
                 }
             }
         }

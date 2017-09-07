@@ -69,10 +69,9 @@ namespace LX29_ChatClient.Forms
 
         public event LinkClicked OnLinkClicked;
 
-        //public event MessageReceived OnMessageReceived;
-
         public event UserNameClicked OnUserNameClicked;
 
+        //public event MessageReceived OnMessageReceived;
         [ReadOnly(true)]
         [Browsable(false)]
         public ChannelInfo Channel
@@ -125,6 +124,11 @@ namespace LX29_ChatClient.Forms
         {
             get { return Renderer.WhisperName; }
             //set { renderer.UserMessageName = value; }
+        }
+
+        public void RefreshMessages()
+        {
+            Renderer.MessageReceived();
         }
 
         public void SetAllMessages(MsgType type, ChannelInfo ci = null, string name = "")
@@ -332,7 +336,7 @@ namespace LX29_ChatClient.Forms
 
             if (message.Channel.Equals(channel.Name))
             {
-                Renderer.MessageReceived(message);
+                Renderer.MessageReceived();
             }
             //{
             //    renderer.SetAllMessages(renderer.MessageType, "");

@@ -295,11 +295,7 @@ namespace LX29_LixChat
 
         private void btn_AutoChatActions_Click(object sender, EventArgs e)
         {
-            var sa = GetCurrentInfo();
-            if (sa != null)
-            {
-                ChatClient.AutoActions.OpenChatActions(sa[0]);
-            }
+            ChatClient.AutoActions.OpenChatActions();
         }
 
         private void btn_Disconnect_Click(object sender, EventArgs e)

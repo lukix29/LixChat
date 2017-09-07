@@ -17,13 +17,10 @@ namespace LX29_ChatClient.Addons
         Delay
     }
 
-    public class AutoActions// : IEnumerable<ChatAction>
+    public class AutoActions
     {
-        //        public const string ActionHelp =
-        //"Username aliases:\r\n\tcase insensitive, * means any user can trigger the Action.\r\nKeywords for Action:\r\n\t&rd[minimum,maximum] = generates a random Number.\r\n\t&rd[FileName] = takes a random Line from \"Filename\".\r\n\t\t-File must be in Script Folder (can be found in Settings)\r\n\t&name = replace with caller name. (who has triggered the Action)\r\n\t&channel = replace with channel name.\r\n\t&word[index] replace with channel name";
-
         private List<ChatAction> chatactions = new List<ChatAction>();
-        private LX29_ChatClient.Addons.FormAutoChatActions formAutoChatActions = null;
+        private FormAutoChatActions formAutoChatActions = null;
 
         public AutoActions()
         {
@@ -40,7 +37,7 @@ namespace LX29_ChatClient.Addons
         public bool EnableActions
         {
             get;
-            set;
+            private set;
         }
 
         public void CheckActions(ChatMessage msg)
@@ -66,7 +63,7 @@ namespace LX29_ChatClient.Addons
                         {
                             //if (msg.IsType(ca.MsgType) &&
                             bool cd = (!ca.IsCooldown);
-                            bool geq = ca.Channel.Equals("global", StringComparison.OrdinalIgnoreCase);
+                            bool geq = ca.Channel.StartsWith("*");
                             bool cheq = ca.Channel.Equals(msg.Channel, StringComparison.OrdinalIgnoreCase);
                             bool msgL = (ca.Message.Length > 0);
                             bool actgL = (ca.Action.Length > 0);
@@ -126,10 +123,10 @@ namespace LX29_ChatClient.Addons
         //    get { return chatactions[index]; }
         //    set { chatactions[index] = value; }
         //}
-        public IEnumerable<ChatAction> GetChannelActions(string Channel)
+        public List<ChatAction> GetChannelActions()//string Channel)
         {
-            return chatactions.Where(t =>
-                (t.Channel.Equals(Channel, StringComparison.OrdinalIgnoreCase)));
+            return chatactions.Select(t => (ChatAction)t.Clone()).ToList();//.Where(t =>
+            //(t.Channel.Equals(Channel, StringComparison.OrdinalIgnoreCase)));
             //||t.Channel.Equals("global")));
         }
 
@@ -153,14 +150,14 @@ namespace LX29_ChatClient.Addons
                 foreach (var val in di)
                 {
                     string Channel = val["Channel"];
-                    ChatAction action = new ChatAction(Channel);
+                    ChatAction action = new ChatAction();
                     action.Load(val);
                     chatactions.Add(action);
                 }
             }
         }
 
-        public void OpenChatActions(Channels.ChannelInfo name)
+        public void OpenChatActions()
         {
             if (ChatActionShowing)
             {
@@ -173,7 +170,7 @@ namespace LX29_ChatClient.Addons
             }
             else
             {
-                formAutoChatActions = new LX29_ChatClient.Addons.FormAutoChatActions(name);
+                formAutoChatActions = new LX29_ChatClient.Addons.FormAutoChatActions();
                 formAutoChatActions.Show();
                 ChatActionShowing = true;
             }
@@ -184,7 +181,7 @@ namespace LX29_ChatClient.Addons
             try
             {
                 chatactions.Clear();
-                chatactions.AddRange(actions);
+                chatactions.AddRange(actions.Select(t => (ChatAction)t.Clone()));
                 string path = Settings.dataDir + "AutoActions.txt";
                 System.IO.File.WriteAllText(path, GetChatActions());
             }
@@ -226,9 +223,9 @@ namespace LX29_ChatClient.Addons
 
         private int lastRDmsg = -1;
 
-        public ChatAction(string channel)
+        public ChatAction()
         {
-            Channel = channel;
+            Channel = "";
             Username = "";
             Message = "";
             Action = "";
@@ -319,8 +316,9 @@ namespace LX29_ChatClient.Addons
 
         public object Clone()
         {
-            return new ChatAction(Channel)
+            return new ChatAction()
             {
+                Channel = this.Channel,
                 Action = this.Action,
                 CheckStart = this.CheckStart,
                 Cooldown = this.Cooldown,

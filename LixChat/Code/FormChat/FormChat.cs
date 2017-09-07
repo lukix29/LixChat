@@ -165,6 +165,7 @@ namespace LX29_ChatClient.Forms
                 }
                 chatView.ShowEmotes = false;
                 SetColor(tsb, false);
+                chatView.RefreshMessages();
             }
             catch
             {

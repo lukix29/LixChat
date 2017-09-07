@@ -53,7 +53,8 @@
     <StartupObject>LX29_LixChat.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\1463551454_16.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -340,16 +341,23 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\BLACK.png" />
+    <None Include="Resources\1463551454_16.ico" />
+    <None Include="Resources\404_preview-320x180.jpg" />
+    <None Include="Resources\ActionHelp.txt" />
+    <None Include="Resources\bild-16-9.png" />
+    <None Include="Resources\whisper_alert.wav" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\BLACK.png" />
+    <None Include="Resources\emojis.txt" />
+    <None Include="Resources\highlight_alert.wav" />
+    <None Include="Resources\index.html" />
+    <None Include="Resources\loading.gif" />
+    <None Include="Resources\received.html" />
     <None Include="Resources\updater.exe" />
-    <None Include="Resources\1463551454_16.ico" />
     <None Include="Plugins\7za.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -3903,23 +3911,6 @@
     <None Include="Emojis\de.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\whisper_alert.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <Content Include="Resources\ban.png" />
-    <None Include="Resources\emojis.txt" />
-    <None Include="Resources\highlight_alert.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <Content Include="Resources\timeout.png" />
-    <None Include="Resources\ActionHelp.txt" />
-    <Content Include="Resources\resize.png" />
-    <Content Include="Resources\success.html" />
-    <None Include="Resources\received.html" />
-    <None Include="Resources\index.html" />
-    <None Include="Resources\404_preview-320x180.jpg" />
-    <None Include="Resources\bild-16-9.png" />
-    <None Include="Resources\loading.gif" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
@@ -3937,6 +3928,15 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\ban.png" />
+    <Content Include="Resources\emojis.exe" />
+    <Content Include="Resources\hallo.exe" />
+    <Content Include="Resources\refresh_16xLG.png" />
+    <Content Include="Resources\resize.png" />
+    <Content Include="Resources\success.html" />
+    <Content Include="Resources\timeout.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

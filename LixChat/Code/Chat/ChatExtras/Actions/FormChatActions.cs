@@ -11,55 +11,21 @@ namespace LX29_ChatClient.Addons
     {
         private List<ChatAction> actions = new List<ChatAction>();
         private float addFacSize = 100;
-        private ChannelInfo channel = null;
-        private string channelName = "";
         private bool isSaved = true;
         private List<Tuple<string, int>> labels = new List<Tuple<string, int>>();
-        private string oldChannelname = string.Empty;
 
         private string[] UserNames;
 
-        public FormAutoChatActions(ChannelInfo channel)
+        public FormAutoChatActions()
         {
-            this.channel = channel;
-            channelName = channel.Name;
             InitializeComponent();
         }
-
-        //private void AddItem()
-        //{
-        //    var ca = GetAction();
-
-        //    if (ChatClient.AutoActions.ChangeChatAction(ca))
-        //    {
-        //        lstB_Main.Items.Clear();
-        //        var actions = ChatClient.AutoActions.GetChannelActions(channelName);
-        //        foreach (ChatAction c in actions)
-        //        {
-        //            lstB_Main.Items.Add(c.ToString());
-        //        }
-        //    }
-
-        //    //lV_Main.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-        //}
-
-        //private void btn_Change_Click(object sender, EventArgs e)
-        //{
-        //    if (lstB_Main.SelectedIndex >= 0)
-        //    {
-        //        var ca = GetAction();
-
-        //        ChatClient.AutoActions[lstB_Main.SelectedIndex] = ca;
-
-        //        LoadActions(false);
-        //    }
-        //}
 
         public CheckBox CreateCheckBox(bool check, string name, string text)
         {
             var cB = new CheckBox();
             cB.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            cB.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            //cB.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             cB.Name = name;
             cB.Checked = check;
             cB.Text = text;
@@ -74,7 +40,7 @@ namespace LX29_ChatClient.Addons
             var nUD = new NumericUpDown();
             nUD.Anchor = System.Windows.Forms.AnchorStyles.Left;
             nUD.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            nUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            //nUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             nUD.ForeColor = System.Drawing.Color.Gainsboro;
             nUD.Name = name;
             nUD.Size = new System.Drawing.Size(60, 22);
@@ -128,14 +94,15 @@ namespace LX29_ChatClient.Addons
                     }
                 }
                 actions.Clear();
-                actions.AddRange(temp);
-                LoadActions(false);
+                if (temp.Count > 0) actions.AddRange(temp);
+
+                CreateChatActionControls();
 
                 isSaved = false;
             }
             catch (Exception x)
             {
-                x.Handle();
+                x.Handle("", true);
             }
         }
 
@@ -149,7 +116,7 @@ namespace LX29_ChatClient.Addons
         {
             try
             {
-                ChatAction action = new ChatAction(channel.Name);
+                ChatAction action = new ChatAction();
                 actions.Add(action);
                 CreateChatActionControls();
                 isSaved = false;
@@ -160,45 +127,17 @@ namespace LX29_ChatClient.Addons
             }
         }
 
-        private void cB_Global_CheckedChanged(object sender, EventArgs e)
-        {
-            if (cB_Global.Checked)
-            {
-                oldChannelname = channel.Name;
-                channelName = "global";
-                this.Text = "GLOBAL Chat Actions";
-            }
-            else
-            {
-                channelName = oldChannelname;
-                this.Text = "Chat Actions for Channel: " + channel.DisplayName;
-            }
-            LoadActions(true);
-        }
-
         private void CreateChatActionControls()
         {
             try
             {
                 panel2.Controls.Clear();
 
-                //var props = new ChatAction("").GetType().GetProperties().Where(t => !t.Name.StartsWith("Is"))
-                //    .OrderByDescending(t => t.PropertyType.Equals(typeof(string)))
-                //    .ThenByDescending(t => t.PropertyType.Equals(typeof(bool)))
-                //    .ThenByDescending(t => t.PropertyType.Equals(typeof(int)));
                 int x = 5;
                 Label lbl = new Label();
-                //foreach (var prop in props)
-                //{
                 lbl.Text = "A";// prop.Name;
                 lbl.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-                // lbl.ForeColor = System.Drawing.Color.White;
                 lbl.Location = new System.Drawing.Point(x, 5);
-                //lbl.Width = (int)addFacSize;
-                // lbl.Visible = true;
-                // panel2.Controls.Add(lbl);
-                // x += lbl.Width + 5;
-                //}
 
                 bool fillLabels = true;
                 int y = lbl.Bottom + 5;
@@ -245,7 +184,8 @@ namespace LX29_ChatClient.Addons
                         else if (prop.PropertyType.Equals(typeof(string)))
                         {
                             var s = (string)prop.GetValue(ca);
-                            if (prop.Name.Equals("username", StringComparison.OrdinalIgnoreCase))
+                            if (prop.Name.Equals("username", StringComparison.OrdinalIgnoreCase) ||
+                                prop.Name.Equals("channel", StringComparison.OrdinalIgnoreCase))
                             {
                                 var nud = CreateTextPreviewControl(prop.Name + "_" + i, s);
                                 nud.Leave += (o, e) =>
@@ -261,7 +201,14 @@ namespace LX29_ChatClient.Addons
                                     }
                                     else
                                     {
-                                        nud.SearchArray(UserNames);
+                                        if (prop.Name.Equals("channel", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            nud.SearchArray(ChatClient.Channels.Select(t => t.Key));
+                                        }
+                                        else
+                                        {
+                                            nud.SearchArray(UserNames);
+                                        }
                                     }
                                     isSaved = false;
                                 };
@@ -339,15 +286,14 @@ namespace LX29_ChatClient.Addons
             panel2.Paint += panel2_Paint;
             LoadActions(true);
 
-            this.Text = "Chat Actions for Channel: " + channel.DisplayName;
+            this.Text = "Chat Actions";
         }
 
         private void LoadActions(bool withuser)
         {
             try
             {
-                actions = ChatClient.AutoActions.GetChannelActions(channelName)
-                    .Select(t => (ChatAction)t.Clone()).ToList();
+                actions = ChatClient.AutoActions.GetChannelActions();
 
                 CreateChatActionControls();
 
