@@ -74,7 +74,7 @@ namespace LX29_ChatClient.Forms
 
     public class RenderDevice
     {
-        public int msgCount = 0;
+        //public int msgCount = 0;
         public bool ShowName = true;
 
         private bool _showAllEmotes = false;
@@ -371,7 +371,7 @@ namespace LX29_ChatClient.Forms
 
         private void DrawInfoOverlay(Graphics g)
         {
-            Emote emote = null;
+            EmoteBase emote = null;
             float width = g.VisibleClipBounds.Width;
             float Height = g.VisibleClipBounds.Height;
             var selects = ClickableList.Where(t => t.Bounds.IntersectsWith(SelectRect)).ToList();
@@ -409,7 +409,7 @@ namespace LX29_ChatClient.Forms
                             break;
 
                         case RectType.Emote:
-                            emote = (Emote)curSelected.Content;
+                            emote = (EmoteBase)curSelected.Content;
                             Text = "Emote: " + emote.Name + "\r\nChannel: " + emote.Channel;
                             break;
 
@@ -472,9 +472,9 @@ namespace LX29_ChatClient.Forms
             //g.DrawString(selectedText, Font, Brushes.Red, 0, 0);
         }
 
-        private void DrawMessage(Graphics graphics, ChatMessage message, RectangleF bounds, float yInput, float height)
+        private void DrawMessage(Graphics graphics, ChatMessage message, int idx, RectangleF bounds, float yInput, float height)
         {
-            MeasureMessage(graphics, message, bounds, yInput, height, false);
+            MeasureMessage(graphics, message, idx, bounds, yInput, height, false);
         }
 
         private void DrawMessagesNew(Graphics g)
@@ -490,32 +490,41 @@ namespace LX29_ChatClient.Forms
                 //var messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType);
                 if (messages != null && messages.Count > 0)
                 {
-                    if (viewStart == 0 && AutoScroll)
-                    {
-                        msgCount = messages.Count;
-                    }
+                    //if (viewStart == 0 && AutoScroll)
+                    //{
+                    //    //msgCount = messages.Count;
+                    //}
                     gifVisible = false;
                     ClickableList.Clear();
                     visibleMessages = 0;
-                    int start = Math.Min(messages.Count - 1, Math.Max(0, (msgCount - viewStart) - 1));
+                    int start = Math.Min(messages.Count - 1, Math.Max(0, (messages.Count - viewStart) - 1));
+                    bool iwasZero = false;
                     for (i = start; i >= 0; i--)
                     {
                         if (isChangingGraphics || ShowAllEmotes)
                         {
                             return;
                         }
-                        float height = MeasureMessage(g, messages[i], bounds);
-
+                        float height = MeasureMessage(g, messages[i], i, bounds);
+                        if (i == 0)
+                        {
+                            iwasZero = true;
+                        }
                         if (y < 0)
+                        {
                             break;
-
+                        }
                         y -= height;
                         if (y > bounds.Bottom)
                             break;
 
                         swapColor = (i % 2 > 0);
-                        DrawMessage(g, messages[i], bounds, y, height);
+                        DrawMessage(g, messages[i], i, bounds, y, height);
                         visibleMessages++;
+                    }
+                    if (iwasZero)
+                    {
+                        messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType, 0);
                     }
                 }
                 else
@@ -528,6 +537,7 @@ namespace LX29_ChatClient.Forms
                     StringBuilder sb = new StringBuilder();
                     sb.AppendLine("Size: " + this.Font.Size.ToString("F1") + "pt");
                     sb.AppendLine("Refresh/s: " + FPS);
+                    sb.AppendLine("V-Msg: " + visibleMessages);
                     g.DrawString(sb.ToString(), this.timeFont, Brushes.Red, bounds, infoStrFormat);
                 }
             }
@@ -536,7 +546,7 @@ namespace LX29_ChatClient.Forms
             }
         }
 
-        private float MeasureMessage(Graphics graphics, ChatMessage message, RectangleF bounds, float yInput = 0, float height = 0, bool measure = true)
+        private float MeasureMessage(Graphics graphics, ChatMessage message, int idx, RectangleF bounds, float yInput = 0, float height = 0, bool measure = true)
         {
             bool drawImages = true;
             float emote_Y_Offset = 4;
@@ -608,6 +618,17 @@ namespace LX29_ChatClient.Forms
             #endregion Style&Font
 
             SizeF sf = SizeF.Empty;
+            if (Settings.isDebug)
+            {
+                sf = graphics.MeasureText(idx.ToString(), timeFont);
+
+                if (!measure)
+                {
+                    graphics.DrawText(idx.ToString(), Font, Color.Red, x, y + timeSizeFac);
+                }
+
+                x += sf.Width + _WordPadding + _TimePadding;
+            }
             if (ShowTimeStamp)
             {
                 string time = (ShowName) ? message.SendTime.ToLongTimeString() : message.SendTime.ToShortTimeString();

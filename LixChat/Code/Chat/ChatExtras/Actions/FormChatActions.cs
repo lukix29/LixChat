@@ -284,30 +284,32 @@ namespace LX29_ChatClient.Addons
         private void FormChatSettings_Load(object sender, EventArgs e)
         {
             panel2.Paint += panel2_Paint;
-            LoadActions(true);
+            System.Threading.Tasks.Task.Run(() => LoadActions(true));
 
             this.Text = "Chat Actions";
         }
 
-        private void LoadActions(bool withuser)
+        private async void LoadActions(bool withuser)
         {
             try
             {
-                actions = ChatClient.AutoActions.GetChannelActions();
+                while (!ChatClient.AutoActions.Loaded) await System.Threading.Tasks.Task.Delay(100);
 
-                CreateChatActionControls();
+                actions = ChatClient.AutoActions.GetChannelActions();
 
                 if (withuser)
                 {
-                    System.Threading.Tasks.Task.Run(() =>
-                    {
-                        UserNames = ChatClient.Users.GetAllNames();
-                    });
+                    UserNames = ChatClient.Users.GetAllNames();
                 }
+                this.Invoke(new Action(() =>
+                {
+                    CreateChatActionControls();
+                    label1.Visible = false;
+                }));
             }
             catch (Exception x)
             {
-                x.Handle();
+                x.Handle("", true);
             }
         }
 

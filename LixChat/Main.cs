@@ -122,7 +122,6 @@ namespace LX29_LixChat
                 bg.SetPixel(0, 0, Color.FromArgb(40, 40, 40));
                 toolStrip1.BackgroundImage = bg;
 
-                //MessageBox.Show(DateTime.Now.Subtract(new DateTime(2000, 1, 1)).TotalSeconds.ToString("F0"));
                 this.Text = "LixChat | (Build " + this.GetType().Assembly.GetLinkerTime().ToString() + ")";
 
                 if (!System.IO.Directory.Exists(Settings.dataDir))
@@ -133,23 +132,17 @@ namespace LX29_LixChat
                 {
                     System.IO.Directory.CreateDirectory(Settings.pluginDir);
                 }
-                //if (System.IO.File.Exists(MPV_Wrapper.MPVinputConfig))
-                //{
-                //    System.IO.File.WriteAllText(System.IO.Path.GetFullPath(Settings.pluginDir + "MPV\\portable_config\\input.conf"),
-                //   Resources.mpv_input_config);
-                //}
+
                 MPV_Wrapper.SetBorderSize(this.Size, this.ClientSize);
 
                 this.Bounds = Settings.MainBounds.MaxSize(this.Bounds);
 
-                //comBox_StreamQuali.SelectedIndex = 0;
-
                 SetTreeView();
 
-                ChatClient.ListLoaded += ChatClient_ListLoaded;
-                LX29_ChatClient.Emotes.EmoteCollection.OnChannelLoaded += Emotes_LoadedChannel;
-
                 Task.Run(() => Updater.CheckUpdate(SetProgressInfo));
+
+                LX29_ChatClient.Emotes.EmoteCollection.OnChannelLoaded += Emotes_LoadedChannel;
+                ChatClient.ListLoaded += ChatClient_ListLoaded;
 
                 Task.Run(() => ChatClient.INITIALIZE(this));
 

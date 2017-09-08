@@ -26,6 +26,7 @@ namespace LX29_ChatClient.Addons
         {
             chatactions = new List<ChatAction>();
             EnableActions = true;
+            Loaded = false;
         }
 
         public bool ChatActionShowing
@@ -35,6 +36,12 @@ namespace LX29_ChatClient.Addons
         }
 
         public bool EnableActions
+        {
+            get;
+            private set;
+        }
+
+        public bool Loaded
         {
             get;
             private set;
@@ -155,6 +162,7 @@ namespace LX29_ChatClient.Addons
                     chatactions.Add(action);
                 }
             }
+            Loaded = true;
         }
 
         public void OpenChatActions()

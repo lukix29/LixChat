@@ -970,17 +970,7 @@ namespace LX29_ChatClient
                     users.Append(Channel);
 
                     messages.AddChannel(Channel);
-                    //if (!messages.ContainsKey(Channel))
-                    //    messages.Add(Channel, new List<ChatMessage>());
-
-                    ////if (!specialMessages.ContainsKey(Channel))
-                    ////    specialMessages.Add(Channel, new List<ChatMessage>());
-
-                    //if (!messageCount.ContainsKey(Channel))
-                    //    messageCount.Add(Channel, 0);
                 }
-                //if (!HLmessageCount.ContainsKey(Channel))
-                //    HLmessageCount.Add(Channel, 0);
             }
             catch { }
         }

@@ -179,8 +179,6 @@ namespace LX29_ChatClient
         {
             try
             {
-                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
-
                 if (isSnycing) return;
                 isSnycing = true;
                 if (SelfUserToken.Length == 0)
@@ -189,9 +187,11 @@ namespace LX29_ChatClient
                 if (ListLoaded != null)
                     ListLoaded(0, channels.Count, "Loading Channels");
 
-                var follows = TwitchApi.GetFollowedStreams(SelfApiResult.ID, SelfUserToken);
+                Task.Run(() => LoadChatHighlightWords());
+                Task.Run(() => AutoActions.Load());
+                Task.Run(() => LX29_ChatClient.Addons.Scripts.ScriptClassCollection.LoadScripts());
 
-                LoadChatHighlightWords();
+                var follows = TwitchApi.GetFollowedStreams(SelfApiResult.ID, SelfUserToken);
 
                 var setts = LoadChannels();
 
@@ -209,7 +209,6 @@ namespace LX29_ChatClient
                                 ci.Load(setts[ci.ID]);
                             }
                             channels.Add(ci.Name, ci);
-                            loginChannel(ci);
                             rest.Remove(ci.ID);
                         }
                     }
@@ -218,12 +217,18 @@ namespace LX29_ChatClient
                         if (!channels.ContainsKey(ci.Name))
                         {
                             channels.Add(ci.Name, ci);
-                            loginChannel(ci);
                         }
                     }
-                }
 
-                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
+                    Task.Run(() =>
+                    {
+                        if (ci.AutoLoginChat)
+                        {
+                            addChannel(ci.Name);
+                            ChatClient.TryConnect(ci.Name);
+                        }
+                    });
+                }
 
                 if (rest.Count > 0)
                 {
@@ -239,11 +244,17 @@ namespace LX29_ChatClient
                                 ci.Load(r);
                             }
                             channels.Add(ci.Name, ci);
-                            loginChannel(ci);
+                            Task.Run(() =>
+                            {
+                                if (ci.AutoLoginChat)
+                                {
+                                    addChannel(ci.Name);
+                                    ChatClient.TryConnect(ci.Name);
+                                }
+                            });
                         }
                     }
                 }
-                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
 
                 LoadStandardStreams();
                 SaveChannels();
@@ -253,25 +264,9 @@ namespace LX29_ChatClient
                 if (ListLoaded != null)
                     ListLoaded(channels.Count, channels.Count, "Loaded " + channels.Count + " Channels");
 
-                Task.Run(() =>
-                {
-                    //logInChats();
-
-                    LX29_ChatClient.Addons.Scripts.ScriptClassCollection.LoadScripts();
-
-                    AutoActions.Load();
-                });
-
-                //sb.AppendLine(DateTime.Now.Subtract(now).ToString());
-
-                if (ListLoaded != null)
-                    ListLoaded(channels.Count, channels.Count, "Loaded " + channels.Count + " Channels");
-
                 Task.Run(() => Emotes.FetchEmotes(channels.Values.ToList(), false));
 
                 startRefresher();
-
-                // sb.AppendLine(DateTime.Now.Subtract(now).ToString());
             }
             catch (Exception x)
             {
@@ -367,18 +362,18 @@ namespace LX29_ChatClient
                 ChannelInfo ci = new ChannelInfo(result, true, true);
 
                 channels.Add(ci.Name, ci);
+                Task.Run(() =>
+                {
+                    if (ci.AutoLoginChat)
+                    {
+                        addChannel(ci.Name);
+                        ChatClient.TryConnect(ci.Name);
+                    }
+                });
             }
             else
             {
-                var chan = channels["lukix29"] = new ChannelInfo(channels["lukix29"], true, true);
-            }
-        }
-
-        private static void loginChannel(ChannelInfo channel)
-        {
-            if (channel.AutoLoginChat)
-            {
-                ChatClient.TryConnect(channel.Name);
+                channels["lukix29"] = new ChannelInfo(channels["lukix29"], true, true);
             }
         }
 
@@ -414,16 +409,16 @@ namespace LX29_ChatClient
             }
         }
 
-        public struct temp
-        {
-            public string name;
-            public TimeSpan span;
+        //public struct temp
+        //{
+        //    public string name;
+        //    public TimeSpan span;
 
-            public temp(string Name, TimeSpan Span)
-            {
-                name = Name;
-                span = Span;
-            }
-        }
+        //    public temp(string Name, TimeSpan Span)
+        //    {
+        //        name = Name;
+        //        span = Span;
+        //    }
+        //}
     }
 }

@@ -66,10 +66,11 @@ namespace LX29_LixChat.Properties {
         ///Keywords for Action:
         ///	&amp;rd[minimum,maximum] = generates a random Number.
         ///	&amp;rd[FileName] = takes a random Line from \&quot;Filename\&quot;.
-        ///	...File must be in Script Folder.(can be found in Settings)
+        ///	  =&gt; File must be in Script Folder.(can be found in Settings)
         ///	&amp;name = replace with caller name. (who has triggered the Action)
         ///	&amp;channel = replace with channel name.
-        ///	&amp;word[index] = replace with word, at index, from calling Message. ähnelt.
+        ///	&amp;word[index] = replace with word, at index, from calling Message.
+        ///	&amp;regex[expression] = (only in message) apply &quot;Regular Express [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string ActionHelp {
             get {
@@ -98,32 +99,19 @@ namespace LX29_LixChat.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die 1f600=:grinning:
-        ///1f603=:smiley:
-        ///1f604=:smile:
-        ///1f601=:grin:
-        ///1f606=:laughing:
-        ///1f605=:sweat_smile:
-        ///1f602=:joy:
-        ///1f923=:rofl:
-        ///263a=:relaxed:
-        ///1f60a=:blush:
-        ///1f607=:innocent:
-        ///1f642=:slight_smile:
-        ///1f643=:upside_down:
-        ///1f609=:wink:
-        ///1f60c=:relieved:
-        ///1f60d=:heart_eyes:
-        ///1f618=:kissing_heart:
-        ///1f617=:kissing:
-        ///1f619=:kissing_smiling_eyes:
-        ///1f61a=:kissing_closed_eyes:
-        ///1f60b=:yum:
-        ///1f61c=:stuck_out_tongue_winking_eye:
-        ///1f61d=:stuck_out_tongue_closed_eyes:
-        ///1f61b=:stuck_out_tongue:
-        ///1f911=:money_mouth:
-        ///1f91 [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die :grinning_face:=1f600
+        ///:grinning_face_with_smiling_eyes:=1f601
+        ///:face_with_tears_of_joy:=1f602
+        ///:rolling_on_the_floor_laughing:=1f923
+        ///:smiling_face_with_open_mouth:=1f603
+        ///:smiling_face_with_open_mouth_and_smiling_eyes:=1f604
+        ///:smiling_face_with_open_mouth_and_cold_sweat:=1f605
+        ///:smiling_face_with_open_mouth_and_tightly_closed_eyes:=1f606
+        ///:winking_face:=1f609
+        ///:smiling_face_with_smiling_eyes:=1f60a
+        ///:face_savouring_delicious_food:=1f60b
+        ///:smiling_face_with_sunglasses:=1f60e
+        ///:smiling_face_with_heart_shape [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string emojis {
             get {
@@ -266,16 +254,6 @@ namespace LX29_LixChat.Properties {
             get {
                 object obj = ResourceManager.GetObject("timeout", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
-        /// </summary>
-        internal static byte[] updater {
-            get {
-                object obj = ResourceManager.GetObject("updater", resourceCulture);
-                return ((byte[])(obj));
             }
         }
     }

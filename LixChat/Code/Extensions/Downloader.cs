@@ -103,7 +103,7 @@ namespace LX29_Helpers
             private set;
         }
 
-        public static void CheckNightlyUpdate(Action<int, int, string> progAction)
+        public static void CheckNightlyUpdate(Action<int, int, string> progAction, bool force = false)
         {
             try
             {
@@ -121,7 +121,7 @@ namespace LX29_Helpers
                     {
                         byte[] buffer;
                         DateTime online = sr.GetOnlineLinkerTime(out buffer);
-                        if (online.Ticks > cur.Ticks)
+                        if (online.Ticks > cur.Ticks || force)
                         {
                             using (var fs = File.OpenWrite(path))
                             {
@@ -136,25 +136,22 @@ namespace LX29_Helpers
                 {
                     if (LX29_MessageBox.Show("Update found!\r\nDownload now?", "Update", MessageBoxButtons.YesNo) == MessageBoxResult.Yes)
                     {
-                        File.WriteAllBytes("updater.exe", LX29_LixChat.Properties.Resources.updater);
-                        Process.Start("updater.exe", path + " " + Application.StartupPath + "\\LixChat.exe");
+                        byte[] data;
+                        using (WebClient wc = new WebClient())
+                        {
+                            wc.Proxy = null;
+                            data = wc.DownloadData("https://github.com/lukix29/LixChat/raw/master/LixChat/Resources/updater.exe");
+                        }
+                        string updater = Path.GetTempFileName().Replace(".tmp", ".exe");
+                        File.WriteAllBytes(updater, data);
+                        Process.Start(updater, path + " " + Application.ExecutablePath);
+                        Application.Exit();
                     }
                 }
-                //private static void Main(string[] args)
-                //{
-                //    string source = args[0];
-                //    string dest = args[1];
-                //    var procs = Process.GetProcesses().Where(t => t.StartInfo.FileName.Equals("lixchat.exe", StringComparison.OrdinalIgnoreCase));
-                //    foreach (var proc in procs)
-                //    {
-                //        proc.Close();
-                //    }
-                //    File.Move(source, dest);
-                //}
             }
             catch (Exception x)
             {
-                switch (x.Handle("Update Error!"))
+                switch (x.Handle("Nightly update Error!", true))
                 {
                     case MessageBoxResult.Retry:
                         CheckUpdate(progAction);
@@ -163,11 +160,11 @@ namespace LX29_Helpers
             }
         }
 
-        public static void CheckUpdate(Action<int, int, string> progAction)
+        public static void CheckUpdate(Action<int, int, string> progAction, bool force = false)
         {
             if (Settings.DevUpdates)
             {
-                CheckNightlyUpdate(progAction);
+                CheckNightlyUpdate(progAction, force);
                 return;
             }
             try
@@ -197,7 +194,7 @@ namespace LX29_Helpers
                                 if (DateTime.TryParse(tr, out dt))
                                 {
                                     int hrs = (int)dt.Subtract(cur).TotalHours;
-                                    doUpdate = (hrs >= 12);
+                                    doUpdate = (hrs >= 12) || force;
                                     if (!doUpdate) break;
                                 }
                             }
@@ -235,7 +232,7 @@ namespace LX29_Helpers
             }
             catch (Exception x)
             {
-                switch (x.Handle("Update Error!"))
+                switch (x.Handle("Update Error!", true))
                 {
                     case MessageBoxResult.Retry:
                         CheckUpdate(progAction);

@@ -662,7 +662,7 @@ namespace System
             return ImageFormat.Gif.Equals(b.RawFormat);
         }
 
-        public static MessageBoxResult Handle(this Exception e, string extraInfo = "", bool showMsgBox = true)
+        public static MessageBoxResult Handle(this Exception e, string extraInfo = "", bool showMsgBox = false)
         {
             lock (errorLock)
             {
@@ -671,56 +671,42 @@ namespace System
                 {
                     File.AppendAllText(LX29_ChatClient.Settings.dataDir + "Error.log", err);
 
-                    if (showMsgBox)
+                    var sa = e.ToString().Split("\r\n");
+                    StringBuilder sb = new StringBuilder();
+
+                    for (int i = 0; i < sa.Length; i++)
                     {
-                        var sa = e.ToString().Split("\r\n");
-                        StringBuilder sb = new StringBuilder();
-
-                        for (int i = 0; i < sa.Length; i++)
-                        {
-                            var s = sa[i];
-                            var si = s.Trim()
-                                .Replace("cs:", "cs-")
-                                .Replace(" in ", "\r\n");
-                            ////.LastLine("\\");
-                            //if (si.Contains(":\\"))
-                            //{
-                            //    var spl = si.GetBefore(":\\", " ");
-                            //    si = si.Replace(spl, "\r\n" + spl);
-                            //}
-
-                            sb.AppendLine(si);
-                            if (i == 0)
-                            {
-                                sb.AppendLine();
-                            }
-                        }
-                        if (!string.IsNullOrEmpty(extraInfo))
+                        var s = sa[i];
+                        var si = s.Trim()
+                            .Replace("cs:", "cs-")
+                            .Replace(" in ", "\r\n");
+                        sb.AppendLine(si);
+                        if (i == 0)
                         {
                             sb.AppendLine();
-                            sb.AppendLine(extraInfo);
                         }
-
-                        if (LX29_ChatClient.Settings.ShowErrors)
-                        {
-                            //if (errorCount >= 1)
-                            //{
-                            //    errorCount = 0;
-                            return LX29_MessageBox.Show(sb.ToString(), "Error!", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error);
-                            //}
-                        }
-                        else
-                        {
-                            if (errorCount >= 2)
-                            {
-                                errorCount = 0;
-                                return MessageBoxResult.Ignore;
-                            }
-                        }
-                        errorCount++;
-                        Threading.Thread.CurrentThread.Join(100);
-                        return MessageBoxResult.Retry;
                     }
+                    if (!string.IsNullOrEmpty(extraInfo))
+                    {
+                        sb.AppendLine();
+                        sb.AppendLine(extraInfo);
+                    }
+
+                    if (LX29_ChatClient.Settings.ShowErrors || showMsgBox)
+                    {
+                        return LX29_MessageBox.Show(sb.ToString(), "Error!", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        if (errorCount >= 2)
+                        {
+                            errorCount = 0;
+                            return MessageBoxResult.Ignore;
+                        }
+                    }
+                    errorCount++;
+                    Threading.Thread.CurrentThread.Join(100);
+                    return MessageBoxResult.Retry;
                 }
                 catch { }
                 return MessageBoxResult.None;

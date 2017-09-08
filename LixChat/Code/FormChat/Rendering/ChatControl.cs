@@ -17,8 +17,8 @@ namespace LX29_ChatClient.Forms
         //public readonly Scroller Scrollbar;
         private bool _isscrolldownvisible = false;
 
+        private int _lastY = 0;
         private ChannelInfo channel;
-        private int lastY = 0;
         private bool loopRunning = false;
         private Keys modifier_Key = Keys.None;
 
@@ -27,7 +27,7 @@ namespace LX29_ChatClient.Forms
 
         private string selectedText = "";
 
-        private int yAcc = 0;
+        //private int yAcc = 0;
 
         public ChatView()
         {
@@ -205,8 +205,8 @@ namespace LX29_ChatClient.Forms
             onMouseDown = true;
             //renderer.AutoScroll = false;
             Renderer.AutoScroll = false;
-            lastY = e.Y;
-            yAcc = 0;
+            _lastY = e.Y;
+            //yAcc = 0;
             base.OnMouseDown(e);
         }
 
@@ -215,12 +215,11 @@ namespace LX29_ChatClient.Forms
             //mouseLocation = e.Location;
             if (onMouseDown)
             {
-                int y0 = Math.Sign(lastY - e.Y);
-                yAcc += y0;
-                if (Math.Abs(yAcc) >= 10)
+                int yorig = _lastY - e.Y;
+                if (Math.Abs(yorig) > 25)
                 {
-                    Renderer.ViewStart -= Math.Sign(yAcc);
-                    yAcc = 0;
+                    Renderer.ViewStart -= Math.Sign(yorig);
+                    _lastY = e.Y;
                 }
                 int x0 = (int)Renderer.SelectRect.X;
                 int x1 = e.X;
@@ -313,8 +312,6 @@ namespace LX29_ChatClient.Forms
             //Scrollbar.OnMouseUp(e);
             onMouseDown = false;
             Renderer.AutoScroll = true;
-            lastY = 0;
-            yAcc = 0;
             base.OnMouseUp(e);
         }
 

@@ -193,9 +193,6 @@ namespace LX29_ChatClient
                     if (users[channel].ContainsKey(key))
                     {
                         users[channel][key].IsOnline = false;
-                        //foreach (ChatMessage m in messages[channel])
-                        //{
-                        //}
                     }
                 }
                 else
@@ -212,21 +209,60 @@ namespace LX29_ChatClient
             }
         }
 
-        public class MessageBuffer
+        public class MessageBuffer : IDisposable
         {
             private string channel = "";
+            private bool isLoading = true;
             private Dictionary<int, ChatMessage> messages = new Dictionary<int, ChatMessage>();
             private FileStream mfile;
-            private List<Tuple<long, long>> positions = new List<Tuple<long, long>>();
+            private FileStream posfile;
+            private List<Tuple<long, int>> positions = new List<Tuple<long, int>>();
 
             public MessageBuffer(string channel)
             {
                 this.channel = channel;
-                mfile = new FileStream(Settings.chatLogDir + channel + ".cache", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                //if cache exists at start and last message is not too old load cache
+                if (File.Exists(Settings.chatLogDir + channel + ".pos"))
+                {
+                    mfile = new FileStream(Settings.chatLogDir + channel + ".cache", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    string[] sa = File.ReadAllLines(Settings.chatLogDir + channel + ".pos");
+                    if (sa.Length > 0)
+                    {
+                        //if last message is not too old load cache
+                        var ti = sa.Last().Split(',').Select(t => long.Parse(t)).ToArray();
+                        var msg = GetMessage(ti[0], ti[1]);
+                        if (msg != null && DateTime.Now.Subtract(msg.SendTime).TotalHours < 1.0)
+                        {
+                            mfile.Seek(0, 0);
+                            for (int i = 0; i < sa.Length; i++)
+                            {
+                                ti = sa[i].Split(',').Select(t => long.Parse(t)).ToArray();
+                                positions.Add(new Tuple<long, int>(ti[0], (int)ti[1]));
+                                msg = GetMessage(ti[0], ti[1]);
+                                if (msg == null) break;
+                                messages.Add(i, msg);
+                            }
+                            AllCount = messages.Count;
+                        }
+                        else
+                        {
+                            File.Delete(Settings.chatLogDir + channel + ".pos");
+                            mfile.Close();
+                            mfile = new FileStream(Settings.chatLogDir + channel + ".cache", FileMode.Create, FileAccess.ReadWrite);
+                        }
+                    }
+                }
+                else
+                {
+                    mfile = new FileStream(Settings.chatLogDir + channel + ".cache", FileMode.Create, FileAccess.ReadWrite);
+                }
+
+                posfile = new FileStream(Settings.chatLogDir + channel + ".pos",
+                        FileMode.OpenOrCreate, FileAccess.Write);
+                posfile.Seek(Math.Max(0, posfile.Length - 1), 0);
+                isLoading = false;
             }
 
-            public int Length
+            public int AllCount
             {
                 get;
                 private set;
@@ -241,19 +277,23 @@ namespace LX29_ChatClient
             {
                 try
                 {
+                    while (isLoading) System.Threading.Thread.Sleep(100);
                     if (enableCaching)
                     {
                         string s = JsonConvert.SerializeObject(message);
                         byte[] buff = System.Text.Encoding.UTF8.GetBytes(s);
 
-                        positions.Add(new Tuple<long, long>(mfile.Position, buff.Length));
-                        //mfile.Lock(mfile.Position, buff.Length);
+                        var tuple = new Tuple<long, int>(mfile.Position, buff.Length);
+                        positions.Add(tuple);
+                        byte[] posbuff = System.Text.Encoding.UTF8.GetBytes((mfile.Position + "," + buff.Length + "\n"));
+                        posfile.Write(posbuff, 0, posbuff.Length);
 
+                        mfile.Lock(tuple.Item1, buff.Length);
                         mfile.Write(buff, 0, buff.Length);
-                        //mfile.Unlock(mfile.Position, buff.Length);
+                        mfile.Unlock(tuple.Item1, buff.Length);
                     }
-                    Length++;
-                    messages.Add(Length - 1, message);
+                    AllCount++;
+                    messages.Add(AllCount - 1, message);
 
                     while (messages.Count > Settings.ChatHistory)
                     {
@@ -271,63 +311,57 @@ namespace LX29_ChatClient
                 return messages.Values.Count(a);
             }
 
-            public ChatMessage GetMessage(int index)
+            public void Dispose()
             {
-                if (index < 0) return null;
-
-                long pos = mfile.Position;
-                var kvp = positions[index];
-                byte[] ba = new byte[kvp.Item2];
-
-                //mfile.Lock(kvp.Item1, kvp.Item2);
-                mfile.Seek(kvp.Item1, 0);
-                mfile.Read(ba, 0, ba.Length);
-                mfile.Seek(pos, 0);
-                //mfile.Unlock(kvp.Item1, kvp.Item2);
-
-                var json = System.Text.Encoding.UTF8.GetString(ba);
-                var msg = JsonConvert.DeserializeObject<RootObject>(json);
-                var user = ChatClient.users.Get(msg.Name, channel);
-                return new ChatMessage(msg.Message, user, channel,
-                    false, msg.Types);
+                mfile.Close();
+                posfile.Close();
             }
 
-            public List<ChatMessage> GetMessages(int start = 256, int end = -1, Func<ChatMessage, bool> a = null)
+            public List<ChatMessage> GetMessages(int start, int end = -1, Func<ChatMessage, bool> a = null)
             {
-                if (messages.Count <= 0) return new List<ChatMessage>();
-                if (end < 0) end = this.Length - 1;
-                if (start < 0) start = Math.Max(0, end - 256);
-                Dictionary<int, ChatMessage> list = new Dictionary<int, ChatMessage>();
-                for (int i = start; i <= end; i++)
+                try
                 {
-                    if (messages.ContainsKey(i))
+                    while (isLoading) System.Threading.Thread.Sleep(100);
+                    if (messages.Count <= 0) return new List<ChatMessage>();
+                    if (start < 0) start = Math.Max(0, this.AllCount - 256);
+                    if (end < 0) end = Math.Min(this.AllCount, Math.Max(this.AllCount, start + 256));
+                    Dictionary<int, ChatMessage> list = new Dictionary<int, ChatMessage>();
+                    for (int i = start; i < end; i++)
                     {
-                        if (a != null)
+                        if (messages.ContainsKey(i))
                         {
-                            if (a.Invoke(messages[i]))
+                            if (a != null)
+                            {
+                                if (a.Invoke(messages[i]))
+                                    list.Add(i, messages[i]);
+                            }
+                            else
+                            {
                                 list.Add(i, messages[i]);
+                            }
                         }
-                        else
+                        else if (enableCaching)
                         {
-                            list.Add(i, messages[i]);
-                        }
-                    }
-                    else if (enableCaching)
-                    {
-                        var msg = GetMessage(i);
-                        if (a != null)
-                        {
-                            if (a.Invoke(msg))
+                            var msg = GetMessage(i);
+                            if (msg == null) break;
+                            if (a != null)
+                            {
+                                if (a.Invoke(msg))
+                                    list.Add(i, msg);
+                            }
+                            else
+                            {
                                 list.Add(i, msg);
-                        }
-                        else
-                        {
-                            list.Add(i, msg);
+                            }
                         }
                     }
+                    if (enableCaching) messages = list;
+                    return list.Values.ToList();
                 }
-                if (enableCaching) messages = list;
-                return list.Values.ToList();
+                catch
+                {
+                }
+                return new List<ChatMessage>();
                 //Settings.ChatHistory
             }
 
@@ -336,10 +370,51 @@ namespace LX29_ChatClient
                 return messages.Values.Where(a);
             }
 
-            public IEnumerable<ChatMessage> Where(Func<ChatMessage, bool> a, int start, int end)
+            private ChatMessage GetMessage(long pos, long size)
             {
-                return GetMessages(start, end, a);
+                try
+                {
+                    if (pos < 0) return null;
+
+                    long oldpos = mfile.Position;
+                    byte[] ba = new byte[size];
+
+                    mfile.Lock(pos, size);
+                    mfile.Seek(pos, 0);
+                    mfile.Read(ba, 0, ba.Length);
+                    mfile.Seek(oldpos, 0);
+                    mfile.Unlock(pos, size);
+
+                    var json = System.Text.Encoding.UTF8.GetString(ba);
+                    var msg = JsonConvert.DeserializeObject<RootObject>(json);
+                    var user = ChatClient.users.Get(msg.Name, channel);
+                    return new ChatMessage(msg.Message, user, channel,
+                        false, msg.Types);
+                }
+                catch (Exception x)
+                {
+                    mfile.Close();
+                    mfile = new FileStream(Settings.chatLogDir + channel + ".cache", FileMode.Create, FileAccess.ReadWrite);
+                    if (posfile != null)
+                    {
+                        posfile.Close();
+                        posfile = new FileStream(Settings.chatLogDir + channel + ".pos",
+                                FileMode.OpenOrCreate, FileAccess.Write);
+                    }
+                }
+                return null;
             }
+
+            private ChatMessage GetMessage(int index)
+            {
+                if (index < 0) return null;
+                return GetMessage(positions[index].Item1, positions[index].Item2);
+            }
+
+            //public List<ChatMessage> Where(Func<ChatMessage, bool> a)//, int start)
+            //{
+            //    return messages.Values.Where(a).ToList(); //GetMessages(start, this.AllCount, a);
+            //}
 
             public class RootObject
             {
@@ -368,8 +443,6 @@ namespace LX29_ChatClient
             //            };
 
             //count bytes received in IRC-client
-
-            private Dictionary<string, int> messageCount = new Dictionary<string, int>();
 
             private Dictionary<string, MessageBuffer> messages = new Dictionary<string, MessageBuffer>();//new Dictionary<string, List<ChatMessage>>();
 
@@ -440,7 +513,6 @@ namespace LX29_ChatClient
                             //{
                             //}
                             messages[channelName].Add(msg);
-                            messageCount[channelName]++;
 
                             //while (messages.Count > Settings.ChatHistory)
                             //{
@@ -488,10 +560,10 @@ namespace LX29_ChatClient
             public void AddChannel(string Channel)
             {
                 if (!messages.ContainsKey(Channel))
-                    messages.Add(Channel, new MessageBuffer(Channel));
-
-                if (!messageCount.ContainsKey(Channel))
-                    messageCount.Add(Channel, 0);
+                {
+                    messages.Add(Channel, null);
+                    messages[Channel] = new MessageBuffer(Channel);
+                }
             }
 
             public void AddWhisper(string name, ChatMessage msg)
@@ -557,7 +629,7 @@ namespace LX29_ChatClient
                             }
                             else
                             {
-                                return messages.Sum(t => t.Value.Length);
+                                return messages.Sum(t => t.Value.AllCount);
                             }
                         }
                         else
@@ -648,7 +720,7 @@ namespace LX29_ChatClient
                 return null;
             }
 
-            public List<ChatMessage> GetMessages(string channel, string name, MsgType type, int start = -1, int end = -1)
+            public List<ChatMessage> GetMessages(string channel, string name, MsgType type, int start = -1)
             {
                 channel = channel.ToLower().Trim();
                 if (string.IsNullOrEmpty(name))
@@ -657,11 +729,11 @@ namespace LX29_ChatClient
                     {
                         if (type == MsgType.All_Messages)
                         {
-                            return messages[channel].GetMessages(start, end);
+                            return messages[channel].GetMessages(start);
                         }
                         else
                         {
-                            return messages[channel].Where(t => t.IsType(type), start, end).ToList();
+                            return messages[channel].Where(t => t.IsType(type)).ToList();
                         }
                     }
                 }
@@ -674,7 +746,7 @@ namespace LX29_ChatClient
                     }
                     else
                     {
-                        return messages[channel].Where(t => t.Name.Equals(name), start, end).ToList();
+                        return messages[channel].Where(t => t.Name.Equals(name)).ToList();
                     }
                 }
                 return null;
@@ -682,7 +754,7 @@ namespace LX29_ChatClient
 
             public int MessageCount(string channel)
             {
-                return messageCount[channel.ToLower().Trim()];
+                return messages[channel.ToLower().Trim()].AllCount;
             }
 
             public int MessageCount(string channel, string user)
