@@ -485,9 +485,9 @@ namespace LX29_Twitch.Api
             get { return GetValue<bool>(ApiInfo.follow); }
         }
 
-        public string ID
+        public int ID
         {
-            get { return GetValue<string>(ApiInfo._id).ToString(); }
+            get { return GetValue<int>(ApiInfo._id); }
         }
 
         public string Infos
@@ -626,6 +626,7 @@ namespace LX29_Twitch.Api
         {
             if (si == null) return string.Empty;
             bool b = false;
+            int val = 0;
             if (type == ApiInfo.stream_type)
             {
                 StreamType streamType = StreamType.None;
@@ -699,6 +700,10 @@ namespace LX29_Twitch.Api
             {
                 return b;
             }
+            else if (si != null && int.TryParse(si.ToString(), out val))
+            {
+                return val;
+            }
             return ((si != null) ? si.ToString() : "");
         }
 
@@ -724,16 +729,16 @@ namespace LX29_Twitch.Api
                     }
                     object o = prop.GetValue(channel);
                     o = ConvertValue(o, info);
-                    if (o is string && string.IsNullOrEmpty(((string)o)))
-                    {
-                        ApiInfo[] test = new ApiInfo[] { ApiInfo.name, ApiInfo._id };
+                    //if (o is int || o is string && string.IsNullOrEmpty(((string)o)))
+                    //{
+                    //    ApiInfo[] test = new ApiInfo[] { ApiInfo.name, ApiInfo._id };
 
-                        if (test.Any(t => t == info))
-                        {
-                            values.Clear();
-                            break;
-                        }
-                    }
+                    //    if (test.Any(t => t == info))
+                    //    {
+                    //        values.Clear();
+                    //        break;
+                    //    }
+                    //}
                     if (!values.ContainsKey(info))
                         values.Add(info, o);
                 }

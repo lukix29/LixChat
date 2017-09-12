@@ -4,9 +4,44 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using LX29_ChatClient.Addons;
+
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+
+using System.IO;
+
+using System.Linq;
+
+using System.Media;
+using System.Runtime.InteropServices;
+
+using System.Windows.Forms;
+
+using LinqToSqlShared.Mapping;
+using System.Data.Linq.Mapping;
+using System.Data.Linq;
+using System.Data.SQLite;
 
 namespace LX29_ChatClient
 {
+    public enum channel_mode
+    {
+        NONE = 0,
+        subs_on = 1,//	This room is now in subscribers-only mode.
+        subs_off = 2,//	This room is no longer in subscribers-only mode.
+        slow_on = 3,//	This room is now in slow mode. You may send messages every slow_duration seconds.
+        slow_off = 4,//	This room is no longer in slow mode.
+        r9k_on = 5,//	This room is now in r9k mode.
+        r9k_off = 6,//	This room is no longer in r9k mode.
+        host_on = 7,//	Now hosting target_channel.
+        host_off = 8,//	Exited host mode.
+        emote_only_on = 9,//	This room is now in emote-only mode.
+        emote_only_off = 10,//This room is no longer in emote-only mode.
+        msg_channel_suspended = 11,//	This channel has been suspended.
+    }
+
     public enum irc_params
     {
         color,
@@ -39,21 +74,23 @@ namespace LX29_ChatClient
         already_subs_on = 1,//	This room is already in subscribers-only mode.
         subs_off = 2,//	This room is no longer in subscribers-only mode.
         already_subs_off = 2,//	This room is not in subscribers-only mode.
-        slow_on = 3,
         msg_slowmode = 3,//	This room is now in slow mode. You may send messages every slow_duration seconds.
-        slow_off = 4,//	This room is no longer in slow mode.
+
         r9k_on = 5,//	This room is now in r9k mode.
         already_r9k_on = 5,//	This room is already in r9k mode.
         r9k_off = 6,//	This room is no longer in r9k mode.
         already_r9k_off = 6,//	This room is not in r9k mode.
-        host_on = 7,//	Now hosting target_channel.
-        bad_host_hosting = 7,//	This channel is already hosting target_channel.
-        host_off = 8,//	Exited host mode.
-        hosts_remaining = 7,//	number host commands remaining this half hour.
+        slow_on = 3,
+        slow_off = 4,//	This room is no longer in slow mode.
         emote_only_on = 9,//	This room is now in emote-only mode.
         already_emote_only_on = 9,//	This room is already in emote-only mode.
         emote_only_off = 10,//This room is no longer in emote-only mode.
         already_emote_only_off = 10,//	This room is not in emote-only mode.
+        host_on = 7,//	Now hosting target_channel.
+        bad_host_hosting = 7,//	This channel is already hosting target_channel.
+        host_off = 8,//	Exited host mode.
+        hosts_remaining = 7,//	number host commands remaining this half hour.
+
         msg_channel_suspended = 11,//	This channel has been suspended.
         timeout_success = 12,//	target_user has been timed out for ban_duration seconds.
         untimeout_success = 13,//	target_user is no longer timed out.
@@ -194,6 +231,106 @@ namespace LX29_ChatClient
         }
     }
 
+    [Table(Name = "Message")]
+    public class CacheMessage : IEquatable<CacheMessage>, IComparer<CacheMessage>
+    {
+        public CacheMessage(ChatMessage msg, int index)
+        {
+            Message = msg.Message;
+            Channel = msg.Channel;
+            Name = msg.Name;
+            Time = msg.SendTime;
+            Timeout = !msg.Timeout.IsEmpty;
+            Index = index;
+            Types = msg.Types.Select(t => (byte)t).ToArray();
+            ID = Channel + "_" + index;
+
+            if (msg.User.Badges.Length > 0)
+            {
+                Badges = msg.User.Badges.Select(t => t.ToString()).Aggregate((t0, t1) => t0 + " " + t1);
+            }
+        }
+
+        public CacheMessage()
+        {
+        }
+
+        [Column(Name = "Badges")]
+        public string Badges { get; set; }
+
+        [Column(Name = "Channel")]
+        public string Channel { get; set; }
+
+        [Column(Name = "ID", IsPrimaryKey = true)]
+        public string ID { get; set; }
+
+        [Column(Name = "Index")]
+        public int Index { get; set; }
+
+        [Column(Name = "Message")]
+        public string Message { get; set; }
+
+        [Column(Name = "Name")]
+        public string Name { get; set; }
+
+        [Column(Name = "Time", DbType = "DateTime")]
+        public DateTime Time { get; set; }
+
+        [Column(Name = "Timeout")]
+        public bool Timeout { get; set; }
+
+        [Column(Name = "Types")]
+        public byte[] Types { get; set; }
+
+        public int Compare(CacheMessage x, CacheMessage y)
+        {
+            return x.Index - y.Index;
+        }
+
+        public bool Equals(CacheMessage m2)
+        {
+            return ID.Equals(m2.ID);
+        }
+
+        public void From(CacheMessage m)
+        {
+            Badges = m.Badges;
+
+            Channel = m.Channel;
+
+            ID = m.ID;
+
+            Index = m.Index;
+
+            Message = m.Message;
+
+            Name = m.Name;
+
+            Time = m.Time;
+            Timeout = m.Timeout;
+
+            Types = m.Types;
+        }
+
+        public override int GetHashCode()
+        {
+            return ID.GetHashCode();
+        }
+
+        //public static DateTime ConvertFromUnixTimestamp(double timestamp)
+        //{
+        //    DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+        //    return origin.AddSeconds(timestamp);
+        //}
+
+        //public static double ConvertToUnixTimestamp(DateTime date)
+        //{
+        //    DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+        //    TimeSpan diff = date.ToUniversalTime() - origin;
+        //    return Math.Floor(diff.TotalSeconds);
+        //}
+    }
+
     public class ChatMessage : IEquatable<ChatMessage>, IComparer<ChatMessage>
     {
         public const string ACTION = "ACTION";
@@ -213,6 +350,29 @@ namespace LX29_ChatClient
             Name = "";
             Channel = "";
             SendTime = DateTime.MaxValue;
+        }
+
+        public ChatMessage(CacheMessage msg)
+        {
+            Channel = msg.Channel;
+            Name = msg.Name;
+            Message = msg.Message;
+            User = (ChatClient.Users != null) ? ChatClient.Users.Get(Name, Channel, true) : new ChatUser(msg.Name, msg.Channel);
+            SendTime = msg.Time;
+
+            //Message = msg.Message;
+            //Channel = ChatClient.Channels[msg.Channel].ID;
+            //Name = msg.Name;
+            //Time = msg.SendTime;
+            //Timeout = !msg.Timeout.IsEmpty;
+            //Index = index;
+            //Types = msg.Types.Select(t => (byte)t).ToArray();
+            //ID = Channel + "_" + index;
+
+            //if (msg.User.Badges.Length > 0)
+            //{
+            //    Badges = msg.User.Badges.Select(t => t.ToString()).Aggregate((t0, t1) => t0 + " " + t1);
+            //}
         }
 
         public ChatMessage(string message, string user, string channel, TimeOutResult toResult, string outerMessageType, Dictionary<irc_params, string> parameters)
@@ -352,11 +512,6 @@ namespace LX29_ChatClient
                 }
             }
             ChatWords = ChatClient.Emotes.ParseEmoteFromMessage(null, message, channel, Types);
-        }
-
-        public int[] _types
-        {
-            get { return Types.Select(t => (int)t).ToArray(); }
         }
 
         [JsonIgnore]

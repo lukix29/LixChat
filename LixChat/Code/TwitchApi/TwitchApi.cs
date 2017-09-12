@@ -23,7 +23,7 @@ namespace LX29_Twitch.Api
             }
         }
 
-        public static string User_ID
+        public static int User_ID
         {
             get { return LX29_ChatClient.ChatClient.TwitchUsers.Selected.ID; }
         }
@@ -33,11 +33,11 @@ namespace LX29_Twitch.Api
             get { return LX29_ChatClient.ChatClient.TwitchUsers.Selected.Token; }
         }
 
-        public static bool FollowChannel(ApiResult channelID, string userID = "", string userToken = "")
+        public static bool FollowChannel(ApiResult channelID, int userID = 0, string userToken = "")
         {
             try
             {
-                if (string.IsNullOrEmpty(userID)) userID = User_ID;
+                if (userID == 0) userID = User_ID;
                 if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
 
                 bool wasFollowed = channelID.Followed;
@@ -105,9 +105,9 @@ namespace LX29_Twitch.Api
             return users.Select(t => new LX29_ChatClient.ChatUser(t.Name, ChannelName, t.UType)).ToDictionary(t => t.Name);
         }
 
-        public static List<ApiResult> GetFollowedStreams(string userID = "", string userToken = "")
+        public static List<ApiResult> GetFollowedStreams(int userID = 0, string userToken = "")
         {
-            if (string.IsNullOrEmpty(userID)) userID = User_ID;
+            if (userID == 0) userID = User_ID;
             if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
 
             List<ApiResult> list = getResults("https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels", User_Token);
@@ -156,18 +156,18 @@ namespace LX29_Twitch.Api
             return str;
         }
 
-        public static SubResult GetSubscription(string channel_ID, string userID = "", string userToken = "")
+        public static SubResult GetSubscription(int channel_ID, int userID = 0, string userToken = "")
         {
-            if (string.IsNullOrEmpty(userID)) userID = User_ID;
+            if (userID == 0) userID = User_ID;
             if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
             var res = downloadString(
                 "https://api.twitch.tv/kraken/users/" + userID + "/subscriptions/" + channel_ID, userToken, 5, false);
             return SubResult.Parse(res);
         }
 
-        public static IEnumerable<JSON.Twitch_Api.Emoticon> GetUserEmotes(string userID = "", string userToken = "")
+        public static IEnumerable<JSON.Twitch_Api.Emoticon> GetUserEmotes(int userID = 0, string userToken = "")
         {
-            if (string.IsNullOrEmpty(userID)) userID = User_ID;
+            if (userID == 0) userID = User_ID;
             if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
 
             string s = downloadString("https://api.twitch.tv/kraken/users/" + userID + "/emotes", userToken);
@@ -290,7 +290,7 @@ namespace LX29_Twitch.Api
 
         private static string getChannelList(IEnumerable<ApiResult> results)
         {
-            var ids = results.Select(t => t.ID);
+            var ids = results.Select(t => t.ID.ToString());
             return getChannelList(ids);
         }
 

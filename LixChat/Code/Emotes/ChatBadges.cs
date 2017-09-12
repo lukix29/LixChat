@@ -149,6 +149,11 @@ namespace LX29_ChatClient.Emotes
             get;
             set;
         }
+
+        public override string ToString()
+        {
+            return Type + "." + Version;
+        }
     }
 
     public class BadgeCollection : IEnumerable<string>

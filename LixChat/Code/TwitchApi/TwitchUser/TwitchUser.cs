@@ -97,7 +97,7 @@ namespace LX29_Twitch.Api
             private set;
         }
 
-        public string ID
+        public int ID
         {
             get { return ApiResult.ID; }
         }

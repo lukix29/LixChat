@@ -9,22 +9,6 @@ using System.Windows.Forms;
 
 namespace LX29_ChatClient
 {
-    public enum channel_mode
-    {
-        NONE = 0,
-        subs_on = 1,//	This room is now in subscribers-only mode.
-        subs_off = 2,//	This room is no longer in subscribers-only mode.
-        slow_on = 3,//	This room is now in slow mode. You may send messages every slow_duration seconds.
-        slow_off = 4,//	This room is no longer in slow mode.
-        r9k_on = 5,//	This room is now in r9k mode.
-        r9k_off = 6,//	This room is no longer in r9k mode.
-        host_on = 7,//	Now hosting target_channel.
-        host_off = 8,//	Exited host mode.
-        emote_only_on = 9,//	This room is now in emote-only mode.
-        emote_only_off = 10,//This room is no longer in emote-only mode.
-        msg_channel_suspended = 11,//	This channel has been suspended.
-    }
-
     public enum SortMode
     {
         Favorite = 0,
@@ -51,7 +35,7 @@ namespace LX29_ChatClient
     {
         public readonly static ChatUser Emtpy = new ChatUser("", "");
 
-        private Color Color = Color.White;
+        public Color Color = Color.White;
         private string displayName = "";
 
         private ApiResult result = null;
@@ -83,7 +67,7 @@ namespace LX29_ChatClient
                 if (result == null)
                 {
                     result = TwitchApi.GetUserID(Name);
-                    result = TwitchApi.GetStreamOrChannel(result.ID)[0];
+                    result = TwitchApi.GetStreamOrChannel(result.ID.ToString())[0];
                 }
                 return result;
             }

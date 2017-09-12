@@ -7,6 +7,10 @@ using System.Linq;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using LinqToSqlShared.Mapping;
+using System.Data.Linq.Mapping;
+using System.Data.Linq;
+using System.Data.SQLite;
 
 namespace LX29_ChatClient
 {
@@ -148,26 +152,33 @@ namespace LX29_ChatClient
                 return new List<ChatUser>();
             }
 
-            public ChatUser Get(string name, string channel)
+            public ChatUser Get(string name, string channel, bool create = false)
             {
-                if (!string.IsNullOrEmpty(name))
+                try
                 {
-                    channel = channel.ToLower().Trim();
-                    name = name.ToLower().Trim();
-                    if (string.IsNullOrEmpty(channel))
+                    if (!string.IsNullOrEmpty(name))
                     {
-                        foreach (string s in users.Keys)
+                        channel = channel.ToLower().Trim();
+                        name = name.ToLower().Trim();
+                        if (string.IsNullOrEmpty(channel))
                         {
-                            if (users[s].ContainsKey(name))
+                            foreach (string s in users.Keys)
                             {
-                                return users[s][name];
+                                if (users[s].ContainsKey(name))
+                                {
+                                    return users[s][name];
+                                }
                             }
                         }
+                        else if (users.ContainsKey(channel) && users[channel].ContainsKey(name))
+                        {
+                            return users[channel][name];
+                        }
                     }
-                    else if (users.ContainsKey(channel) && users[channel].ContainsKey(name))
-                    {
-                        return users[channel][name];
-                    }
+                    if (create) return new ChatUser(name, channel);
+                }
+                catch
+                {
                 }
                 return ChatUser.Emtpy;
             }
@@ -211,61 +222,52 @@ namespace LX29_ChatClient
 
         public class MessageBuffer : IDisposable
         {
-            private string channel = "";
-            private bool isLoading = true;
-            private Dictionary<int, ChatMessage> messages = new Dictionary<int, ChatMessage>();
-            private FileStream mfile;
-            private FileStream posfile;
-            private List<Tuple<long, int>> positions = new List<Tuple<long, int>>();
+            //private System.Threading.ReaderWriterLockSlim
+            private static readonly object _readerWriterLock = new object();//new System.Threading.ReaderWriterLockSlim(System.Threading.LockRecursionPolicy.SupportsRecursion);
 
-            public MessageBuffer(string channel)
+            private bool isLoading = true;
+            private Dictionary<string, Dictionary<int, ChatMessage>> messages = new Dictionary<string, Dictionary<int, ChatMessage>>();//new List<ChatMessage>();
+            private DataContext sql;
+
+            public MessageBuffer()
             {
-                this.channel = channel;
-                if (File.Exists(Settings.chatLogDir + channel + ".pos"))
+                try
                 {
-                    mfile = new FileStream(Settings.chatLogDir + channel + ".cache", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                    string[] sa = File.ReadAllLines(Settings.chatLogDir + channel + ".pos");
-                    if (sa.Length > 0)
+                    AllCount = new Dictionary<string, int>();
+                    string path = Settings.caonfigBaseDir + "Database.db";
+                    if (!File.Exists(path))
                     {
-                        //if last message is not too old load cache
-                        var ti = sa.Last().Split(',').Select(t => long.Parse(t)).ToArray();
-                        var msg = GetMessage(ti[0], ti[1]);
-                        if (msg != null && DateTime.Now.Subtract(msg.SendTime).TotalHours < 1.0)
+                        File.WriteAllBytes(path, LX29_LixChat.Properties.Resources.Cache);
+                    }
+                    sql = new DataContext(new SQLiteConnection(@"Data Source=" + path));
+                    //Load Previous Messages
+                    var tbl = sql.GetTable<CacheMessage>();
+                    foreach (var t in tbl)
+                    {
+                        if (!messages.ContainsKey(t.Channel))
                         {
-                            mfile.Seek(0, 0);
-                            for (int i = 0; i < sa.Length; i++)
-                            {
-                                ti = sa[i].Split(',').Select(t => long.Parse(t)).ToArray();
-                                positions.Add(new Tuple<long, int>(ti[0], (int)ti[1]));
-                                msg = GetMessage(ti[0], ti[1]);
-                                if (msg == null) break;
-                                messages.Add(i, msg);
-                            }
-                            AllCount = messages.Count;
+                            messages.Add(t.Channel, new Dictionary<int, ChatMessage>());
+                            AllCount.Add(t.Channel, 0);
                         }
-                        else
-                        {
-                            File.Delete(Settings.chatLogDir + channel + ".pos");
-                            mfile.Close();
-                            mfile = new FileStream(Settings.chatLogDir + channel + ".cache", FileMode.Create, FileAccess.ReadWrite);
-                        }
+                        messages[t.Channel].Add(AllCount[t.Channel], new ChatMessage(t));
+                        AllCount[t.Channel]++;
                     }
                 }
-                else
+                catch
                 {
-                    mfile = new FileStream(Settings.chatLogDir + channel + ".cache", FileMode.Create, FileAccess.ReadWrite);
                 }
-
-                posfile = new FileStream(Settings.chatLogDir + channel + ".pos",
-                        FileMode.OpenOrCreate, FileAccess.Write);
-                posfile.Seek(Math.Max(0, posfile.Length - 1), 0);
                 isLoading = false;
             }
 
-            public int AllCount
+            public Dictionary<string, int> AllCount
             {
                 get;
                 private set;
+            }
+
+            public IEnumerable<ChatMessage> AllMessages
+            {
+                get { return messages.Values.SelectMany(t => t.Values); }
             }
 
             private bool enableCaching
@@ -273,32 +275,48 @@ namespace LX29_ChatClient
                 get { return Settings.MessageCaching; }
             }
 
-            public void Add(ChatMessage message)
+            public IEnumerable<ChatMessage> this[string channel]
+            {
+                get { return messages[channel].Values; }
+            }
+
+            public void Add(ChatMessage msg)
             {
                 try
                 {
-                    while (isLoading) System.Threading.Thread.Sleep(100);
-                    if (enableCaching)
+                    string channel = msg.Channel;
+                    if (!messages.ContainsKey(channel))
                     {
-                        string s = JsonConvert.SerializeObject(message);
-                        byte[] buff = System.Text.Encoding.UTF8.GetBytes(s);
-
-                        var tuple = new Tuple<long, int>(mfile.Position, buff.Length);
-                        positions.Add(tuple);
-                        byte[] posbuff = System.Text.Encoding.UTF8.GetBytes((mfile.Position + "," + buff.Length + "\n"));
-                        posfile.Write(posbuff, 0, posbuff.Length);
-
-                        mfile.Lock(tuple.Item1, buff.Length);
-                        mfile.Write(buff, 0, buff.Length);
-                        mfile.Unlock(tuple.Item1, buff.Length);
+                        AllCount.Add(channel, 0);
+                        messages.Add(channel, new Dictionary<int, ChatMessage>());
                     }
-                    AllCount++;
-                    messages.Add(AllCount - 1, message);
-
+                    int cnt = AllCount[channel];
+                    if (!messages[channel].ContainsKey(cnt))
+                    {
+                        messages[channel].Add(cnt, msg);
+                    }
+                    else
+                    {
+                        messages[channel][cnt] = msg;
+                    }
+                    AllCount[channel] = cnt + 1;
                     while (messages.Count > Settings.ChatHistory)
                     {
-                        int min = messages.Keys.Min();
-                        messages.Remove(min);
+                        int min = messages[channel].Keys.Min();
+                        messages[channel].Remove(min);
+                    }
+
+                    if (enableCaching)
+                    {
+                        System.Threading.Tasks.Task.Run(() =>
+                            {
+                                while (isLoading) System.Threading.Thread.Sleep(100);
+
+                                RunInsertSQL(new CacheMessage(msg, cnt));
+                            });
+                        //var msg = sql.GetTable<CacheMessage>();
+                        //msg.InsertOnSubmit(new CacheMessage(message, cnt));
+                        //sql.SubmitChanges(ConflictMode.FailOnFirstConflict);
                     }
                 }
                 catch
@@ -306,44 +324,53 @@ namespace LX29_ChatClient
                 }
             }
 
-            public int Count(Func<ChatMessage, bool> a)
+            public bool ContainsKey(string channel)
             {
-                return messages.Values.Count(a);
+                return messages.ContainsKey(channel);
+            }
+
+            public bool ContainsKey(string channel, int index)
+            {
+                return messages[channel].ContainsKey(index);
+            }
+
+            public int Count(string channel, Func<ChatMessage, bool> a)
+            {
+                return messages[channel].Values.Count(a);
             }
 
             public void Dispose()
             {
-                mfile.Close();
-                posfile.Close();
+                try
+                {
+                    sql.Connection.Close();
+                    sql.Connection.Dispose();
+                    sql.Dispose();
+                }
+                catch
+                {
+                }
             }
 
-            public List<ChatMessage> GetMessages(int start, int end = -1, Func<ChatMessage, bool> a = null)
+            public List<ChatMessage> GetMessages(string channel, int start, int end = -1, Func<ChatMessage, bool> a = null)
             {
                 try
                 {
                     while (isLoading) System.Threading.Thread.Sleep(100);
+                    int allcnt = this.AllCount[channel];
                     if (messages.Count <= 0) return new List<ChatMessage>();
-                    if (start < 0) start = Math.Max(0, this.AllCount - 256);
-                    if (end < 0) end = Math.Min(this.AllCount, Math.Max(this.AllCount, start + 256));
+                    if (start < 0) start = Math.Max(0, allcnt - 256);
+                    if (end < 0) end = Math.Min(allcnt, Math.Max(allcnt, start + 256));
                     Dictionary<int, ChatMessage> list = new Dictionary<int, ChatMessage>();
+
+                    //int id = ChatClient.Channels[channel].ID;
+
+                    //var sqlTable = sql.GetTable<CacheMessage>();
                     for (int i = start; i < end; i++)
                     {
-                        if (messages.ContainsKey(i))
+                        if (messages[channel].ContainsKey(i))
                         {
-                            if (a != null)
-                            {
-                                if (a.Invoke(messages[i]))
-                                    list.Add(i, messages[i]);
-                            }
-                            else
-                            {
-                                list.Add(i, messages[i]);
-                            }
-                        }
-                        else if (enableCaching)
-                        {
-                            var msg = GetMessage(i);
-                            if (msg == null) break;
+                            var msg = messages[channel][i];
                             if (a != null)
                             {
                                 if (a.Invoke(msg))
@@ -354,8 +381,30 @@ namespace LX29_ChatClient
                                 list.Add(i, msg);
                             }
                         }
+                        else if (enableCaching)
+                        {
+                            //var marr = sqlTable.Where(t => (t.Channel == id));
+                            //if (marr.Count() > 0)
+                            //{
+                            // var m = marr.ToList().FirstOrDefault(t => (t.Index == i));
+                            var msg = RunSelectSQL(channel, i);// new ChatMessage(m);
+
+                            if (msg == null)
+                                continue;
+
+                            if (a != null)
+                            {
+                                if (a.Invoke(msg))
+                                    list.Add(i, msg);
+                            }
+                            else
+                            {
+                                list.Add(i, msg);
+                            }
+                            // }
+                        }
                     }
-                    if (enableCaching) messages = list;
+                    if (enableCaching) messages[channel] = list;
                     return list.Values.ToList();
                 }
                 catch
@@ -365,72 +414,78 @@ namespace LX29_ChatClient
                 //Settings.ChatHistory
             }
 
-            public IEnumerable<ChatMessage> Where(Func<ChatMessage, bool> a)
+            public IEnumerable<ChatMessage> Where(string channel, Func<ChatMessage, bool> a)
             {
-                return messages.Values.Where(a);
+                return messages[channel].Values.Where(a);
             }
 
-            private ChatMessage GetMessage(long pos, long size)
+            private void RunInsertSQL(CacheMessage msg, int cnt = 0)
             {
                 try
                 {
-                    if (pos < 0) return null;
-
-                    long oldpos = mfile.Position;
-                    byte[] ba = new byte[size];
-
-                    mfile.Lock(pos, size);
-                    mfile.Seek(pos, 0);
-                    mfile.Read(ba, 0, ba.Length);
-                    mfile.Seek(oldpos, 0);
-                    mfile.Unlock(pos, size);
-
-                    var json = System.Text.Encoding.UTF8.GetString(ba);
-                    var msg = JsonConvert.DeserializeObject<RootObject>(json);
-                    var user = ChatClient.users.Get(msg.Name, channel);
-                    return new ChatMessage(msg.Message, user, channel,
-                        false, msg.Types);
-                }
-                catch (Exception x)
-                {
-                    mfile.Close();
-                    mfile = new FileStream(Settings.chatLogDir + channel + ".cache", FileMode.Create, FileAccess.ReadWrite);
-                    if (posfile != null)
+                    lock (_readerWriterLock)
                     {
-                        posfile.Close();
-                        posfile = new FileStream(Settings.chatLogDir + channel + ".pos",
-                                FileMode.OpenOrCreate, FileAccess.Write);
+                        var tbl = sql.GetTable<CacheMessage>();
+
+                        var m = tbl.Where(t => t.ID.Equals(msg.ID)).ToList().FirstOrDefault();
+                        if (m != null)
+                        {
+                            m.From(msg);
+                        }
+                        else
+                        {
+                            tbl.InsertOnSubmit(msg);
+                        }
+                        sql.SubmitChanges(ConflictMode.FailOnFirstConflict);
                     }
                 }
-                return null;
+                catch
+                {
+                    System.Threading.Thread.Sleep(10);
+                    if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
+                    RunInsertSQL(msg, cnt + 1);
+                }
+
+                //if (isbreaked)
+                //{
+                //    System.Threading.Thread.Sleep(10);
+                //    if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
+                //    RunInsertSQL(msg, cnt + 1);
+                //}
             }
 
-            private ChatMessage GetMessage(int index)
+            private ChatMessage RunSelectSQL(string channel, int index)
             {
-                if (index < 0) return null;
-                return GetMessage(positions[index].Item1, positions[index].Item2);
+                ChatMessage m = null;
+                try
+                {
+                    lock (_readerWriterLock)
+                    {
+                        //Function to acess database
+                        var sqlTable = sql.GetTable<CacheMessage>();
+                        var marr = sqlTable.Where(t => t.Channel.Equals(channel)).ToList();
+                        if (marr.Count > 0)
+                        {
+                            var msg = marr.FirstOrDefault(t => (t.Index == index));
+                            if (msg != null)
+                            {
+                                //_readerWriterLock.ExitReadLock();
+                                m = new ChatMessage(msg);
+                            }
+                            //_readerWriterLock.ExitReadLock();
+                        }
+                    }
+                }
+                catch
+                {
+                }
+                return m;
             }
 
             //public List<ChatMessage> Where(Func<ChatMessage, bool> a)//, int start)
             //{
             //    return messages.Values.Where(a).ToList(); //GetMessages(start, this.AllCount, a);
             //}
-
-            public class RootObject
-            {
-                public List<int> _types { get; set; }
-
-                public string Message { get; set; }
-
-                public string Name { get; set; }
-
-                public DateTime SendTime { get; set; }
-
-                public MsgType[] Types
-                {
-                    get { return _types.Select(t => (MsgType)t).ToArray(); }
-                }
-            }
         }
 
         public class MessageCollection // : IDictionary<string, Dictionary<string, ChatUser>>
@@ -444,7 +499,7 @@ namespace LX29_ChatClient
 
             //count bytes received in IRC-client
 
-            private Dictionary<string, MessageBuffer> messages = new Dictionary<string, MessageBuffer>();//new Dictionary<string, List<ChatMessage>>();
+            private MessageBuffer messages = new MessageBuffer();//new Dictionary<string, List<ChatMessage>>();
 
             private Dictionary<string, List<ChatMessage>> whisper = new Dictionary<string, List<ChatMessage>>();
 
@@ -457,7 +512,7 @@ namespace LX29_ChatClient
 
             public event WhisperReceivedHandler OnWhisperReceived;
 
-            public Dictionary<string, MessageBuffer> Values
+            public MessageBuffer Values
             {
                 get { return messages; }
             }
@@ -471,7 +526,7 @@ namespace LX29_ChatClient
             {
                 Channel = Channel.ToLower().Trim();
                 ChatMessage m = new ChatMessage(Message, ChatUser.Emtpy, Channel, true, types);
-                Add(Channel, m, executeActions);
+                Add(m, executeActions);
             }
 
             public void Add(string Channel, string Message, params MsgType[] types)
@@ -479,12 +534,13 @@ namespace LX29_ChatClient
                 Add(Channel, Message, false, types);
             }
 
-            public void Add(string channelName, ChatMessage msg, bool executeActions)
+            public void Add(ChatMessage msg, bool executeActions)
             {
                 try
                 {
                     if (msg.IsEmpty) return;
-                    lock (syncRootMessage)
+                    string channelName = msg.Channel;
+                    //lock (syncRootMessage)
                     {
                         if (msg.IsType(MsgType.HL_Messages))
                         {
@@ -493,10 +549,8 @@ namespace LX29_ChatClient
                         if (msg.IsType(MsgType.Whisper))
                         {
                             AddWhisper(channelName, msg);
-                            if (Settings.BeepOnWhisper)
-                            {
-                                Notifications.Whisper(channelName);
-                            }
+
+                            Notifications.Whisper(channelName);
                         }
                         else
                         {
@@ -512,7 +566,7 @@ namespace LX29_ChatClient
                             //catch
                             //{
                             //}
-                            messages[channelName].Add(msg);
+                            messages.Add(msg);
 
                             //while (messages.Count > Settings.ChatHistory)
                             //{
@@ -548,23 +602,23 @@ namespace LX29_ChatClient
                     //Emotes.ParseEmoteFromMessage(parameters, Message, channelName);
                     ChatMessage msg =
                         new ChatMessage(Message, name, channelName, isTO, outerMessageType, parameters);
-                    if (!messages.ContainsKey(channelName))
-                    {
-                        AddChannel(channelName);
-                    }
+                    //if (!messages.ContainsKey(channelName))
+                    //{
+                    //    AddChannel(channelName);
+                    //}
 
-                    Add(channelName, msg, true);
+                    Add(msg, true);
                 }
             }
 
-            public void AddChannel(string Channel)
-            {
-                if (!messages.ContainsKey(Channel))
-                {
-                    messages.Add(Channel, null);
-                    messages[Channel] = new MessageBuffer(Channel);
-                }
-            }
+            //public void AddChannel(string Channel)
+            //{
+            //    if (!messages.ContainsKey(Channel))
+            //    {
+            //        messages.Add(Channel, null);
+            //        messages[Channel] = new MessageBuffer(Channel);
+            //    }
+            //}
 
             public void AddWhisper(string name, ChatMessage msg)
             {
@@ -607,29 +661,22 @@ namespace LX29_ChatClient
                     //dont count resub as outgoing
                     //int i = null;
                     channel = channel.ToLower().Trim();
-                    lock (syncRootMessage)
+                    //lock (syncRootMessage)
                     {
                         if (type != MsgType.Whisper)
                         {
-                            if (!string.IsNullOrEmpty(channel))
+                            if (messages.ContainsKey(channel))
                             {
-                                if (messages.ContainsKey(channel))
+                                if (string.IsNullOrEmpty(name))
                                 {
-                                    if (string.IsNullOrEmpty(name))
-                                    {
-                                        return messages[channel].Count(t => t.IsType(type));
-                                    }
-                                    else
-                                    {
-                                        return messages[channel]
-                                             .Count(t => (t.IsType(type) &&
-                                                 t.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
-                                    }
+                                    return messages[channel].Count(t => t.IsType(type));
                                 }
-                            }
-                            else
-                            {
-                                return messages.Sum(t => t.Value.AllCount);
+                                else
+                                {
+                                    return messages[channel]
+                                         .Count(t => (t.IsType(type) &&
+                                             t.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
+                                }
                             }
                         }
                         else
@@ -657,7 +704,7 @@ namespace LX29_ChatClient
                 try
                 {
                     channel = channel.ToLower().Trim();
-                    lock (syncRootMessage)
+                    //lock (syncRootMessage)
                     {
                         if (type != MsgType.Whisper)
                         {
@@ -729,7 +776,7 @@ namespace LX29_ChatClient
                     {
                         if (type == MsgType.All_Messages)
                         {
-                            return messages[channel].GetMessages(start);
+                            return messages.GetMessages(channel, start);
                         }
                         else
                         {
@@ -754,7 +801,7 @@ namespace LX29_ChatClient
 
             public int MessageCount(string channel)
             {
-                return messages[channel.ToLower().Trim()].AllCount;
+                return messages.AllCount[channel];
             }
 
             public int MessageCount(string channel, string user)
@@ -792,11 +839,14 @@ namespace LX29_ChatClient
 
             public static void Highlight(string channel)
             {
-                highlightSound.Play();
-                var form = channels[channel].ChatForm;
-                if (form != null)
+                if (Settings.BeepOnHighlight)
                 {
-                    FlashWindowEx(form);
+                    highlightSound.Play();
+                    var form = channels[channel].ChatForm;
+                    if (form != null)
+                    {
+                        FlashWindowEx(form);
+                    }
                 }
             }
 
@@ -810,8 +860,11 @@ namespace LX29_ChatClient
 
             public static void Whisper(string name)
             {
-                whisperSound.Play();
-                //FlashWindowEx(new ApplicationContext().MainForm
+                if (Settings.BeepOnWhisper)
+                {
+                    whisperSound.Play();
+                    //FlashWindowEx(new ApplicationContext().MainForm
+                }
             }
 
             // To support flashing.

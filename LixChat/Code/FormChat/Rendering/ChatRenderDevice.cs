@@ -529,7 +529,11 @@ namespace LX29_ChatClient.Forms
                 }
                 else
                 {
-                    g.DrawString("<Waiting for Messages>", new Font("Arial", 12), Brushes.LightGray, bounds, centerStrFormat);
+                    MessageReceived();
+                    if (messages.Count == 0)
+                    {
+                        g.DrawString("<Waiting for Messages>", new Font("Arial", 12), Brushes.LightGray, bounds, centerStrFormat);
+                    }
                 }
 
                 if (FPS <= 100)
@@ -589,14 +593,14 @@ namespace LX29_ChatClient.Forms
                         difBG = true;
                     }
                 }
-                else if (message.IsType(MsgType.HL_Messages))
-                {
-                    bgColor = Color.DarkRed;
-                    difBG = true;
-                }
                 else if (message.IsType(MsgType.UserNotice))
                 {
                     bgColor = Color.FromArgb(60, 40, 60);
+                    difBG = true;
+                }
+                if (message.IsType(MsgType.HL_Messages))
+                {
+                    bgColor = Color.DarkRed;
                     difBG = true;
                 }
                 if (!message.Timeout.IsEmpty)
@@ -748,7 +752,7 @@ namespace LX29_ChatClient.Forms
                     foreach (EmoteBase em in w.Emote)
                     {
                         sf = em.CalcSize(emoteHeight, Settings.EmoteQuality);
-                        lineSpace = _LineSpacing * 2f;
+                        lineSpace = sf.Height / 2 - _LineSpacing;
                         if (x + sf.Width > bounds.Right)
                         {
                             x = time_Right;//Linepadding

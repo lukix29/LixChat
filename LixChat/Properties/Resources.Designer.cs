@@ -61,6 +61,16 @@ namespace LX29_LixChat.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Icon ähnlich wie (Symbol).
+        /// </summary>
+        internal static System.Drawing.Icon _1463551454_16 {
+            get {
+                object obj = ResourceManager.GetObject("_1463551454_16", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Username aliases:
         ///	case insensitive, * means any user can trigger the Action.
         ///Keywords for Action:
@@ -99,6 +109,16 @@ namespace LX29_LixChat.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
+        internal static byte[] Cache {
+            get {
+                object obj = ResourceManager.GetObject("Cache", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die :grinning_face:=1f600
         ///:grinning_face_with_smiling_eyes:=1f601
         ///:face_with_tears_of_joy:=1f602
@@ -116,6 +136,25 @@ namespace LX29_LixChat.Properties {
         internal static string emojis {
             get {
                 return ResourceManager.GetString("emojis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
+        internal static byte[] hallo {
+            get {
+                object obj = ResourceManager.GetObject("hallo", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.IO.UnmanagedMemoryStream ähnlich wie System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream highlight_alert {
+            get {
+                return ResourceManager.GetStream("highlight_alert", resourceCulture);
             }
         }
         
@@ -205,6 +244,16 @@ namespace LX29_LixChat.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap refresh_16xLG {
+            get {
+                object obj = ResourceManager.GetObject("refresh_16xLG", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap resize {
             get {
                 object obj = ResourceManager.GetObject("resize", resourceCulture);
@@ -254,6 +303,25 @@ namespace LX29_LixChat.Properties {
             get {
                 object obj = ResourceManager.GetObject("timeout", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
+        internal static byte[] updater {
+            get {
+                object obj = ResourceManager.GetObject("updater", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.IO.UnmanagedMemoryStream ähnlich wie System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream whisper_alert {
+            get {
+                return ResourceManager.GetStream("whisper_alert", resourceCulture);
             }
         }
     }

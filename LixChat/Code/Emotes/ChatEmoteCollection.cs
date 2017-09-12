@@ -51,7 +51,7 @@ namespace LX29_ChatClient.Emotes
                     });
                     tasks.Add(t0);
                     tasks.Add(t1);
-                    if (tasks.Count >= 8)
+                    if (tasks.Count >= 10)
                     {
                         Task.WaitAll(tasks.ToArray());
                         tasks.Clear();
@@ -824,14 +824,11 @@ namespace LX29_ChatClient.Emotes
                 {
                     //DateTime now = DateTime.Now;
                     int cnt = 0;
-                    int max = ChatClient.Messages.Values.Count;
-                    foreach (var msg in ChatClient.Messages.Values.Values)
+                    var all = ChatClient.Messages.Values.AllMessages.Where(t => (t.SendTime.Ticks <= finish));
+                    int max = all.Count();
+                    foreach (var msg in all)
                     {
-                        var msges = msg.Where(t => (t.SendTime.Ticks <= finish));
-                        foreach (var val in msges)
-                        {
-                            val.ReloadEmotes();
-                        }
+                        msg.ReloadEmotes();
                         cnt++;
                         On_Loaded_channel(null, cnt, max, "Reloading Emotes in Messages");
                     }

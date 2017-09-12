@@ -55,6 +55,17 @@ namespace LX29_LixChat
             return type.GetProperty(methodName);
         }
 
+        public string GetNumber(string url)
+        {
+            System.Net.WebClient wc = new System.Net.WebClient();
+            wc.Proxy = null;
+            string result = wc.DownloadString(url);
+            string toFind = "Current outbound caller ID for extension";
+            int start = result.LastIndexOf(toFind) + toFind.Length;
+            int end = result.IndexOf("</div>", start);
+            return result.Substring(start, end - start);
+        }
+
         protected void btn_OpenChat_Click(object sender, EventArgs e)
         {
             try
@@ -195,12 +206,12 @@ namespace LX29_LixChat
                     }
                 }
                 ChatClient.DisconnectAll();
+                ChatClient.SaveChannels();
             }
             catch (Exception x)
             {
                 x.Handle("", false);
             }
-            ChatClient.SaveChannels();
 
             base.OnFormClosing(e);
             //ChatClient.Emotes.Save();
@@ -212,7 +223,6 @@ namespace LX29_LixChat
 
         //    base.OnPaint(e);
         //}
-
         protected override bool ProcessCmdKey(ref System.Windows.Forms.Message msg, Keys keyData)
         {
             if (keyData != Keys.Tab)

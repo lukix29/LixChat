@@ -10,118 +10,118 @@ using System.Windows.Forms;
 
 namespace LX29_ChatClient
 {
-    public class CustomSettings<Tclass, Tenum>
-    {
-        public bool Load(Dictionary<string, string> lines, Tclass Class)
-        {
-            if (lines.Count > 0)
-            {
-                try
-                {
-                    foreach (var li in lines)
-                    {
-                        var _Value = li.Value;
-                        var key = li.Key;
-                        var typ = Class.GetType();
-                        var prop = typ.GetProperty(key);
-                        if (prop.CanWrite)
-                        {
-                            object val = _Value;
-                            if (prop.PropertyType.BaseType.IsEquivalentTo(typeof(Enum)))
-                            {
-                                val = Enum.Parse(prop.PropertyType, _Value);
-                            }
-                            else if (prop.PropertyType.IsEquivalentTo(typeof(Rectangle)))
-                            {
-                                var rec = _Value.ParseRectangleScreenSafe();
-                                val = rec;
-                            }
-                            else
-                            {
-                                val = Convert.ChangeType(_Value, prop.PropertyType);
-                            }
-                            prop.SetValue(Class, val);
-                        }
-                    }
-                    return true;
-                }
-                catch
-                {
-                }
-            }
-            return false;
-        }
+    //public class CustomSettings<Tclass, Tenum>
+    //{
+    //    public bool Load(Dictionary<string, object> lines, Tclass Class)
+    //    {
+    //        if (lines.Count > 0)
+    //        {
+    //            try
+    //            {
+    //                foreach (var li in lines)
+    //                {
+    //                    var _Value = li.Value;
+    //                    var key = li.Key;
+    //                    var typ = Class.GetType();
+    //                    var prop = typ.GetProperty(key);
+    //                    if (prop.CanWrite)
+    //                    {
+    //                        object val = _Value;
+    //                        if (prop.PropertyType.BaseType.IsEquivalentTo(typeof(Enum)))
+    //                        {
+    //                            val = Enum.Parse(prop.PropertyType, _Value.ToString());
+    //                        }
+    //                        else if (prop.PropertyType.IsEquivalentTo(typeof(Rectangle)))
+    //                        {
+    //                            var rec = _Value.ToString().ParseRectangleScreenSafe();
+    //                            val = rec;
+    //                        }
+    //                        else
+    //                        {
+    //                            val = Convert.ChangeType(_Value, prop.PropertyType);
+    //                        }
+    //                        prop.SetValue(Class, val);
+    //                    }
+    //                }
+    //                return true;
+    //            }
+    //            catch
+    //            {
+    //            }
+    //        }
+    //        return false;
+    //    }
 
-        public string Save(Tclass Class)
-        {
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.NullValueHandling = NullValueHandling.Ignore;
-            serializer.TypeNameHandling = TypeNameHandling.Auto;
-            serializer.DefaultValueHandling = DefaultValueHandling.Ignore;
-            serializer.MissingMemberHandling = MissingMemberHandling.Ignore;
-            serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
-            var names = Enum.GetNames(typeof(Tenum));
-            StringWriter sw = new StringWriter();
-            using (JsonWriter writer = new JsonTextWriter(sw))
-            {
-                try
-                {
-                    var typ = Class.GetType();
-                    writer.WriteStartObject();
-                    foreach (var name in names)
-                    {
-                        var prop = typ.GetProperty(name);
-                        writer.WritePropertyName(name);
-                        writer.WriteValue(prop.GetValue(Class).ToString());
-                    }
-                    writer.WriteEndObject();
-                }
-                catch
-                {
-                }
-            }
-            string vari = sw.ToString();
+    //    public string Save(Tclass Class)
+    //    {
+    //        JsonSerializer serializer = new JsonSerializer();
+    //        serializer.NullValueHandling = NullValueHandling.Ignore;
+    //        serializer.TypeNameHandling = TypeNameHandling.Auto;
+    //        serializer.DefaultValueHandling = DefaultValueHandling.Ignore;
+    //        serializer.MissingMemberHandling = MissingMemberHandling.Ignore;
+    //        serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
+    //        var names = Enum.GetNames(typeof(Tenum));
+    //        StringWriter sw = new StringWriter();
+    //        using (JsonWriter writer = new JsonTextWriter(sw))
+    //        {
+    //            try
+    //            {
+    //                var typ = Class.GetType();
+    //                writer.WriteStartObject();
+    //                foreach (var name in names)
+    //                {
+    //                    var prop = typ.GetProperty(name);
+    //                    writer.WritePropertyName(name);
+    //                    writer.WriteValue(prop.GetValue(Class));
+    //                }
+    //                writer.WriteEndObject();
+    //            }
+    //            catch
+    //            {
+    //            }
+    //        }
+    //        string vari = sw.ToString();
 
-            return vari;
-        }
-    }
+    //        return vari;
+    //    }
+    //}
 
-    public class CustomSettings
-    {
-        public static List<Dictionary<string, string>> LoadList(string input)
-        {
-            try
-            {
-                var stuff = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(input);
-                return stuff;
-            }
-            catch { }
-            return null;
-        }
+    //public class CustomSettings
+    //{
+    //    public static List<Dictionary<string, string>> LoadList(string input)
+    //    {
+    //        try
+    //        {
+    //            var stuff = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(input);
+    //            return stuff;
+    //        }
+    //        catch { }
+    //        return null;
+    //    }
 
-        public static string SaveList(IEnumerable<string> list)
-        {
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.NullValueHandling = NullValueHandling.Ignore;
-            serializer.TypeNameHandling = TypeNameHandling.Auto;
-            serializer.DefaultValueHandling = DefaultValueHandling.Ignore;
-            serializer.MissingMemberHandling = MissingMemberHandling.Ignore;
-            serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
+    //    public static string SaveList(IEnumerable<string> list)
+    //    {
+    //        JsonSerializer serializer = new JsonSerializer();
+    //        serializer.NullValueHandling = NullValueHandling.Ignore;
+    //        serializer.TypeNameHandling = TypeNameHandling.Auto;
+    //        serializer.DefaultValueHandling = DefaultValueHandling.Ignore;
+    //        serializer.MissingMemberHandling = MissingMemberHandling.Ignore;
+    //        serializer.ObjectCreationHandling = ObjectCreationHandling.Auto;
 
-            StringWriter sw = new StringWriter();
-            using (JsonWriter writer = new JsonTextWriter(sw))
-            {
-                writer.WriteStartArray();
-                foreach (var item in list)
-                {
-                    writer.WriteRawValue(item);
-                }
-                writer.WriteEndArray();
-            }
-            var st = sw.ToString();
-            return st;
-        }
-    }
+    //        StringWriter sw = new StringWriter();
+    //        using (JsonWriter writer = new JsonTextWriter(sw))
+    //        {
+    //            writer.WriteStartArray();
+    //            foreach (var item in list)
+    //            {
+    //                writer.WriteRawValue(item);
+    //            }
+    //            writer.WriteEndArray();
+    //        }
+    //        var st = sw.ToString();
+    //        return st;
+    //    }
+    //}
 
     public class SettingClasses
     {
@@ -245,7 +245,7 @@ namespace LX29_ChatClient
         private static double _BadgePadding = 2;
         private static double _BadgeSizeFac = 0.9;
         private static double _EmotePadding = 2;
-        private static double _EmoteSize = (int)Emotes.EmoteImageSize.Medium;
+        private static double _EmoteSize = (int)Emotes.EmoteImageSize.Large;
         private static double _EmoteSizeFac = 1.5;
         private static bool _HwEmoteDrawing = false;
         private static bool _ShowTimeStamp = true;

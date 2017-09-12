@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace LX29_ChatClient.Channels
 {
@@ -29,23 +30,22 @@ namespace LX29_ChatClient.Channels
     //Add Control for Settings
     // fg;
 
-    public class ChannelInfo : CustomSettings<ChannelInfo, ChannelSettings>, IDisposable, IEqualityComparer<ChannelInfo>, IEquatable<ChannelInfo>
+    public class ChannelInfo //: CustomSettings<ChannelInfo, ChannelSettings>, IDisposable, IEqualityComparer<ChannelInfo>, IEquatable<ChannelInfo>
     {
+        [JsonIgnore]
         public readonly bool IsFixed = false;
+
+        [JsonIgnore]
         public readonly object LockObject = new object();
+
+        [JsonIgnore]
         public readonly MPV_Wrapper MPV;
+
         private static int fetchCnt = 0;
         private bool _AutoLoginChat = false;
         private Bitmap[] _previewImages = new Bitmap[2];
         private FormChat chatForm = null;
 
-        //public void DownloadBitmap()
-        //{
-        //    if (_previewImages[(IsOnline ? 1 : 0)] == null)
-        //    {
-        //        _downloadBitmap(IsOnline);
-        //    }
-        //}
         private DateTime lastCall = DateTime.Now;
 
         //private Task dwnldr = new Task(() => { });
@@ -56,6 +56,11 @@ namespace LX29_ChatClient.Channels
         private VideoInfoCollection streamInfos = new VideoInfoCollection();
 
         private SubResult subInfo = null;
+
+        [JsonConstructor]
+        public ChannelInfo()
+        {
+        }
 
         public ChannelInfo(ChannelInfo info, bool Fixed = false, bool AutoChatLogin = false)
             : this(info.result, Fixed, AutoChatLogin)
@@ -72,6 +77,9 @@ namespace LX29_ChatClient.Channels
             _AutoLoginChat = AutoChatLogin;
 
             ApiResult = result;
+
+            ID = result.GetValue<int>(ApiInfo._id);
+            Name = result.GetValue<string>(ApiInfo.name);
 
             Modes = new ChannelModes();
 
@@ -92,10 +100,7 @@ namespace LX29_ChatClient.Channels
             //AutoActions = new Actions.AutoActions();
         }
 
-        //public string OnlineTimeString
-        //{
-        //    get { return OnlineTime.ToString((OnlineTime.TotalDays >= 1.0) ? @"%d'd 'hh':'mm':'ss" : @"hh\:mm\:ss"); }
-        //}
+        [JsonIgnore]
         public ApiResult ApiResult
         {
             get { return result; }
@@ -107,11 +112,6 @@ namespace LX29_ChatClient.Channels
             }
         }
 
-        //public Actions.AutoActions AutoActions
-        //{
-        //    get;
-        //    private set;
-        //}
         public bool AutoLoginChat
         {
             get { return _AutoLoginChat; }// { return Settings.GetValue<bool>(ChannelSettings.AutoLoginChat); }
@@ -124,6 +124,7 @@ namespace LX29_ChatClient.Channels
             }// { Settings.SetValue(ChannelSettings.AutoLoginChat, value); }
         }
 
+        [JsonIgnore]
         public FormChat ChatForm
         {
             get { return chatForm; }
@@ -135,16 +136,19 @@ namespace LX29_ChatClient.Channels
             set;
         }
 
+        [JsonIgnore]
         public string DisplayName
         {
             get { return GetValue<string>(ApiInfo.display_name); }
         }
 
+        [JsonIgnore]
         public bool Followed
         {
             get { return result.Followed; }
         }
 
+        [JsonIgnore]
         public bool HasSlowMode
         {
             get
@@ -158,21 +162,25 @@ namespace LX29_ChatClient.Channels
             }
         }
 
-        public string ID
+        public int ID
         {
-            get { return GetValue<string>(ApiInfo._id); }
+            get;// { return GetValue<int>(ApiInfo._id); }
+            set;
         }
 
+        [JsonIgnore]
         public string Infos
         {
             get { return result.Infos; }
         }
 
+        [JsonIgnore]
         public bool IsChatConnected
         {
             get { return ChatClient.HasJoined(Name); }
         }
 
+        [JsonIgnore]
         public bool IsChatOpen
         {
             get { return chatForm != null; }
@@ -184,17 +192,20 @@ namespace LX29_ChatClient.Channels
             set;// { Settings.SetValue(ChannelSettings.IsFavorited, value); }
         }
 
+        [JsonIgnore]
         public bool IsOnline
         {
             get { return ApiResult.IsOnline; }
         }
 
+        [JsonIgnore]
         public bool IsViewing
         {
             get { return MPV.IsRunning; }
             //private set;
         }
 
+        [JsonIgnore]
         public DateTime LastSendMessageTime
         {
             get;
@@ -207,6 +218,7 @@ namespace LX29_ChatClient.Channels
             set;// { Settings.SetValue(ChannelSettings.LogChat, value); }
         }
 
+        [JsonIgnore]
         public ChannelModes Modes
         {
             get;
@@ -215,7 +227,8 @@ namespace LX29_ChatClient.Channels
 
         public string Name
         {
-            get { return GetValue<string>(ApiInfo.name); }
+            get;
+            private set;
         }
 
         public Rectangle PlayerPosition
@@ -224,6 +237,7 @@ namespace LX29_ChatClient.Channels
             set;
         }
 
+        [JsonIgnore]
         public Bitmap PreviewImage
         {
             get
@@ -239,17 +253,20 @@ namespace LX29_ChatClient.Channels
             }
         }
 
+        [JsonIgnore]
         public int SlowMode
         {
             get;
             set;
         }
 
+        [JsonIgnore]
         public StreamType StreamType
         {
             get { return result.GetValue<StreamType>(ApiInfo.stream_type); }
         }
 
+        [JsonIgnore]
         public VideoInfoCollection StreamURLS
         {
             get
@@ -266,6 +283,7 @@ namespace LX29_ChatClient.Channels
             }
         }
 
+        [JsonIgnore]
         public SubResult SubInfo
         {
             get
@@ -281,11 +299,6 @@ namespace LX29_ChatClient.Channels
             }
         }
 
-        //public ChannelSettings<ChannelSettings> Settings
-        //{
-        //    get;
-        //    set;
-        //}
         public static Dictionary<string, List<string>> ParseSavedChannels(IEnumerable<string> input)
         {
             try
@@ -421,7 +434,7 @@ namespace LX29_ChatClient.Channels
 
         public int GetHashCode(ChannelInfo info)
         {
-            return int.Parse(info.ID);
+            return info.ID;
         }
 
         public T GetValue<T>(ApiInfo type)
@@ -429,11 +442,16 @@ namespace LX29_ChatClient.Channels
             return result.GetValue<T>(type);
         }
 
-        public void Load(Dictionary<string, string> list)
+        public void Load(ChannelInfo basis)
         {
             if (!IsFixed)
             {
-                Load(list, this);
+                IsFavorited = basis.IsFavorited;
+                AutoLoginChat = basis.AutoLoginChat;
+                LogChat = basis.LogChat;
+                ChatPosition = basis.ChatPosition;
+                PlayerPosition = basis.PlayerPosition;
+                // Load(list, this);
             }
         }
 
@@ -442,6 +460,11 @@ namespace LX29_ChatClient.Channels
             result.ResetStreamStatus();
             streamInfos = new VideoInfoCollection();
         }
+
+        //public override string ToString()
+        //{
+        //    return Newtonsoft.Json.JsonConvert.SerializeObject(this);// Save(this);
+        //}
 
         public void ShowChat()
         {
@@ -466,6 +489,7 @@ namespace LX29_ChatClient.Channels
 
         private bool isStartingStream = false;
 
+        [JsonIgnore]
         public string[] MPV_Stats
         {
             get
@@ -629,11 +653,6 @@ namespace LX29_ChatClient.Channels
 
         #endregion mpv
 
-        public override string ToString()
-        {
-            return Save(this);
-        }
-
         private void chatForm_FormClosed(object sender, System.Windows.Forms.FormClosedEventArgs e)
         {
             chatForm.Dispose();
@@ -658,16 +677,27 @@ namespace LX29_ChatClient.Channels
         }
     }
 
+    //public interface ChannelInfoBase
+    //{
+    //    public bool AutoLoginChat { get; set; }
+    //    public Rectangle ChatPosition { get; set; }
+    //    public int ID { get; set; }
+    //    public bool IsFavorited { get; set; }
+    //    public bool LogChat { get; set; }
+    //    public string Name { get; set; }
+    //    public Rectangle PlayerPosition { get; set; }
+    //}
+
     public class ChannelModes
     {
-        private Dictionary<msg_ids, object> modes;
+        private Dictionary<channel_mode, object> modes;
 
         public ChannelModes()
         {
-            modes = new Dictionary<msg_ids, object>();
+            modes = new Dictionary<channel_mode, object>();
         }
 
-        public T GetMode<T>(msg_ids id)
+        public T GetMode<T>(channel_mode id)
         {
             try
             {
@@ -680,19 +710,7 @@ namespace LX29_ChatClient.Channels
             return default(T);
         }
 
-        public void setMode(msg_ids id, object value)
-        {
-            if (modes.ContainsKey(id))
-            {
-                modes[id] = value;
-            }
-            else
-            {
-                modes.Add(id, value);
-            }
-        }
-
-        public void SetMode(msg_ids id, string value)
+        public void SetMode(channel_mode id, string value)
         {
             bool b = false;
             int i = 0;
@@ -707,6 +725,18 @@ namespace LX29_ChatClient.Channels
             else
             {
                 setMode(id, value);
+            }
+        }
+
+        private void setMode(channel_mode id, object value)
+        {
+            if (modes.ContainsKey(id))
+            {
+                modes[id] = value;
+            }
+            else
+            {
+                modes.Add(id, value);
             }
         }
     }

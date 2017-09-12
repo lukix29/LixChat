@@ -481,7 +481,7 @@ namespace LX29_ChatClient.Forms
                     {
                         if (!Renderer.gifVisible)
                         {
-                            wait = 40;
+                            wait = 100;
                         }
                         if (Renderer.Render())
                         {

@@ -9,7 +9,7 @@ namespace LX29_ChatClient.Addons
         Message,
     }
 
-    public class QuickText : CustomSettings<QuickText, QuickTextType>, IEquatable<QuickText>
+    public class QuickText //: CustomSettings<QuickText, QuickTextType>, IEquatable<QuickText>
     {
         public QuickText(string channel)
         {
@@ -48,7 +48,7 @@ namespace LX29_ChatClient.Addons
 
         public string Save()
         {
-            return base.Save(this);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
 
         public override string ToString()

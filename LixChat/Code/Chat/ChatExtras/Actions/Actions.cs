@@ -148,19 +148,29 @@ namespace LX29_ChatClient.Addons
         //}
         public void Load()
         {
-            string path = Settings.dataDir + "AutoActions.txt";
-            if (System.IO.File.Exists(path))
+            try
             {
-                chatactions.Clear();
-                var sa = System.IO.File.ReadAllText(path);
-                var di = CustomSettings.LoadList(sa);
-                foreach (var val in di)
+                string path = Settings.dataDir + "AutoActions.txt";
+                if (System.IO.File.Exists(path))
                 {
-                    string Channel = val["Channel"];
-                    ChatAction action = new ChatAction();
-                    action.Load(val);
-                    chatactions.Add(action);
+                    chatactions.Clear();
+                    string input = System.IO.File.ReadAllText(path);
+                    if (!input.Contains("\r\n"))
+                    {
+                        input = input.Replace("},{", "}\r\n{").Replace("}]", "}").Replace("[{", "{");
+                    }
+                    var sa = input.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var val in sa)
+                    {
+                        ChatAction action = Newtonsoft.Json.JsonConvert.DeserializeObject<ChatAction>(val);
+                        chatactions.Add(action);
+                    }
                 }
+            }
+            catch
+            {
+                File.Copy(Settings.dataDir + "AutoActions.txt", Settings.dataDir + "AutoActions.bak", true);
+                File.Delete(Settings.dataDir + "AutoActions.txt");
             }
             Loaded = true;
         }
@@ -191,7 +201,13 @@ namespace LX29_ChatClient.Addons
                 chatactions.Clear();
                 chatactions.AddRange(actions.Select(t => (ChatAction)t.Clone()));
                 string path = Settings.dataDir + "AutoActions.txt";
-                System.IO.File.WriteAllText(path, GetChatActions());
+                using (StreamWriter sw = new StreamWriter(path, false))
+                {
+                    foreach (var act in actions)
+                    {
+                        sw.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(act));
+                    }
+                }
             }
             catch (Exception x)
             {
@@ -203,29 +219,9 @@ namespace LX29_ChatClient.Addons
                 }
             }
         }
-
-        //public void SetChatAction(int idx, ChatAction action)
-        //{
-        //    if (idx >= 0 && idx < chatactions.Count)
-        //    {
-        //        chatactions[idx] = action;
-        //    }
-        //}
-
-        //public IEnumerable<ChatAction> Where(Func<ChatAction, bool> predicate)
-        //{
-        //    return chatactions.Where(predicate);
-        //}
-
-        private string GetChatActions()
-        {
-            var list = chatactions.Select(t => t.Save());
-            var s = CustomSettings.SaveList(list);
-            return s;
-        }
     }
 
-    public class ChatAction : CustomSettings<ChatAction, ChatActionType>, IEquatable<ChatAction>, ICloneable
+    public class ChatAction //: CustomSettings<ChatAction, ChatActionType>, IEquatable<ChatAction>, ICloneable
     {
         private DateTime lastAction_TMi = DateTime.MinValue;
 
@@ -288,6 +284,7 @@ namespace LX29_ChatClient.Addons
             set;
         }
 
+        [Newtonsoft.Json.JsonIgnore]
         public bool IsCooldown
         {
             get
@@ -300,6 +297,7 @@ namespace LX29_ChatClient.Addons
             }
         }
 
+        [Newtonsoft.Json.JsonIgnore]
         public bool IsEmpty
         {
             get
@@ -424,15 +422,15 @@ namespace LX29_ChatClient.Addons
             return sout;
         }
 
-        public bool Load(Dictionary<string, string> values)
-        {
-            return base.Load(values, this);
-        }
+        //public bool Load(Dictionary<string, string> values)
+        //{
+        //    return base.Load(values, this);
+        //}
 
-        public string Save()
-        {
-            return base.Save(this);
-        }
+        //public string Save()
+        //{
+        //    return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        //}
 
         public override string ToString()
         {

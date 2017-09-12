@@ -82,41 +82,41 @@ namespace LX29_ChatClient
 
         private const string TO = "@ban-duration=";
 
-        private static msg_ids ParseMsgID(Dictionary<irc_params, string> parameters, string channelName, string raw)
-        {
-            if (parameters.ContainsKey(irc_params.msg_id))
-            {
-                msg_ids id = msg_ids.NONE;
-                if (Enum.TryParse<msg_ids>(parameters[irc_params.msg_id], out id))
-                {
-                    if (Enum.IsDefined(typeof(channel_mode), (int)id))
-                    {
-                        channel_mode mode = (channel_mode)id;
-                    }
-                    var channel = channels[channelName];
-                    channel.Modes.SetMode(id, raw);
-                    switch (id)
-                    {
-                        case msg_ids.slow_on:
-                            {
-                                var time = raw.GetBefore(" seconds", " ");
-                                int i = 0;
-                                if (int.TryParse(time, out i))
-                                {
-                                    channel.SlowMode = i;
-                                }
-                            }
-                            break;
+        //private static msg_ids ParseMsgID(Dictionary<irc_params, string> parameters, string channelName, string raw)
+        //{
+        //    if (parameters.ContainsKey(irc_params.msg_id))
+        //    {
+        //        msg_ids id = msg_ids.NONE;
+        //        if (Enum.TryParse<msg_ids>(parameters[irc_params.msg_id], out id))
+        //        {
+        //            if (Enum.IsDefined(typeof(channel_mode), (int)id))
+        //            {
+        //                channel_mode mode = (channel_mode)id;
+        //            }
+        //            var channel = channels[channelName];
+        //            channel.Modes.SetMode(id, raw);
+        //            switch (id)
+        //            {
+        //                case msg_ids.slow_on:
+        //                    {
+        //                        var time = raw.GetBefore(" seconds", " ");
+        //                        int i = 0;
+        //                        if (int.TryParse(time, out i))
+        //                        {
+        //                            channel.SlowMode = i;
+        //                        }
+        //                    }
+        //                    break;
 
-                        case msg_ids.slow_off:
-                            channel.SlowMode = 0;
-                            break;
-                    }
-                    return id;
-                }
-            }
-            return msg_ids.NONE;
-        }
+        //                case msg_ids.slow_off:
+        //                    channel.SlowMode = 0;
+        //                    break;
+        //            }
+        //            return id;
+        //        }
+        //    }
+        //    return msg_ids.NONE;
+        //}
 
         private static Dictionary<irc_params, string> ParseParams(string raw, string spliType)
         {
@@ -168,7 +168,7 @@ namespace LX29_ChatClient
                     string channelName = raw.GetBetween(spliType + " #", " :");
                     Dictionary<irc_params, string> parameters = ParseParams(raw, spliType);
 
-                    msg_ids msgid = ParseMsgID(parameters, channelName, raw);
+                    //msg_ids msgid = ParseMsgID(parameters, channelName, raw);
 
                     TimeOutResult tor = TimeOutResult.Empty;
                     switch (spliType)
@@ -842,7 +842,7 @@ namespace LX29_ChatClient
                         ChatMessage m = new ChatMessage(Message, me, Channel, true);
                         if (!commands.Any(t => Message.ToLower().StartsWith(t)))
                         {
-                            messages.Add(Channel, m, true);
+                            messages.Add(m, true);
                         }
                         LogMessage(Channel, Message);
 
@@ -851,7 +851,7 @@ namespace LX29_ChatClient
                             me = ChatUser.Emtpy;
                             Message = "Message was NOT sent! Automatic Global-Ban-Protection.";
                             m = new ChatMessage(Message, me, Channel, false);
-                            messages.Add(Channel, m, false);
+                            messages.Add(m, false);
                         }
                         return m;
                     }
@@ -969,7 +969,7 @@ namespace LX29_ChatClient
 
                     users.Append(Channel);
 
-                    messages.AddChannel(Channel);
+                    //messages.AddChannel(Channel);
                 }
             }
             catch { }
