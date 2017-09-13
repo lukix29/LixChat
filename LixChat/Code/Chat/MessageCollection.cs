@@ -235,7 +235,7 @@ namespace LX29_ChatClient
             {
                 try
                 {
-                    int i = null;
+                    //int i = null;
                     //TODO
                     //MEssages flickering when 2chats are open
                     //Fix Cinema Mode view
