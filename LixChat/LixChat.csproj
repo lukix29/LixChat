@@ -353,6 +353,7 @@
     <None Include="Resources\1463551454_16.ico" />
     <None Include="Resources\temp.jpg" />
     <None Include="Resources\ActionHelp.txt" />
+    <None Include="Resources\Whisper.db" />
     <None Include="Resources\whisper_alert.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

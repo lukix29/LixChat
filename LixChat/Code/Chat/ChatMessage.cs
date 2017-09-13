@@ -239,7 +239,7 @@ namespace LX29_ChatClient
             Message = msg.Message;
             Channel = msg.Channel;
             Name = msg.Name;
-            Time = msg.SendTime;
+            Time = msg.SendTime.Ticks;
             Timeout = !msg.Timeout.IsEmpty;
             Index = index;
             Types = msg.Types.Select(t => (byte)t).ToArray();
@@ -273,8 +273,8 @@ namespace LX29_ChatClient
         [Column(Name = "Name")]
         public string Name { get; set; }
 
-        [Column(Name = "Time", DbType = "DateTime")]
-        public DateTime Time { get; set; }
+        [Column(Name = "Time")]
+        public long Time { get; set; }
 
         [Column(Name = "Timeout")]
         public bool Timeout { get; set; }
@@ -358,7 +358,7 @@ namespace LX29_ChatClient
             Name = msg.Name;
             Message = msg.Message;
             User = (ChatClient.Users != null) ? ChatClient.Users.Get(Name, Channel, true) : new ChatUser(msg.Name, msg.Channel);
-            SendTime = msg.Time;
+            SendTime = new DateTime(msg.Time);
 
             //Message = msg.Message;
             //Channel = ChatClient.Channels[msg.Channel].ID;

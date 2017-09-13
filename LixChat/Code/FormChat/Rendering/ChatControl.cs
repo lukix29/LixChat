@@ -29,6 +29,8 @@ namespace LX29_ChatClient.Forms
 
         //private int yAcc = 0;
 
+        private double wait = 30;
+
         public ChatView()
         {
             try
@@ -476,12 +478,15 @@ namespace LX29_ChatClient.Forms
 
                 try
                 {
-                    double wait = 30;
                     if (!Pause)
                     {
                         if (!Renderer.gifVisible)
                         {
                             wait = 100;
+                        }
+                        else
+                        {
+                            wait = 30;
                         }
                         if (Renderer.Render())
                         {

@@ -127,7 +127,7 @@ namespace LX29_ChatClient
     {
         public static readonly SettingClasses[] ChatBasic = new SettingClasses[]
         {
-            new SettingClasses("_ChatHistory", "Chat History Amount", 128.0, Int16.MaxValue * 1.0, 1.0),
+            new SettingClasses("_ChatHistory", "Chat History Amount", 32.0, 8192.0, 1.0),
             new SettingClasses("_ShowTimeoutMessages", "Show Timeouts/Bans"),
             new SettingClasses("_ShowTimeStamp", "Show Time Stamp"),
             new SettingClasses("_AlternateBG", "Alternate Message\r\nBackground"),

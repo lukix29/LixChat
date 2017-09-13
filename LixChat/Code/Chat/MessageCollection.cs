@@ -223,40 +223,85 @@ namespace LX29_ChatClient
         public class MessageBuffer : IDisposable
         {
             //private System.Threading.ReaderWriterLockSlim
-            private static readonly object _readerWriterLock = new object();//new System.Threading.ReaderWriterLockSlim(System.Threading.LockRecursionPolicy.SupportsRecursion);
+            //private static readonly object _readerWriterLock = new object();//new System.Threading.ReaderWriterLockSlim(System.Threading.LockRecursionPolicy.SupportsRecursion);
 
             private bool isLoading = true;
             private Dictionary<string, Dictionary<int, ChatMessage>> messages = new Dictionary<string, Dictionary<int, ChatMessage>>();//new List<ChatMessage>();
-            private DataContext sql;
+
+            //private SQLiteConnection sql;
+            private SQL_Handler<CacheMessage> sql;
 
             public MessageBuffer()
             {
                 try
                 {
+                    int i = null;
+                    //TODO
+                    //MEssages flickering when 2chats are open
+                    //Fix Cinema Mode view
+                    //Add top-chat-controls to chatpanel????????????
+
                     AllCount = new Dictionary<string, int>();
-                    string path = Settings.caonfigBaseDir + "Database.db";
+                    string path = Settings.caonfigBaseDir + "Cache.db";
+                    //Load Previous Messages
                     if (!File.Exists(path))
                     {
                         File.WriteAllBytes(path, LX29_LixChat.Properties.Resources.Cache);
                     }
-                    sql = new DataContext(new SQLiteConnection(@"Data Source=" + path));
-                    //Load Previous Messages
-                    var tbl = sql.GetTable<CacheMessage>();
-                    foreach (var t in tbl)
-                    {
-                        if (!messages.ContainsKey(t.Channel))
+                    sql = new SQL_Handler<CacheMessage>(path, (tbl, msg) =>
                         {
-                            messages.Add(t.Channel, new Dictionary<int, ChatMessage>());
-                            AllCount.Add(t.Channel, 0);
+                            try
+                            {
+                                var m = tbl.Where(t => t.ID.Equals(msg.ID));//.ToList().FirstOrDefault();
+                                var c = m.Count();
+                                if (c > 0)
+                                {
+                                    var mm = m.ToList().First();
+                                    mm.From(msg);
+                                    return true;
+                                }
+                            }
+                            catch
+                            {
+                            }
+                            return false;
+                        });// SQLiteConnection(@"Data Source=" + path);
+
+                    System.Threading.Tasks.Task.Run(() =>
+                    {
+                        try
+                        {
+                            using (var context = sql.GetContext())
+                            {
+                                var tbl = context.GetTable<CacheMessage>();
+                                foreach (var t in tbl)
+                                {
+                                    if (!messages.ContainsKey(t.Channel))
+                                    {
+                                        messages.Add(t.Channel, new Dictionary<int, ChatMessage>());
+                                        AllCount.Add(t.Channel, 0);
+                                    }
+                                    int cnt = AllCount[t.Channel];
+                                    var msg = new ChatMessage(t);
+                                    messages[t.Channel].Add(cnt, msg);
+
+                                    AllCount[t.Channel] = (cnt + 1 > (Int16.MaxValue / 2)) ? 0 : cnt + 1;
+
+                                    if (OnMessageReceived != null)
+                                        OnMessageReceived(msg);
+                                }
+                            }
                         }
-                        messages[t.Channel].Add(AllCount[t.Channel], new ChatMessage(t));
-                        AllCount[t.Channel]++;
-                    }
+                        catch
+                        {
+                        }
+                        isLoading = false;
+                    });
                 }
-                catch
+                catch (Exception x)
                 {
+                    x.Handle("", true);
                 }
-                isLoading = false;
             }
 
             public Dictionary<string, int> AllCount
@@ -299,7 +344,9 @@ namespace LX29_ChatClient
                     {
                         messages[channel][cnt] = msg;
                     }
-                    AllCount[channel] = cnt + 1;
+                    //Int16.MaxValue / 2 = 16383
+                    AllCount[channel] = (cnt + 1 > (Int16.MaxValue / 2)) ? 0 : cnt + 1;
+
                     while (messages.Count > Settings.ChatHistory)
                     {
                         int min = messages[channel].Keys.Min();
@@ -308,15 +355,8 @@ namespace LX29_ChatClient
 
                     if (enableCaching)
                     {
-                        System.Threading.Tasks.Task.Run(() =>
-                            {
-                                while (isLoading) System.Threading.Thread.Sleep(100);
-
-                                RunInsertSQL(new CacheMessage(msg, cnt));
-                            });
-                        //var msg = sql.GetTable<CacheMessage>();
-                        //msg.InsertOnSubmit(new CacheMessage(message, cnt));
-                        //sql.SubmitChanges(ConflictMode.FailOnFirstConflict);
+                        while (isLoading) System.Threading.Thread.Sleep(100);
+                        sql.Add(new CacheMessage(msg, cnt));
                     }
                 }
                 catch
@@ -343,8 +383,6 @@ namespace LX29_ChatClient
             {
                 try
                 {
-                    sql.Connection.Close();
-                    sql.Connection.Dispose();
                     sql.Dispose();
                 }
                 catch
@@ -352,66 +390,33 @@ namespace LX29_ChatClient
                 }
             }
 
-            public List<ChatMessage> GetMessages(string channel, int start, int end = -1, Func<ChatMessage, bool> a = null)
+            public List<ChatMessage> GetMessages(string channel, int start, int end = -1)//, Func<ChatMessage, bool> a = null)
             {
                 try
                 {
+                    int allmax = 32;
                     while (isLoading) System.Threading.Thread.Sleep(100);
                     int allcnt = this.AllCount[channel];
                     if (messages.Count <= 0) return new List<ChatMessage>();
-                    if (start < 0) start = Math.Max(0, allcnt - 256);
-                    if (end < 0) end = Math.Min(allcnt, Math.Max(allcnt, start + 256));
-                    Dictionary<int, ChatMessage> list = new Dictionary<int, ChatMessage>();
+                    if (start < 0) start = Math.Max(0, allcnt - allmax);
+                    if (end < 0) end = Math.Min(allcnt, Math.Max(allcnt, start + allmax));
 
-                    //int id = ChatClient.Channels[channel].ID;
-
-                    //var sqlTable = sql.GetTable<CacheMessage>();
-                    for (int i = start; i < end; i++)
+                    var list = messages[channel].Where(t => t.Key >= start && t.Key < end).Select(t => new { Index = t.Key, Msg = t.Value });
+                    if (enableCaching && list.Count() < (end - start))
                     {
-                        if (messages[channel].ContainsKey(i))
+                        var sqlMsges = sql.Where(t => (t.Channel.Equals(channel) && (t.Index >= start && t.Index < end)));
+                        if (sqlMsges.Count > 0)
                         {
-                            var msg = messages[channel][i];
-                            if (a != null)
-                            {
-                                if (a.Invoke(msg))
-                                    list.Add(i, msg);
-                            }
-                            else
-                            {
-                                list.Add(i, msg);
-                            }
+                            list = list.Union(sqlMsges.Select(t => new { Index = t.Index, Msg = new ChatMessage(t) }));
                         }
-                        else if (enableCaching)
-                        {
-                            //var marr = sqlTable.Where(t => (t.Channel == id));
-                            //if (marr.Count() > 0)
-                            //{
-                            // var m = marr.ToList().FirstOrDefault(t => (t.Index == i));
-                            var msg = RunSelectSQL(channel, i);// new ChatMessage(m);
-
-                            if (msg == null)
-                                continue;
-
-                            if (a != null)
-                            {
-                                if (a.Invoke(msg))
-                                    list.Add(i, msg);
-                            }
-                            else
-                            {
-                                list.Add(i, msg);
-                            }
-                            // }
-                        }
+                        messages[channel] = list.ToDictionary(i => i.Index, m => m.Msg, EqualityComparer<int>.Default);
                     }
-                    if (enableCaching) messages[channel] = list;
-                    return list.Values.ToList();
+                    return list.Select(t => t.Msg).ToList();
                 }
                 catch
                 {
                 }
                 return new List<ChatMessage>();
-                //Settings.ChatHistory
             }
 
             public IEnumerable<ChatMessage> Where(string channel, Func<ChatMessage, bool> a)
@@ -419,68 +424,74 @@ namespace LX29_ChatClient
                 return messages[channel].Values.Where(a);
             }
 
-            private void RunInsertSQL(CacheMessage msg, int cnt = 0)
-            {
-                try
-                {
-                    lock (_readerWriterLock)
-                    {
-                        var tbl = sql.GetTable<CacheMessage>();
+            //private void RunInsertSQL(CacheMessage msg, int cnt = 0)
+            //{
+            //    try
+            //    {
+            //        //lock (_readerWriterLock)
+            //        //{
+            //        sql.Add(msg);
+            //            //using (DataContext dc = new DataContext(sql))
+            //            //{
+            //            //    var tbl = dc.GetTable<CacheMessage>();
 
-                        var m = tbl.Where(t => t.ID.Equals(msg.ID)).ToList().FirstOrDefault();
-                        if (m != null)
-                        {
-                            m.From(msg);
-                        }
-                        else
-                        {
-                            tbl.InsertOnSubmit(msg);
-                        }
-                        sql.SubmitChanges(ConflictMode.FailOnFirstConflict);
-                    }
-                }
-                catch
-                {
-                    System.Threading.Thread.Sleep(10);
-                    if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
-                    RunInsertSQL(msg, cnt + 1);
-                }
+            //            //    var m = tbl.Where(t => t.ID.Equals(msg.ID));//.ToList().FirstOrDefault();
+            //            //    var c = m.Count();
+            //            //    if (c > 0)
+            //            //    {
+            //            //        m.ElementAt(0).From(msg);
+            //            //    }
+            //            //    else
+            //            //    {
+            //            //        tbl.InsertOnSubmit(msg);
+            //            //    }
+            //            //    dc.SubmitChanges(ConflictMode.FailOnFirstConflict);
+            //            //}
+            //      //  }
+            //    }
+            //    catch
+            //    {
+            //        System.Threading.Thread.Sleep(10);
+            //        if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
+            //        RunInsertSQL(msg, cnt + 1);
+            //    }
 
-                //if (isbreaked)
-                //{
-                //    System.Threading.Thread.Sleep(10);
-                //    if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
-                //    RunInsertSQL(msg, cnt + 1);
-                //}
-            }
+            //    //if (isbreaked)
+            //    //{
+            //    //    System.Threading.Thread.Sleep(10);
+            //    //    if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
+            //    //    RunInsertSQL(msg, cnt + 1);
+            //    //}
+            //}
 
-            private ChatMessage RunSelectSQL(string channel, int index)
-            {
-                ChatMessage m = null;
-                try
-                {
-                    lock (_readerWriterLock)
-                    {
-                        //Function to acess database
-                        var sqlTable = sql.GetTable<CacheMessage>();
-                        var marr = sqlTable.Where(t => t.Channel.Equals(channel)).ToList();
-                        if (marr.Count > 0)
-                        {
-                            var msg = marr.FirstOrDefault(t => (t.Index == index));
-                            if (msg != null)
-                            {
-                                //_readerWriterLock.ExitReadLock();
-                                m = new ChatMessage(msg);
-                            }
-                            //_readerWriterLock.ExitReadLock();
-                        }
-                    }
-                }
-                catch
-                {
-                }
-                return m;
-            }
+            //private ChatMessage RunSelectSQL(string channel, int index)
+            //{
+            //    ChatMessage m = null;
+            //    try
+            //    {
+            //        ////Function to acess database
+            //        //using (DataContext dc = new DataContext(sql))
+            //        //{
+            //        //    var sqlTable = dc.GetTable<CacheMessage>();
+            //        //    var marr = sqlTable.Where(t => t.Channel.Equals(channel)).ToList();
+
+            //        //    if (marr.Count > 0)
+            //        //    {
+            //        //        var msg = marr.FirstOrDefault(t => (t.Index == index));
+            //        //        if (msg != null)
+            //        //        {
+            //        //            //_readerWriterLock.ExitReadLock();
+            //        //            m = new ChatMessage(msg);
+            //        //        }
+            //        //        //_readerWriterLock.ExitReadLock();
+            //        //    }
+            //        //}
+            //    }
+            //    catch
+            //    {
+            //    }
+            //    return m;
+            //}
 
             //public List<ChatMessage> Where(Func<ChatMessage, bool> a)//, int start)
             //{
@@ -490,21 +501,13 @@ namespace LX29_ChatClient
 
         public class MessageCollection // : IDictionary<string, Dictionary<string, ChatUser>>
         {
-            //private JsonSerializer jss = new JsonSerializer()
-            //            {
-            //                DefaultValueHandling = DefaultValueHandling.Ignore,
-            //                ObjectCreationHandling = ObjectCreationHandling.Reuse,
-            //                MissingMemberHandling = MissingMemberHandling.Ignore
-            //            };
-
-            //count bytes received in IRC-client
-
-            private MessageBuffer messages = new MessageBuffer();//new Dictionary<string, List<ChatMessage>>();
+            private MessageBuffer messages;//new Dictionary<string, List<ChatMessage>>();
 
             private Dictionary<string, List<ChatMessage>> whisper = new Dictionary<string, List<ChatMessage>>();
 
             public MessageCollection()
             {
+                messages = new MessageBuffer();
                 Notifications.Load();
             }
 
@@ -549,8 +552,6 @@ namespace LX29_ChatClient
                         if (msg.IsType(MsgType.Whisper))
                         {
                             AddWhisper(channelName, msg);
-
-                            Notifications.Whisper(channelName);
                         }
                         else
                         {
@@ -633,6 +634,7 @@ namespace LX29_ChatClient
 
                     if (!msg.Name.Equals(ChatClient.SelfUserName))
                     {
+                        Notifications.Whisper(name);
                         if (OnWhisperReceived != null)
                             OnWhisperReceived(msg);
                     }
@@ -646,6 +648,7 @@ namespace LX29_ChatClient
                         whisper[name].Add(msg);
                         if (!msg.Name.Equals(ChatClient.SelfUserName))
                         {
+                            Notifications.Whisper(name);
                             if (OnWhisperReceived != null)
                                 OnWhisperReceived(msg);
                         }
@@ -880,6 +883,177 @@ namespace LX29_ChatClient
                 public UInt32 dwFlags;
                 public UInt32 uCount;
                 public UInt32 dwTimeout;
+            }
+        }
+
+        public class SQL_Handler<T> where T : class
+        {
+            private static readonly object _readerWriterLock = new object();
+            private List<T> buffer = new List<T>();
+            private Func<Table<T>, T, bool> insertComparer;
+            private SQLiteConnection sql;
+            private LXTimer timer;
+
+            public SQL_Handler(string path, Func<Table<T>, T, bool> comparer)
+            {
+                insertComparer = comparer;
+                //string path = Settings.caonfigBaseDir + databaseFile;
+                sql = new SQLiteConnection(@"Data Source=" + path);
+                timer = new LXTimer(new Action<LXTimer>(bufferWrite), 1000, 1000);
+            }
+
+            public void Add(T item)
+            {
+                buffer.Add(item);
+            }
+
+            public void Dispose()
+            {
+                try
+                {
+                    timer.Change(-1, -1);
+                    sql.Close();
+                    sql.Dispose();
+                }
+                catch
+                {
+                }
+            }
+
+            public DataContext GetContext()
+            {
+                return new DataContext(sql);
+            }
+
+            public List<T> Where(Func<T, bool> select)
+            {
+                try
+                {
+                    List<T> list = new List<T>();
+                    lock (_readerWriterLock)
+                    {
+                        using (DataContext dc = new DataContext(sql))
+                        {
+                            var sqlTable = dc.GetTable<T>();
+                            list = sqlTable.Where(select).ToList();
+                        }
+                    }
+                    return list;
+                }
+                catch
+                {
+                }
+                return null;
+            }
+
+            private void bufferWrite(LXTimer t)
+            {
+                t.Change(-1, 0);
+                try
+                {
+                    int cnt = buffer.Count;
+                    if (cnt > 0)
+                    {
+                        using (DataContext dc = new DataContext(sql))
+                        {
+                            var tbl = dc.GetTable<T>();
+                            for (int i = 0; i < cnt; i++)
+                            {
+                                if (!insertComparer(tbl, buffer[i]))
+                                {
+                                    tbl.InsertOnSubmit(buffer[i]);
+                                }
+                            }
+                            lock (_readerWriterLock)
+                            {
+                                buffer.RemoveRange(0, cnt);
+                                dc.SubmitChanges(ConflictMode.FailOnFirstConflict);
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                }
+                t.Change(1000, 1000);
+            }
+
+            //private void RunInsertSQL(T msg, int cnt = 0)
+            //{
+            //    try
+            //    {
+            //        lock (_readerWriterLock)
+            //        {
+            //            using (DataContext dc = new DataContext(sql))
+            //            {
+            //                var tbl = dc.GetTable<T>();
+
+            //                //var m = tbl.FirstOrDefault(t => t.ID.Equals(msg.ID));
+            //                //if (insertComparerm != null)
+            //                //{
+            //                //    m.From(msg);
+            //                //}
+            //                if (!insertComparer(msg))
+            //                {
+            //                    tbl.InsertOnSubmit(msg);
+            //                }
+            //                dc.SubmitChanges(ConflictMode.FailOnFirstConflict);
+            //            }
+            //        }
+            //    }
+            //    catch
+            //    {
+            //        System.Threading.Thread.Sleep(10);
+            //        if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
+            //        RunInsertSQL(msg, cnt + 1);
+            //    }
+
+            //    //if (isbreaked)
+            //    //{
+            //    //    System.Threading.Thread.Sleep(10);
+            //    //    if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
+            //    //    RunInsertSQL(msg, cnt + 1);
+            //    //}
+            //}
+        }
+
+        public class WhisperCollection
+        {
+            private DataContext sql;
+
+            public WhisperCollection()
+            {
+                string path = Settings.caonfigBaseDir + "Whisper.db";
+                if (!File.Exists(path))
+                {
+                    File.WriteAllBytes(path, LX29_LixChat.Properties.Resources.Cache);
+                }
+                sql = new DataContext(new SQLiteConnection(@"Data Source=" + path));
+            }
+
+            [Table(Name = "Whisper")]
+            public class Whisper
+            {
+                public Whisper(ChatMessage msg)
+                {
+                    Message = msg.Message;
+                    Name = msg.Name;
+                    Time = msg.SendTime.Ticks;
+
+                    Outgoing = msg.IsType(MsgType.Outgoing);
+                }
+
+                [Column(Name = "Message")]
+                public string Message { get; set; }
+
+                [Column(Name = "Name")]
+                public string Name { get; set; }
+
+                [Column(Name = "Outgoing")]
+                public bool Outgoing { get; set; }
+
+                [Column(Name = "Time", IsPrimaryKey = true)]
+                public long Time { get; set; }
             }
         }
     }
