@@ -3945,8 +3945,6 @@
     <Content Include="1463551454_16.ico" />
     <None Include="Data\LixChat.exe" />
     <Content Include="Resources\ban.png" />
-    <Content Include="Resources\emojis.exe" />
-    <Content Include="Resources\hallo.exe" />
     <Content Include="Resources\refresh_16xLG.png" />
     <Content Include="Resources\resize.png" />
     <Content Include="Resources\success.html" />
