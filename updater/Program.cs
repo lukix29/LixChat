@@ -19,14 +19,24 @@ namespace updater
                 var procs = Process.GetProcesses();
                 foreach (var proc in procs)
                 {
-                    string filename = Path.GetFileNameWithoutExtension(dest);
+                    string filename = Path.GetFileName(dest);
                     if (proc.ProcessName.Equals(filename))
                     {
-                        Console.WriteLine(filename);
+                        Console.WriteLine("Closing " + filename);
                         proc.Kill();
+                        break;
                     }
                 }
+                Console.WriteLine("Updating LixChat");
+                Console.WriteLine(source);
+                Console.WriteLine(dest);
+
+                System.Threading.Thread.Sleep(2000);
                 File.Copy(source, dest, true);
+
+                Console.WriteLine("Update Complete");
+                System.Threading.Thread.Sleep(2000);
+
                 Process.Start(Path.GetFileName(dest));
                 File.Delete(source);
             }
@@ -34,7 +44,7 @@ namespace updater
             {
                 try
                 {
-                    Console.Clear();
+                    //Console.Clear();
                     Console.WriteLine(x.Message);
                     Console.WriteLine();
                     Console.WriteLine("Retry (y) or Abort (n)");

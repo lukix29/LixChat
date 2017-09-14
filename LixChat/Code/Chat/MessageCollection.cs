@@ -237,7 +237,8 @@ namespace LX29_ChatClient
                 {
                     //int i = null;
                     //TODO
-                    //MEssages flickering when 2chats are open
+                    //updater still doesnt work
+                    //Messages flickering when 2chats are open
                     //Fix Cinema Mode view
                     //Add top-chat-controls to chatpanel????????????
 

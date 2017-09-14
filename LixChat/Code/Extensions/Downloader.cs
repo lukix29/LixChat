@@ -154,7 +154,7 @@ namespace LX29_Helpers
                 switch (x.Handle("Nightly update Error!", true))
                 {
                     case MessageBoxResult.Retry:
-                        CheckUpdate(progAction);
+                        CheckNightlyUpdate(progAction);
                         break;
                 }
             }

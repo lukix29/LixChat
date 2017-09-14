@@ -313,7 +313,7 @@ namespace LX29_ChatClient
                     channel.GetMpvWindow();
                 }
                 Emotes.Values.CheckLoadingTime();
-
+                SaveChannels();
                 ListLoaded(channels.Count, channels.Count, "Refreshed Channels");
             }
             catch (Exception x)
