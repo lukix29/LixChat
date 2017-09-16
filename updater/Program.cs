@@ -18,8 +18,9 @@ namespace updater
                 string dest = "";
                 for (int i = 1; i < args.Length; i++)
                 {
-                    dest += args[i];
+                    dest += args[i] + " ";
                 }
+                dest = dest.Trim();
                 var procs = Process.GetProcesses();
                 foreach (var proc in procs)
                 {
