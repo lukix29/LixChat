@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LX29_ChatClient.Emotes
@@ -41,7 +42,7 @@ namespace LX29_ChatClient.Emotes
 
         private long lasTime = 0;
 
-        private object locko = new object();
+        //private object locko = new object();
 
         public EmoteImage(Dictionary<string, string> urls, string name, EmoteOrigin origin)
         {
@@ -319,9 +320,9 @@ namespace LX29_ChatClient.Emotes
         public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size)
         {
             var result = EmoteImageDrawResult.Success;
+            var images = GetImage(size);
             try
             {
-                var images = GetImage(size);
                 if (!Name.Equals("WAITING") && images == null)
                 {
                     if (!isDownloading)
@@ -352,17 +353,22 @@ namespace LX29_ChatClient.Emotes
                     {
                         FrameIndex = 0;
                     }
-
-                    lock (LockObject)
+                    //Monitor.Enter(images.SyncRoot);
+                    lock (images.SyncRoot)
                     {
                         g.DrawBitmap(images[FrameIndex], X, Y, Width, Height, Settings.HwEmoteDrawing);
                     }
+                    //Monitor.Exit(images.SyncRoot);
                     LoadTime = DateTime.Now;
                 }
             }
             catch
             {
             }
+            //finally
+            //{
+            //    //Monitor.Exit(images.SyncRoot);
+            //}
             return result;
         }
 
@@ -408,7 +414,7 @@ namespace LX29_ChatClient.Emotes
 
                 string FilePath = Path.GetFullPath(Settings.emoteDir + GetLocalfileName(url));
                 //  Image img = null;
-                lock (locko)
+                lock (LockObject)
                 {
                     if (!File.Exists(FilePath))
                     {

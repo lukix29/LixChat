@@ -16,13 +16,15 @@ namespace LX29_Twitch.Forms
 
         //private bool lockMute = false;
 
-        private bool mouseDown = false;
+        //private bool mouseDown = false;
 
         private Point mousePoint = Point.Empty;
+        private bool moveMouseDown = false;
         private Point oldMousePoint = Point.Empty;
 
         private Rectangle oldSize = new Rectangle();
 
+        private bool resizeMouseDown = false;
         private ChannelInfo stream = null;
 
         //private int oldVolume = 100;
@@ -52,11 +54,6 @@ namespace LX29_Twitch.Forms
 
                 quality = quality.ToUpper().Trim();
                 chatPanel1.ChatView.SetChannel(si, LX29_ChatClient.MsgType.All_Messages);
-
-                //cB_Borderless.Checked = LX29Settings.GetValue<bool>(SettingsNames.Preview_Borderless);
-                //cB_OnTop.Checked = LX29Settings.GetValue<bool>(SettingsNames.Preview_On_Top);
-                //this.Location = LX29Settings.GetValue<Point>(SettingsNames.Preview_Location);
-                //this.Size = LX29Settings.GetValue<Size>(SettingsNames.Preview_Size);
 
                 this.Text = stream.DisplayName;
 
@@ -100,10 +97,6 @@ namespace LX29_Twitch.Forms
             chatPanel1.Pause = splitContainer1.Panel2Collapsed;
         }
 
-        private void btn_Chat_Click_1(object sender, EventArgs e)
-        {
-        }
-
         private void btnClose_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -118,38 +111,15 @@ namespace LX29_Twitch.Forms
         {
             if (cB_Borderless.Checked)
             {
+                panelMove.Visible = panelResize.Visible = true;
                 this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             }
             else
             {
+                panelMove.Visible = panelResize.Visible = false;
                 this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             }
             //LX29Settings.SetValue(SettingsNames.Preview_Borderless, cB_Borderless.Checked);
-        }
-
-        //private void cB_Mute_CheckedChanged(object sender, EventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (!lockMute)
-        //        {
-        //            if (cB_Mute.Checked)
-        //            {
-        //                oldVolume = (int)volumeControl1.Value;
-        //                volumeControl1.Value = 0;
-        //            }
-        //            else
-        //            {
-        //                volumeControl1.Value = oldVolume;
-        //            }
-        //            mpv.SetVolume(cB_Mute.Checked);
-        //        }
-        //    }
-        //    catch { }
-        //}
-
-        private void cB_Borderless_CheckedChanged_1(object sender, EventArgs e)
-        {
         }
 
         private void cB_OnTop_CheckedChanged(object sender, EventArgs e)
@@ -166,17 +136,9 @@ namespace LX29_Twitch.Forms
             // LX29Settings.SetValue(SettingsNames.Preview_Borderless, cB_OnTop.Checked);
         }
 
-        private void cB_OnTop_CheckedChanged_1(object sender, EventArgs e)
-        {
-        }
-
         private void cb_Pause_CheckedChanged(object sender, EventArgs e)
         {
             mpv.Pause(cb_Pause.Checked);
-        }
-
-        private void cb_Pause_CheckedChanged_1(object sender, EventArgs e)
-        {
         }
 
         private void comBox_previewQuali_SelectedIndexChanged(object sender, EventArgs e)
@@ -193,14 +155,6 @@ namespace LX29_Twitch.Forms
             catch { }
         }
 
-        private void comBox_previewQuali_SelectedIndexChanged_1(object sender, EventArgs e)
-        {
-        }
-
-        private void FormPlayer_MouseEnter(object sender, EventArgs e)
-        {
-        }
-
         private void FormPreviewPopout_FormClosing(object sender, FormClosingEventArgs e)
         {
             try
@@ -208,14 +162,14 @@ namespace LX29_Twitch.Forms
                 if (isCLosing) return;
                 isCLosing = true;
                 mpv.Stop();
-
-                // StreamManager.FireEvent(StreamManagerEventType.Updated, stream);
             }
             catch { }
         }
 
         private void FormPreviewPopout_Load(object sender, EventArgs e)
         {
+            panelMove.BackgroundImage = Cursors.SizeAll.GetImage();
+            panelMove.BackgroundImageLayout = ImageLayout.Stretch;
             this.volumeControl1.TextSelector = (d) =>
             {
                 return d.ToString("F0");
@@ -224,39 +178,63 @@ namespace LX29_Twitch.Forms
             // LX29Settings.SettingsChanged += LX29Settings_SettingsChanged;
         }
 
-        private void FormPreviewPopout_LocationChanged(object sender, EventArgs e)
+        private void panel2_MouseDown(object sender, MouseEventArgs e)
         {
-            // LX29Settings.SetValue(SettingsNames.Preview_Location, this.Location);
-            // LX29Settings.SetValue(SettingsNames.Preview_Size, this.Size);
+            resizeMouseDown = true;
         }
 
-        private void FormPreviewPopout_Resize(object sender, EventArgs e)
+        private void panel2_MouseMove(object sender, MouseEventArgs e)
         {
-            //float f = 1280f / 720f;
-            //Size s = new Size(this.Width - this.ClientSize.Width, this.Height - this.ClientSize.Height);
-            //this.Size = new Size((this.ClientSize.Width + s.Width), (int)(this.ClientSize.Width / f) + s.Height);
+            if (resizeMouseDown)
+            {
+                Size parent = this.Size;
+                int W = Math.Max(800, Cursor.Position.X - this.Left);
+                int H = Math.Max((int)(800 / 1.777777777), Cursor.Position.Y - this.Top);
+
+                this.Width = W;
+
+                this.Height = H;
+            }
         }
 
-        private void FormPreviewPopout_ResizeEnd(object sender, EventArgs e)
+        private void panel2_MouseUp(object sender, MouseEventArgs e)
         {
-            // LX29Settings.SetValue(SettingsNames.Preview_Location, this.Location);
-            // LX29Settings.SetValue(SettingsNames.Preview_Size, this.Size);
+            resizeMouseDown = false;
         }
 
-        private void LX29Settings_SettingsChanged()
+        private void panelMove_MouseDown_1(object sender, MouseEventArgs e)
         {
-            // cB_Borderless.Checked = LX29Settings.GetValue<bool>(SettingsNames.Preview_Borderless);
-            // this.Location = LX29Settings.GetValue<Point>(SettingsNames.Preview_Location);
-            // this.Size = LX29Settings.GetValue<Size>(SettingsNames.Preview_Size);
-            // cB_OnTop.Checked = LX29Settings.GetValue<bool>(SettingsNames.Preview_On_Top);
+            moveMouseDown = true;
         }
 
-        private void panel1_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void panelMove_MouseEnter(object sender, EventArgs e)
+        {
+            panelMove.Visible = true;
+        }
+
+        private void panelMove_MouseMove_1(object sender, MouseEventArgs e)
+        {
+            if (moveMouseDown)
+            {
+                Size parent = this.Size;
+                int X = Cursor.Position.X - (panelMove.Right);
+                int Y = Cursor.Position.Y - (panelMove.Bottom);
+                this.Location = new Point(X, Y);
+            }
+        }
+
+        private void panelMove_MouseUp_1(object sender, MouseEventArgs e)
+        {
+            moveMouseDown = false;
+        }
+
+        private void panelVideo_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (!isFullscreen)
             {
                 cB_OnTop.Visible = false;
                 cB_Borderless.Visible = false;
+                panelMove.Visible = panelResize.Visible = false;
                 oldSize = new Rectangle(this.Top, this.Left, this.Width, this.Height);
                 this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 
@@ -269,6 +247,7 @@ namespace LX29_Twitch.Forms
             }
             else
             {
+                panelMove.Visible = panelResize.Visible = true;
                 cB_OnTop.Visible = true;
                 cB_Borderless.Visible = true;
                 if (!cB_OnTop.Checked)
@@ -283,21 +262,6 @@ namespace LX29_Twitch.Forms
             isFullscreen = !isFullscreen;
         }
 
-        private void panel1_MouseDown(object sender, MouseEventArgs e)
-        {
-            mouseDown = true;
-        }
-
-        private void panel1_MouseLeave(object sender, EventArgs e)
-        {
-            showStreamControls(false);
-        }
-
-        private void panel1_MouseUp(object sender, MouseEventArgs e)
-        {
-            mouseDown = false;
-        }
-
         private void panelVideo_MouseEnter(object sender, EventArgs e)
         {
             showStreamControls(true);
@@ -305,13 +269,6 @@ namespace LX29_Twitch.Forms
 
         private void panelVideo_MouseMove(object sender, MouseEventArgs e)
         {
-            if (mouseDown && !isFullscreen)
-            {
-                int x = Cursor.Position.X - this.Width / 2;
-                int y = Cursor.Position.Y - this.Height / 2;
-                this.Location = new Point(x, y);
-            }
-            mousePoint = e.Location;
             if (Math.Abs(mousePoint.X - oldMousePoint.X) > 4 && Math.Abs(mousePoint.Y - oldMousePoint.Y) > 4)
             {
                 showStreamControls(true);
@@ -322,36 +279,33 @@ namespace LX29_Twitch.Forms
         {
             if (!visible)
             {
-                cb_Pause.Visible =
-                btnClose.Visible =
-                          cB_Borderless.Visible =
-                              cB_OnTop.Visible =
-                          btn_Chat.Visible =
-                              comBox_previewQuali.Visible =
-                              button1.Visible =
-                              volumeControl1.Visible = false;
+                panelVideoControls.Visible = false;
+
+                panelMove.Visible = false;
+                panelVideo.Dock = DockStyle.Fill;
             }
             else
             {
                 if (!isFullscreen)
                 {
                     cB_Borderless.Visible =
-                        cB_OnTop.Visible = true;
+                     cB_OnTop.Visible = true;
+                    if (cB_Borderless.Checked)
+                    {
+                        panelMove.Visible = true;
+                    }
                 }
-                cb_Pause.Visible =
-                btnClose.Visible =
-                btn_Chat.Visible =
-                comBox_previewQuali.Visible =
-                button1.Visible =
-                volumeControl1.Visible = true;
-                cb_Pause.BringToFront();
-                btnClose.BringToFront();
-                cB_Borderless.BringToFront();
-                cB_OnTop.BringToFront();
-                btn_Chat.BringToFront();
-                comBox_previewQuali.BringToFront();
-                button1.BringToFront();
-                volumeControl1.BringToFront();
+                else
+                {
+                    cB_Borderless.Visible =
+                     cB_OnTop.Visible = false;
+                }
+                panelVideo.Dock = DockStyle.None;
+                panelVideo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+                panelVideo.Location = new Point(0, 0);
+                panelVideo.Size = new Size(splitContainer1.Panel1.Width, panelVideoControls.Top - 1);
+
+                panelVideoControls.Visible = true;
             }
         }
 
@@ -373,7 +327,11 @@ namespace LX29_Twitch.Forms
         {
             try
             {
-                if (!panelVideo.ClientRectangle.Contains(panelVideo.PointToClient(Cursor.Position)))
+                if (panelVideoControls.ClientRectangle.Contains(panelVideoControls.PointToClient(Cursor.Position)))
+                {
+                    showStreamControls(true);
+                }
+                else if (!splitContainer1.Panel1.ClientRectangle.Contains(splitContainer1.Panel1.PointToClient(Cursor.Position)))
                 {
                     if (!comBox_previewQuali.DroppedDown)
                     {
@@ -382,17 +340,19 @@ namespace LX29_Twitch.Forms
                 }
                 else
                 {
-                    //showStreamControls(true);
-
-                    if (Math.Abs(mousePoint.X - oldMousePoint.X) < 4 && Math.Abs(mousePoint.Y - oldMousePoint.Y) < 4)
+                    if (Math.Abs(mousePoint.X - oldMousePoint.X) < 5 && Math.Abs(mousePoint.Y - oldMousePoint.Y) < 5)
                     {
                         if (hideCnt++ > 15)
                         {
                             showStreamControls(false);
                             hideCnt = 0;
+                            oldMousePoint = mousePoint;
                         }
                     }
-                    oldMousePoint = mousePoint;
+                    else
+                    {
+                        showStreamControls(true);
+                    }
                 }
             }
             catch { }

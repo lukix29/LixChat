@@ -89,12 +89,12 @@ namespace LX29_ChatClient.Forms
             set { Renderer.Font = value; }
         }
 
-        [ReadOnly(true)]
-        [Browsable(false)]
-        public int MessageCount
-        {
-            get { return Renderer.ViewStart; }
-        }
+        //[ReadOnly(true)]
+        //[Browsable(false)]
+        //public int MessageCount
+        //{
+        //    get { return ChatClient.Messages.Count(Channel.Name) - Renderer.ViewStart; }
+        //}
 
         [ReadOnly(true)]
         [Browsable(false)]

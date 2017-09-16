@@ -34,8 +34,19 @@ namespace LX29_LixChat
 
         public Main()
         {
-            if (!Settings.Load())
+            try
             {
+                if (!System.IO.File.Exists(".\\System.Data.SQLite.dll"))
+                {
+                    System.IO.File.WriteAllBytes(".\\System.Data.SQLite.dll", Properties.Resources.System_Data_SQLite);
+                }
+                if (!Settings.Load())
+                {
+                }
+            }
+            catch (Exception x)
+            {
+                x.Handle("Initialization Error", true);
             }
             InitializeComponent();
         }

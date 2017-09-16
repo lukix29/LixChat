@@ -191,11 +191,12 @@ namespace LX29_ChatClient.Forms
             }
         }
 
-        public void MessageReceived()
+        public void MessageReceived(bool force = false)
         {
-            if (AutoScroll)
+            if (AutoScroll || force)
             {
-                messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType);
+                int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType, WhisperName);
+                messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType, msgcnt - 256, msgcnt - ViewStart);
             }
         }
 
@@ -393,7 +394,7 @@ namespace LX29_ChatClient.Forms
                         case RectType.User:
                             var user = (ChatUser)curSelected.Content;
                             Text = user.Name;
-                            int msgcnt = ChatClient.Messages.MessageCount(Channel.Name, user.Name);
+                            int msgcnt = ChatClient.Messages.Count(Channel.Name, MsgType.All_Messages, user.Name);
                             Text += "\r\nMessages:" + msgcnt;
                             if (user.HasTimeOut)
                             {
@@ -522,15 +523,15 @@ namespace LX29_ChatClient.Forms
                         DrawMessage(g, messages[i], i, bounds, y, height);
                         visibleMessages++;
                     }
-                    if (iwasZero)
-                    {
-                        messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType, 0);
-                    }
+                    //if (iwasZero)
+                    //{
+                    //    messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType, 0);
+                    //}
                 }
                 else
                 {
                     MessageReceived();
-                    if (messages.Count == 0)
+                    if (messages == null)
                     {
                         g.DrawString("<Waiting for Messages>", new Font("Arial", 12), Brushes.LightGray, bounds, centerStrFormat);
                     }
@@ -761,7 +762,7 @@ namespace LX29_ChatClient.Forms
 
                         if (!measure)
                         {
-                            ClickableList.Add(new SLRect(x, y, sf.Width, sf.Height, em, RectType.Emote));
+                            ClickableList.Add(new SLRect(x, y - emote_Y_Offset, sf.Width, sf.Height, em, RectType.Emote));
 
                             var gif = em.Draw(graphics, x, y - emote_Y_Offset, sf.Width, sf.Height, Settings.EmoteQuality, isTimeout) == EmoteImageDrawResult.IsGif;
                             if (gif && !measure) gifVisible = true;
@@ -778,7 +779,7 @@ namespace LX29_ChatClient.Forms
                         isLink = true;
                     }
 
-                    sf = graphics.MeasureString(w.Text, userFont);
+                    sf = graphics.MeasureText(w.Text, userFont);
                     if (x + sf.Width > bounds.Right)
                     {
                         x = time_Right;
@@ -791,7 +792,7 @@ namespace LX29_ChatClient.Forms
 
                         graphics.DrawText(w.Text, font, msgColor, x, y);
                     }
-                    x += sf.Width - _WordPadding;
+                    x += sf.Width + _WordPadding;
                 }
             }
             font.Dispose();
@@ -945,11 +946,11 @@ namespace LX29_ChatClient.Forms
             {
                 if (Channel != null)
                 {
-                    int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType);
+                    int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType, WhisperName);
                     viewStart = Math.Max(0, Math.Min(msgcnt, value));
                     AutoScroll = (viewStart > 0) ? false : true;
 
-                    MessageReceived();
+                    MessageReceived(true);
                 }
             }
         }

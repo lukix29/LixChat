@@ -222,98 +222,30 @@ namespace LX29_ChatClient
 
         public class MessageBuffer : IDisposable
         {
-            //private System.Threading.ReaderWriterLockSlim
-            //private static readonly object _readerWriterLock = new object();//new System.Threading.ReaderWriterLockSlim(System.Threading.LockRecursionPolicy.SupportsRecursion);
+            private static readonly InlineComparer<KeyValuePair<int, ChatMessage>> dupComparer =
+                new InlineComparer<KeyValuePair<int, ChatMessage>>((i1, i2) => i1.Value.SendTime.Ticks == i1.Value.SendTime.Ticks, i2 => (int)i2.Value.SendTime.Ticks);
 
+            private Dictionary<string, int> AllCount = new Dictionary<string, int>();
             private bool isLoading = true;
             private Dictionary<string, Dictionary<int, ChatMessage>> messages = new Dictionary<string, Dictionary<int, ChatMessage>>();//new List<ChatMessage>();
-
-            //private SQLiteConnection sql;
             private SQL_Handler<CacheMessage> sql;
 
             public MessageBuffer()
             {
-                try
-                {
-                    //int i = null;
-                    //TODO
-                    //updater still doesnt work
-                    //Messages flickering when 2chats are open
-                    //Fix Cinema Mode view
-                    //Add top-chat-controls to chatpanel????????????
+                //int i = null;
+                //TODO
+                //Dont count internal messages
+                //dont count resub as outgoing
 
-                    AllCount = new Dictionary<string, int>();
-                    string path = Settings.caonfigBaseDir + "Cache.db";
-                    //Load Previous Messages
-                    if (!File.Exists(path))
-                    {
-                        File.WriteAllBytes(path, LX29_LixChat.Properties.Resources.Cache);
-                    }
-                    sql = new SQL_Handler<CacheMessage>(path, (tbl, msg) =>
-                        {
-                            try
-                            {
-                                var m = tbl.Where(t => t.ID.Equals(msg.ID));//.ToList().FirstOrDefault();
-                                var c = m.Count();
-                                if (c > 0)
-                                {
-                                    var mm = m.ToList().First();
-                                    mm.From(msg);
-                                    return true;
-                                }
-                            }
-                            catch
-                            {
-                            }
-                            return false;
-                        });// SQLiteConnection(@"Data Source=" + path);
+                //Fix Cinema Mode view
+                //Add top-chat-controls to chatpanel????????????
 
-                    System.Threading.Tasks.Task.Run(() =>
-                    {
-                        try
-                        {
-                            using (var context = sql.GetContext())
-                            {
-                                var tbl = context.GetTable<CacheMessage>();
-                                foreach (var t in tbl)
-                                {
-                                    if (!messages.ContainsKey(t.Channel))
-                                    {
-                                        messages.Add(t.Channel, new Dictionary<int, ChatMessage>());
-                                        AllCount.Add(t.Channel, 0);
-                                    }
-                                    int cnt = AllCount[t.Channel];
-                                    var msg = new ChatMessage(t);
-                                    messages[t.Channel].Add(cnt, msg);
-
-                                    AllCount[t.Channel] = (cnt + 1 > (Int16.MaxValue / 2)) ? 0 : cnt + 1;
-
-                                    if (OnMessageReceived != null)
-                                        OnMessageReceived(msg);
-                                }
-                            }
-                        }
-                        catch
-                        {
-                        }
-                        isLoading = false;
-                    });
-                }
-                catch (Exception x)
-                {
-                    x.Handle("", true);
-                }
+                Load();
             }
 
-            public Dictionary<string, int> AllCount
+            public Dictionary<string, List<ChatMessage>> AllMessages
             {
-                get;
-                private set;
-            }
-
-            public IEnumerable<ChatMessage> AllMessages
-            {
-                get { return messages.Values.SelectMany(t => t.Values); }
+                get { return messages.ToDictionary(t => t.Key, v => v.Value.Values.ToList()); }
             }
 
             private bool enableCaching
@@ -375,9 +307,9 @@ namespace LX29_ChatClient
                 return messages[channel].ContainsKey(index);
             }
 
-            public int Count(string channel, Func<ChatMessage, bool> a)
+            public int Count(string channel)
             {
-                return messages[channel].Values.Count(a);
+                return AllCount[channel];
             }
 
             public void Dispose()
@@ -391,33 +323,125 @@ namespace LX29_ChatClient
                 }
             }
 
-            public List<ChatMessage> GetMessages(string channel, int start, int end = -1)//, Func<ChatMessage, bool> a = null)
+            public List<ChatMessage> GetMessages(string channel, int start, int end)//, Func<ChatMessage, bool> a = null)
             {
                 try
                 {
-                    int allmax = 32;
+                    //int allmax = 256;
                     while (isLoading) System.Threading.Thread.Sleep(100);
                     int allcnt = this.AllCount[channel];
                     if (messages.Count <= 0) return new List<ChatMessage>();
-                    if (start < 0) start = Math.Max(0, allcnt - allmax);
-                    if (end < 0) end = Math.Min(allcnt, Math.Max(allcnt, start + allmax));
+                    start = Math.Min(end, Math.Max(0, start));
+                    end = Math.Min(allcnt, Math.Max(end, start));
 
-                    var list = messages[channel].Where(t => t.Key >= start && t.Key < end).Select(t => new { Index = t.Key, Msg = t.Value });
-                    if (enableCaching && list.Count() < (end - start))
+                    var list = messages[channel].Where(t => t.Key >= start && t.Key < end);
+                    if (enableCaching)
                     {
-                        var sqlMsges = sql.Where(t => (t.Channel.Equals(channel) && (t.Index >= start && t.Index < end)));
-                        if (sqlMsges.Count > 0)
+                        //if (list.Count() < (end - start))
                         {
-                            list = list.Union(sqlMsges.Select(t => new { Index = t.Index, Msg = new ChatMessage(t) }));
+                            var sqlMsges = sql.Where(t => (t.Channel.Equals(channel) && (t.Index >= start && t.Index < end)));
+                            if (sqlMsges.Count > 0)
+                            {
+                                list = list.Union(sqlMsges.Select(t => new KeyValuePair<int, ChatMessage>(t.Index, new ChatMessage(t))), dupComparer);
+                            }
                         }
-                        messages[channel] = list.ToDictionary(i => i.Index, m => m.Msg, EqualityComparer<int>.Default);
+                        var temp = list.ToList();
+                        foreach (var m in temp)
+                        {
+                            if (messages[channel].ContainsKey(m.Key))
+                            {
+                                messages[channel][m.Key] = m.Value;
+                            }
+                            else
+                            {
+                                messages[channel].Add(m.Key, m.Value);
+                            }
+                        }
+                        // messages[channel] = temp.ToDictionary(t => t.Key, t => t.Value);
                     }
-                    return list.Select(t => t.Msg).ToList();
+                    return messages[channel].Values.ToList();// list.Select(t => t.Value).ToList();
                 }
                 catch
                 {
                 }
-                return new List<ChatMessage>();
+                return null;
+            }
+
+            public void Load()
+            {
+                string path = Settings.caonfigBaseDir + "Cache.db";
+                try
+                {
+                    AllCount = new Dictionary<string, int>();
+                    //Load Previous Messages
+                    FileInfo fi = new FileInfo(path);
+                    if (!fi.Exists || fi.Length == 0)
+                    {
+                        File.WriteAllBytes(path, LX29_LixChat.Properties.Resources.Cache);
+                    }
+                    sql = new SQL_Handler<CacheMessage>(path, (tbl, msg) =>
+                        {
+                            try
+                            {
+                                var m = tbl.Where(t => t.Equals(msg));
+                                if (m != null)
+                                {
+                                    var l = m.ToList();
+                                    if (l.Count > 0)
+                                    {
+                                        var mm = l[0];
+                                        mm.From(msg);
+                                        return true;
+                                    }
+                                }
+                            }
+                            catch
+                            {
+                            }
+                            return false;
+                        });// SQLiteConnection(@"Data Source=" + path);
+                    if (Settings.MessageCaching)
+                    {
+                        System.Threading.Tasks.Task.Run(() =>
+                        {
+                            try
+                            {
+                                using (var context = sql.GetContext())
+                                {
+                                    var tbl = context.GetTable<CacheMessage>();
+                                    foreach (var t in tbl)
+                                    {
+                                        if (!messages.ContainsKey(t.Channel))
+                                        {
+                                            messages.Add(t.Channel, new Dictionary<int, ChatMessage>());
+                                            AllCount.Add(t.Channel, 0);
+                                        }
+                                        int cnt = AllCount[t.Channel];
+                                        if (cnt <= Settings.ChatHistory)
+                                        {
+                                            var msg = new ChatMessage(t);
+                                            messages[t.Channel].Add(cnt, msg);
+
+                                            AllCount[t.Channel] = (cnt + 1 > (Int16.MaxValue / 2)) ? 0 : cnt + 1;
+                                            if (OnMessageReceived != null)
+                                                OnMessageReceived(msg);
+                                        }
+                                    }
+                                }
+                            }
+                            catch
+                            {
+                            }
+                            isLoading = false;
+                        });
+                    }
+                }
+                catch (Exception x)
+                {
+                    x.Handle("", true);
+                    File.Delete(path);
+                    Load();
+                }
             }
 
             public IEnumerable<ChatMessage> Where(string channel, Func<ChatMessage, bool> a)
@@ -425,79 +449,27 @@ namespace LX29_ChatClient
                 return messages[channel].Values.Where(a);
             }
 
-            //private void RunInsertSQL(CacheMessage msg, int cnt = 0)
-            //{
-            //    try
-            //    {
-            //        //lock (_readerWriterLock)
-            //        //{
-            //        sql.Add(msg);
-            //            //using (DataContext dc = new DataContext(sql))
-            //            //{
-            //            //    var tbl = dc.GetTable<CacheMessage>();
+            public class InlineComparer<T> : IEqualityComparer<T>
+            {
+                private readonly Func<T, T, bool> getEquals;
+                private readonly Func<T, int> getHashCode;
 
-            //            //    var m = tbl.Where(t => t.ID.Equals(msg.ID));//.ToList().FirstOrDefault();
-            //            //    var c = m.Count();
-            //            //    if (c > 0)
-            //            //    {
-            //            //        m.ElementAt(0).From(msg);
-            //            //    }
-            //            //    else
-            //            //    {
-            //            //        tbl.InsertOnSubmit(msg);
-            //            //    }
-            //            //    dc.SubmitChanges(ConflictMode.FailOnFirstConflict);
-            //            //}
-            //      //  }
-            //    }
-            //    catch
-            //    {
-            //        System.Threading.Thread.Sleep(10);
-            //        if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
-            //        RunInsertSQL(msg, cnt + 1);
-            //    }
+                public InlineComparer(Func<T, T, bool> equals, Func<T, int> hashCode)
+                {
+                    getEquals = equals;
+                    getHashCode = hashCode;
+                }
 
-            //    //if (isbreaked)
-            //    //{
-            //    //    System.Threading.Thread.Sleep(10);
-            //    //    if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
-            //    //    RunInsertSQL(msg, cnt + 1);
-            //    //}
-            //}
+                public bool Equals(T x, T y)
+                {
+                    return getEquals(x, y);
+                }
 
-            //private ChatMessage RunSelectSQL(string channel, int index)
-            //{
-            //    ChatMessage m = null;
-            //    try
-            //    {
-            //        ////Function to acess database
-            //        //using (DataContext dc = new DataContext(sql))
-            //        //{
-            //        //    var sqlTable = dc.GetTable<CacheMessage>();
-            //        //    var marr = sqlTable.Where(t => t.Channel.Equals(channel)).ToList();
-
-            //        //    if (marr.Count > 0)
-            //        //    {
-            //        //        var msg = marr.FirstOrDefault(t => (t.Index == index));
-            //        //        if (msg != null)
-            //        //        {
-            //        //            //_readerWriterLock.ExitReadLock();
-            //        //            m = new ChatMessage(msg);
-            //        //        }
-            //        //        //_readerWriterLock.ExitReadLock();
-            //        //    }
-            //        //}
-            //    }
-            //    catch
-            //    {
-            //    }
-            //    return m;
-            //}
-
-            //public List<ChatMessage> Where(Func<ChatMessage, bool> a)//, int start)
-            //{
-            //    return messages.Values.Where(a).ToList(); //GetMessages(start, this.AllCount, a);
-            //}
+                public int GetHashCode(T obj)
+                {
+                    return getHashCode(obj);
+                }
+            }
         }
 
         public class MessageCollection // : IDictionary<string, Dictionary<string, ChatUser>>
@@ -657,13 +629,10 @@ namespace LX29_ChatClient
                 }
             }
 
-            public int Count(string channel, MsgType type, string name = "")
+            public int Count(string channel, MsgType type = MsgType.All_Messages, string name = "")
             {
                 try
                 {
-                    //Dont count internal messages
-                    //dont count resub as outgoing
-                    //int i = null;
                     channel = channel.ToLower().Trim();
                     //lock (syncRootMessage)
                     {
@@ -673,7 +642,8 @@ namespace LX29_ChatClient
                             {
                                 if (string.IsNullOrEmpty(name))
                                 {
-                                    return messages[channel].Count(t => t.IsType(type));
+                                    if (type == MsgType.All_Messages) return messages.Count(channel);
+                                    else return messages[channel].Count(t => t.IsType(type));
                                 }
                                 else
                                 {
@@ -771,7 +741,7 @@ namespace LX29_ChatClient
                 return null;
             }
 
-            public List<ChatMessage> GetMessages(string channel, string name, MsgType type, int start = -1)
+            public List<ChatMessage> GetMessages(string channel, string name, MsgType type, int start, int end)
             {
                 channel = channel.ToLower().Trim();
                 if (string.IsNullOrEmpty(name))
@@ -780,7 +750,7 @@ namespace LX29_ChatClient
                     {
                         if (type == MsgType.All_Messages)
                         {
-                            return messages.GetMessages(channel, start);
+                            return messages.GetMessages(channel, start, end);
                         }
                         else
                         {
@@ -803,15 +773,10 @@ namespace LX29_ChatClient
                 return null;
             }
 
-            public int MessageCount(string channel)
-            {
-                return messages.AllCount[channel];
-            }
-
-            public int MessageCount(string channel, string user)
-            {
-                return messages[channel].Count(t => t.Name.Equals(user, StringComparison.OrdinalIgnoreCase));
-            }
+            //public int MessageCount(string channel, string user)
+            //{
+            //    return messages[channel].Count(t => t.Name.Equals(user, StringComparison.OrdinalIgnoreCase));
+            //}
         }
 
         public class Notifications
@@ -936,7 +901,11 @@ namespace LX29_ChatClient
                         using (DataContext dc = new DataContext(sql))
                         {
                             var sqlTable = dc.GetTable<T>();
-                            list = sqlTable.Where(select).ToList();
+                            var te = sqlTable.Where(select);
+                            if (te != null)
+                            {
+                                list = te.ToList();
+                            }
                         }
                     }
                     return list;

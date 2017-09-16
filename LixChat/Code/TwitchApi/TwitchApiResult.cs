@@ -18,6 +18,7 @@ namespace LX29_Twitch.Api
         background,
         banner,
         broadcaster_language,
+        broadcaster_type,
         created_at,
         delay,
         display_name,
@@ -30,8 +31,10 @@ namespace LX29_Twitch.Api
         mature,
         name,
         description,
-        partner,
+
+        //partner,
         profile_banner,
+
         profile_banner_background_color,
         status,
         stream_created_at,
@@ -55,19 +58,6 @@ namespace LX29_Twitch.Api
         watch_party = 1
     }
 
-    //public enum FFZEmoteInfo
-    //{
-    //    css,
-    //    height,
-    //    hidden,
-    //    id,
-    //    margins,
-    //    name,
-    //    owner,
-    //    urls,
-    //    width,
-    //}
-
     public enum SubType
     {
         NoSubProgram = -2000,
@@ -78,306 +68,6 @@ namespace LX29_Twitch.Api
         Tier3 = 3000
     }
 
-    //public class ApiResult
-    //{
-    //    public static readonly ApiResult Empty = new ApiResult(new Dictionary<ApiInfo, object>());
-
-    //    private static readonly ApiInfo[] apiInfoSort = new ApiInfo[]{
-    //        ApiInfo.display_name ,ApiInfo.url, ApiInfo.game ,
-    //        ApiInfo.status , ApiInfo.viewers ,ApiInfo.follow_created_at, ApiInfo.followers,
-    //        ApiInfo.video_height , ApiInfo.average_fps, ApiInfo.views};
-
-    //    private Dictionary<ApiInfo, object> values;
-
-    //    public ApiResult(ApiResult result, ApiResult result1)
-    //    {
-    //        values = result.values;
-
-    //        foreach (var t in result1.values)
-    //        {
-    //            if (!values.ContainsKey(t.Key))
-    //            {
-    //                values.Add(t.Key, t.Value);
-    //            }
-    //        }
-    //    }
-
-    //    public ApiResult(Dictionary<ApiInfo, string> ChannelValues, Dictionary<ApiInfo, string> StreamValues = null)
-    //    {
-    //        //EmoteSets = emoteSets;
-    //        this.values = new Dictionary<ApiInfo, object>();
-
-    //        if (ChannelValues != null && ChannelValues.Count > 0)
-    //        {
-    //            foreach (var channel in ChannelValues)
-    //            {
-    //                var o = ConvertValue(channel.Value, channel.Key);
-    //                values.Add(channel.Key, o);
-    //            }
-    //        }
-
-    //        if (StreamValues != null && StreamValues.Count > 0)
-    //        {
-    //            foreach (var stream in StreamValues)
-    //            {
-    //                if (stream.Key == ApiInfo._id)
-    //                {
-    //                    if (!values.ContainsKey(ApiInfo.stream_id))
-    //                    {
-    //                        var o = ConvertValue(stream.Value, ApiInfo.stream_id);
-    //                        values.Add(ApiInfo.stream_id, o);
-    //                    }
-    //                }
-    //                else if (stream.Key == ApiInfo.created_at)
-    //                {
-    //                    if (!values.ContainsKey(ApiInfo.stream_created_at))
-    //                    {
-    //                        var o = ConvertValue(stream.Value, ApiInfo.stream_created_at);
-    //                        values.Add(ApiInfo.stream_created_at, o);
-    //                    }
-    //                }
-    //                else if (stream.Key == ApiInfo.large)
-    //                {
-    //                    if (!values.ContainsKey(ApiInfo.large))
-    //                    {
-    //                        var o = ConvertValue(stream.Value, ApiInfo.large);
-    //                        values.Add(ApiInfo.large, o);
-    //                    }
-    //                }
-    //                else if (!values.ContainsKey(stream.Key))
-    //                {
-    //                    var o = ConvertValue(stream.Value, stream.Key);
-    //                    values.Add(stream.Key, o);
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    public ApiResult(Dictionary<ApiInfo, object> ChannelValues, Dictionary<ApiInfo, object> StreamValues = null)
-    //    {
-    //        //EmoteSets = emoteSets;
-    //        this.values = new Dictionary<ApiInfo, object>();
-
-    //        if (ChannelValues != null && ChannelValues.Count > 0)
-    //        {
-    //            foreach (var channel in ChannelValues)
-    //            {
-    //                values.Add(channel.Key, channel.Value);
-    //            }
-    //        }
-
-    //        if (StreamValues != null && StreamValues.Count > 0)
-    //        {
-    //            foreach (var stream in StreamValues)
-    //            {
-    //                if (stream.Key == ApiInfo._id)
-    //                {
-    //                    if (!values.ContainsKey(ApiInfo.stream_id))
-    //                    {
-    //                        values.Add(ApiInfo.stream_id, stream.Value);
-    //                    }
-    //                }
-    //                else if (stream.Key == ApiInfo.created_at)
-    //                {
-    //                    if (!values.ContainsKey(ApiInfo.stream_created_at))
-    //                    {
-    //                        values.Add(ApiInfo.stream_created_at, stream.Value);
-    //                    }
-    //                }
-    //                else if (stream.Key == ApiInfo.large)
-    //                {
-    //                    if (!values.ContainsKey(ApiInfo.large))
-    //                    {
-    //                        values.Add(ApiInfo.large, stream.Value);
-    //                    }
-    //                }
-    //                else if (!values.ContainsKey(stream.Key))
-    //                {
-    //                    values.Add(stream.Key, stream.Value);
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    public bool Followed
-    //    {
-    //        get { return GetValue<bool>(ApiInfo.follow); }
-    //    }
-
-    //    public string ID
-    //    {
-    //        get { return GetValue<string>(ApiInfo._id); }
-    //    }
-
-    //    public string Infos
-    //    {
-    //        get
-    //        {
-    //            StringBuilder sb = new StringBuilder();
-
-    //            var names = Enum.GetNames(typeof(ApiInfo)).ToList();
-    //            foreach (var ai in apiInfoSort)
-    //            {
-    //                string name = Enum.GetName(typeof(ApiInfo), ai);
-    //                if (values.ContainsKey(ai))
-    //                {
-    //                    string s = values[ai].ToString();
-    //                    if (s.Length > 0)
-    //                    {
-    //                        sb.Append(name.Replace("_", " ").ToTitleCase() + ": ");
-
-    //                        sb.AppendLine(s);
-    //                        sb.AppendLine();
-    //                    }
-    //                }
-    //                names.Remove(name);
-    //            }
-    //            foreach (var Key in names)
-    //            {
-    //                ApiInfo info = (ApiInfo)Enum.Parse(typeof(ApiInfo), Key);
-    //                if (values.ContainsKey(info))
-    //                {
-    //                    string s = values[info].ToString();
-    //                    if (s.Length > 0)
-    //                    {
-    //                        sb.Append(Key.Replace("_", " ").ToTitleCase() + ": ");
-
-    //                        sb.AppendLine(s);
-    //                        sb.AppendLine();
-    //                    }
-    //                }
-    //            }
-    //            return sb.ToString();
-    //        }
-    //    }
-
-    //    public bool IsEmpty
-    //    {
-    //        get { return values.Count == 0; }
-    //    }
-
-    //    public bool IsOnline
-    //    {
-    //        get { return values.ContainsKey(ApiInfo.stream_id); }
-    //    }
-
-    //    public string Name
-    //    {
-    //        get { return GetValue<string>(ApiInfo.name); }
-    //    }
-
-    //    public TimeSpan OnlineTime
-    //    {
-    //        get
-    //        {
-    //            DateTime dt = (IsOnline) ? GetValue<DateTime>(ApiInfo.stream_created_at) : GetValue<DateTime>(ApiInfo.created_at);
-    //            return DateTime.Now.Subtract(dt);
-    //        }
-    //    }
-
-    //    public string OnlineTimeString
-    //    {
-    //        get
-    //        {
-    //            return ((IsOnline) ? "Online: " : "Created: ") +
-    //                OnlineTime.ToString((OnlineTime.TotalDays >= 1.0) ? @"%d'd 'hh':'mm':'ss" : @"hh\:mm\:ss");
-    //        }
-    //    }
-
-    //    public Dictionary<ApiInfo, object> Values
-    //    {
-    //        get { return values; }
-    //    }
-
-    //    public T GetValue<T>(ApiInfo type)
-    //    {
-    //        if (values.ContainsKey(type))
-    //        {
-    //            return (T)values[type];
-    //        }
-    //        return default(T);
-    //    }
-
-    //    public void ResetStreamStatus()
-    //    {
-    //        if (values.ContainsKey(ApiInfo.stream_id))
-    //            values.Remove(ApiInfo.stream_id);
-    //        if (values.ContainsKey(ApiInfo.stream_created_at))
-    //            values.Remove(ApiInfo.stream_created_at);
-    //        if (values.ContainsKey(ApiInfo.large))
-    //            values.Remove(ApiInfo.large);
-    //    }
-
-    //    private object ConvertValue(string si, ApiInfo type)
-    //    {
-    //        if (si.Length == 0) return si;
-    //        bool b = false;
-    //        if (type == ApiInfo.created_at || type == ApiInfo.updated_at
-    //            || type == ApiInfo.stream_created_at || type == ApiInfo.follow_created_at)
-    //        {
-    //            string s = si.Replace("T", " ").Replace("Z", "");
-    //            return DateTime.Parse(s).ToLocalTime();
-    //        }
-    //        else if (type == ApiInfo.name)
-    //        {
-    //            return si;
-    //        }
-    //        else if (type == ApiInfo.language)
-    //        {
-    //            string s = si;
-    //            if (si == "null")
-    //            {
-    //                s = "English";
-    //            }
-    //            else
-    //            {
-    //                CultureInfo ci = CultureInfo.GetCultureInfo(s, s);
-    //                if (CultureInfo.CurrentCulture.EnglishName.Contains(ci.EnglishName))
-    //                {
-    //                    s = ci.NativeName;
-    //                }
-    //                else
-    //                {
-    //                    s = ci.EnglishName;
-    //                }
-    //            }
-    //            return s;
-    //        }
-    //        else if (type == ApiInfo.followers || type == ApiInfo.viewers ||
-    //            type == ApiInfo.views || type == ApiInfo.video_height || type == ApiInfo.average_fps)
-    //        {
-    //            string s = (si.Contains('.')) ? si.Remove(si.IndexOf('.')) : si;
-    //            int i = 0;
-    //            if (int.TryParse(s, out i))
-    //            {
-    //                s = i.ToString("N0");
-    //                if (type == ApiInfo.video_height)
-    //                {
-    //                    s += "p";
-    //                }
-    //                else if (type == ApiInfo.average_fps)
-    //                {
-    //                    s += "fps";
-    //                }
-    //                return s;
-    //            }
-    //        }
-    //        else if (type == ApiInfo.sub_plan)
-    //        {
-    //            SubType subtype = SubType.Prime;
-    //            if (Enum.TryParse<SubType>(si, out subtype))
-    //            {
-    //            }
-    //            return subtype;
-    //        }
-    //        else if (bool.TryParse(si, out b))
-    //        {
-    //            return b;
-    //        }
-    //        return si;
-    //    }
-    //}
-
     public class ApiResult
     {
         public static readonly ApiResult Empty = new ApiResult();
@@ -385,7 +75,7 @@ namespace LX29_Twitch.Api
         private static readonly ApiInfo[] apiInfoSort = new ApiInfo[]{
             ApiInfo.display_name , ApiInfo.game ,
             ApiInfo.status , ApiInfo.viewers ,ApiInfo.followers,ApiInfo.follow_created_at,
-            ApiInfo.video_height , ApiInfo.average_fps, ApiInfo.views, ApiInfo.partner,
+            ApiInfo.video_height , ApiInfo.average_fps, ApiInfo.views, ApiInfo.broadcaster_type,
             ApiInfo.language, ApiInfo.created_at, ApiInfo.sub_plan, ApiInfo._id};
 
         private Dictionary<ApiInfo, object> values = new Dictionary<ApiInfo, object>();
@@ -709,39 +399,43 @@ namespace LX29_Twitch.Api
 
         private void SetValues<T>(System.Reflection.PropertyInfo[] props, T channel)
         {
-            foreach (var prop in props)
+            try
             {
-                var info = ApiInfo.None;
-                if (Enum.TryParse<ApiInfo>(prop.Name, out info))
+                foreach (var prop in props)
                 {
-                    if (typeof(T).IsEquivalentTo(typeof(JSON.Twitch_Api.Stream)))
+                    var info = ApiInfo.None;
+                    if (Enum.TryParse<ApiInfo>(prop.Name.ToLower(), out info))
                     {
-                        switch (info)
-                        {
-                            case ApiInfo._id:
-                                info = ApiInfo.stream_id;
-                                break;
+                        object o = prop.GetValue(channel);
+                        //if (o is string && string.IsNullOrEmpty((string)o))
+                        //    continue;
 
-                            case ApiInfo.created_at:
-                                info = ApiInfo.stream_created_at;
-                                break;
+                        if (typeof(T).IsEquivalentTo(typeof(JSON.Twitch_Api.Stream)))
+                        {
+                            switch (info)
+                            {
+                                case ApiInfo._id:
+                                    info = ApiInfo.stream_id;
+                                    break;
+
+                                case ApiInfo.created_at:
+                                    info = ApiInfo.stream_created_at;
+                                    break;
+                            }
+                        }
+                        o = ConvertValue(o, info);
+
+                        if (!values.ContainsKey(info))
+                            values.Add(info, o);
+                        else
+                        {
+                            //values[info] = o;
                         }
                     }
-                    object o = prop.GetValue(channel);
-                    o = ConvertValue(o, info);
-                    //if (o is int || o is string && string.IsNullOrEmpty(((string)o)))
-                    //{
-                    //    ApiInfo[] test = new ApiInfo[] { ApiInfo.name, ApiInfo._id };
-
-                    //    if (test.Any(t => t == info))
-                    //    {
-                    //        values.Clear();
-                    //        break;
-                    //    }
-                    //}
-                    if (!values.ContainsKey(info))
-                        values.Add(info, o);
                 }
+            }
+            catch
+            {
             }
         }
     }

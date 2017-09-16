@@ -84,11 +84,11 @@ namespace LX29_ChatClient.Forms
             ChatClient_OnWhisperReceived(message);
         }
 
-        private void chatView_OnMessageReceived(ChatMessage message)
+        private void chatView_OnMessageReceived(ChatMessage msg)
         {
-            if (message.Channel.Equals(currentChannel.Name))
+            if (msg.Channel.Equals(currentChannel.Name))
             {
-                SetNewMessageTSMi(message);
+                SetNewMessageTSMi(msg);
             }
         }
 
@@ -214,8 +214,8 @@ namespace LX29_ChatClient.Forms
             try
             {
                 this.Text = currentChannel.DisplayName + " @ Twitch Chat (" + Enum.GetName(typeof(MsgType), MessageType) + ") |" +
-                    " Messages: " + chatView.MessageCount +
-                    " AllCount: " + ChatClient.Messages.MessageCount(currentChannel.Name);
+                    //" Messages: " + chatView.MessageCount +
+                    " Messages: " + ChatClient.Messages.Count(currentChannel.Name);
             }
             catch { }
         }

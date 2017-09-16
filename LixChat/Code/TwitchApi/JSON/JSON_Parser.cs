@@ -194,38 +194,38 @@ namespace LX29_Twitch.JSON_Parser
             //return emotes;
         }
 
-        private static string GetBetween(string input, string left, string right = "")
-        {
-            try
-            {
-                int start = 0;
-                if (!input.Contains(left))
-                {
-                    return "";
-                }
+        //private static string GetBetween(string input, string left, string right = "")
+        //{
+        //    try
+        //    {
+        //        int start = 0;
+        //        if (!input.Contains(left))
+        //        {
+        //            return "";
+        //        }
 
-                start = Math.Max(0, Math.Min(input.Length - 1, start));
+        //        start = Math.Max(0, Math.Min(input.Length - 1, start));
 
-                string output = "";
+        //        string output = "";
 
-                int i0 = input.IndexOf(left, start) + left.Length;
-                int i1 = input.IndexOf(right, i0);
-                if (right.Length > 0 && i1 >= 0)
-                {
-                    if (i0 <= i1)
-                    {
-                        output = input.Substring(i0, (i1 - i0) - 1);
-                    }
-                }
-                else
-                {
-                    output = input.Substring(i0);
-                }
-                return output;
-            }
-            catch { }
-            return "";
-        }
+        //        int i0 = input.IndexOf(left, start) + left.Length;
+        //        int i1 = input.IndexOf(right, i0);
+        //        if (right.Length > 0 && i1 >= 0)
+        //        {
+        //            if (i0 <= i1)
+        //            {
+        //                output = input.Substring(i0, (i1 - i0) - 1);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            output = input.Substring(i0);
+        //        }
+        //        return output;
+        //    }
+        //    catch { }
+        //    return "";
+        //}
 
         public class BTTV_Emotes
         {
@@ -336,28 +336,67 @@ namespace LX29_Twitch.JSON_Parser
                 public string updated_at { get; set; }
             }
 
-            public class Channel
+            public partial class Channel
             {
-                public int _id { get; set; }
+                [JsonProperty("_id")]
+                public long _id { get; set; }
+
+                [JsonProperty("broadcaster_language")]
                 public string broadcaster_language { get; set; }
+
+                [JsonProperty("broadcaster_type")]
                 public string broadcaster_type { get; set; }
+
+                [JsonProperty("created_at")]
                 public string created_at { get; set; }
+
+                [JsonProperty("description")]
                 public string description { get; set; }
+
+                [JsonProperty("display_name")]
                 public string display_name { get; set; }
-                public int followers { get; set; }
+
+                [JsonProperty("followers")]
+                public long followers { get; set; }
+
+                [JsonProperty("game")]
                 public string game { get; set; }
+
+                [JsonProperty("language")]
                 public string language { get; set; }
+
+                [JsonProperty("logo")]
                 public string logo { get; set; }
+
+                [JsonProperty("mature")]
                 public bool mature { get; set; }
+
+                [JsonProperty("name")]
                 public string name { get; set; }
+
+                [JsonProperty("partner")]
                 public bool partner { get; set; }
+
+                [JsonProperty("profile_banner")]
                 public string profile_banner { get; set; }
+
+                [JsonProperty("profile_banner_background_color")]
                 public string profile_banner_background_color { get; set; }
+
+                [JsonProperty("status")]
                 public string status { get; set; }
+
+                [JsonProperty("updated_at")]
                 public string updated_at { get; set; }
+
+                [JsonProperty("url")]
                 public string url { get; set; }
+
+                [JsonProperty("video_banner")]
                 public string video_banner { get; set; }
-                public int views { get; set; }
+
+                [JsonProperty("views")]
+                public long views { get; set; }
             }
 
             public class ChatterList
@@ -408,11 +447,18 @@ namespace LX29_Twitch.JSON_Parser
                 public string title { get; set; }
             }
 
-            public class Preview
+            public partial class Preview
             {
+                [JsonProperty("large")]
                 public string large { get; set; }
+
+                [JsonProperty("medium")]
                 public string medium { get; set; }
+
+                [JsonProperty("small")]
                 public string small { get; set; }
+
+                [JsonProperty("template")]
                 public string template { get; set; }
             }
 
@@ -431,10 +477,9 @@ namespace LX29_Twitch.JSON_Parser
                 #region only
 
                 public string _id { get; set; }
-
                 public string broadcaster_language { get; set; }
-
                 public string broadcaster_type { get; set; }
+                //public string broadcaster_type { get; set; }
 
                 public string created_at { get; set; }
 
@@ -473,21 +518,49 @@ namespace LX29_Twitch.JSON_Parser
                 #endregion only
             }
 
-            public class Stream
+            public partial class Stream
             {
+                [JsonProperty("_id")]
                 public long _id { get; set; }
+
+                [JsonProperty("average_fps")]
                 public double average_fps { get; set; }
+
+                [JsonProperty("broadcast_platform")]
                 public string broadcast_platform { get; set; }
+
+                [JsonProperty("channel")]
                 public Channel channel { get; set; }
+
+                [JsonProperty("community_id")]
                 public string community_id { get; set; }
+
+                [JsonProperty("community_ids")]
+                public string[] community_ids { get; set; }
+
+                [JsonProperty("created_at")]
                 public string created_at { get; set; }
-                public int delay { get; set; }
+
+                [JsonProperty("delay")]
+                public long delay { get; set; }
+
+                [JsonProperty("game")]
                 public string game { get; set; }
+
+                [JsonProperty("is_playlist")]
                 public bool is_playlist { get; set; }
+
+                [JsonProperty("preview")]
                 public Preview preview { get; set; }
+
+                [JsonProperty("stream_type")]
                 public string stream_type { get; set; }
-                public int video_height { get; set; }
-                public int viewers { get; set; }
+
+                [JsonProperty("video_height")]
+                public long video_height { get; set; }
+
+                [JsonProperty("viewers")]
+                public long viewers { get; set; }
             }
 
             public class Subscription

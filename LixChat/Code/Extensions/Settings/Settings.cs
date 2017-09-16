@@ -530,7 +530,7 @@ namespace LX29_ChatClient
             get { return (int)_ChatHistory; }
             set
             {
-                _ChatHistory = Math.Max(100, value);
+                _ChatHistory = Math.Max(128, value);
                 Save();
             }
         }

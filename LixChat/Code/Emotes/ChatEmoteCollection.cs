@@ -820,20 +820,26 @@ namespace LX29_ChatClient.Emotes
                 On_Loaded_channel(null, emotionary.Count, emotionary.Count,
                     "Finished Loading of " + emotionary.Count + " Emotes && " + Badges.Count + " Badges");
 
-                Task.Run(() =>
+                if (!Settings.MessageCaching)
                 {
-                    //DateTime now = DateTime.Now;
-                    int cnt = 0;
-                    var all = ChatClient.Messages.Values.AllMessages.Where(t => (t.SendTime.Ticks <= finish));
-                    int max = all.Count();
-                    foreach (var msg in all)
+                    Task.Run(() =>
                     {
-                        msg.ReloadEmotes();
-                        cnt++;
-                        On_Loaded_channel(null, cnt, max, "Reloading Emotes in Messages");
-                    }
-                    //MessageBox.Show(DateTime.Now.Subtract(now).ToString());
-                });
+                        int cnt = 0;
+                        var all = ChatClient.Messages.Values.AllMessages;
+                        int max = all.Count;
+                        System.Threading.Tasks.Parallel.ForEach(all.Keys, (key) =>
+                        {
+                            var chan = all[key].Where(t => (t.SendTime.Ticks <= finish));
+                            foreach (var msg in chan)
+                            {
+                                msg.ReloadEmotes();
+                                //On_Loaded_channel(null, cnt, max, "Reloading Emotes in Messages (" + key + ")");
+                            }
+                            cnt++;
+                            On_Loaded_channel(null, cnt, max, "Reloading Emotes in Messages (" + key + ")");
+                        });
+                    });
+                }
             }
             catch (Exception x)
             {
@@ -878,19 +884,21 @@ namespace LX29_ChatClient.Emotes
                 {
                     try
                     {
-                        List<EmoteBase> unis = new List<EmoteBase>();
-                        var arr = name.ToArray();
-                        for (int i = 0; i < name.Length; i += 2)
+                        if (name.Length % 2 == 0)
                         {
-                            var ch = name.Substring(i, 2);
-                            if (emotionary._emoji_unicodes.ContainsKey(ch))
+                            List<EmoteBase> unis = new List<EmoteBase>();
+                            for (int i = 0; i < name.Length; i += 2)
                             {
-                                var emoj = emotionary._emoji_unicodes[ch];
-                                unis.Add(emoj);
+                                var ch = name.Substring(i, 2);
+                                if (emotionary._emoji_unicodes.ContainsKey(ch))
+                                {
+                                    var emoj = emotionary._emoji_unicodes[ch];
+                                    unis.Add(emoj);
+                                }
                             }
+                            if (unis.Count > 0)
+                                return unis;
                         }
-                        if (unis.Count > 0)
-                            return unis;
                     }
                     catch
                     {

@@ -11,7 +11,7 @@ namespace LX29_ChatClient.Forms
         private static ApiInfo[] sortArray = new ApiInfo[]{
                 ApiInfo.name, ApiInfo.followers, ApiInfo.game ,
                 ApiInfo.status , ApiInfo.viewers, ApiInfo.follow_created_at,
-                ApiInfo.video_height , ApiInfo.average_fps, ApiInfo.views, ApiInfo.partner,
+                ApiInfo.video_height , ApiInfo.average_fps, ApiInfo.views, ApiInfo.broadcaster_type,
                 ApiInfo.language, ApiInfo.created_at, ApiInfo.sub_plan};
 
         private bool mouseDown = false;

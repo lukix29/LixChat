@@ -19,7 +19,7 @@ namespace LX29_ChatClient
 
         public delegate void _PartedChannel(string channel);
 
-        public delegate void _ReceivedHandler(ChatMessage message);
+        public delegate void _ReceivedHandler(ChatMessage msg);
 
         public delegate void _TimeoutHandler(TimeOutResult result);
 
@@ -53,10 +53,10 @@ namespace LX29_ChatClient
                 OnChannelParted(channel);
         }
 
-        private static void MessageReceived(ChatMessage message)
+        private static void MessageReceived(ChatMessage msg)
         {
             if (OnMessageReceived != null)
-                OnMessageReceived(message);
+                OnMessageReceived(msg);
         }
 
         private static void UserHasTimeouted(TimeOutResult result)

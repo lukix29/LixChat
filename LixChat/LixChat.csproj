@@ -42,7 +42,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>Data\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -3948,6 +3948,7 @@
     <Content Include="Resources\refresh_16xLG.png" />
     <Content Include="Resources\resize.png" />
     <Content Include="Resources\success.html" />
+    <None Include="Resources\System.Data.SQLite.dll" />
     <Content Include="Resources\timeout.png" />
   </ItemGroup>
   <ItemGroup>

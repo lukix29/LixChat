@@ -243,7 +243,7 @@ namespace LX29_ChatClient
             Timeout = !msg.Timeout.IsEmpty;
             Index = index;
             Types = msg.Types.Select(t => (byte)t).ToArray();
-            ID = Channel + "_" + index;
+            //ID = Channel + "_" + index;
 
             if (msg.User.Badges.Length > 0)
             {
@@ -258,13 +258,10 @@ namespace LX29_ChatClient
         [Column(Name = "Badges")]
         public string Badges { get; set; }
 
-        [Column(Name = "Channel")]
+        [Column(Name = "Channel", IsPrimaryKey = true)]
         public string Channel { get; set; }
 
-        [Column(Name = "ID", IsPrimaryKey = true)]
-        public string ID { get; set; }
-
-        [Column(Name = "Index")]
+        [Column(Name = "Index", IsPrimaryKey = true)]
         public int Index { get; set; }
 
         [Column(Name = "Message")]
@@ -289,7 +286,7 @@ namespace LX29_ChatClient
 
         public bool Equals(CacheMessage m2)
         {
-            return ID.Equals(m2.ID);
+            return (Channel + Index).Equals(m2.Channel + m2.Index);
         }
 
         public void From(CacheMessage m)
@@ -298,7 +295,7 @@ namespace LX29_ChatClient
 
             Channel = m.Channel;
 
-            ID = m.ID;
+            //ID = m.ID;
 
             Index = m.Index;
 
@@ -314,7 +311,7 @@ namespace LX29_ChatClient
 
         public override int GetHashCode()
         {
-            return ID.GetHashCode();
+            return (Channel + Index).GetHashCode();
         }
 
         //public static DateTime ConvertFromUnixTimestamp(double timestamp)
@@ -359,6 +356,9 @@ namespace LX29_ChatClient
             Message = msg.Message;
             User = (ChatClient.Users != null) ? ChatClient.Users.Get(Name, Channel, true) : new ChatUser(msg.Name, msg.Channel);
             SendTime = new DateTime(msg.Time);
+            Types = new HashSet<MsgType>();
+
+            ChatWords = ChatClient.Emotes.ParseEmoteFromMessage(null, Message, Channel, Types);
 
             //Message = msg.Message;
             //Channel = ChatClient.Channels[msg.Channel].ID;
