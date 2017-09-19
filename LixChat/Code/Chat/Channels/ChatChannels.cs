@@ -3,6 +3,7 @@ using LX29_Helpers;
 using LX29_Twitch.Api;
 using LX29_Twitch.Api.Video;
 using LX29_Twitch.Forms;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,7 +12,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 
 namespace LX29_ChatClient.Channels
 {

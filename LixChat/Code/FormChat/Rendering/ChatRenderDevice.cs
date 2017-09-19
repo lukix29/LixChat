@@ -96,6 +96,7 @@ namespace LX29_ChatClient.Forms
         private IOrderedEnumerable<EmoteBase> tempEmotes = null;
 
         private int visibleMessages = 0;
+        private readonly object drawLock = new object();
 
         public RenderDevice(ChatView form)
         {
@@ -175,8 +176,9 @@ namespace LX29_ChatClient.Forms
         {
             try
             {
-                if (isChangingGraphics) return;
-                isChangingGraphics = true;
+                if (isChangingGraphics > 0)
+                    return;
+                isChangingGraphics++;
                 lock (drawLock)
                 {
                     if (bufferedGraphics != null) bufferedGraphics.Dispose();
@@ -184,11 +186,9 @@ namespace LX29_ChatClient.Forms
                     bufferedGraphics = bufferedGraphicsContex.Allocate(control.CreateGraphics(), control.ClientRectangle);
                     bufferedGraphics.Graphics.SetGraphicQuality(true, true);
                 }
-                isChangingGraphics = false;
             }
-            catch
-            {
-            }
+            catch { }
+            isChangingGraphics = Math.Max(0, isChangingGraphics - 1);
         }
 
         public void MessageReceived(bool force = false)
@@ -202,12 +202,7 @@ namespace LX29_ChatClient.Forms
 
         public bool Render()
         {
-            return Render(bufferedGraphics.Graphics);
-        }
-
-        public bool Render(Graphics g)
-        {
-            g = bufferedGraphics.Graphics;
+            Graphics g = bufferedGraphics.Graphics;
 
             lock (drawLock)
             {
@@ -502,7 +497,7 @@ namespace LX29_ChatClient.Forms
                     bool iwasZero = false;
                     for (i = start; i >= 0; i--)
                     {
-                        if (isChangingGraphics || ShowAllEmotes)
+                        if (isChangingGraphics > 0 || ShowAllEmotes)
                         {
                             return;
                         }
@@ -808,7 +803,8 @@ namespace LX29_ChatClient.Forms
         public bool gifVisible = false;
         public RectangleF SelectRect = RectangleF.Empty;
         private const int timeSizeFac = 2;
-        private readonly object drawLock = new object();
+
+        //private readonly object drawLock = new object();
         private float _CharHeight = 0f;
 
         //private Color BG_Color = UserColors.ChatBackground;
@@ -828,7 +824,7 @@ namespace LX29_ChatClient.Forms
         private StringFormat infoStrFormat = new StringFormat();
 
         private Dictionary<internImages, EmoteImage> internalImages = new Dictionary<internImages, EmoteImage>();
-        private bool isChangingGraphics = false;
+        private int isChangingGraphics = 0;
 
         private Point mouseLocation = Point.Empty;
 

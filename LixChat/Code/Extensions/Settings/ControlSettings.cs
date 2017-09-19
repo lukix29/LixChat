@@ -215,7 +215,7 @@ namespace LX29_ChatClient.Forms
         private void btn_SaveHL_Click(object sender, EventArgs e)
         {
             ChatClient.ClearChatHighlightWord();
-            var arr = rTB_HighlightWords.Text.SplitAtSpecial();
+            var arr = rTB_HighlightWords.Text.Split('\n', '\r');
             foreach (var s in arr)
             {
                 ChatClient.AddChatHighlightWord(s);
@@ -223,7 +223,7 @@ namespace LX29_ChatClient.Forms
             rTB_HighlightWords.Clear();
             foreach (var hl in ChatClient.ChatHighlights)
             {
-                rTB_HighlightWords.AppendText(hl + "\r\n");
+                rTB_HighlightWords.AppendText(hl + "\n");
             }
         }
 

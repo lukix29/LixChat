@@ -471,7 +471,7 @@ namespace LX29_ChatClient.Forms
         private async void RefreshLoop()
         {
             long dt = DateTime.Now.Ticks;
-            while (true)
+            while (!this.IsDisposed)
             {
                 if (this.IsDisposed)
                     break;
@@ -538,7 +538,7 @@ namespace LX29_ChatClient.Forms
                     double tt = ((DateTime.Now.Ticks - dt) / (double)TimeSpan.TicksPerMillisecond);
                     if (tt < wait)
                     {
-                        await Task.Delay((int)(wait - tt));
+                        await Task.Delay((int)Math.Max(0, Math.Min(1000, (wait - tt))));
                     }
                     dt = DateTime.Now.Ticks;
                 }

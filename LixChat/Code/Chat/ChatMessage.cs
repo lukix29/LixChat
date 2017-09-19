@@ -2,27 +2,9 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using LX29_ChatClient.Addons;
-
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-
-using System.IO;
-
-using System.Linq;
-
-using System.Media;
-using System.Runtime.InteropServices;
-
-using System.Windows.Forms;
-
-using LinqToSqlShared.Mapping;
 using System.Data.Linq.Mapping;
-using System.Data.Linq;
-using System.Data.SQLite;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace LX29_ChatClient
 {

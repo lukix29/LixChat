@@ -1,16 +1,14 @@
 ﻿using LX29_ChatClient.Addons;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.Linq;
+using System.Data.Linq.Mapping;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using LinqToSqlShared.Mapping;
-using System.Data.Linq.Mapping;
-using System.Data.Linq;
-using System.Data.SQLite;
 
 namespace LX29_ChatClient
 {
@@ -288,8 +286,10 @@ namespace LX29_ChatClient
 
                     if (enableCaching)
                     {
-                        while (isLoading) System.Threading.Thread.Sleep(100);
-                        sql.Add(new CacheMessage(msg, cnt));
+                        if (!isLoading)
+                        {
+                            sql.Add(new CacheMessage(msg, cnt));
+                        }
                     }
                 }
                 catch
@@ -328,7 +328,7 @@ namespace LX29_ChatClient
                 try
                 {
                     //int allmax = 256;
-                    while (isLoading) System.Threading.Thread.Sleep(100);
+                    if (isLoading) return null;
                     int allcnt = this.AllCount[channel];
                     if (messages.Count <= 0) return new List<ChatMessage>();
                     start = Math.Min(end, Math.Max(0, start));
@@ -435,12 +435,20 @@ namespace LX29_ChatClient
                             isLoading = false;
                         });
                     }
+                    else
+                    {
+                        isLoading = false;
+                    }
                 }
                 catch (Exception x)
                 {
                     x.Handle("", true);
                     File.Delete(path);
                     Load();
+                }
+                finally
+                {
+                    if (!Settings.MessageCaching) isLoading = false;
                 }
             }
 

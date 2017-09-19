@@ -924,7 +924,7 @@ namespace LX29_ChatClient
 
         public static void ClearChatHighlightWord()
         {
-            chatHighlights.RemoveAll(t => !t.Equals(SelfUserName));
+            chatHighlights.Clear();
         }
 
         public static void FetchEmotes()

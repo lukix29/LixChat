@@ -162,6 +162,11 @@ namespace LX29_ChatClient.Emotes
             return Image.CalcSize(height, size);
         }
 
+        public void Dispose()
+        {
+            Image.Dispose();
+        }
+
         public void DownloadImages()
         {
             Image.DownloadImages();
@@ -176,11 +181,6 @@ namespace LX29_ChatClient.Emotes
                 g.DrawLine(Pens.DarkGray, X, Y, X + Width, Y + Height);
             }
             return res;
-        }
-
-        public void Dispose()
-        {
-            Image.Dispose();
         }
 
         public bool Equals(EmoteBase obj, EmoteBase obj1)

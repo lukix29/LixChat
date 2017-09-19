@@ -345,11 +345,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Resources\Cache.db" />
-    <None Include="packages.config" />
     <None Include="Resources\1463551454_16.ico" />
     <None Include="Resources\temp.jpg" />
     <None Include="Resources\ActionHelp.txt" />
