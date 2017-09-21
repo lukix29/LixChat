@@ -655,7 +655,6 @@ namespace LX29_LixChat
                             break;
                     }
                     Settings.StartBrowser(arguments + "https://player.twitch.tv/?volume=1&!muted&channel=" + channel.Name);
-                    ChatClient.TryConnect(channel.Name);
                 }
             }
         }

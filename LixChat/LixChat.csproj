@@ -27,59 +27,33 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugType>none</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>Data\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
   <PropertyGroup>
     <StartupObject>LX29_LixChat.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>1463551454_16.ico</ApplicationIcon>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\Release\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>Data\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>..\packages\MySql.Data.6.9.9\lib\net45\MySql.Data.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Code\TwitchApi\JSON\Newtonsoft.Json.dll</HintPath>
@@ -91,7 +65,8 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Data.Linq" />
-    <Reference Include="System.Data.SQLite">
+    <Reference Include="System.Data.SQLite, Version=1.0.79.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>Plugins\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Management" />
@@ -155,13 +130,19 @@
     </Compile>
     <Compile Include="Code\FormChat\Rendering\ChatRenderDevice.cs" />
     <Compile Include="Code\FormChat\Rendering\ManagedGDi.cs" />
+    <Compile Include="Code\FormStream\Player\PlayerControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Code\FormStream\Player\PlayerControl.Designer.cs">
+      <DependentUpon>PlayerControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Code\TwitchApi\TwitchUser\SimpleHTTPServer.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Resources\MyScripts.cs" />
+    <EmbeddedResource Include="Resources\MyScripts.cs" />
     <Compile Include="Code\Chat\ChatExtras\ChatScripts\BaseScripts\DschibbsAktien.cs" />
     <Compile Include="Code\Chat\ChatExtras\ChatScripts\ChatScript.cs" />
     <Compile Include="Code\Chat\ChatExtras\QuickText\QuickText.cs" />
@@ -232,10 +213,10 @@
     <Compile Include="Code\FormStream\FormStreamPanels.Designer.cs">
       <DependentUpon>FormStreamPanels.cs</DependentUpon>
     </Compile>
-    <Compile Include="Code\FormStream\FormPlayer.cs">
+    <Compile Include="Code\FormStream\Player\FormPlayer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Code\FormStream\FormPlayer.designer.cs">
+    <Compile Include="Code\FormStream\Player\FormPlayer.designer.cs">
       <DependentUpon>FormPlayer.cs</DependentUpon>
     </Compile>
     <Compile Include="Code\FormStream\VolumeControl\VolumeControl.cs">
@@ -314,13 +295,16 @@
     <EmbeddedResource Include="Code\FormStream\ChannelListBox.resx">
       <DependentUpon>ChannelListBox.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormStream\Player\PlayerControl.resx">
+      <DependentUpon>PlayerControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Code\TwitchApi\ApiInfoPanel\ApiInfoPanel.resx">
       <DependentUpon>ApiInfoPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Code\FormStream\FormStreamPanels.resx">
       <DependentUpon>FormStreamPanels.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Code\FormStream\FormPlayer.resx">
+    <EmbeddedResource Include="Code\FormStream\Player\FormPlayer.resx">
       <DependentUpon>FormPlayer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Code\FormStream\VolumeControl\VolumeControl.resx">
@@ -345,6 +329,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="Resources\Cache.db" />
     <None Include="Resources\1463551454_16.ico" />
     <None Include="Resources\temp.jpg" />
@@ -3939,13 +3924,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="1463551454_16.ico" />
+    <Content Include="Resources\pause.png" />
+    <Content Include="Resources\play.png" />
     <None Include="Data\LixChat.exe" />
-    <Content Include="Resources\ban.png" />
-    <Content Include="Resources\refresh_16xLG.png" />
-    <Content Include="Resources\resize.png" />
-    <Content Include="Resources\success.html" />
+    <None Include="Resources\ban.png" />
+    <None Include="Resources\Mute.png" />
+    <None Include="Resources\noMute.png" />
+    <None Include="Resources\close.png" />
+    <None Include="Resources\refresh_16xLG.png" />
+    <None Include="Resources\resize.png" />
+    <None Include="Resources\success.html" />
     <None Include="Resources\System.Data.SQLite.dll" />
-    <Content Include="Resources\timeout.png" />
+    <None Include="Resources\timeout.png" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />

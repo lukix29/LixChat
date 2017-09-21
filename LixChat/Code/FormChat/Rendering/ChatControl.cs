@@ -144,6 +144,10 @@ namespace LX29_ChatClient.Forms
             channel = ci;
             SetAllMessages(type, ci, name);
             Stop();
+            if (ci != null)
+            {
+                ChatClient.TryConnect(ci.Name);
+            }
             ChatClient.OnMessageReceived += ChatClient_MessageReceived;
             ChatClient.OnTimeout += ChatClient_UserHasTimeouted;
 
@@ -153,7 +157,6 @@ namespace LX29_ChatClient.Forms
             {
                 loopRunning = true;
                 Task.Run(new Action(RefreshLoop));
-                //Task.Run(() => EmoteLoop());
             }
         }
 

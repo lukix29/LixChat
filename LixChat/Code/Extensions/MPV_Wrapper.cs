@@ -556,11 +556,6 @@ namespace LX29_Helpers
                         }
                     }
                 }
-                else
-                {
-                    //serr = process.StandardError.ReadToEnd();
-                    //sout = process.StandardOutput.ReadToEnd();
-                }
 
                 return HasStarted;
             }
@@ -623,34 +618,45 @@ namespace LX29_Helpers
 
         private string _read(char until)
         {
-            byte[] ba = new byte[pipe.InBufferSize];
-            string sout = "";
-            AsyncCallback callback = ar =>
+            try
             {
-                int received = pipe.EndRead(ar);
-                if (received > 0)
+                byte[] ba = new byte[pipe.InBufferSize];
+                string sout = "";
+                AsyncCallback callback = ar =>
                 {
-                    sout = Encoding.UTF8.GetString(ba).Split(until)[0];
-                }
-            };
-            if (sout.Length == 0) pipe.BeginRead(ba, 0, ba.Length, callback, null);
-            DateTime dt = DateTime.Now;
-            while (sout.Length == 0)
-            {
-                if (DateTime.Now.Subtract(dt).TotalSeconds > 5)
+                    int received = pipe.EndRead(ar);
+                    if (received > 0)
+                    {
+                        sout = Encoding.UTF8.GetString(ba).Split(until)[0];
+                    }
+                };
+                if (sout.Length == 0) pipe.BeginRead(ba, 0, ba.Length, callback, null);
+                DateTime dt = DateTime.Now;
+                while (sout.Length == 0)
                 {
-                    break;
+                    if (DateTime.Now.Subtract(dt).TotalSeconds > 5)
+                    {
+                        break;
+                    }
                 }
+                return sout;
             }
-            return sout;
+            catch { }
+            return string.Empty;
         }
 
         private void SendRaw(string s)
         {
-            if (pipe.IsConnected)
+            try
             {
-                byte[] ba = Encoding.UTF8.GetBytes(s.ToLower() + "\n");
-                pipe.Write(ba, 0, ba.Length);
+                if (pipe.IsConnected)
+                {
+                    byte[] ba = Encoding.UTF8.GetBytes(s.ToLower() + "\n");
+                    pipe.Write(ba, 0, ba.Length);
+                }
+            }
+            catch
+            {
             }
         }
     }

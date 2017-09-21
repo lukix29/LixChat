@@ -16,11 +16,18 @@ namespace updater
             {
                 string source = args[0];
                 string dest = "";
-                for (int i = 1; i < args.Length; i++)
+                if (args.Length >= 3)
                 {
-                    dest += args[i] + " ";
+                    for (int i = 1; i < args.Length; i++)
+                    {
+                        dest += args[i] + " ";
+                    }
+                    dest = dest.Trim();
                 }
-                dest = dest.Trim();
+                else
+                {
+                    dest = args[1].Replace("\"", "");
+                }
                 var procs = Process.GetProcesses();
                 foreach (var proc in procs)
                 {

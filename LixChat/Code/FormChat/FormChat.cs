@@ -130,8 +130,6 @@ namespace LX29_ChatClient.Forms
 
                 ChatClient.OnMessageReceived += chatView_OnMessageReceived;
 
-                ChatClient.TryConnect(currentChannel.Name);
-
                 chatView.SetChannel(currentChannel, MsgType.All_Messages);
             }
             catch (Exception x)

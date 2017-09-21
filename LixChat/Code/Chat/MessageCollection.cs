@@ -864,6 +864,7 @@ namespace LX29_ChatClient
         {
             private static readonly object _readerWriterLock = new object();
             private List<T> buffer = new List<T>();
+            private int bufferWriteDelay = 5000;
             private Func<Table<T>, T, bool> insertComparer;
             private SQLiteConnection sql;
             private LXTimer timer;
@@ -873,7 +874,13 @@ namespace LX29_ChatClient
                 insertComparer = comparer;
                 //string path = Settings.caonfigBaseDir + databaseFile;
                 sql = new SQLiteConnection(@"Data Source=" + path);
-                timer = new LXTimer(new Action<LXTimer>(bufferWrite), 1000, 1000);
+                timer = new LXTimer(new Action<LXTimer>(bufferWrite), bufferWriteDelay, bufferWriteDelay);
+            }
+
+            public int BufferWriteDelay
+            {
+                get { return bufferWriteDelay; }
+                set { bufferWriteDelay = Math.Max(100, value); }
             }
 
             public void Add(T item)
@@ -904,11 +911,12 @@ namespace LX29_ChatClient
                 try
                 {
                     List<T> list = new List<T>();
-                    lock (_readerWriterLock)
+
+                    using (DataContext dc = new DataContext(sql))
                     {
-                        using (DataContext dc = new DataContext(sql))
+                        var sqlTable = dc.GetTable<T>();
+                        lock (_readerWriterLock)
                         {
-                            var sqlTable = dc.GetTable<T>();
                             var te = sqlTable.Where(select);
                             if (te != null)
                             {
@@ -953,7 +961,7 @@ namespace LX29_ChatClient
                 catch
                 {
                 }
-                t.Change(1000, 1000);
+                t.Change(bufferWriteDelay, bufferWriteDelay);
             }
 
             //private void RunInsertSQL(T msg, int cnt = 0)

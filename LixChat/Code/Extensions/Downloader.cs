@@ -144,7 +144,7 @@ namespace LX29_Helpers
                         }
                         string updater = Path.GetTempFileName().Replace(".tmp", ".exe");
                         File.WriteAllBytes(updater, data);
-                        Process.Start(updater, path + " " + Application.ExecutablePath);
+                        Process.Start(updater, "\"" + path + "\" \"" + Application.ExecutablePath + "\"");
                         Application.Exit();
                     }
                 }

@@ -920,6 +920,7 @@ namespace LX29_ChatClient
                 chatHighlights.Add(word.ToLower());
                 if (save) SaveChatHighlightWord();
             }
+            var bitmap = LX29_LixChat.Properties.Resources.loading;
         }
 
         public static void ClearChatHighlightWord()
