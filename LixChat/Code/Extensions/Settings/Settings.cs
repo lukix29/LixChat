@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace LX29_ChatClient
 {
@@ -709,15 +710,15 @@ namespace LX29_ChatClient
             catch { }
             if (File.Exists(settings_ini_path))
             {
-                var lines = File.ReadAllLines(settings_ini_path);
-                if (lines.Length > 0)
+                try
                 {
-                    try
+                    var lines = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(settings_ini_path));
+                    if (lines.Count > 0)
                     {
                         foreach (var line in lines)
                         {
-                            var _Value = line.GetBetween("[", "]").Trim();
-                            var key = line.GetBetween("", "[").Trim();
+                            var _Value = line.Value;//.GetBetween("[", "]").Trim();
+                            var key = line.Key;//.GetBetween("", "[").Trim();
                             var typ = typeof(Settings);
 
                             var field = typ.GetField(key, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
@@ -737,14 +738,12 @@ namespace LX29_ChatClient
                                 val = Convert.ChangeType(_Value, field.FieldType);
                             }
                             field.SetValue(null, val);
-
-                            //prop.SetValue(null, value);
                         }
                         return true;
                     }
-                    catch
-                    {
-                    }
+                }
+                catch
+                {
                 }
             }
             Save();
@@ -753,22 +752,33 @@ namespace LX29_ChatClient
 
         public static void Save()
         {
-            using (StreamWriter sw = new StreamWriter(File.Create(settings_ini_path)))
+            try
             {
-                var sa = typeof(Settings).GetFields(
+                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(settings_ini_path)))
+                {
+                    writer.WriteStartObject();
+
+                    var sa = typeof(Settings).GetFields(
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
 
-                foreach (var s in sa)
-                {
-                    if (s.Name.StartsWith("_"))
+                    foreach (var s in sa)
                     {
-                        if (null != s)
+                        if (s.Name.StartsWith("_"))
                         {
-                            var value = s.GetValue(null);
-                            sw.WriteLine(s.Name + "\t[" + value + "]");
+                            if (null != s)
+                            {
+                                var value = s.GetValue(null).ToString();
+                                writer.WritePropertyName(s.Name);
+                                writer.WriteValue(value);
+                                // (s.Name + "\t[" + value + "]");
+                            }
                         }
                     }
+                    writer.WriteEnd();
                 }
+            }
+            catch
+            {
             }
         }
 

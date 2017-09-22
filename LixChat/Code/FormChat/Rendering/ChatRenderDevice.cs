@@ -77,6 +77,7 @@ namespace LX29_ChatClient.Forms
         //public int msgCount = 0;
         public bool ShowName = true;
 
+        private readonly object drawLock = new object();
         private bool _showAllEmotes = false;
 
         private int emoteDlCnt = 0;
@@ -96,7 +97,6 @@ namespace LX29_ChatClient.Forms
         private IOrderedEnumerable<EmoteBase> tempEmotes = null;
 
         private int visibleMessages = 0;
-        private readonly object drawLock = new object();
 
         public RenderDevice(ChatView form)
         {
