@@ -266,7 +266,7 @@ namespace LX29_ChatClient.Emotes
 
         public void Load()
         {
-            string path = Settings.dataDir + "Badges.txt";
+            string path = Settings._dataDir + "Badges.txt";
             if (!File.Exists(path)) return;
             using (JsonTextReader reader = new JsonTextReader(new StreamReader(File.OpenRead(path))))
             {
@@ -351,7 +351,7 @@ namespace LX29_ChatClient.Emotes
         public void SetEnabled(string item, bool enabled)
         {
             badges[item].IsEnabled = enabled;
-            Save(Settings.dataDir + "Badges.txt");
+            Save(Settings._dataDir + "Badges.txt");
         }
 
         private void Save(string path)

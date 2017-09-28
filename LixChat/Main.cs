@@ -144,13 +144,13 @@ namespace LX29_LixChat
 
                 this.Text = "LixChat | (Build " + this.GetType().Assembly.GetLinkerTime().ToString() + ")";
 
-                if (!System.IO.Directory.Exists(Settings.dataDir))
+                if (!System.IO.Directory.Exists(Settings._dataDir))
                 {
-                    System.IO.Directory.CreateDirectory(Settings.dataDir);
+                    System.IO.Directory.CreateDirectory(Settings._dataDir);
                 }
-                if (!System.IO.Directory.Exists(Settings.pluginDir))
+                if (!System.IO.Directory.Exists(Settings._pluginDir))
                 {
-                    System.IO.Directory.CreateDirectory(Settings.pluginDir);
+                    System.IO.Directory.CreateDirectory(Settings._pluginDir);
                 }
 
                 MPV_Wrapper.SetBorderSize(this.Size, this.ClientSize);
@@ -337,7 +337,7 @@ namespace LX29_LixChat
                 {
                     quali = comBox_StreamQuali.SelectedItem.ToString();
                 }
-                sa[0].ShowVideoPlayer(quali, true, SetProgressInfo);// Task.Run(() => StartMpvExternal(quali, sa[0]));
+                sa[0].ShowVideoPlayer(quali, ChannelInfo.PlayerType.ExternalMPV, SetProgressInfo);// Task.Run(() => StartMpvExternal(quali, sa[0]));
             }
         }
 
@@ -355,6 +355,20 @@ namespace LX29_LixChat
                 {
                     Task.Run(() => LX29_MessageBox.Show(sa[0].SubInfo.ToString(), sa[0].SubInfo.PlanName));
                 }
+            }
+        }
+
+        private void btn_Record_Click(object sender, EventArgs e)
+        {
+            var sa = GetCurrentInfo();
+            if (sa != null)
+            {
+                string quali = "SOURCE";
+                if (comBox_StreamQuali.SelectedIndex >= 0)
+                {
+                    quali = comBox_StreamQuali.SelectedItem.ToString();
+                }
+                sa[0].ShowVideoPlayer(quali, ChannelInfo.PlayerType.Record_ShowMPV, SetProgressInfo);// Task.Run(() => StartMpvExternal(quali, sa[0]));
             }
         }
 
@@ -379,43 +393,43 @@ namespace LX29_LixChat
             }
         }
 
-        private void btn_ShowPreview_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                var sa = GetCurrentInfo();
-                if (sa != null)
-                {
-                    string quali = "SOURCE";
-                    if (comBox_StreamQuali.SelectedIndex >= 0)
-                    {
-                        quali = comBox_StreamQuali.SelectedItem.ToString();
-                    }
-                    if (!MPV_Downloader.MPV_Exists)
-                    {
-                        MPV_Downloader.DownloadMPV(SetProgressInfo, () => this.Invoke(new Action(() => btn_ShowPreview.PerformClick())));
-                    }
-                    else
-                    {
-                        if (!mpvPreview.IsRunning)
-                        {
-                            var video = sa[0].StreamURLS[quali];
-                            if (video != null)
-                            {
-                                mpvPreview.StartAsync(video.URL, 0, splitContainer_Preview.Panel1.Handle);
-                            }
-                        }
-                        else
-                        {
-                            mpvPreview.Stop();
-                        }
-                    }
-                }
-            }
-            catch
-            {
-            }
-        }
+        //private void btn_ShowPreview_Click(object sender, EventArgs e)
+        //{
+        //    try
+        //    {
+        //        var sa = GetCurrentInfo();
+        //        if (sa != null)
+        //        {
+        //            string quali = "SOURCE";
+        //            if (comBox_StreamQuali.SelectedIndex >= 0)
+        //            {
+        //                quali = comBox_StreamQuali.SelectedItem.ToString();
+        //            }
+        //            if (!MPV_Downloader.MPV_Exists)
+        //            {
+        //                //MPV_Downloader.DownloadMPV(SetProgressInfo, () => this.Invoke(new Action(() => btn_ShowPreview.PerformClick())));
+        //            }
+        //            else
+        //            {
+        //                if (!mpvPreview.IsRunning)
+        //                {
+        //                    var video = sa[0].StreamURLS[quali];
+        //                    if (video != null)
+        //                    {
+        //                        mpvPreview.StartAsync(video.URL, 0, splitContainer_Preview.Panel1.Handle);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    mpvPreview.Stop();
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch
+        //    {
+        //    }
+        //}
 
         private void btn_ShowUsers_Click(object sender, EventArgs e)
         {
@@ -450,13 +464,6 @@ namespace LX29_LixChat
 
         private void btn_Test_Click(object sender, EventArgs e)
         {
-            //var sa = GetCurrentInfo();
-            //if (sa[0].MPV.IsRunning)
-            //{
-            //    var url = sa[0].StreamURLS["source"].URL;
-            //    sa[0].MPV.PlayNewFile(url);
-            //}
-            //ChatClient.SendMessage("/mods", sa[0].Name);
         }
 
         private void button1_Click_2(object sender, EventArgs e)
@@ -557,6 +564,11 @@ namespace LX29_LixChat
                     ColorControls(ci, color, color1);
                 }
             }
+        }
+
+        private void comBox_StreamQuali_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            playerControl1.Quality = comBox_StreamQuali.SelectedItem.ToString();
         }
 
         private void Emotes_LoadedChannel(ChannelInfo ci, int count, int max, string info)
@@ -705,10 +717,10 @@ namespace LX29_LixChat
         private void SetChatInfos(ChannelInfo si)
         {
             if (lockChatSettings) return;
-            //this.SuspendLayout();
             lockChatSettings = true;
 
-            pb_Preview.SizeMode = si.PreviewImage.IsGif() ? PictureBoxSizeMode.CenterImage : PictureBoxSizeMode.Zoom;
+            playerControl1.Stream = si;
+            playerControl1.SizeMode = si.PreviewImage.IsGif() ? PictureBoxSizeMode.CenterImage : PictureBoxSizeMode.Zoom;
 
             comBox_StreamQuali.Text = "Loading";
             comBox_StreamQuali.Items.Add("SOURCE");
@@ -739,11 +751,11 @@ namespace LX29_LixChat
                 }));
             });
 
-            pb_Preview.Image = si.PreviewImage;
+            playerControl1.PreviewImage = si.PreviewImage;
+
             cB_AutoLogin.Checked = si.AutoLoginChat;
             cB_Favorite.Checked = si.IsFavorited;
             cB_LogChat.Checked = si.LogChat;
-            //btn_openSubpage.Visible = !si.SubInfo.IsEmpty;
 
             cB_AutoLogin.Enabled = btn_Disconnect.Enabled = !si.IsFixed;
 

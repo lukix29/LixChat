@@ -214,22 +214,20 @@ namespace LX29_ChatClient
 
     public class Settings
     {
-        public static readonly string caonfigBaseDir =
+        public static readonly string _caonfigBaseDir =
             Application.StartupPath.Contains("Debug") ?
             Path.GetFullPath(".\\") :
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\LixChat\\";
 
-        public static readonly string chatLogDir = caonfigBaseDir + "Chatlogs\\";
-        public static readonly string dataDir = caonfigBaseDir + "Data\\";
-        public static readonly string emojiDir = ".\\Emojis\\";
-        public static readonly string emoteDir = caonfigBaseDir + "Emotes\\";
-        public static readonly bool isDebug = Application.StartupPath.Contains("Debug");
-        public static readonly string pluginDir = ".\\Plugins\\";
-        public static readonly string resourceDir = ".\\Resources\\";
-
-        public static readonly string scriptDir = caonfigBaseDir + "Scripts\\";
-
-        private static readonly string settings_ini_path = caonfigBaseDir + "settings.ini";
+        public static readonly string _chatLogDir = _caonfigBaseDir + "Chatlogs\\";
+        public static readonly string _dataDir = _caonfigBaseDir + "Data\\";
+        public static readonly string _emojiDir = ".\\Emojis\\";
+        public static readonly string _emoteDir = _caonfigBaseDir + "Emotes\\";
+        public static readonly bool _isDebug = Application.StartupPath.Contains("Debug");
+        public static readonly string _pluginDir = ".\\Plugins\\";
+        public static readonly string _resourceDir = ".\\Resources\\";
+        public static readonly string _scriptDir = _caonfigBaseDir + "Scripts\\";
+        private static readonly string _settings_ini_path = _caonfigBaseDir + "settings.ini";
 
         public static Dictionary<string, object> Standard
         {
@@ -443,6 +441,7 @@ namespace LX29_ChatClient
         private static bool _MessageCaching = false;
         private static double _MpvBufferBytes = 64000;
         private static double _MpvBufferSeconds = 10;
+        private static string _RecordDirectory = _caonfigBaseDir;
         private static bool _ShowErrors = false;
         private static bool _ShowTimeoutMessages = true;
         private static double _UpdateInterval = 60000;
@@ -597,6 +596,16 @@ namespace LX29_ChatClient
             }
         }
 
+        public static string RecordDirectory
+        {
+            get { return _RecordDirectory; }
+            set
+            {
+                _RecordDirectory = value;
+                Save();
+            }
+        }
+
         public static bool ShowErrors
         {
             get { return _ShowErrors; }
@@ -686,33 +695,28 @@ namespace LX29_ChatClient
                 Standard = typeof(Settings).GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
                     .Where(t => t.Name.StartsWith("_")).ToDictionary(t => t.Name, t0 => t0.GetValue(null));
 
-                Directory.CreateDirectory(chatLogDir);
+                Directory.CreateDirectory(_chatLogDir);
             }
             catch { }
-            try { Directory.CreateDirectory(dataDir); }
+            try { Directory.CreateDirectory(_dataDir); }
             catch { }
-            try { Directory.CreateDirectory(emoteDir); }
+            try { Directory.CreateDirectory(_emoteDir); }
             catch { }
-            try { Directory.CreateDirectory(scriptDir); }
+            try { Directory.CreateDirectory(_scriptDir); }
             catch { }
             try
             {
-                if (!File.Exists(scriptDir + "TestScript.cs"))
+                if (!File.Exists(_scriptDir + "TestScript.cs"))
                 {
-                    //string old = LX29_TwitchChat.Properties.Resources.MyScripts;
-                    //string nwe = File.ReadAllText(scriptDir + "TestScript.cs");
-                    //if (old.Equals(nwe))
-                    //{
-                    File.WriteAllText(scriptDir + "TestScript.cs", LX29_LixChat.Properties.Resources.MyScripts);
-                    // }
+                    File.WriteAllText(_scriptDir + "TestScript.cs", LX29_LixChat.Properties.Resources.MyScripts);
                 }
             }
             catch { }
-            if (File.Exists(settings_ini_path))
+            if (File.Exists(_settings_ini_path))
             {
                 try
                 {
-                    var lines = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(settings_ini_path));
+                    var lines = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(_settings_ini_path));
                     if (lines.Count > 0)
                     {
                         foreach (var line in lines)
@@ -754,7 +758,7 @@ namespace LX29_ChatClient
         {
             try
             {
-                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(settings_ini_path)))
+                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(_settings_ini_path)))
                 {
                     writer.WriteStartObject();
 
@@ -770,7 +774,6 @@ namespace LX29_ChatClient
                                 var value = s.GetValue(null).ToString();
                                 writer.WritePropertyName(s.Name);
                                 writer.WriteValue(value);
-                                // (s.Name + "\t[" + value + "]");
                             }
                         }
                     }
@@ -782,7 +785,7 @@ namespace LX29_ChatClient
             }
         }
 
-        public static void SetValue(string Name, object value)
+        public static bool SetValue(string Name, object value)
         {
             var sa = typeof(Settings).GetFields(
                   System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
@@ -791,10 +794,12 @@ namespace LX29_ChatClient
             {
                 sa.SetValue(null, value);
                 Save();
+                return true;
             }
+            return false;
         }
 
-        public static void SetValue(SettingClasses variable, object value)
+        public static bool SetValue(SettingClasses variable, object value)
         {
             var sa = typeof(Settings).GetFields(
                   System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
@@ -803,7 +808,9 @@ namespace LX29_ChatClient
             {
                 sa.SetValue(null, value);
                 Save();
+                return true;
             }
+            return false;
         }
 
         public static Process StartBrowser(string url)

@@ -34,6 +34,7 @@
             this.tSMi_Copy = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_Search = new System.Windows.Forms.ToolStripMenuItem();
             this.lbl_ScrollDown = new System.Windows.Forms.Label();
+            this.elementHost1 = new System.Windows.Forms.Integration.ElementHost();
             this.cMS_TextOptions.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -81,9 +82,20 @@
             this.lbl_ScrollDown.Visible = false;
             this.lbl_ScrollDown.Click += new System.EventHandler(this.lbl_ScrollDown_Click);
             // 
+            // elementHost1
+            // 
+            this.elementHost1.Location = new System.Drawing.Point(181, 345);
+            this.elementHost1.Name = "elementHost1";
+            this.elementHost1.Size = new System.Drawing.Size(200, 100);
+            this.elementHost1.TabIndex = 2;
+            this.elementHost1.Text = "elementHost1";
+            this.elementHost1.Visible = false;
+            this.elementHost1.Child = null;
+            // 
             // ChatView
             // 
             this.BackColor = System.Drawing.Color.Black;
+            this.Controls.Add(this.elementHost1);
             this.Controls.Add(this.lbl_ScrollDown);
             this.Name = "ChatView";
             this.Size = new System.Drawing.Size(492, 570);
@@ -104,6 +116,7 @@
         private System.Windows.Forms.ToolStripMenuItem tSMi_Search;
         private System.Windows.Forms.ToolStripTextBox tSMi_Text;
         private System.Windows.Forms.Label lbl_ScrollDown;
+        private System.Windows.Forms.Integration.ElementHost elementHost1;
 
     }
 }

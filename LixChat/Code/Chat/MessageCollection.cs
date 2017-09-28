@@ -369,7 +369,7 @@ namespace LX29_ChatClient
 
             public void Load()
             {
-                string path = Settings.caonfigBaseDir + "Cache.db";
+                string path = Settings._caonfigBaseDir + "Cache.db";
                 try
                 {
                     AllCount = new Dictionary<string, int>();
@@ -829,8 +829,8 @@ namespace LX29_ChatClient
 
             public static void Load()
             {
-                whisperSound = new SoundPlayer(Settings.resourceDir + "whisper_alert.wav");
-                highlightSound = new SoundPlayer(Settings.resourceDir + "highlight_alert.wav");
+                whisperSound = new SoundPlayer(Settings._resourceDir + "whisper_alert.wav");
+                highlightSound = new SoundPlayer(Settings._resourceDir + "highlight_alert.wav");
                 whisperSound.LoadAsync();
                 highlightSound.LoadAsync();
             }
@@ -963,44 +963,6 @@ namespace LX29_ChatClient
                 }
                 t.Change(bufferWriteDelay, bufferWriteDelay);
             }
-
-            //private void RunInsertSQL(T msg, int cnt = 0)
-            //{
-            //    try
-            //    {
-            //        lock (_readerWriterLock)
-            //        {
-            //            using (DataContext dc = new DataContext(sql))
-            //            {
-            //                var tbl = dc.GetTable<T>();
-
-            //                //var m = tbl.FirstOrDefault(t => t.ID.Equals(msg.ID));
-            //                //if (insertComparerm != null)
-            //                //{
-            //                //    m.From(msg);
-            //                //}
-            //                if (!insertComparer(msg))
-            //                {
-            //                    tbl.InsertOnSubmit(msg);
-            //                }
-            //                dc.SubmitChanges(ConflictMode.FailOnFirstConflict);
-            //            }
-            //        }
-            //    }
-            //    catch
-            //    {
-            //        System.Threading.Thread.Sleep(10);
-            //        if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
-            //        RunInsertSQL(msg, cnt + 1);
-            //    }
-
-            //    //if (isbreaked)
-            //    //{
-            //    //    System.Threading.Thread.Sleep(10);
-            //    //    if (cnt >= 10) throw new TimeoutException("RunInsertSQL more than 10 tries.");
-            //    //    RunInsertSQL(msg, cnt + 1);
-            //    //}
-            //}
         }
 
         public class WhisperCollection
@@ -1009,7 +971,7 @@ namespace LX29_ChatClient
 
             public WhisperCollection()
             {
-                string path = Settings.caonfigBaseDir + "Whisper.db";
+                string path = Settings._caonfigBaseDir + "Whisper.db";
                 if (!File.Exists(path))
                 {
                     File.WriteAllBytes(path, LX29_LixChat.Properties.Resources.Cache);

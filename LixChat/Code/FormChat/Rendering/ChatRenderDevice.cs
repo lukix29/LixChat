@@ -318,7 +318,7 @@ namespace LX29_ChatClient.Forms
                 foreach (var em in tempEmotes)
                 {
                     size = em.CalcSize(32, Settings.EmoteQuality);
-                    if (!lastChannel.Contains(em.Channel))
+                    if (!lastChannel.Equals(em.Channel))
                     {
                         y += size.Height + _EmotePadding;
                         x = _EmotePadding;
@@ -494,7 +494,7 @@ namespace LX29_ChatClient.Forms
                     ClickableList.Clear();
                     visibleMessages = 0;
                     int start = Math.Min(messages.Count - 1, Math.Max(0, (messages.Count - viewStart) - 1));
-                    bool iwasZero = false;
+                    //bool iwasZero = false;
                     for (i = start; i >= 0; i--)
                     {
                         if (isChangingGraphics > 0 || ShowAllEmotes)
@@ -502,10 +502,10 @@ namespace LX29_ChatClient.Forms
                             return;
                         }
                         float height = MeasureMessage(g, messages[i], i, bounds);
-                        if (i == 0)
-                        {
-                            iwasZero = true;
-                        }
+                        //if (i == 0)
+                        //{
+                        //    iwasZero = true;
+                        //}
                         if (y < 0)
                         {
                             break;
@@ -549,6 +549,7 @@ namespace LX29_ChatClient.Forms
         private float MeasureMessage(Graphics graphics, ChatMessage message, int idx, RectangleF bounds, float yInput = 0, float height = 0, bool measure = true)
         {
             bool drawImages = true;
+            bool alignText = false;
             float emote_Y_Offset = 4;
 
             var user = message.User;
@@ -618,7 +619,7 @@ namespace LX29_ChatClient.Forms
             #endregion Style&Font
 
             SizeF sf = SizeF.Empty;
-            if (Settings.isDebug)
+            if (Settings._isDebug)
             {
                 sf = graphics.MeasureText(idx.ToString(), timeFont);
 
@@ -751,7 +752,7 @@ namespace LX29_ChatClient.Forms
                         lineSpace = sf.Height / 2 - _LineSpacing;
                         if (x + sf.Width > bounds.Right)
                         {
-                            x = time_Right;//Linepadding
+                            x = alignText ? time_Right : (_WordPadding + _TimePadding);//Linepadding
                             y += (sf.Height + lineSpace) - emote_Y_Offset;
                         }
 
@@ -777,7 +778,7 @@ namespace LX29_ChatClient.Forms
                     sf = graphics.MeasureText(w.Text, userFont);
                     if (x + sf.Width > bounds.Right)
                     {
-                        x = time_Right;
+                        x = alignText ? time_Right : (_WordPadding + _TimePadding);//Linepadding
                         y += _CharHeight + lineSpace;
                     }
 

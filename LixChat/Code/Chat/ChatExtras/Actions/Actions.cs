@@ -150,7 +150,7 @@ namespace LX29_ChatClient.Addons
         {
             try
             {
-                string path = Settings.dataDir + "AutoActions.txt";
+                string path = Settings._dataDir + "AutoActions.txt";
                 if (System.IO.File.Exists(path))
                 {
                     chatactions.Clear();
@@ -169,8 +169,8 @@ namespace LX29_ChatClient.Addons
             }
             catch
             {
-                File.Copy(Settings.dataDir + "AutoActions.txt", Settings.dataDir + "AutoActions.bak", true);
-                File.Delete(Settings.dataDir + "AutoActions.txt");
+                File.Copy(Settings._dataDir + "AutoActions.txt", Settings._dataDir + "AutoActions.bak", true);
+                File.Delete(Settings._dataDir + "AutoActions.txt");
             }
             Loaded = true;
         }
@@ -200,7 +200,7 @@ namespace LX29_ChatClient.Addons
             {
                 chatactions.Clear();
                 chatactions.AddRange(actions.Select(t => (ChatAction)t.Clone()));
-                string path = Settings.dataDir + "AutoActions.txt";
+                string path = Settings._dataDir + "AutoActions.txt";
                 using (StreamWriter sw = new StreamWriter(path, false))
                 {
                     foreach (var act in actions)
@@ -376,9 +376,9 @@ namespace LX29_ChatClient.Addons
                 }
                 else
                 {
-                    if (File.Exists(Settings.scriptDir + mi))
+                    if (File.Exists(Settings._scriptDir + mi))
                     {
-                        var arr = File.ReadLines(Settings.scriptDir + mi).Where(t => t.Length >= 3);
+                        var arr = File.ReadLines(Settings._scriptDir + mi).Where(t => t.Length >= 3);
                         int index = lastRDmsg;
                         while (index == lastRDmsg)
                         {

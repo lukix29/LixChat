@@ -9,8 +9,8 @@ namespace LX29_Helpers
 {
     public class MPV_Downloader
     {
-        public const string bit32 = "https://downloads.sourceforge.net/project/mpv-player-windows/64bit/mpv-x86_64-20170527-git-bc3365b.7z";
-        public const string bit64 = "https://sourceforge.net/projects/mpv-player-windows/files/32bit/mpv-i686-20170527-git-bc3365b.7z";
+        public const string bit32 = "https://downloads.sourceforge.net/project/mpv-player-windows/32bit/mpv-i686-20170826-git-eacd97d.7z";
+        public const string bit64 = "https://downloads.sourceforge.net/project/mpv-player-windows/64bit/mpv-x86_64-20170923-git-e3288c4.7z";
 
         //private static bool finished = false;
         private static int lastPercent = -1;
@@ -20,7 +20,7 @@ namespace LX29_Helpers
 
         public static bool MPV_Exists
         {
-            get { return File.Exists(Path.GetFullPath(Settings.pluginDir + "MPV\\mpv.exe")); }
+            get { return File.Exists(Path.GetFullPath(Settings._pluginDir + "MPV\\mpv.exe")); }
         }
 
         public static void DownloadMPV(Action<int, int, string> a, Action onFinished)
@@ -38,7 +38,7 @@ namespace LX29_Helpers
                 wc.DownloadProgressChanged += wc_DownloadProgressChanged;
 
                 wc.DownloadFileAsync(new Uri(Environment.Is64BitOperatingSystem ? bit64 : bit32),
-                      Settings.pluginDir + "mpv.7z");
+                      Settings._pluginDir + "mpv.7z");
                 //if (waitForFinish)
                 //{
                 //    while (!finished)
@@ -59,7 +59,7 @@ namespace LX29_Helpers
             // Task.Run(new Action(delegate()
             //  {
             Process p = new Process();
-            p.StartInfo.WorkingDirectory = Path.GetFullPath(Settings.pluginDir);
+            p.StartInfo.WorkingDirectory = Path.GetFullPath(Settings._pluginDir);
             p.StartInfo.FileName = "7za.exe";
             p.StartInfo.Arguments = "x mpv.7z -oMPV -y";
             p.Start();
@@ -68,8 +68,8 @@ namespace LX29_Helpers
             p.WaitForExit(60000);
             try
             {
-                Directory.Delete(Path.GetFullPath(Settings.pluginDir + "MPV\\installer"), true);
-                File.Delete(Path.GetFullPath(Settings.pluginDir + "mpv.7z"));
+                Directory.Delete(Path.GetFullPath(Settings._pluginDir + "MPV\\installer"), true);
+                File.Delete(Path.GetFullPath(Settings._pluginDir + "mpv.7z"));
 
                 //Directory.CreateDirectory(Path.GetFullPath(Settings.pluginDir + "MPV\\portable_config"));
                 //File.WriteAllText(Path.GetFullPath(Settings.pluginDir + "MPV\\portable_config\\input.conf"),

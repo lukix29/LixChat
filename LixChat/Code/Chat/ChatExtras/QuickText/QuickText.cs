@@ -90,7 +90,7 @@ namespace LX29_ChatClient.Addons
 
         public void Load()
         {
-            string path = Settings.dataDir + "QuickText.txt";
+            string path = Settings._dataDir + "QuickText.txt";
             if (System.IO.File.Exists(path))
             {
                 //var sa = System.IO.File.ReadAllLines(path);

@@ -135,6 +135,15 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
+        public EmoteBase ContainsKey(string name)
+        {
+            if (_ffzbttv.ContainsKey(name))
+            {
+                return _ffzbttv[name];
+            }
+            return _twitch.FirstOrDefault(t => t.Value.Name.Equals(name)).Value;
+        }
+
         public void Dispose()
         {
             foreach (var kvp in All)

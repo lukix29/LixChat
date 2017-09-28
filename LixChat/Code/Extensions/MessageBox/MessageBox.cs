@@ -82,7 +82,7 @@ namespace System.Windows.Forms
                 rtB_Main.Height = (label1.Top - rtB_Main.Top) - 5;
             }
             var border = this.GetBorderSize();
-            var s = rtB_Main.GetPreferredSize(Size.Empty);
+            var s = rtB_Main.GetPreferredSize(new System.Drawing.Size());
             int width = Math.Max(520, s.Width + (border.SmallBorder * 4) + rtB_Main.Left + (this.ClientSize.Width - rtB_Main.Right));
             int height = Math.Min(640, s.Height + (this.ClientSize.Height - label1.Top) +
                 rtB_Main.Top + border.BigSmall + 10);

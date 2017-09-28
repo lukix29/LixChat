@@ -162,19 +162,24 @@ namespace LX29_LixChat.Properties {
         ///   Sucht eine lokalisierte Zeichenfolge, die &lt;!DOCTYPE html&gt;
         ///&lt;html&gt;
         ///&lt;head&gt;
-        ///    &lt;title&gt;TCVC - Access token&lt;/title&gt;
+        ///    &lt;title&gt;LixChat - Session ID&lt;/title&gt;
         ///    &lt;meta name=&quot;ROBOTS&quot; content=&quot;NOFOLLOW&quot;&gt;
         ///    &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;
         ///    &lt;script type=&quot;text/javascript&quot;&gt;
         ///&lt;!--
-        ///function initiate() {
-        ///	var hash = document.location.hash.substr(1);
-        ///	var hashParts = hash.split(&quot;&amp;&quot;);
-        ///	var access_token = null;
-        ///	for (var i=0;i&lt;hashParts.length;++i) {
-        ///		var parameterParts = hashParts[i].split(&quot;=&quot;);
-        ///		var key = parameterParts[0];
-        ///		var value = parameterP [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///--&gt;
+        ///    &lt;/script&gt;
+        ///    &lt;style type=&quot;text/css&quot;&gt;
+        ///        body {
+        ///            font-family: Consolas, sans-serif;
+        ///            text-align: center;
+        ///            background-color: #FFF;
+        ///            max-width: 500px;
+        ///            margin: auto;
+        ///        }
+        ///
+        ///        input {
+        ///       [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string index {
             get {
@@ -257,31 +262,6 @@ namespace LX29_LixChat.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die &lt;!DOCTYPE html&gt;
-        ///&lt;html&gt;
-        ///&lt;head&gt;
-        ///    &lt;title&gt;TCVC - Access token&lt;/title&gt;
-        ///    &lt;meta name=&quot;ROBOTS&quot; content=&quot;NOFOLLOW&quot;&gt;
-        ///    &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;
-        ///    &lt;script type=&quot;text/javascript&quot;&gt;
-        ///&lt;!--
-        ///    function initiate() {
-        ///        // Change page so the history won&apos;t contain the token
-        ///        document.location.replace(&quot;http://127.0.0.1:12685/success.html&quot;);
-        ///    }
-        ///--&gt;
-        ///    &lt;/script&gt;
-        ///    &lt;style type=&quot;text/css&quot;&gt;
-        ///        body {
-        ///            font-family: Consolas, sans-s [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
-        /// </summary>
-        internal static string received {
-            get {
-                return ResourceManager.GetString("received", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap refresh_16xLG {
@@ -305,7 +285,7 @@ namespace LX29_LixChat.Properties {
         ///   Sucht eine lokalisierte Zeichenfolge, die &lt;!DOCTYPE html&gt;
         ///&lt;html&gt;
         ///&lt;head&gt;
-        ///    &lt;title&gt;TCVC - Access token&lt;/title&gt;
+        ///    &lt;title&gt;LixChat - Session ID&lt;/title&gt;
         ///    &lt;meta name=&quot;ROBOTS&quot; content=&quot;NOFOLLOW&quot;&gt;
         ///    &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;
         ///    &lt;script type=&quot;text/javascript&quot;&gt;
@@ -318,7 +298,7 @@ namespace LX29_LixChat.Properties {
         ///    &lt;/script&gt;
         ///    &lt;style type=&quot;text/css&quot;&gt;
         ///        body {
-        ///            font-family: Consolas, sans- [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///            font-family: Consolas, sans [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string success {
             get {

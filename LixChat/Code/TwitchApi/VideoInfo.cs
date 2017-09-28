@@ -19,49 +19,44 @@ namespace LX29_Twitch.Api.Video
         public readonly int Bitrate;
 
         public readonly string Codec;
-        public readonly int Height;
+        public readonly int Height = 0;
         public readonly string Quality;
         public readonly string URL;
-        public readonly int Width;
+        public readonly int Width = 0;
 
         public VideoInfo(string url, string info)
         {
-            URL = url;
-            int bitrate = 1000;
-            int x = 0;
-            int y = 0;
-            string codec = "";
-            string quali = "";
-
-            string[] infs = info.ReplaceAll("", "\"").Substring(info.IndexOf(",")).Split(
-                           new string[] { ",BANDWIDTH=", ",RESOLUTION=", ",CODECS=", ",VIDEO=" }, StringSplitOptions.RemoveEmptyEntries);
-            if (infs.Length >= 4)
+            try
             {
-                int.TryParse(infs[0], out bitrate);
-                quali = infs[3].Replace("chunked", "source").ToLower();
-                codec = infs[2];
+                URL = url;
 
-                string[] resarr = infs[1].Trim().Split('x');
-                if (resarr.Length >= 2)
+                info = "{\"" + info.Replace("#EXT-X-STREAM-INF:", "")
+                    .Replace("=", ":").Replace(",m", "-m").Replace("\"", "")
+                    .Replace(",", "\",\"").Replace(":", "\":\"") + "\"}";
+
+                var dict = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(info);
+                string[] infs = new string[0];
+
+                Bitrate = int.Parse(dict["BANDWIDTH"]) / 1024;
+                Quality = dict["VIDEO"].Replace("chunked", "source").ToLower();
+                Codec = dict["CODECS"];
+                if (dict.ContainsKey("RESOLUTION"))
                 {
-                    int.TryParse(resarr[0], out x);
-                    int.TryParse(resarr[1], out y);
-                }
-                else
-                {
+                    int x = 0;
+                    int y = 0;
+                    string[] resarr = dict["RESOLUTION"].Split('x');
+                    if (resarr.Length >= 2)
+                    {
+                        int.TryParse(resarr[0], out x);
+                        int.TryParse(resarr[1], out y);
+                    }
+                    Width = x;
+                    Height = y;
                 }
             }
-            else
+            catch
             {
-                int.TryParse(infs[0], out bitrate);
-                quali = infs[2].Replace("chunked", "source").ToUpper();
-                codec = infs[1];
             }
-            Codec = codec;
-            Quality = quali;
-            Width = x;
-            Height = y;
-            Bitrate = bitrate / 1000;
         }
 
         public static bool IsVideoInfoString(string input)
@@ -129,67 +124,79 @@ namespace LX29_Twitch.Api.Video
 
         public VideoInfoError LoadVideoInfos(string channel)
         {
-            WebClient wc = new WebClient();
-            wc.Proxy = null;
-            wc.Encoding = Encoding.UTF8;
-            videoInfos = new Dictionary<string, VideoInfo>();// new VideoInfoCollection();
-
-            string t = "";
             try
             {
-                t = wc.DownloadString(TOKEN_API.Replace("{channel}", channel.ToLower()) + "?client_id=" + TwitchApi.CLIENT_ID);
-            }
-            catch (WebException x)
-            {
-                var res = x.Response as HttpWebResponse;
-                if (res.StatusCode == HttpStatusCode.NotFound)
+                WebClient wc = new WebClient();
+                wc.Proxy = null;
+                wc.Encoding = Encoding.UTF8;
+                videoInfos = new Dictionary<string, VideoInfo>();// new VideoInfoCollection();
+
+                string t = "";
+                try
                 {
-                    return VideoInfoError.Offline;
+                    t = wc.DownloadString(TOKEN_API.Replace("{channel}", channel.ToLower()) + "?client_id=" + TwitchApi.CLIENT_ID);
                 }
-                return VideoInfoError.Error;
-            }
-            string token = t.GetBetween("\"token\":\"", "\",\"sig\":");
-
-            token = token.Replace("\\\"", "\"");
-
-            string sig = t.GetBetween("\"sig\":\"", "\",");
-            string rand = new Random().Next(Int16.MaxValue, Int32.MaxValue).ToString().Substring(0, 6);
-
-            string req = USHER_API.Replace("{channel}", channel.ToLower())
-                .Replace("{token}", token).Replace("{sig}", sig).Replace("{random}", rand);
-
-            string vids = "";
-            try
-            {
-                vids = wc.DownloadString(req);
-            }
-            catch (WebException x)
-            {
-                var res = x.Response as HttpWebResponse;
-                if (res.StatusCode == HttpStatusCode.NotFound)
+                catch (WebException x)
                 {
-                    return VideoInfoError.Offline;
-                }
-                return VideoInfoError.Error;
-            }
-            finally
-            {
-                wc.Dispose();
-            }
-            string[] sa = vids.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 2; i < sa.Length; i++)
-            {
-                string url = sa[i];
-                if (url.StartsWith("http"))
-                {
-                    VideoInfo vi = new VideoInfo(url, sa[i - 1]);
-                    if (!videoInfos.ContainsKey(vi.Quality.ToLower()))
+                    var res = x.Response as HttpWebResponse;
+                    if (res.StatusCode == HttpStatusCode.NotFound)
                     {
-                        videoInfos.Add(vi.Quality.ToLower(), vi);
+                        return VideoInfoError.Offline;
                     }
+                    return VideoInfoError.Error;
                 }
+                var def = new { token = "", sig = "" };
+                var obj = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(t, def);
+
+                string token = obj.token;// t.GetBetween("\"token\":\"", "\",\"sig\":");
+
+                token = token.Replace("\\\"", "\"");
+
+                string sig = obj.sig;// t.GetBetween("\"sig\":\"", "\",");
+                string rand = new Random().Next(Int16.MaxValue, Int32.MaxValue).ToString().Substring(0, 6);
+
+                string req = USHER_API.Replace("{channel}", channel.ToLower())
+                    .Replace("{token}", token).Replace("{sig}", sig).Replace("{random}", rand);
+
+                string vids = "";
+                try
+                {
+                    vids = wc.DownloadString(req);
+                }
+                catch (WebException x)
+                {
+                    var res = x.Response as HttpWebResponse;
+                    if (res.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        return VideoInfoError.Offline;
+                    }
+                    return VideoInfoError.Error;
+                }
+                finally
+                {
+                    wc.Dispose();
+                }
+                var sa = vids.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).Skip(2);
+
+                string prev = "";
+                foreach (var url in sa)
+                {
+                    if (url.StartsWith("http"))
+                    {
+                        VideoInfo vi = new VideoInfo(url, prev);
+                        if (!videoInfos.ContainsKey(vi.Quality.ToLower()))
+                        {
+                            videoInfos.Add(vi.Quality.ToLower(), vi);
+                        }
+                    }
+                    prev = url;
+                }
+                return VideoInfoError.None;
             }
-            return VideoInfoError.None;
+            catch
+            {
+            }
+            return VideoInfoError.Error;
         }
 
         public override string ToString()

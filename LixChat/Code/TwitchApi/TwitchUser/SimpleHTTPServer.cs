@@ -189,9 +189,9 @@ internal class Token_HTTP_Server
             if (_listener != null) _listener.Close();
             _listener = new HttpListener();
 
-            CheckPort();
+            //CheckPort();
 
-            _listener.Prefixes.Add("http://*:" + _port.ToString() + "/");
+            _listener.Prefixes.Add("http://localhost:" + _port.ToString() + "/");
             _listener.Start();
             while (true)
             {
@@ -230,47 +230,20 @@ internal class Token_HTTP_Server
 
     private void Process(HttpListenerContext context)
     {
-        string filename = context.Request.Url.AbsolutePath;
+        string filename = context.Request.Url.ToString();
+        string sessionid = "";
         //Console.WriteLine(filename);
         if (!string.IsNullOrEmpty(filename))
         {
-            if (filename.Contains("token"))
+            if (filename.Contains("sessionid"))
             {
-                Token = filename.Replace("token", "").Replace("/", "");
-
-                if (!string.IsNullOrEmpty(Token))
-                {
-                    WriteFile(_rootDirectory + "received.html", context);
-                    if (ReceivedToken != null)
-                        System.Threading.Tasks.Task.Run(() => ReceivedToken(Token));
-                }
+                WriteFile(_rootDirectory + "success.html", context);
+                sessionid = filename.Substring(filename.IndexOf("sessionid=")).Replace("sessionid=", "");
+                if (ReceivedToken != null)
+                    System.Threading.Tasks.Task.Run(() => ReceivedToken(sessionid));
             }
         }
-
-        filename = filename.Substring(1);
-
-        if (string.IsNullOrEmpty(filename))
-        {
-            foreach (string indexFile in _indexFiles)
-            {
-                if (File.Exists(Path.Combine(_rootDirectory, indexFile)))
-                {
-                    filename = indexFile;
-                    break;
-                }
-            }
-        }
-
-        filename = Path.Combine(_rootDirectory, filename);
-
-        WriteFile(filename, context);
-
-        context.Response.OutputStream.Close();
-
-        if (filename.EndsWith("success.html"))
-        {
-            Stop();
-        }
+        Stop();
     }
 
     private void WriteFile(string filename, HttpListenerContext context)
