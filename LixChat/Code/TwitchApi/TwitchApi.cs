@@ -9,18 +9,25 @@ namespace LX29_Twitch.Api
 {
     public static class TwitchApi
     {
-        public const string CLIENT_ID = "n0soi61qkugd4mjlq618r243k686o69";
+        public const string CLIENT_ID = "w828cjyt1gjkeravbpi2vu4s1k4831";//"n0soi61qkugd4mjlq618r243k686o69";
 
+        private static string _uuid = null;
         private static Random rd = new Random();
 
         public static string AuthApiUrl
         {
             get
             {
-                return "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id="
-                    + CLIENT_ID + "&redirect_uri=http://localhost:12685&force_verify=true&" +
-                    "scope=chat_login+user_subscriptions+user_read+user_follows_edit";
+                return "https://api.lixchat.com/lix/authorize.php?guid=" + UUID;
+                //"https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id="
+                //+ CLIENT_ID + "&redirect_uri=http://localhost:12685&force_verify=true&" +
+                //"scope=chat_login+user_subscriptions+user_read+user_follows_edit";
             }
+        }
+
+        public static string SessionID
+        {
+            get { return LX29_ChatClient.ChatClient.TwitchUsers.Selected.SessionID; }
         }
 
         public static int User_ID
@@ -30,7 +37,20 @@ namespace LX29_Twitch.Api
 
         public static string User_Token
         {
-            get { return LX29_ChatClient.ChatClient.TwitchUsers.Selected.Token; }
+            get;
+            private set;
+        }
+
+        public static string UUID
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_uuid))
+                {
+                    _uuid = LX29_Tools.GetUniqueHash();
+                }
+                return _uuid;
+            }
         }
 
         public static bool FollowChannel(ApiResult channelID, int userID = 0, string userToken = "")
@@ -105,14 +125,13 @@ namespace LX29_Twitch.Api
             return users.Select(t => new LX29_ChatClient.ChatUser(t.Name, ChannelName, t.UType)).ToDictionary(t => t.Name);
         }
 
-        public static List<ApiResult> GetFollowedStreams(int userID = 0, string userToken = "")
+        public static List<ApiResult> GetFollowedStreams(int userID, string userToken)
         {
             if (userID == 0) userID = User_ID;
-            if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
 
-            List<ApiResult> list = getResults("https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels", User_Token);
+            List<ApiResult> list = getResults("https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels", userToken);
             string sb = getChannelList(list);
-            var str = getResults("https://api.twitch.tv/kraken/streams?channel=" + sb, User_Token);
+            var str = getResults("https://api.twitch.tv/kraken/streams?channel=" + sb, userToken);
             return Combine(list, str);
         }
 
@@ -124,14 +143,14 @@ namespace LX29_Twitch.Api
             var channels = getChannelList(Channel_ID);
             url = "https://api.twitch.tv/kraken/streams/?channel=" + channels + "&limit=100&stream_type=all";
             //url = "https://api.twitch.tv/kraken/streams/" + Channel_ID;
-            var json = downloadString(url, User_Token);
+            var json = downloadString(url, "");
             var res = JSON.Parse(json);
 
             var Rest = Channel_ID.Where(t => !res.Any(t0 => t0.ID.Equals(t))).ToArray();
             foreach (var id in Rest)
             {
                 url = "https://api.twitch.tv/kraken/channels/" + id;
-                json = downloadString(url, User_Token);
+                json = downloadString(url, "");
                 var temp_res = JSON.Parse(json);
                 if (temp_res.Count > 0)
                 {
@@ -160,6 +179,7 @@ namespace LX29_Twitch.Api
         {
             if (userID == 0) userID = User_ID;
             if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
+
             var res = downloadString(
                 "https://api.twitch.tv/kraken/users/" + userID + "/subscriptions/" + channel_ID, userToken, 5, false);
             return SubResult.Parse(res);
@@ -169,7 +189,6 @@ namespace LX29_Twitch.Api
         {
             if (userID == 0) userID = User_ID;
             if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
-
             string s = downloadString("https://api.twitch.tv/kraken/users/" + userID + "/emotes", userToken);
             return JSON.ParseTwitchEmotes(s);
         }
@@ -194,18 +213,27 @@ namespace LX29_Twitch.Api
             return ApiResult.Empty;
         }
 
-        public static ApiResult GetUserIDFromToken(string Token)
+        public static ApiResult GetUserIDFromToken(string sessionID)
         {
-            string result = downloadString("https://api.twitch.tv/kraken?oauth_token=" + Token, null, 5, false);
+            using (WebClient wc = new WebClient())
+            {
+                wc.Proxy = null;
+                string url = "https://api.lixchat.com/lix/users/token.php?guid=" + UUID + "&sessionid=" + sessionID;
+                User_Token = wc.DownloadString(url);
+            }
+            if (string.IsNullOrEmpty(User_Token))
+            {
+                System.Windows.Forms.MessageBox.Show("ERRORRRRORJHKDJFLVMÖDPM;KLPÄIOH KÖ");
+                throw new StackOverflowException();
+            }
+            string result = downloadString("https://api.twitch.tv/kraken?oauth_token=" + User_Token, null, 5, false);
             var res = JSON.ParseAuth(result);
-            //result = result.GetBetween("https://api.twitch.tv/kraken/users/", "\"");
+            if (!res.token.valid)
+            {
+                throw new StackOverflowException();
+            }
+            var apir = new ApiResult(res);
 
-            //Dictionary<ApiInfo, object> vals = new Dictionary<ApiInfo, object>();
-            //vals.Add(ApiInfo._id, res.token.user_id);
-            //vals.Add(ApiInfo.name, res.token.user_name);
-            //vals.Add(ApiInfo.created_at, res.token.authorization.created_at);
-            var apir = new ApiResult(res);// { Values = vals };
-            //return GetUserID(result);
             return apir;
         }
 

@@ -38,14 +38,12 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.splitContainer_Preview = new System.Windows.Forms.SplitContainer();
             this.lbl_preview = new System.Windows.Forms.Label();
-            this.pb_Preview = new System.Windows.Forms.PictureBox();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btn_StartStream = new System.Windows.Forms.Button();
             this.btn_External = new System.Windows.Forms.Button();
-            this.btn_ShowPreview = new System.Windows.Forms.Button();
+            this.btn_Record = new System.Windows.Forms.Button();
             this.comBox_StreamQuali = new System.Windows.Forms.ComboBox();
             this.btn_Show_Video_Info = new System.Windows.Forms.Button();
-            this.btn_AutostartStream = new System.Windows.Forms.Button();
-            this.btn_StartStream = new System.Windows.Forms.Button();
             this.splitC_Main = new System.Windows.Forms.SplitContainer();
             this.cMS_ListBox = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tSMI_OpenChatInBrowser = new System.Windows.Forms.ToolStripMenuItem();
@@ -93,12 +91,12 @@
             this.tsLabel_Info = new System.Windows.Forms.ToolStripLabel();
             this.toolTip_Main = new System.Windows.Forms.ToolTip(this.components);
             this.lstB_Channels = new LX29_ChatClient.Forms.ChannelListBox();
+            this.playerControl1 = new LX29_LixChat.Code.FormStream.Player.PlayerControl();
             this.apiInfoPanel1 = new LX29_Twitch.Forms.ApiInfoPanel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Preview)).BeginInit();
             this.splitContainer_Preview.Panel1.SuspendLayout();
             this.splitContainer_Preview.Panel2.SuspendLayout();
             this.splitContainer_Preview.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_Preview)).BeginInit();
             this.flowLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitC_Main)).BeginInit();
             this.splitC_Main.Panel1.SuspendLayout();
@@ -125,8 +123,8 @@
             // 
             this.splitContainer_Preview.Panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             resources.ApplyResources(this.splitContainer_Preview.Panel1, "splitContainer_Preview.Panel1");
+            this.splitContainer_Preview.Panel1.Controls.Add(this.playerControl1);
             this.splitContainer_Preview.Panel1.Controls.Add(this.lbl_preview);
-            this.splitContainer_Preview.Panel1.Controls.Add(this.pb_Preview);
             this.splitContainer_Preview.Panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer2_Panel1_Paint);
             // 
             // splitContainer_Preview.Panel2
@@ -140,26 +138,27 @@
             this.lbl_preview.BackColor = System.Drawing.Color.Transparent;
             this.lbl_preview.Name = "lbl_preview";
             // 
-            // pb_Preview
-            // 
-            resources.ApplyResources(this.pb_Preview, "pb_Preview");
-            this.pb_Preview.Image = global::LX29_LixChat.Properties.Resources.temp;
-            this.pb_Preview.InitialImage = global::LX29_LixChat.Properties.Resources.temp;
-            this.pb_Preview.Name = "pb_Preview";
-            this.pb_Preview.TabStop = false;
-            this.pb_Preview.DoubleClick += new System.EventHandler(this.pb_Preview_DoubleClick);
-            // 
             // flowLayoutPanel2
             // 
             this.flowLayoutPanel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(20)))));
+            this.flowLayoutPanel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.flowLayoutPanel2.Controls.Add(this.btn_StartStream);
             this.flowLayoutPanel2.Controls.Add(this.btn_External);
-            this.flowLayoutPanel2.Controls.Add(this.btn_ShowPreview);
+            this.flowLayoutPanel2.Controls.Add(this.btn_Record);
             this.flowLayoutPanel2.Controls.Add(this.comBox_StreamQuali);
             this.flowLayoutPanel2.Controls.Add(this.btn_Show_Video_Info);
-            this.flowLayoutPanel2.Controls.Add(this.btn_AutostartStream);
-            this.flowLayoutPanel2.Controls.Add(this.btn_StartStream);
             resources.ApplyResources(this.flowLayoutPanel2, "flowLayoutPanel2");
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
+            // 
+            // btn_StartStream
+            // 
+            resources.ApplyResources(this.btn_StartStream, "btn_StartStream");
+            this.btn_StartStream.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.btn_StartStream.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btn_StartStream.Name = "btn_StartStream";
+            this.btn_StartStream.TabStop = false;
+            this.btn_StartStream.UseVisualStyleBackColor = false;
+            this.btn_StartStream.Click += new System.EventHandler(this.btn_StartStream_Click);
             // 
             // btn_External
             // 
@@ -171,15 +170,15 @@
             this.btn_External.UseVisualStyleBackColor = false;
             this.btn_External.Click += new System.EventHandler(this.btn_External_Click);
             // 
-            // btn_ShowPreview
+            // btn_Record
             // 
-            this.btn_ShowPreview.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            resources.ApplyResources(this.btn_ShowPreview, "btn_ShowPreview");
-            this.btn_ShowPreview.ForeColor = System.Drawing.Color.Gainsboro;
-            this.btn_ShowPreview.Name = "btn_ShowPreview";
-            this.btn_ShowPreview.TabStop = false;
-            this.btn_ShowPreview.UseVisualStyleBackColor = false;
-            this.btn_ShowPreview.Click += new System.EventHandler(this.btn_ShowPreview_Click);
+            resources.ApplyResources(this.btn_Record, "btn_Record");
+            this.btn_Record.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.btn_Record.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btn_Record.Name = "btn_Record";
+            this.btn_Record.TabStop = false;
+            this.btn_Record.UseVisualStyleBackColor = false;
+            this.btn_Record.Click += new System.EventHandler(this.btn_Record_Click);
             // 
             // comBox_StreamQuali
             // 
@@ -188,36 +187,17 @@
             this.comBox_StreamQuali.ForeColor = System.Drawing.Color.Gainsboro;
             this.comBox_StreamQuali.FormattingEnabled = true;
             this.comBox_StreamQuali.Name = "comBox_StreamQuali";
+            this.comBox_StreamQuali.SelectedIndexChanged += new System.EventHandler(this.comBox_StreamQuali_SelectedIndexChanged);
             // 
             // btn_Show_Video_Info
             // 
-            this.btn_Show_Video_Info.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             resources.ApplyResources(this.btn_Show_Video_Info, "btn_Show_Video_Info");
+            this.btn_Show_Video_Info.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.btn_Show_Video_Info.ForeColor = System.Drawing.Color.Gainsboro;
             this.btn_Show_Video_Info.Name = "btn_Show_Video_Info";
             this.btn_Show_Video_Info.TabStop = false;
             this.btn_Show_Video_Info.UseVisualStyleBackColor = false;
             this.btn_Show_Video_Info.Click += new System.EventHandler(this.btn_Show_Video_Info_Click);
-            // 
-            // btn_AutostartStream
-            // 
-            this.btn_AutostartStream.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            resources.ApplyResources(this.btn_AutostartStream, "btn_AutostartStream");
-            this.btn_AutostartStream.ForeColor = System.Drawing.Color.Gainsboro;
-            this.btn_AutostartStream.Name = "btn_AutostartStream";
-            this.btn_AutostartStream.TabStop = false;
-            this.btn_AutostartStream.UseVisualStyleBackColor = false;
-            this.btn_AutostartStream.Click += new System.EventHandler(this.btn_Test_Click);
-            // 
-            // btn_StartStream
-            // 
-            this.btn_StartStream.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            resources.ApplyResources(this.btn_StartStream, "btn_StartStream");
-            this.btn_StartStream.ForeColor = System.Drawing.Color.Gainsboro;
-            this.btn_StartStream.Name = "btn_StartStream";
-            this.btn_StartStream.TabStop = false;
-            this.btn_StartStream.UseVisualStyleBackColor = false;
-            this.btn_StartStream.Click += new System.EventHandler(this.btn_StartStream_Click);
             // 
             // splitC_Main
             // 
@@ -663,6 +643,17 @@
             this.lstB_Channels.SelectedIndexChanged += new LX29_ChatClient.Forms.ChannelListBox.OnSelectedIndexChanged(this.lstB_Channels_SelectedIndexChanged);
             this.lstB_Channels.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstB_Channels_MouseDoubleClick);
             // 
+            // playerControl1
+            // 
+            resources.ApplyResources(this.playerControl1, "playerControl1");
+            this.playerControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.playerControl1.Name = "playerControl1";
+            this.playerControl1.PreviewImage = ((System.Drawing.Image)(resources.GetObject("playerControl1.PreviewImage")));
+            this.playerControl1.Quality = null;
+            this.playerControl1.ShowOnTopBorderless = false;
+            this.playerControl1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.playerControl1.Stream = null;
+            // 
             // apiInfoPanel1
             // 
             this.apiInfoPanel1.BackColor = System.Drawing.Color.Black;
@@ -696,8 +687,8 @@
             this.splitContainer_Preview.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Preview)).EndInit();
             this.splitContainer_Preview.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pb_Preview)).EndInit();
             this.flowLayoutPanel2.ResumeLayout(false);
+            this.flowLayoutPanel2.PerformLayout();
             this.splitC_Main.Panel1.ResumeLayout(false);
             this.splitC_Main.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitC_Main)).EndInit();
@@ -751,7 +742,6 @@
         private System.Windows.Forms.ToolStripMenuItem tSMi_Accounts;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private System.Windows.Forms.Button btn_StartStream;
-        private System.Windows.Forms.Button btn_ShowPreview;
         private System.Windows.Forms.Button btn_Show_Video_Info;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem tSMi_ReloadEmotes;
@@ -773,13 +763,13 @@
         private System.Windows.Forms.ToolStripMenuItem tSMI_OpenChatInBrowser;
         private System.Windows.Forms.ToolStripMenuItem tSMI_UpdateProgramm;
         private System.Windows.Forms.ToolStripMenuItem tSMI_About;
-        private System.Windows.Forms.Button btn_AutostartStream;
-        private System.Windows.Forms.PictureBox pb_Preview;
+        private System.Windows.Forms.Button btn_Record;
         private LX29_ChatClient.Forms.ChannelListBox lstB_Channels;
         private LX29_Twitch.Forms.ApiInfoPanel apiInfoPanel1;
         private System.Windows.Forms.ToolStripMenuItem refreshChannelsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openStreamInBrowserPopoutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openChannelInBrowserToolStripMenuItem;
+        private Code.FormStream.Player.PlayerControl playerControl1;
     }
 }
 

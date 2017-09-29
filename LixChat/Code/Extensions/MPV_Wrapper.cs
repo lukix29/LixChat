@@ -16,6 +16,7 @@ namespace LX29_Helpers
         get_property,
         client_name,
         get_time_us,
+        drop_buffers,
 
         //observe_property,
         //unobserve_property,
@@ -85,15 +86,16 @@ namespace LX29_Helpers
         packet_audio_bitrate,
         packet_sub_bitrate,
         audio_codec,
-        audio_codec_name
+        audio_codec_name,
+        drop_buffers
     }
 
     public class MPV_Wrapper : IDisposable
     {
         public const string WindowIdentifier = "-Stream @ LixChat";
-        public static readonly string MPVinputConfig = Settings.pluginDir + "\\MPV\\portable_config\\input.config";
+        public static readonly string MPVinputConfig = Settings._pluginDir + "\\MPV\\portable_config\\input.config";
 
-        public static readonly string MPVPATH = Settings.pluginDir + "\\MPV\\mpv.exe";
+        public static readonly string MPVPATH = Settings._pluginDir + "\\MPV\\mpv.exe";
         private static int leftBH = 0;
 
         private static int topBH = 0;
@@ -213,7 +215,7 @@ namespace LX29_Helpers
                 //process.StartInfo.RedirectStandardError = true;
                 //process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.UseShellExecute = false;
-                process.StartInfo.WorkingDirectory = Settings.pluginDir + "\\MPV";
+                process.StartInfo.WorkingDirectory = Settings._pluginDir + "\\MPV";
                 process.StartInfo.FileName = MPVPATH;
                 process.StartInfo.Arguments = (" --osc=yes --no-ytdl --no-taskbar-progress --af=format=channels=2.0"
                     + geom + " --title=\"" + Title + "\"" +
@@ -316,26 +318,138 @@ namespace LX29_Helpers
             SetProperty(MPV_Property.pause, enable);
         }
 
-        public string ReadAll()
+        public bool Record(string Title, string fileName, int volume, int cache, IntPtr handle, int cacheSecs = 10, System.Drawing.Rectangle rect = new System.Drawing.Rectangle())
         {
-            return _read('\0');
+            try
+            {
+                string intPtr = " ";
+                if (handle != IntPtr.Zero)
+                {
+                    intPtr = " --wid=" + handle.ToString() + " ";
+                }
+                string cash = "";
+                if (cache > 0)
+                {
+                    cash = " --cache-initial=" + cache +
+                            " --cache-backbuffer=" + cache +
+                            " --cache-default=" + cache +
+                            " --demuxer-readahead-secs=" + cacheSecs;
+                }
+                string geom = "";
+                if (!rect.IsEmpty)
+                {
+                    Screen sc = Screen.FromRectangle(rect);
+
+                    if (rect.X < sc.Bounds.X + 10)
+                    {
+                        rect.X = sc.Bounds.X + 10;
+                    }
+                    if (rect.Right > sc.Bounds.Right - 20)
+                    {
+                        rect.Width = sc.Bounds.Width - 20;
+                    }
+                    if (rect.Y < sc.Bounds.Y + 10)
+                    {
+                        rect.Y = sc.Bounds.Y + 10;
+                    }
+                    if (rect.Bottom > sc.Bounds.Bottom - 20)
+                    {
+                        rect.Height = sc.Bounds.Height - 20;
+                    }
+                    geom = " --geometry=" + rect.Width + "x" + rect.Height +
+                        ((rect.X < 0) ? "-" : "+") + Math.Abs(rect.X) +
+                        ((rect.Y < 0) ? "-" : "+") + Math.Abs(rect.Y);
+                }
+
+                string arg = (@"--input-ipc-server=\\.\pipe\" + socketName +
+                         " --osc=yes  --no-ytdl --af=format=channels=2.0" + geom +// " --stream-dump=test.mp4 " +
+                         " --title=\"" + Title + WindowIdentifier + "\"" +
+                         cash + " --hls-bitrate=max --network-timeout=10"
+                         + " --volume=" + Math.Max(0, Math.Min(100, volume)) +
+                         intPtr + "-");
+                pipe = new NamedPipeClientStream(".", socketName,
+                      PipeDirection.InOut, PipeOptions.Asynchronous,
+                      TokenImpersonationLevel.Anonymous);
+
+                process = new Process();
+
+                //process.StartInfo.UseShellExecute = false;
+                string wd = Path.GetFullPath(Settings._pluginDir + "\\MPV\\");
+                string recorDir = Settings.RecordDirectory;
+
+                arg = "@echo off\r\n" + wd + "ffmpeg.exe -y -re -i \"" + fileName + "\" -c:v copy -c:a copy -f matroska " +
+                   recorDir + Title + "-" + DateTime.Now.ToString("dd_MM_yyyy-HH_mm_ss") +
+                    ".mkv -c:v copy -c:a copy -f matroska - | " + wd + "mpv.exe " + arg;
+
+                File.WriteAllText(recorDir + "record.bat", arg);
+                process.StartInfo.WorkingDirectory = wd;
+                process.StartInfo.FileName = Settings._caonfigBaseDir + "record.bat";
+                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                process.Start();
+
+                DateTime timeOut = DateTime.Now;
+                while (true)
+                {
+                    try
+                    {
+                        System.Threading.Thread.Sleep(100);
+                        if (DateTime.Now.Subtract(timeOut).TotalSeconds > 2)
+                        {
+                            if (!process.HasExited)
+                            {
+                                HasStarted = true;
+                            }
+                            break;
+                        }
+                        if (process.HasExited)
+                        {
+                            break;
+                        }
+                    }
+                    catch { break; }
+                }
+                if (HasStarted)
+                {
+                    try
+                    {
+                        pipe.Connect(1000);
+                    }
+                    catch (Exception x)
+                    {
+                        switch (x.Handle())
+                        {
+                            case MessageBoxResult.Retry:
+                                Record(Title, fileName, volume, cache, handle, cacheSecs, rect);
+                                break;
+
+                            case MessageBoxResult.Abort:
+                                Dispose();
+                                process.Kill();
+                                HasStarted = false;
+                                break;
+                        }
+                    }
+                }
+
+                return HasStarted;
+            }
+            catch (Exception x)
+            {
+                Stop();
+                switch (x.Handle())
+                {
+                    case MessageBoxResult.Retry:
+                        Record(Title, fileName, volume, cache, handle, cacheSecs, rect);
+                        break;
+                }
+            }
+            return false;
         }
 
-        public string[] ReadAllLines()
+        public void ResetCache()
         {
-            return _read('\0').Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-        }
-
-        public string ReadLine()
-        {
-            return _read('\n');
-        }
-
-        public string ResetCache()
-        {
-            var command = "{ \"command\": [\"drop-buffers\"] }";
-            SendRaw(command);
-            return ReadLine();
+            //var command = "{ \"command\": [\"drop-buffers\"] }";
+            SendCommand(MPV_ComType.drop_buffers);
         }
 
         public string SendCommand(MPV_ComType type, MPV_Property name = MPV_Property.none, object value = null)
@@ -345,8 +459,7 @@ namespace LX29_Helpers
             if (type == MPV_ComType.show_text)
             {
                 command = "show-text ${" + name.ToString().ToLower() + "}";
-                SendRaw(command);
-                return "";
+                System.Threading.Tasks.Task.Run(() => _write(command));
             }
             else
             {
@@ -362,9 +475,18 @@ namespace LX29_Helpers
                 string typ = "\"" + type.ToString().ToLower() + "\"";
 
                 command = "{ \"command\": [" + typ + nme + val + "] }";
-                SendRaw(command);
-                return ReadLine();
+                switch (type)
+                {
+                    case MPV_ComType.set_property:
+                        System.Threading.Tasks.Task.Run(() => _write(command));
+                        break;
+
+                    case MPV_ComType.get_property:
+                        _write(command);
+                        return _read('\n');
+                }
             }
+            return null;
         }
 
         public void SetProcess(Process p)
@@ -395,9 +517,9 @@ namespace LX29_Helpers
             }
         }
 
-        public string SetProperty(MPV_Property name, object value)
+        public void SetProperty(MPV_Property name, object value)
         {
-            return SendCommand(MPV_ComType.set_property, name, value);
+            SendCommand(MPV_ComType.set_property, name, value);
         }
 
         public void SetVolume(int volume)
@@ -405,34 +527,9 @@ namespace LX29_Helpers
             SetProperty(MPV_Property.volume, Math.Max(0, Math.Min(100, volume)));
         }
 
-        public void SetVolume(bool mute)
-        {
-            SetProperty(MPV_Property.volume, (mute ? 0 : 100));
-        }
-
-        public bool Start(string Title, string FileName)
-        {
-            return Start(Title, FileName, 100, 0, IntPtr.Zero);
-        }
-
-        public bool Start(string fileName)
-        {
-            return Start(fileName, 0, IntPtr.Zero);
-        }
-
-        public bool Start(string fileName, int volume)
-        {
-            return Start(fileName, volume, 0, IntPtr.Zero);
-        }
-
         public bool Start(string fileName, int cache, IntPtr handle)
         {
             return Start(fileName, 100, cache, handle);
-        }
-
-        public bool Start(string Title, string fileName, int cache, int cacheSecs, System.Drawing.Rectangle rect)
-        {
-            return Start(Title, fileName, 100, cache, IntPtr.Zero, cacheSecs, rect);
         }
 
         public bool Start(string Title, string fileName, int volume, int cache, IntPtr handle, int cacheSecs = 10, System.Drawing.Rectangle rect = new System.Drawing.Rectangle())
@@ -494,15 +591,14 @@ namespace LX29_Helpers
                       TokenImpersonationLevel.Anonymous);
 
                 process = new Process();
-                //process.StartInfo.RedirectStandardError = true;
-                //process.StartInfo.RedirectStandardOutput = true;
+
                 process.StartInfo.UseShellExecute = false;
-                process.StartInfo.WorkingDirectory = Settings.pluginDir + "\\MPV";
+                process.StartInfo.WorkingDirectory = Settings._pluginDir + "\\MPV";
                 process.StartInfo.FileName = MPVPATH;
                 process.StartInfo.Arguments = (@"--input-ipc-server=\\.\pipe\" + socketName +
-                    " --osc=yes --no-ytdl --af=format=channels=2.0" + geom +//--no-osc
+                    " --osc=yes  --no-ytdl --af=format=channels=2.0" + geom +// " --stream-dump=test.mp4 " +
                     " --title=\"" + Title + WindowIdentifier + "\"" +
-                    cash + " --hls-bitrate=max --network-timeout=10"//--loop-playlist=inf  --stop-playback-on-init-failure=no" +
+                    cash + " --hls-bitrate=max --network-timeout=10"
                     + " --volume=" + Math.Max(0, Math.Min(100, volume)) +
                     intPtr + fileName);
                 process.Start();
@@ -577,11 +673,6 @@ namespace LX29_Helpers
             return Start(Path.GetFileNameWithoutExtension(fileName), fileName, volume, cache, handle);
         }
 
-        public System.Threading.Tasks.Task StartAsync(string fileName, int cache, IntPtr handle)
-        {
-            return System.Threading.Tasks.Task.Run(() => Start(fileName, 100, cache, handle));
-        }
-
         public bool Stop()
         {
             try
@@ -645,14 +736,14 @@ namespace LX29_Helpers
             return string.Empty;
         }
 
-        private void SendRaw(string s)
+        private async void _write(string s)
         {
             try
             {
                 if (pipe.IsConnected)
                 {
                     byte[] ba = Encoding.UTF8.GetBytes(s.ToLower() + "\n");
-                    pipe.Write(ba, 0, ba.Length);
+                    await pipe.WriteAsync(ba, 0, ba.Length);
                 }
             }
             catch

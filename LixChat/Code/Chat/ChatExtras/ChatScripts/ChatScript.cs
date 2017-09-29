@@ -201,7 +201,7 @@ namespace LX29_ChatClient.Addons.Scripts
         {
             try
             {
-                var names = Directory.GetFiles(Settings.scriptDir, "*.cs", SearchOption.AllDirectories);
+                var names = Directory.GetFiles(Settings._scriptDir, "*.cs", SearchOption.AllDirectories);
                 if (names.Length > 0)
                 {
                     foreach (var name in names)//

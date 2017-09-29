@@ -43,7 +43,7 @@ namespace LX29_ChatClient.Emotes
 
         public string FilePath
         {
-            get { return Settings.emojiDir + ID + ".png"; }
+            get { return Settings._emojiDir + ID + ".png"; }
         }
 
         public string ID

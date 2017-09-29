@@ -14,6 +14,7 @@ namespace LX29_Twitch.JSON_Parser
             {
                 List<ApiResult> lust = new List<ApiResult>();
                 var dataSet = JsonConvert.DeserializeObject<Twitch_Api.Root>(input);
+
                 if (dataSet.follows != null)
                 {
                     foreach (var follow in dataSet.follows)

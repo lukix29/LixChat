@@ -84,11 +84,11 @@ namespace LX29_Twitch.Api
 
     public class TwitchUser
     {
-        public TwitchUser(string token)
+        public TwitchUser(string sessionID)
         {
             Selected = false;
-            Token = token;
-            ApiResult = TwitchApi.GetUserIDFromToken(token);
+            SessionID = sessionID;
+            ApiResult = TwitchApi.GetUserIDFromToken(sessionID);
         }
 
         public ApiResult ApiResult
@@ -113,7 +113,7 @@ namespace LX29_Twitch.Api
             set;
         }
 
-        public string Token
+        public string SessionID
         {
             get;
             private set;
@@ -131,7 +131,7 @@ namespace LX29_Twitch.Api
 
         public override string ToString()
         {
-            return (Selected ? "#" : "") + Token;
+            return (Selected ? "#" : "") + SessionID;
         }
     }
 
@@ -164,13 +164,13 @@ namespace LX29_Twitch.Api
             get { return users[index]; }
         }
 
-        public AddError Add(string token)
+        public AddError Add(string sessionID)
         {
             try
             {
-                if (!users.Any(t => t.Token.Equals(token)))
+                if (!users.Any(t => t.SessionID.Equals(sessionID)))
                 {
-                    TwitchUser user = new TwitchUser(token);
+                    TwitchUser user = new TwitchUser(sessionID);
                     if (!users.Any(t => t.ID.Equals(user.ID)))
                     {
                         users.Add(user);
@@ -210,11 +210,11 @@ namespace LX29_Twitch.Api
                         Main.TopMost = false;
                     }));
                 };
-            input.OnTokenReceived += (token) =>
+            input.OnSessionIDReceived += (sessionID) =>
             {
                 if (isdoun) return;
                 isdoun = true;
-                var result = Add(token);
+                var result = Add(sessionID);
                 if (result == AddError.None)
                 {
                     if (action != null)
@@ -263,6 +263,11 @@ namespace LX29_Twitch.Api
             }
             else if (err == AddError.Error)
             {
+                if (err.Info.Contains("StackOverflowException"))
+                {
+                    FetchNewToken(Main, action, true);
+                    return;
+                }
                 throw new Exception(err.Info);
             }
             else

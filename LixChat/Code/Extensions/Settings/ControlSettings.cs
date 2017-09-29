@@ -132,7 +132,11 @@ namespace LX29_ChatClient.Forms
         {
             foreach (var chanel in ChatClient.Channels.Values)
             {
-                chanel.ChatForm.chatView.Font = font;
+                try
+                {
+                    chanel.ChatForm.chatView.Font = font;
+                }
+                catch { }
             }
         }
 
@@ -195,7 +199,7 @@ namespace LX29_ChatClient.Forms
 
         private void btn_OpenScriptFolder_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(Settings.caonfigBaseDir);
+            System.Diagnostics.Process.Start(Settings._caonfigBaseDir);
         }
 
         private void btn_ReloadChat_Click(object sender, EventArgs e)

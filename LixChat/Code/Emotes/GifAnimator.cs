@@ -302,10 +302,16 @@ namespace LX29_ChatClient.Emotes
                         image.Dispose();
                     }
                 }
-                _sizes.Clear();
-                _images.Clear();
             }
             catch { }
+            finally
+            {
+                lock (_images)
+                {
+                    _sizes.Clear();
+                    _images.Clear();
+                }
+            }
         }
 
         public void DownloadImages()
@@ -353,7 +359,7 @@ namespace LX29_ChatClient.Emotes
                         FrameIndex = 0;
                     }
                     //Monitor.Enter(images.SyncRoot);
-                    lock (images.SyncRoot)
+                    lock (images[FrameIndex])
                     {
                         g.DrawBitmap(images[FrameIndex], X, Y, Width, Height, Settings.HwEmoteDrawing);
                     }
@@ -411,7 +417,7 @@ namespace LX29_ChatClient.Emotes
                     url = URLs[size];
                 }
 
-                string FilePath = Path.GetFullPath(Settings.emoteDir + GetLocalfileName(url));
+                string FilePath = Path.GetFullPath(Settings._emoteDir + GetLocalfileName(url));
                 //  Image img = null;
                 lock (LockObject)
                 {

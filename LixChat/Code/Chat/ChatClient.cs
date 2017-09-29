@@ -325,7 +325,7 @@ namespace LX29_ChatClient
 
     public static partial class ChatClient
     {
-        private static TwitchUserCollection _twitchUsers = new TwitchUserCollection(Settings.dataDir + "auth.txt");
+        private static TwitchUserCollection _twitchUsers = new TwitchUserCollection(Settings._dataDir + "auth.txt");
 
         public static ApiResult SelfApiResult
         {
@@ -339,7 +339,7 @@ namespace LX29_ChatClient
 
         public static string SelfUserToken
         {
-            get { return _twitchUsers.Selected.Token; }
+            get { return TwitchApi.User_Token; }// _twitchUsers.Selected.SessionID; }
         }
 
         public static TwitchUserCollection TwitchUsers
@@ -784,7 +784,7 @@ namespace LX29_ChatClient
         {
             if (channel.LogChat)
             {
-                File.AppendAllText(Settings.chatLogDir + channel.Name.ToLower() + ".log", message + "\r\n");
+                File.AppendAllText(Settings._chatLogDir + channel.Name.ToLower() + ".log", message + "\r\n");
             }
         }
 
@@ -942,9 +942,9 @@ namespace LX29_ChatClient
 
         public static void LoadChatHighlightWords()
         {
-            if (File.Exists(Settings.dataDir + "HighlightKeywords.txt"))
+            if (File.Exists(Settings._dataDir + "HighlightKeywords.txt"))
             {
-                var lines = File.ReadAllLines(Settings.dataDir + "HighlightKeywords.txt");
+                var lines = File.ReadAllLines(Settings._dataDir + "HighlightKeywords.txt");
                 foreach (var line in lines)
                 {
                     AddChatHighlightWord(line, false);
@@ -956,7 +956,7 @@ namespace LX29_ChatClient
 
         public static void SaveChatHighlightWord()
         {
-            File.WriteAllLines(Settings.dataDir + "HighlightKeywords.txt", chatHighlights);
+            File.WriteAllLines(Settings._dataDir + "HighlightKeywords.txt", chatHighlights);
         }
 
         private static void addChannel(string Channel)

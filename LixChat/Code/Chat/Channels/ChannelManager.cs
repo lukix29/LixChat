@@ -20,7 +20,7 @@ namespace LX29_ChatClient
 
         private static string ChannelSave
         {
-            get { return Settings.dataDir + "Channels_" + SelfUserName + ".txt"; }
+            get { return Settings._dataDir + "Channels_" + SelfUserName + ".txt"; }
         }
 
         public static AddError AddChannel(string s)

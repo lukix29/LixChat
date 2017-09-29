@@ -22,6 +22,9 @@ namespace LX29_ChatClient.Emotes
 
         private Emoteionary emotionary = new Emoteionary();
 
+        private int loadingCnt = 0;
+        private string loadingInf = "";
+
         public Emoteionary Values
         {
             get { return emotionary; }
@@ -83,7 +86,7 @@ namespace LX29_ChatClient.Emotes
                 OnChannelLoaded(ci, (int)count, (int)max, info.Trim(':'));
         }
 
-        private Dictionary<string, _emotesetchannelid> _load_EmoteSet_IDs(WebClient wc)
+        private Dictionary<string, _emotesetchannelid> _load_EmoteSet_IDs()
         {
             try
             {
@@ -145,11 +148,32 @@ namespace LX29_ChatClient.Emotes
 
                 string url = "https://twitchemotes.com/api_cache/v3/sets.json";
 
+                loadingCnt = 0;
+                loadingInf = "Loading Emote Sets";
                 JsonSerializer jss = new JsonSerializer();
-
-                using (JsonTextReader reader = new JsonTextReader(new StreamReader(wc.OpenRead(url))))
+                using (WebClient wc = new WebClient())
                 {
-                    _emotesetename = jss.Deserialize<Dictionary<string, _emotesetchannelid>>(reader);
+                    wc.Proxy = null;
+
+                    using (JsonTextReader reader = new JsonTextReader(new StreamReader(wc.OpenRead(url))))
+                    {
+                        while (true)
+                        {
+                            if (!reader.Read())
+                                break;
+
+                            if (reader.TokenType == JsonToken.PropertyName)
+                            {
+                                var val = reader.Value.ToString();
+                                if (!reader.Read())
+                                    break;
+
+                                var id = jss.Deserialize<_emotesetchannelid>(reader);
+                                _emotesetename.Add(val, id);
+                                loadingCnt++;
+                            }
+                        }
+                    }
                 }
                 return _emotesetename;
             }
@@ -158,7 +182,7 @@ namespace LX29_ChatClient.Emotes
                 switch (x.Handle())
                 {
                     case MessageBoxResult.Retry:
-                        return _load_EmoteSet_IDs(wc);
+                        return _load_EmoteSet_IDs();
                 }
             }
             return new Dictionary<string, _emotesetchannelid>();
@@ -209,9 +233,9 @@ namespace LX29_ChatClient.Emotes
 
             try
             {
-                if (!File.Exists(Settings.dataDir + "EmoteCache.txt")) return true;
+                if (!File.Exists(Settings._dataDir + "EmoteCache.txt")) return true;
 
-                using (JsonTextReader reader = new JsonTextReader(new StreamReader(File.OpenRead(Settings.dataDir + "EmoteCache.txt"))))
+                using (JsonTextReader reader = new JsonTextReader(new StreamReader(File.OpenRead(Settings._dataDir + "EmoteCache.txt"))))
                 {
                     bool emoteStart = false;
                     int cnt = 0;
@@ -399,19 +423,22 @@ namespace LX29_ChatClient.Emotes
 
         private void parse_Twitch_EmoteList()
         {
+            LXTimer timer = null;
             try
             {
+                timer = new LXTimer((o) => On_Loaded_channel(null, loadingCnt, Int32.MaxValue / 10000, loadingInf), 1000, 500);
+
+                var _emotesetename = _load_EmoteSet_IDs();
+
                 using (WebClient wc = new WebClient())
                 {
-                    int cnt = 0;
                     wc.Proxy = null;
                     wc.Headers.Add("Client-ID", TwitchApi.CLIENT_ID);
 
-                    var timer = new LXTimer((o) => On_Loaded_channel(null, cnt, Int32.MaxValue / 10000, "Loading Emotes"), 1000, 500);
-
-                    var _emotesetename = _load_EmoteSet_IDs(wc);
                     string url = "https://api.twitch.tv/kraken/chat/emoticon_images";
 
+                    loadingCnt = 0;
+                    loadingInf = "Loading Emotes";
                     JsonSerializer js = new JsonSerializer();
                     using (JsonTextReader reader = new JsonTextReader(new StreamReader(wc.OpenRead(url))))
                     {
@@ -465,14 +492,13 @@ namespace LX29_ChatClient.Emotes
                                     //    File.AppendAllText("emotestwerfgsd.txt", obj.id + " | " + Name + " | " + set + "\r\n");
                                     //}
                                     Add(em);
-                                    cnt++;
+                                    loadingCnt++;
                                 }
                             }
                             catch
                             {
                             }
                         }
-                        timer.Dispose();
                     }
                 }
             }
@@ -485,6 +511,10 @@ namespace LX29_ChatClient.Emotes
                         break;
                 }
             }
+            finally
+            {
+                timer.Dispose();
+            }
         }
 
         private void Save()
@@ -493,7 +523,7 @@ namespace LX29_ChatClient.Emotes
             {
                 JsonSerializer serializer = new JsonSerializer();
 
-                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(Settings.dataDir + "EmoteCache.txt")))
+                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(Settings._dataDir + "EmoteCache.txt")))
                 {
                     writer.WriteStartObject();
                     writer.WritePropertyName("created");
@@ -766,22 +796,26 @@ namespace LX29_ChatClient.Emotes
                 {
                     try
                     {
-                        Directory.Delete(Settings.emoteDir, true);
+                        Directory.Delete(Settings._emoteDir, true);
                     }
                     catch
                     {
                     }
                 }
-                if (!Directory.Exists(Settings.emoteDir))
+                if (!Directory.Exists(Settings._emoteDir))
                 {
-                    Directory.CreateDirectory(Settings.emoteDir);
+                    Directory.CreateDirectory(Settings._emoteDir);
                 }
 
                 On_Loaded_channel(null, 0, 100, "Loading User Emotes");
 
                 //_loaded_channel(null, emotess.UserEmotes.Count, emotess.UserEmotes.Count, "Loading User Emotes");
 
-                var tb0 = Task.Run(() => { Badges.Fetch_Channel_Badges(); LoadChannelBadges(Channels.ToArray(), false); });
+                var tb0 = Task.Run(() =>
+                {
+                    Badges.Fetch_Channel_Badges();
+                    LoadChannelBadges(Channels.ToArray(), false);
+                });
                 var tb1 = Task.Run(() => Badges.Parse_FFZ_Badges());
                 var tb2 = Task.Run(() => Badges.Parse_FFZ_Addon_Badges());
 
@@ -827,7 +861,7 @@ namespace LX29_ChatClient.Emotes
                         int cnt = 0;
                         var all = ChatClient.Messages.Values.AllMessages;
                         int max = all.Count;
-                        System.Threading.Tasks.Parallel.ForEach(all.Keys, (key) =>
+                        foreach (var key in all.Keys)
                         {
                             var chan = all[key].Where(t => (t.SendTime.Ticks <= finish));
                             foreach (var msg in chan)
@@ -837,7 +871,7 @@ namespace LX29_ChatClient.Emotes
                             }
                             cnt++;
                             On_Loaded_channel(null, cnt, max, "Reloading Emotes in Messages (" + key + ")");
-                        });
+                        }
                     });
                 }
             }

@@ -669,7 +669,7 @@ namespace System
                 string err = DateTime.Now.ToString() + "\r\n" + e.ToString() + "\r\n\r\n";
                 try
                 {
-                    File.AppendAllText(LX29_ChatClient.Settings.dataDir + "Error.log", err);
+                    File.AppendAllText(LX29_ChatClient.Settings._dataDir + "Error.log", err);
 
                     var sa = e.ToString().Split("\r\n");
                     StringBuilder sb = new StringBuilder();

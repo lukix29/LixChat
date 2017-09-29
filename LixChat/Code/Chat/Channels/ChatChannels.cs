@@ -485,41 +485,48 @@ namespace LX29_ChatClient.Channels
             }
         }
 
-        #region mpv
+        #region MPV Player Methods
 
         private bool isStartingStream = false;
 
-        [JsonIgnore]
-        public string[] MPV_Stats
+        public enum PlayerType
         {
-            get
-            {
-                if (MPV.IsRunning)
-                {
-                    var arr = new MPV_Property[] { MPV_Property.demuxer_cache_duration, MPV_Property.cache, MPV_Property.paused_for_cache, MPV_Property.video_bitrate, MPV_Property.audio_bitrate };
-                    // var names = Enum.GetNames(typeof(MPV_Property)).Where(t => t.Contains("cache") || t.Contains("demuxer") || t.Contains("bitrate"));
-                    List<string> values = new List<string>();
-                    foreach (var prop in arr)
-                    {
-                        var s = Enum.GetName(typeof(MPV_Property), prop);
-                        object value = MPV.GetProperty(prop);
-                        if (value == null)
-                            continue;
-                        if (s.Contains("bitrate"))
-                        {
-                            if (value is float)
-                            {
-                                float val = (float)value;
-                                value = val.SizeSuffix(2) + "/s";
-                            }
-                        }
-                        values.Add(s + ": " + value);
-                    }
-                    return values.ToArray();
-                }
-                return new string[0];
-            }
+            Cinema,
+            ExternalMPV,
+            Record_ShowMPV,
         }
+
+        //[JsonIgnore]
+        //public string[] MPV_Stats
+        //{
+        //    get
+        //    {
+        //        if (MPV.IsRunning)
+        //        {
+        //            var arr = new MPV_Property[] { MPV_Property.demuxer_cache_duration, MPV_Property.cache, MPV_Property.paused_for_cache, MPV_Property.video_bitrate, MPV_Property.audio_bitrate };
+        //            // var names = Enum.GetNames(typeof(MPV_Property)).Where(t => t.Contains("cache") || t.Contains("demuxer") || t.Contains("bitrate"));
+        //            List<string> values = new List<string>();
+        //            foreach (var prop in arr)
+        //            {
+        //                var s = Enum.GetName(typeof(MPV_Property), prop);
+        //                object value = MPV.GetProperty(prop);
+        //                if (value == null)
+        //                    continue;
+        //                if (s.Contains("bitrate"))
+        //                {
+        //                    if (value is float)
+        //                    {
+        //                        float val = (float)value;
+        //                        value = val.SizeSuffix(2) + "/s";
+        //                    }
+        //                }
+        //                values.Add(s + ": " + value);
+        //            }
+        //            return values.ToArray();
+        //        }
+        //        return new string[0];
+        //    }
+        //}
 
         public void GetMpvWindow()
         {
@@ -529,43 +536,66 @@ namespace LX29_ChatClient.Channels
             }
         }
 
-        public void ShowVideoPlayer(string quality, bool external = false, Action<int, int, string> a = null)
+        public void ShowVideoPlayer(string quality, PlayerType external = PlayerType.Cinema, Action<int, int, string> a = null)
         {
             if (isStartingStream) return;
             isStartingStream = true;
 
-            if (!MPV_Downloader.MPV_Exists)
+            if (external == PlayerType.Record_ShowMPV && !File.Exists(Settings._pluginDir + "\\MPV\\ffmpeg.exe"))
             {
-                MPV_Downloader.DownloadMPV(a, () => ShowVideoPlayer(quality, external, a));
-                return;
+                FormDownloader fd = new FormDownloader();
+                fd.ShowDialog("FFMPEG ist needed for Recording.\r\nDownload now?",
+                "https://github.com/lukix29/LixChat/raw/master/LixChat/Resources/ffmpeg.7z",
+                Settings._pluginDir + "\\MPV\\ffmpeg.exe");
             }
-
-            if (external)
+            if (!File.Exists(Settings._pluginDir + "\\MPV\\mpv.exe"))
             {
-                Task.Run(() => Start(quality, a));
+                FormDownloader fd = new FormDownloader();
+                fd.ShowDialog("MPV ist needed for watching Streams.\r\nDownload now?",
+                "https://downloads.sourceforge.net/project/mpv-player-windows/64bit/mpv-x86_64-20170923-git-e3288c4.7z",
+                Settings._pluginDir + "\\MPV\\");
             }
-            else
+            switch (external)
             {
-                if (playerForm == null)
-                {
-                    playerForm = new FormPlayer();
-                    playerForm.FormClosed += playerForm_FormClosed;
+                case PlayerType.Record_ShowMPV:
+                case PlayerType.ExternalMPV:
+                    Task.Run(() => Start(external, quality, a));
+                    break;
 
-                    playerForm.Show(this, quality);
-
-                    if (!PlayerPosition.IsEmpty)
+                case PlayerType.Cinema:
+                    if (playerForm == null)
                     {
-                        playerForm.Location = PlayerPosition.Location;
-                        playerForm.Size = PlayerPosition.Size;
+                        playerForm = new FormPlayer();
+                        playerForm.FormClosed += playerForm_FormClosed;
+
+                        playerForm.Show(this, quality);
+
+                        if (!PlayerPosition.IsEmpty)
+                        {
+                            playerForm.Location = PlayerPosition.Location;
+                            playerForm.Size = PlayerPosition.Size;
+                        }
+                        playerForm.LocationChanged += playerForm_LocationChanged;
+                        isStartingStream = false;
+                        //IsViewing = true;
                     }
-                    playerForm.LocationChanged += playerForm_LocationChanged;
-                    isStartingStream = false;
-                    //IsViewing = true;
-                }
+                    break;
             }
         }
 
-        private async void Start(string quali, Action<int, int, string> a)
+        private void playerForm_FormClosed(object sender, System.Windows.Forms.FormClosedEventArgs e)
+        {
+            playerForm.Dispose();
+            playerForm = null;
+            //IsViewing = false;
+        }
+
+        private void playerForm_LocationChanged(object sender, EventArgs e)
+        {
+            PlayerPosition = new Rectangle(playerForm.Location, playerForm.Size).ScreenSafe();
+        }
+
+        private async void Start(PlayerType type, string quali, Action<int, int, string> a)
         {
             try
             {
@@ -575,7 +605,7 @@ namespace LX29_ChatClient.Channels
                 bool firstTry = true;
                 while (true)
                 {
-                    if (StartMpvExternal(quali, a))
+                    if (StartMpvExternal(type, quali, a))
                     {
                         break;
                     }
@@ -628,20 +658,31 @@ namespace LX29_ChatClient.Channels
                 switch (x.Handle())
                 {
                     case MessageBoxResult.Retry:
-                        Start(quali, a);
+                        Start(type, quali, a);
                         break;
                 }
             }
             isStartingStream = false;
         }
 
-        private bool StartMpvExternal(string quali, Action<int, int, string> a)
+        private bool StartMpvExternal(PlayerType type, string quali, Action<int, int, string> a)
         {
             var sdf = this.StreamURLS;
             if (!sdf.IsEmpty)
             {
                 string url = sdf[quali].URL;
-                return MPV.Start(this.Name, url, (int)Settings.MpvBufferBytes, (int)Settings.MpvBufferSeconds, this.PlayerPosition);
+                bool b = false;
+                switch (type)
+                {
+                    case PlayerType.Record_ShowMPV:
+                        b = MPV.Record(this.Name, url, 100, (int)Settings.MpvBufferBytes, IntPtr.Zero, (int)Settings.MpvBufferSeconds, this.PlayerPosition);
+                        break;
+
+                    case PlayerType.ExternalMPV:
+                        b = MPV.Start(this.Name, url, 100, (int)Settings.MpvBufferBytes, IntPtr.Zero, (int)Settings.MpvBufferSeconds, this.PlayerPosition);
+                        break;
+                }
+                return b;
                 //MessageBox.Show(MPV.GetProperty(MPV_Property.ca).ToString());
                 //return true;
             }
@@ -651,7 +692,7 @@ namespace LX29_ChatClient.Channels
             }
         }
 
-        #endregion mpv
+        #endregion MPV Player Methods
 
         private void chatForm_FormClosed(object sender, System.Windows.Forms.FormClosedEventArgs e)
         {
@@ -662,18 +703,6 @@ namespace LX29_ChatClient.Channels
         private void chatForm_LocationChanged(object sender, EventArgs e)
         {
             ChatPosition = new Rectangle(chatForm.Location, chatForm.Size).ScreenSafe();
-        }
-
-        private void playerForm_FormClosed(object sender, System.Windows.Forms.FormClosedEventArgs e)
-        {
-            playerForm.Dispose();
-            playerForm = null;
-            //IsViewing = false;
-        }
-
-        private void playerForm_LocationChanged(object sender, EventArgs e)
-        {
-            PlayerPosition = new Rectangle(playerForm.Location, playerForm.Size).ScreenSafe();
         }
     }
 

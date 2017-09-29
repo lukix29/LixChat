@@ -58,6 +58,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Code\TwitchApi\JSON\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
@@ -70,6 +72,7 @@
       <HintPath>Plugins\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Management" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq">
       <Private>False</Private>
     </Reference>
@@ -91,8 +94,22 @@
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Code\Extensions\Downloader\FormDownloader.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Code\Extensions\Downloader\FormDownloader.Designer.cs">
+      <DependentUpon>FormDownloader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Code\Chat\ChatExtras\ChatScripts\BaseScripts\CommandScript.cs" />
     <Compile Include="Code\Chat\MessageCollection.cs" />
     <Compile Include="Code\Chat\ChatExtras\TextPreviewControl.cs">
@@ -137,12 +154,7 @@
       <DependentUpon>PlayerControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Code\TwitchApi\TwitchUser\SimpleHTTPServer.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="Resources\MyScripts.cs" />
+    <None Include="Resources\MyScripts.cs" />
     <Compile Include="Code\Chat\ChatExtras\ChatScripts\BaseScripts\DschibbsAktien.cs" />
     <Compile Include="Code\Chat\ChatExtras\ChatScripts\ChatScript.cs" />
     <Compile Include="Code\Chat\ChatExtras\QuickText\QuickText.cs" />
@@ -160,6 +172,7 @@
     <Compile Include="Code\Emotes\ChatEmotes.cs" />
     <Compile Include="Code\Chat\ChatManager.cs" />
     <Compile Include="Code\Chat\IrcClient.cs" />
+    <Compile Include="Code\Extensions\Downloader.cs" />
     <Compile Include="Code\Extensions\Extensions.cs" />
     <Compile Include="Code\Extensions\MessageBox\MessageBox.cs">
       <SubType>Form</SubType>
@@ -264,6 +277,9 @@
     <EmbeddedResource Include="Code\Chat\ChatExtras\TextPreviewControl.resx">
       <DependentUpon>TextPreviewControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Code\Extensions\Downloader\FormDownloader.resx">
+      <DependentUpon>FormDownloader.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Code\Extensions\MessageBox\MessageBox.resx">
       <DependentUpon>MessageBox.cs</DependentUpon>
     </EmbeddedResource>
@@ -331,7 +347,6 @@
     <None Include="App.config" />
     <None Include="Resources\Cache.db" />
     <None Include="Resources\1463551454_16.ico" />
-    <None Include="Resources\temp.jpg" />
     <None Include="Resources\ActionHelp.txt" />
     <None Include="Resources\Whisper.db" />
     <None Include="Resources\whisper_alert.wav">
@@ -349,7 +364,6 @@
     </None>
     <None Include="Resources\index.html" />
     <None Include="Resources\loading.gif" />
-    <None Include="Resources\received.html" />
     <None Include="Resources\updater.exe" />
     <None Include="Plugins\7za.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -3925,6 +3939,7 @@
     <Content Include="1463551454_16.ico" />
     <Content Include="Resources\pause.png" />
     <Content Include="Resources\play.png" />
+    <Content Include="Resources\temp.png" />
     <None Include="Data\LixChat.exe" />
     <None Include="Resources\ban.png" />
     <None Include="Resources\Mute.png" />

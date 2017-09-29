@@ -700,10 +700,10 @@ namespace LX29_ChatClient
         {
             Text = name;
 
-            var em = ChatClient.Emotes.Values.All.Where(t => t.Name.Equals(name));
-            if (em != null && em.Count() > 0)
+            var em = ChatClient.Emotes.Values.ContainsKey(name);
+            if (em != null)
             {
-                Emote = em.ToArray();
+                Emote = new EmoteBase[] { em };
                 IsEmote = true;
             }
         }
