@@ -160,7 +160,6 @@
     <Compile Include="Code\Emotes\ChatEmotes.cs" />
     <Compile Include="Code\Chat\ChatManager.cs" />
     <Compile Include="Code\Chat\IrcClient.cs" />
-    <Compile Include="Code\Extensions\Downloader.cs" />
     <Compile Include="Code\Extensions\Extensions.cs" />
     <Compile Include="Code\Extensions\MessageBox\MessageBox.cs">
       <SubType>Form</SubType>
