@@ -377,6 +377,8 @@ namespace LX29_Helpers
                 string wd = Path.GetFullPath(Settings._pluginDir + "\\MPV\\");
                 string recorDir = Settings.RecordDirectory;
 
+                if (!Directory.Exists(recorDir)) Directory.CreateDirectory(recorDir);
+
                 arg = "@echo off\r\n" + wd + "ffmpeg.exe -y -re -i \"" + fileName + "\" -c:v copy -c:a copy -f matroska " +
                    recorDir + Title + "-" + DateTime.Now.ToString("dd_MM_yyyy-HH_mm_ss") +
                     ".mkv -c:v copy -c:a copy -f matroska - | " + wd + "mpv.exe " + arg;

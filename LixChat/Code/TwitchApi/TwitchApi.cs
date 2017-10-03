@@ -10,6 +10,7 @@ namespace LX29_Twitch.Api
     public static class TwitchApi
     {
         public const string CLIENT_ID = "w828cjyt1gjkeravbpi2vu4s1k4831";//"n0soi61qkugd4mjlq618r243k686o69";
+        //public const string CLIENT_ID = "n0soi61qkugd4mjlq618r243k686o69";
 
         private static string _uuid = null;
         private static Random rd = new Random();
@@ -19,9 +20,8 @@ namespace LX29_Twitch.Api
             get
             {
                 return "https://api.lixchat.com/lix/authorize.php?guid=" + UUID;
-                //"https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id="
-                //+ CLIENT_ID + "&redirect_uri=http://localhost:12685&force_verify=true&" +
-                //"scope=chat_login+user_subscriptions+user_read+user_follows_edit";
+
+                // return "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=" + CLIENT_ID + "&redirect_uri=http://localhost:12685&force_verify=true&scope=chat_login+user_subscriptions+user_read+user_follows_edit";
             }
         }
 
@@ -37,8 +37,7 @@ namespace LX29_Twitch.Api
 
         public static string User_Token
         {
-            get;
-            private set;
+            get { return LX29_ChatClient.ChatClient.TwitchUsers.Selected.Token; }
         }
 
         public static string UUID
@@ -53,17 +52,14 @@ namespace LX29_Twitch.Api
             }
         }
 
-        public static bool FollowChannel(ApiResult channelID, int userID = 0, string userToken = "")
+        public static bool FollowChannel(ApiResult channelID)
         {
             try
             {
-                if (userID == 0) userID = User_ID;
-                if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
-
                 bool wasFollowed = channelID.Followed;
                 string param = (wasFollowed) ? "DELETE" : "PUT";
                 string raw = uploadString(
-                    "https://api.twitch.tv/kraken/users/" + userID + "/follows/channels/" + channelID.ID, param, userToken);
+                    "https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels/" + channelID.ID, param, User_Token);
                 if (!wasFollowed)
                 {
                     if (raw.Length > 0)
@@ -82,14 +78,6 @@ namespace LX29_Twitch.Api
             }
             return false;
         }
-
-        //public static JSON.Twitch_Badges.BadgeData GetChannelBadges(string channelID)
-        //{
-        //    string url = "https://api.twitch.tv/kraken/chat/" + channelID + "/badges";
-        //    string s = downloadString(url, User_Token);
-
-        //    return JSON.ParseBadges(s);
-        //}
 
         public static Dictionary<string, LX29_ChatClient.ChatUser> GetChatUsers(string ChannelName)
         {
@@ -125,13 +113,11 @@ namespace LX29_Twitch.Api
             return users.Select(t => new LX29_ChatClient.ChatUser(t.Name, ChannelName, t.UType)).ToDictionary(t => t.Name);
         }
 
-        public static List<ApiResult> GetFollowedStreams(int userID, string userToken)
+        public static List<ApiResult> GetFollowedStreams()
         {
-            if (userID == 0) userID = User_ID;
-
-            List<ApiResult> list = getResults("https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels", userToken);
+            List<ApiResult> list = getResults("https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels", User_Token);
             string sb = getChannelList(list);
-            var str = getResults("https://api.twitch.tv/kraken/streams?channel=" + sb, userToken);
+            var str = getResults("https://api.twitch.tv/kraken/streams?channel=" + sb, User_Token);
             return Combine(list, str);
         }
 
@@ -175,21 +161,16 @@ namespace LX29_Twitch.Api
             return str;
         }
 
-        public static SubResult GetSubscription(int channel_ID, int userID = 0, string userToken = "")
+        public static SubResult GetSubscription(int channel_ID)
         {
-            if (userID == 0) userID = User_ID;
-            if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
-
             var res = downloadString(
-                "https://api.twitch.tv/kraken/users/" + userID + "/subscriptions/" + channel_ID, userToken, 5, false);
+                "https://api.twitch.tv/kraken/users/" + User_ID + "/subscriptions/" + channel_ID, User_Token, 5, false);
             return SubResult.Parse(res);
         }
 
-        public static IEnumerable<JSON.Twitch_Api.Emoticon> GetUserEmotes(int userID = 0, string userToken = "")
+        public static IEnumerable<JSON.Twitch_Api.Emoticon> GetUserEmotes()
         {
-            if (userID == 0) userID = User_ID;
-            if (string.IsNullOrEmpty(userToken)) userToken = User_Token;
-            string s = downloadString("https://api.twitch.tv/kraken/users/" + userID + "/emotes", userToken);
+            string s = downloadString("https://api.twitch.tv/kraken/users/" + User_ID + "/emotes", User_Token);
             return JSON.ParseTwitchEmotes(s);
         }
 
@@ -213,28 +194,35 @@ namespace LX29_Twitch.Api
             return ApiResult.Empty;
         }
 
-        public static ApiResult GetUserIDFromToken(string sessionID)
+        public static ApiResult GetUserIDFromSessionID(string sessionID, out string token)
         {
-            using (WebClient wc = new WebClient())
-            {
-                wc.Proxy = null;
-                string url = "https://api.lixchat.com/lix/users/token.php?guid=" + UUID + "&sessionid=" + sessionID;
-                User_Token = wc.DownloadString(url);
-            }
-            if (string.IsNullOrEmpty(User_Token))
-            {
-                System.Windows.Forms.MessageBox.Show("ERRORRRRORJHKDJFLVMÖDPM;KLPÄIOH KÖ");
-                throw new StackOverflowException();
-            }
-            string result = downloadString("https://api.twitch.tv/kraken?oauth_token=" + User_Token, null, 5, false);
+            token = TokenFromSessionID(sessionID);
+            string result = downloadString("https://api.twitch.tv/kraken?oauth_token=" + token, null, 5);
             var res = JSON.ParseAuth(result);
             if (!res.token.valid)
             {
-                throw new StackOverflowException();
+                //   new KeyNotFoundException().Handle("Error while getting Token from Session-ID", true);
+                throw new NullReferenceException("GetUserIDFromSessionID");
             }
-            var apir = new ApiResult(res);
+            return new ApiResult(res);
+        }
 
-            return apir;
+        public static string TokenFromSessionID(string sessionID)
+        {
+            try
+            {
+                using (WebClient wc = new WebClient())
+                {
+                    wc.Proxy = null;
+                    string url = "https://api.lixchat.com/lix/users/token.php?sessionid=" + sessionID;
+                    return wc.DownloadString(url);
+                }
+            }
+            catch (WebException x)
+            {
+                x.Handle("Error while getting Token from Session-ID", true);
+            }
+            return null;
         }
 
         private static List<ApiResult> Combine(IEnumerable<ApiResult> channels, IEnumerable<ApiResult> streams)
@@ -270,10 +258,12 @@ namespace LX29_Twitch.Api
                         webclient.Headers.Add("Client-ID: " + CLIENT_ID);
                         if (!string.IsNullOrEmpty(tokken))
                         {
+                            tokken = "fsdkg";
                             webclient.Headers.Add("Authorization: OAuth " + tokken);
                         }
                     }
-                    return webclient.DownloadString(url);
+                    string s = webclient.DownloadString(url);
+                    return s;
                 }
             }
             catch (WebException x)
@@ -283,6 +273,11 @@ namespace LX29_Twitch.Api
 
                 if (handleError)
                 {
+                    if (code == (int)HttpStatusCode.NotFound)
+                    {
+                        LX29_ChatClient.ChatClient.TwitchUsers.RefreshSelectedToken();
+                        return downloadString(url, tokken, api_version);
+                    }
                     if (code == (int)HttpStatusCode.GatewayTimeout || code == (int)HttpStatusCode.RequestTimeout)
                     {
                         return downloadString(url, tokken, api_version);

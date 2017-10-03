@@ -37,7 +37,11 @@ namespace LX29_ChatClient
         {
             Url = url;
             FileName = Path.GetFullPath(fileName);
-            DownloadFileName = Path.GetDirectoryName(FileName) + "\\" + Path.GetFileName(Url);
+            DownloadFileName = Path.GetFullPath(FileName);
+
+            string dir = Path.GetDirectoryName(DownloadFileName);
+            Directory.CreateDirectory(dir);
+
             lbl_Pre_Info.Text = info;
 
             base.ShowDialog();
@@ -55,6 +59,7 @@ namespace LX29_ChatClient
 
             wc.DownloadProgressChanged += wc_DownloadProgressChanged;
             wc.DownloadFileCompleted += wc_DownloadFileCompleted;
+
             wc.DownloadFileAsync(new Uri(Url), DownloadFileName);
         }
 
@@ -87,13 +92,17 @@ namespace LX29_ChatClient
         {
             try
             {
+                if (e.Error != null)
+                {
+                    e.Error.Handle(Url, true);
+                }
                 wc.Dispose();
 
                 Process p = new Process();
                 //p.StartInfo.WorkingDirectory = Path.GetFullPath(FileName);
                 p.StartInfo.FileName = Settings._pluginDir + "7za.exe";
                 p.StartInfo.Arguments = "x \"" + DownloadFileName + "\" -o\"" +
-                    Path.GetDirectoryName(FileName) + "\" -y";
+                    Path.GetDirectoryName(FileName).Replace(".7z", ".exe") + "\" -y";
                 p.StartInfo.RedirectStandardOutput = true;
                 p.StartInfo.UseShellExecute = false;
                 p.Start();

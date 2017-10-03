@@ -441,7 +441,7 @@ namespace LX29_ChatClient
         private static bool _MessageCaching = false;
         private static double _MpvBufferBytes = 64000;
         private static double _MpvBufferSeconds = 10;
-        private static string _RecordDirectory = _caonfigBaseDir;
+        private static string _RecordDirectory = _caonfigBaseDir + "Recordings\\";
         private static bool _ShowErrors = false;
         private static bool _ShowTimeoutMessages = true;
         private static double _UpdateInterval = 60000;

@@ -99,6 +99,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Code\Extensions\Downloader\Downloader.cs" />
     <Compile Include="Code\Extensions\Downloader\FormDownloader.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -155,7 +156,6 @@
     </Compile>
     <Compile Include="Code\TwitchApi\TwitchUser\SimpleHTTPServer.cs" />
     <None Include="Resources\MyScripts.cs" />
-    <Compile Include="Code\Chat\ChatExtras\ChatScripts\BaseScripts\DschibbsAktien.cs" />
     <Compile Include="Code\Chat\ChatExtras\ChatScripts\ChatScript.cs" />
     <Compile Include="Code\Chat\ChatExtras\QuickText\QuickText.cs" />
     <Compile Include="Code\Chat\ChatExtras\Actions\Actions.cs" />
@@ -172,7 +172,6 @@
     <Compile Include="Code\Emotes\ChatEmotes.cs" />
     <Compile Include="Code\Chat\ChatManager.cs" />
     <Compile Include="Code\Chat\IrcClient.cs" />
-    <Compile Include="Code\Extensions\Downloader.cs" />
     <Compile Include="Code\Extensions\Extensions.cs" />
     <Compile Include="Code\Extensions\MessageBox\MessageBox.cs">
       <SubType>Form</SubType>

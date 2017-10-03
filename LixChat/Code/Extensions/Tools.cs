@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Management;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace System
 {
@@ -128,6 +131,33 @@ namespace System
                     regKey.Close();
             }
             return name;
+        }
+
+        public static string GetUniqueHash()
+        {
+            ManagementObjectSearcher MOS = new ManagementObjectSearcher("SELECT * FROM Win32_ComputerSystemProduct");
+            ManagementObjectCollection moc = MOS.Get();
+            string s = "";
+            foreach (ManagementObject mo in moc)
+            {
+                s += mo["UUID"].ToString();
+            }
+            MOS = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
+            moc = MOS.Get();
+            foreach (ManagementObject mo in moc)
+            {
+                s += mo["ProcessorId"].ToString();
+            }
+            s += Microsoft.Win32.Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows_NT\\CurrentVersion", "ProductId", "FAIL");
+
+            byte[] ba = Encoding.UTF8.GetBytes(s);
+            ba = SHA512Managed.Create().ComputeHash(ba);
+            StringBuilder result = new StringBuilder();
+            for (int i = 0; i < ba.Length; i++)
+            {
+                result.Append(ba[i].ToString("X2"));
+            }
+            return result.ToString();
         }
 
         public static bool IsLink(string input)

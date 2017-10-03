@@ -546,14 +546,14 @@ namespace LX29_ChatClient.Channels
                 FormDownloader fd = new FormDownloader();
                 fd.ShowDialog("FFMPEG ist needed for Recording.\r\nDownload now?",
                 "https://github.com/lukix29/LixChat/raw/master/LixChat/Resources/ffmpeg.7z",
-                Settings._pluginDir + "\\MPV\\ffmpeg.exe");
+                Settings._pluginDir + "\\MPV\\ffmpeg.7z");
             }
             if (!File.Exists(Settings._pluginDir + "\\MPV\\mpv.exe"))
             {
                 FormDownloader fd = new FormDownloader();
                 fd.ShowDialog("MPV ist needed for watching Streams.\r\nDownload now?",
-                "https://downloads.sourceforge.net/project/mpv-player-windows/64bit/mpv-x86_64-20170923-git-e3288c4.7z",
-                Settings._pluginDir + "\\MPV\\");
+                  "https://github.com/lukix29/LixChat/raw/master/LixChat/Resources/mpv.7z",
+                Settings._pluginDir + "\\MPV\\mpv.7z");
             }
             switch (external)
             {

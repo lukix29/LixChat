@@ -136,7 +136,7 @@ namespace LX29_ChatClient
             isSnycing = true;
             if (ListLoaded != null)
                 ListLoaded(0, channels.Count, "Loading Channels");
-            var follows = TwitchApi.GetFollowedStreams(SelfApiResult.ID, SelfUserToken);
+            var follows = TwitchApi.GetFollowedStreams();
             List<ChannelInfo> list = new List<ChannelInfo>();
             foreach (var channel in follows)
             {
@@ -196,7 +196,7 @@ namespace LX29_ChatClient
                 Task.Run(() => AutoActions.Load());
                 Task.Run(() => LX29_ChatClient.Addons.Scripts.ScriptClassCollection.LoadScripts());
 
-                var follows = TwitchApi.GetFollowedStreams(SelfApiResult.ID, SelfUserToken);
+                var follows = TwitchApi.GetFollowedStreams();
 
                 var setts = LoadChannels();
 

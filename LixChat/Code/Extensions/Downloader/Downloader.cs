@@ -103,7 +103,7 @@ namespace LX29_Helpers
             private set;
         }
 
-        public static void CheckNightlyUpdate(Action<int, int, string> progAction, bool force = false)
+        public static bool CheckNightlyUpdate(Action<int, int, string> progAction, bool force = false)
         {
             try
             {
@@ -146,6 +146,7 @@ namespace LX29_Helpers
                         File.WriteAllBytes(updater, data);
                         Process.Start(updater, "\"" + path + "\" \"" + Application.ExecutablePath + "\"");
                         Application.Exit();
+                        return true;
                     }
                 }
             }
@@ -158,14 +159,14 @@ namespace LX29_Helpers
                         break;
                 }
             }
+            return false;
         }
 
         public static void CheckUpdate(Action<int, int, string> progAction, bool force = false)
         {
             if (Settings.DevUpdates)
             {
-                CheckNightlyUpdate(progAction, force);
-                return;
+                if (CheckNightlyUpdate(progAction, force)) return;
             }
             try
             {
@@ -216,9 +217,9 @@ namespace LX29_Helpers
                         {
                             wc.Proxy = null;
                             wc.DownloadProgressChanged += (sender, e) =>
-                                {
-                                    progAction.Invoke(e.ProgressPercentage, 100, "Downloading Update...");
-                                };
+                            {
+                                progAction.Invoke(e.ProgressPercentage, 100, "Downloading Update...");
+                            };
                             wc.DownloadFileCompleted += (sender, e) =>
                             {
                                 Updating = true;

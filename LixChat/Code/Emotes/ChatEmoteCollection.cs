@@ -25,6 +25,8 @@ namespace LX29_ChatClient.Emotes
         private int loadingCnt = 0;
         private string loadingInf = "";
 
+        private int loadingMax = 369500;
+
         public Emoteionary Values
         {
             get { return emotionary; }
@@ -426,9 +428,11 @@ namespace LX29_ChatClient.Emotes
             LXTimer timer = null;
             try
             {
-                timer = new LXTimer((o) => On_Loaded_channel(null, loadingCnt, Int32.MaxValue / 10000, loadingInf), 1000, 500);
+                timer = new LXTimer((o) => On_Loaded_channel(null, loadingCnt, loadingMax, loadingInf), 1000, 500);
 
                 var _emotesetename = _load_EmoteSet_IDs();
+
+                loadingMax = 245500;
 
                 using (WebClient wc = new WebClient())
                 {

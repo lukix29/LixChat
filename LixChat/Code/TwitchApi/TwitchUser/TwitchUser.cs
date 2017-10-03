@@ -88,7 +88,11 @@ namespace LX29_Twitch.Api
         {
             Selected = false;
             SessionID = sessionID;
-            ApiResult = TwitchApi.GetUserIDFromToken(sessionID);
+            string tok = "";
+            ApiResult = TwitchApi.GetUserIDFromSessionID(SessionID, out tok);
+            if (string.IsNullOrEmpty(tok))
+                throw new NullReferenceException("TwitchUser CTOR");
+            Token = tok;
         }
 
         public ApiResult ApiResult
@@ -119,6 +123,12 @@ namespace LX29_Twitch.Api
             private set;
         }
 
+        public string Token
+        {
+            get;
+            private set;
+        }
+
         public static implicit operator ApiResult(TwitchUser user)
         {
             return user.ApiResult;
@@ -127,6 +137,11 @@ namespace LX29_Twitch.Api
         public T GetValue<T>(ApiInfo type)
         {
             return ApiResult.GetValue<T>(type);
+        }
+
+        public void SetToken(string token)
+        {
+            Token = token;
         }
 
         public override string ToString()
@@ -144,10 +159,6 @@ namespace LX29_Twitch.Api
         {
             filePath = FileName;
         }
-
-        //public delegate void FetchedToken(string token);
-
-        //public event FetchedToken OnFetchedToken;
 
         public TwitchUser Selected
         {
@@ -263,7 +274,7 @@ namespace LX29_Twitch.Api
             }
             else if (err == AddError.Error)
             {
-                if (err.Info.Contains("StackOverflowException"))
+                if (err.Info.Contains("NullReferenceException: GetUserIDFromSessionID"))
                 {
                     FetchNewToken(Main, action, true);
                     return;
@@ -297,11 +308,22 @@ namespace LX29_Twitch.Api
                         }
                         return AddError.None;
                     }
-                    catch (Exception x) { return new AddError(AddErrorInfo.Error, x.ToString()); }
+                    catch (Exception x)
+                    {
+                        return new AddError(AddErrorInfo.Error, x.ToString());
+                    }
                 }
                 File.Delete(filePath);
             }
             return AddError.NotExist;
+        }
+
+        public void RefreshSelectedToken()
+        {
+            string tok = TwitchApi.TokenFromSessionID(Selected.SessionID);
+            if (string.IsNullOrEmpty(tok)) throw new NullReferenceException();
+            Selected.SetToken(tok);
+            Save();
         }
 
         public AddError Remove(Predicate<TwitchUser> predicate)
