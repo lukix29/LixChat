@@ -28,7 +28,7 @@ namespace LX29_Twitch.Forms
                 stream = si;
 
                 quality = quality.ToUpper().Trim();
-                chatPanel1.ChatView.SetChannel(si, LX29_ChatClient.MsgType.All_Messages);
+                chatPanel1.ChatView.SetChannel(si.ApiResult, LX29_ChatClient.MsgType.All_Messages);
 
                 this.Text = stream.DisplayName;
 

@@ -203,7 +203,7 @@ namespace LX29_ChatClient.Addons
                                     {
                                         if (prop.Name.Equals("channel", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            nud.SearchArray(ChatClient.Channels.Select(t => t.Key));
+                                            nud.SearchArray(ChatClient.Channels.Select(t => t.Value.Name));
                                         }
                                         else
                                         {

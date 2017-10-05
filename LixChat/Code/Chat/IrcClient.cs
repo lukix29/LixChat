@@ -11,7 +11,13 @@ namespace IRC_Client
 {
     public partial class IRC
     {
-        public string Channel
+        public int _Channel
+        {
+            get;
+            private set;
+        }
+
+        public string Channel_Name
         {
             get;
             private set;
@@ -19,20 +25,20 @@ namespace IRC_Client
 
         public void HandleJoin(IrcMessage message)
         {
-            if (Channel != null)
-                OnUserJoinedChannel(new IrcChannelUserEventArgs(Channel, new IrcUser(message.Prefix)));
+            if (Channel_Name != null)
+                OnUserJoinedChannel(new IrcChannelUserEventArgs(_Channel, new IrcUser(message.Prefix)));
         }
 
         public void HandleKick(IrcMessage message)
         {
-            var channel = Channel;
+            var channel = _Channel;
             OnUserKicked(new IrcChannelUserEventArgs(channel, new IrcUser(message.Prefix),
             new IrcUser(message.Prefix), message.Parameters[2]));
         }
 
         public void HandlePart(IrcMessage message)
         {
-            OnUserPartedChannel(new IrcChannelUserEventArgs(Channel,
+            OnUserPartedChannel(new IrcChannelUserEventArgs(_Channel,
             new IrcUser(message.Prefix)));
         }
     }
@@ -50,7 +56,7 @@ namespace IRC_Client
             var user = new IrcUser(message.Prefix);
             if (User.Nick != user.Nick)
             {
-                OnUserQuit(new IrcChannelUserEventArgs(Channel, user));
+                OnUserQuit(new IrcChannelUserEventArgs(_Channel, user));
             }
         }
 
@@ -111,7 +117,7 @@ namespace IRC_Client
                     return false;
                 }
             }
-            SendRawMessage("PRIVMSG {0} :{1}{2}", "#" + Channel, PrivmsgPrefix, message);
+            SendRawMessage("PRIVMSG {0} :{1}{2}", "#" + Channel_Name, PrivmsgPrefix, message);
             return true;
         }
 
@@ -131,9 +137,10 @@ namespace IRC_Client
 
         private static readonly byte endLineChar = Encoding.UTF8.GetBytes("\n")[0];
 
-        public IRC(string serverAddress, string Channel, string name, string tokken)
+        public IRC(string serverAddress, string Channel, int Channel_ID, string name, string tokken)
         {
-            this.Channel = Channel;
+            this.Channel_Name = Channel;
+            this._Channel = Channel_ID;
             if (serverAddress == null) throw new ArgumentNullException("serverAddress");
 
             User = new IrcUser(name, name.ToLower(),
@@ -351,7 +358,7 @@ namespace IRC_Client
         {
             try
             {
-                SendRawMessage("PART {0}", "#" + Channel);
+                SendRawMessage("PART {0}", "#" + Channel_Name);
                 try
                 {
                     Socket.Disconnect(false);
@@ -439,14 +446,14 @@ namespace IRC_Client
 
                 SendRawMessage("USER {0} hostname servername :{1}", User.User, User.RealName);
 
-                SendRawMessage("CAP REQ :twitch.tv/membership", "#" + Channel);
+                SendRawMessage("CAP REQ :twitch.tv/membership", "#" + Channel_Name);
 
-                SendRawMessage("JOIN {0}", "#" + Channel);
+                SendRawMessage("JOIN {0}", "#" + Channel_Name);
 
                 //SendRawMessage("TWITCHCLIENT", "#" + Channel);
 
-                SendRawMessage("CAP REQ :twitch.tv/commands", "#" + Channel);
-                SendRawMessage("CAP REQ :twitch.tv/tags", "#" + Channel);
+                SendRawMessage("CAP REQ :twitch.tv/commands", "#" + Channel_Name);
+                SendRawMessage("CAP REQ :twitch.tv/tags", "#" + Channel_Name);
 
                 PingTimer.Start();
             }
@@ -760,13 +767,13 @@ namespace IRC_Client.Events
 {
     public class IrcChannelUserEventArgs : EventArgs
     {
-        internal IrcChannelUserEventArgs(string channel, IrcUser user)
+        internal IrcChannelUserEventArgs(int channel, IrcUser user)
         {
             Channel = channel;
             User = user;
         }
 
-        internal IrcChannelUserEventArgs(string channel, IrcUser kicker, IrcUser user, string reason)
+        internal IrcChannelUserEventArgs(int channel, IrcUser kicker, IrcUser user, string reason)
         {
             Channel = channel;
             Kicker = kicker;
@@ -774,7 +781,7 @@ namespace IRC_Client.Events
             Reason = reason;
         }
 
-        public string Channel { get; set; }
+        public int Channel { get; set; }
 
         public IrcUser Kicker { get; set; }
         public string Reason { get; set; }

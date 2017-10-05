@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using LX29_Twitch.Api;
 using System.Windows.Forms;
 
 namespace LX29_ChatClient.Forms
@@ -30,7 +31,7 @@ namespace LX29_ChatClient.Forms
 
         public event WhisperSent OnWhisperSent;
 
-        public ChannelInfo Channel
+        public ApiResult Channel
         {
             get { return this.chatView1.Channel; }
         }
@@ -109,7 +110,7 @@ namespace LX29_ChatClient.Forms
                     var msg = ChatMessage.Empty;
                     if (string.IsNullOrEmpty(chatView1.UserMessageName))
                     {
-                        msg = ChatClient.SendMessage(text, Channel.Name);
+                        msg = ChatClient.SendMessage(text, Channel.ID);
                     }
                     else
                     {
@@ -476,14 +477,15 @@ namespace LX29_ChatClient.Forms
 
                 if (Channel != null)
                 {
-                    if (Channel.HasSlowMode)
+                    var chan = ChatClient.Channels[Channel.ID];
+                    if (chan.HasSlowMode)
                     {
-                        TimeSpan ts = DateTime.Now.Subtract(Channel.LastSendMessageTime);
-                        int tts = Channel.SlowMode - (int)ts.TotalSeconds;
+                        TimeSpan ts = DateTime.Now.Subtract(chan.LastSendMessageTime);
+                        int tts = chan.SlowMode - (int)ts.TotalSeconds;
 
-                        if (tts <= Channel.SlowMode && tts > 0)
+                        if (tts <= chan.SlowMode && tts > 0)
                         {
-                            btn_Send.Text = (Channel.SlowMode - (int)ts.TotalSeconds) + "s";// > 0 ? @"{mm\:ss}" : @"{ss}", ts);
+                            btn_Send.Text = (chan.SlowMode - (int)ts.TotalSeconds) + "s";// > 0 ? @"{mm\:ss}" : @"{ss}", ts);
                             return;
                         }
                     }

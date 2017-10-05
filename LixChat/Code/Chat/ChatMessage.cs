@@ -219,7 +219,7 @@ namespace LX29_ChatClient
         public CacheMessage(ChatMessage msg, int index)
         {
             Message = msg.Message;
-            Channel = msg.Channel;
+            Channel = msg.Channel_Name;
             Name = msg.Name;
             Time = msg.SendTime.Ticks;
             Timeout = !msg.Timeout.IsEmpty;
@@ -327,20 +327,20 @@ namespace LX29_ChatClient
         {
             Message = "";
             Name = "";
-            Channel = "";
+            Channel_Name = "";
             SendTime = DateTime.MaxValue;
         }
 
         public ChatMessage(CacheMessage msg)
         {
-            Channel = msg.Channel;
+            Channel_Name = msg.Channel;
             Name = msg.Name;
             Message = msg.Message;
-            User = (ChatClient.Users != null) ? ChatClient.Users.Get(Name, Channel, true) : new ChatUser(msg.Name, msg.Channel);
+            User = (ChatClient.Users != null) ? ChatClient.Users.Get(Name, Channel_Name, true) : new ChatUser(msg.Name, msg.Channel);
             SendTime = new DateTime(msg.Time);
             Types = new HashSet<MsgType>();
 
-            ChatWords = ChatClient.Emotes.ParseEmoteFromMessage(null, Message, Channel, Types);
+            ChatWords = ChatClient.Emotes.ParseEmoteFromMessage(null, Message, Channel_Name, Types);
 
             //Message = msg.Message;
             //Channel = ChatClient.Channels[msg.Channel].ID;
@@ -441,7 +441,7 @@ namespace LX29_ChatClient
 
             if (Message.StartsWith(".")) Message = Message.Remove(0, 1);
 
-            Channel = channel;
+            Channel_Name = channel;
             Timeout = toResult;
 
             //if (Types.Count == 0)
@@ -459,7 +459,7 @@ namespace LX29_ChatClient
             Types = new HashSet<MsgType>();
             this.Message = message;
 
-            Channel = channel;
+            Channel_Name = channel;
             Timeout = TimeOutResult.Empty;
 
             Name = user.Name.ToLower();
@@ -497,7 +497,13 @@ namespace LX29_ChatClient
         }
 
         [JsonIgnore]
-        public string Channel
+        public LX29_ChatClient.Channels.ChannelInfo Channel
+        {
+            get { return ChatClient.Channels.Values.FirstOrDefault(t => t.Name.Equals(Channel_Name)); }
+        }
+
+        [JsonIgnore]
+        public string Channel_Name
         {
             get;
             private set;
@@ -515,7 +521,7 @@ namespace LX29_ChatClient
         {
             get
             {
-                return (Message.Length == 0) || Channel.Length == 0;
+                return (Message.Length == 0) || string.IsNullOrEmpty(Channel_Name);
             }
         }
 
@@ -646,7 +652,7 @@ namespace LX29_ChatClient
                 {
                     if (!t.IsEmote)
                     {
-                        return new ChatWord(t.Text, Channel);//typelist.Contains(MsgType.Outgoing));
+                        return new ChatWord(t.Text);//typelist.Contains(MsgType.Outgoing));
                     }
                     else return t;
                 }).ToList();
@@ -696,7 +702,7 @@ namespace LX29_ChatClient
             }
         }
 
-        public ChatWord(string name, string channel)
+        public ChatWord(string name)
         {
             Text = name;
 

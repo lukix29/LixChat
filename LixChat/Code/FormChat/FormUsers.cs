@@ -29,7 +29,7 @@ namespace LX29_ChatClient.Forms
                 channel = info;
                 SetUsers(ChatClient.Users.Get(channel.Name));
 
-                chatView1.SetChannel(info, MsgType.All_Messages);
+                chatView1.SetChannel(info.ApiResult, MsgType.All_Messages);
 
                 timer1.Enabled = true;
 

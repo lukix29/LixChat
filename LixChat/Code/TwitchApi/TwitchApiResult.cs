@@ -68,7 +68,7 @@ namespace LX29_Twitch.Api
         Tier3 = 3000
     }
 
-    public class ApiResult
+    public class ApiResult : IEqualityComparer<ApiResult>, IEquatable<ApiResult>
     {
         public static readonly ApiResult Empty = new ApiResult();
 
@@ -259,6 +259,21 @@ namespace LX29_Twitch.Api
         {
             get { return values; }
             set { values = value; }
+        }
+
+        public bool Equals(ApiResult obj)
+        {
+            return this.ID.Equals(obj.ID);
+        }
+
+        public bool Equals(ApiResult obj, ApiResult obj1)
+        {
+            return obj1.ID.Equals(obj.ID);
+        }
+
+        public int GetHashCode(ApiResult info)
+        {
+            return info.ID;
         }
 
         public T GetValue<T>(ApiInfo type)

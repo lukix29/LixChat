@@ -101,9 +101,9 @@ namespace LX29_LixChat
                 {
                     foreach (var si in sa)
                     {
-                        ChatClient.Disconnect(si.Name);
-                        while (ChatClient.HasJoined(si.Name)) System.Threading.Thread.Sleep(100);
-                        ChatClient.TryConnect(si.Name, true);
+                        ChatClient.Disconnect(si.ID);
+                        while (ChatClient.HasJoined(si.ID)) System.Threading.Thread.Sleep(100);
+                        ChatClient.TryConnect(si.ID, true);
                     }
                     //this.LoadList(ChatClient.Channels);
                 }
@@ -126,7 +126,7 @@ namespace LX29_LixChat
                     si.AutoLoginChat = cB_AutoLogin.Checked;
                     if (si.AutoLoginChat)
                     {
-                        ChatClient.TryConnect(si.Name);
+                        ChatClient.TryConnect(si.ID);
                     }
                     ChatClient.SaveChannels();
                 }
@@ -144,6 +144,10 @@ namespace LX29_LixChat
 
                 this.Text = "LixChat | (Build " + this.GetType().Assembly.GetLinkerTime().ToString() + ")";
 
+                if (System.IO.File.Exists(Settings._dataDir + "Channels_.txt"))
+                {
+                    System.IO.File.Delete(Settings._dataDir + "Channels_.txt");
+                }
                 if (!System.IO.Directory.Exists(Settings._dataDir))
                 {
                     System.IO.Directory.CreateDirectory(Settings._dataDir);
@@ -167,6 +171,11 @@ namespace LX29_LixChat
                 Task.Run(() => ChatClient.INITIALIZE(this));
 
                 finishedLaoding = true;
+
+                if (System.IO.File.Exists(Settings._dataDir + "updated"))
+                {
+                    System.IO.File.Delete(Settings._dataDir + "updated");
+                }
             }
             catch (Exception x)
             {
@@ -280,11 +289,11 @@ namespace LX29_LixChat
             {
                 foreach (var name in ChatClient.Channels.Values)
                 {
-                    if (ChatClient.HasJoined(name.Name))
+                    if (ChatClient.HasJoined(name.ID))
                     {
-                        ChatClient.Disconnect(name.Name);
-                        while (ChatClient.HasJoined(name.Name)) System.Threading.Thread.Sleep(100);
-                        ChatClient.TryConnect(name.Name, true);
+                        ChatClient.Disconnect(name.ID);
+                        while (ChatClient.HasJoined(name.ID)) System.Threading.Thread.Sleep(100);
+                        ChatClient.TryConnect(name.ID, true);
                     }
                 }
                 UpdateList();
@@ -320,7 +329,7 @@ namespace LX29_LixChat
                 {
                     if (!si.IsFixed)
                     {
-                        ChatClient.Disconnect(si.Name);
+                        ChatClient.Disconnect(si.ID);
                     }
                 }
                 //this.LoadList(ChatClient.Channels);
@@ -360,15 +369,18 @@ namespace LX29_LixChat
 
         private void btn_Record_Click(object sender, EventArgs e)
         {
-            var sa = GetCurrentInfo();
-            if (sa != null)
+            if (LX29_MessageBox.Show("Stream recording is experimental!\r\nRecording stops when the Player is closed.\r\nStart Recording?", "Experimental Feature", MessageBoxButtons.YesNo) == MessageBoxResult.Yes)
             {
-                string quali = "SOURCE";
-                if (comBox_StreamQuali.SelectedIndex >= 0)
+                var sa = GetCurrentInfo();
+                if (sa != null)
                 {
-                    quali = comBox_StreamQuali.SelectedItem.ToString();
+                    string quali = "SOURCE";
+                    if (comBox_StreamQuali.SelectedIndex >= 0)
+                    {
+                        quali = comBox_StreamQuali.SelectedItem.ToString();
+                    }
+                    sa[0].ShowVideoPlayer(quali, ChannelInfo.PlayerType.Record_ShowMPV, SetProgressInfo);// Task.Run(() => StartMpvExternal(quali, sa[0]));
                 }
-                sa[0].ShowVideoPlayer(quali, ChannelInfo.PlayerType.Record_ShowMPV, SetProgressInfo);// Task.Run(() => StartMpvExternal(quali, sa[0]));
             }
         }
 
@@ -377,7 +389,7 @@ namespace LX29_LixChat
             var sa = GetCurrentInfo();
             foreach (var s in sa)
             {
-                var ci = s.Name;
+                var ci = s.ID;
                 ChatClient.RemoveChannel(ci);
             }
             ChatClient.SaveChannels();
@@ -905,7 +917,7 @@ namespace LX29_LixChat
                             break;
                     }
                     Settings.StartBrowser(arguments + "https://www.twitch.tv/" + channel.Name + "/chat");
-                    ChatClient.TryConnect(channel.Name);
+                    ChatClient.TryConnect(channel.ID);
                 }
             }
         }

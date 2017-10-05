@@ -260,7 +260,7 @@ namespace LX29_ChatClient
             {
                 try
                 {
-                    string channel = msg.Channel;
+                    string channel = msg.Channel_Name;
                     if (!messages.ContainsKey(channel))
                     {
                         AllCount.Add(channel, 0);
@@ -523,38 +523,24 @@ namespace LX29_ChatClient
                 try
                 {
                     if (msg.IsEmpty) return;
-                    string channelName = msg.Channel;
-                    //lock (syncRootMessage)
-                    {
-                        if (msg.IsType(MsgType.HL_Messages))
-                        {
-                            Notifications.Highlight(channelName);
-                        }
-                        if (msg.IsType(MsgType.Whisper))
-                        {
-                            AddWhisper(channelName, msg);
-                        }
-                        else
-                        {
-                            if (!messages.ContainsKey(channelName))
-                            {
-                                AddChannel(channelName);
-                            }
-                            //try
-                            //{
-                            //    string s = JsonConvert.SerializeObject(msg);
-                            //    File.AppendAllText(channelName + ".cache", s + "\r\n");
-                            //}
-                            //catch
-                            //{
-                            //}
-                            messages.Add(msg);
+                    string channelName = msg.Channel_Name;
 
-                            //while (messages.Count > Settings.ChatHistory)
-                            //{
-                            //    messages[channelName].RemoveAt(0);
-                            //}
+                    if (msg.IsType(MsgType.HL_Messages))
+                    {
+                        Notifications.Highlight(msg.Channel.ID);
+                    }
+                    if (msg.IsType(MsgType.Whisper))
+                    {
+                        AddWhisper(channelName, msg);
+                    }
+                    else
+                    {
+                        if (!messages.ContainsKey(channelName))
+                        {
+                            AddChannel(channelName);
                         }
+
+                        messages.Add(msg);
                     }
 
                     if (executeActions)
@@ -814,7 +800,7 @@ namespace LX29_ChatClient
                 return FlashWindowEx(ref fInfo);
             }
 
-            public static void Highlight(string channel)
+            public static void Highlight(int channel)
             {
                 if (Settings.BeepOnHighlight)
                 {

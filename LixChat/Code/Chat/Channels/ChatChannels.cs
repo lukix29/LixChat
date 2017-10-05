@@ -30,7 +30,7 @@ namespace LX29_ChatClient.Channels
     //Add Control for Settings
     // fg;
 
-    public class ChannelInfo //: CustomSettings<ChannelInfo, ChannelSettings>, IDisposable, IEqualityComparer<ChannelInfo>, IEquatable<ChannelInfo>
+    public class ChannelInfo : IEqualityComparer<ChannelInfo>, IEquatable<ChannelInfo>, IDisposable
     {
         [JsonIgnore]
         public readonly bool IsFixed = false;
@@ -177,7 +177,7 @@ namespace LX29_ChatClient.Channels
         [JsonIgnore]
         public bool IsChatConnected
         {
-            get { return ChatClient.HasJoined(Name); }
+            get { return ChatClient.HasJoined(ID); }
         }
 
         [JsonIgnore]

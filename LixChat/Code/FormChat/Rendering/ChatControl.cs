@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using LX29_Twitch.Api;
 
 namespace LX29_ChatClient.Forms
 {
@@ -18,7 +19,7 @@ namespace LX29_ChatClient.Forms
         private bool _isscrolldownvisible = false;
 
         private int _lastY = 0;
-        private ChannelInfo channel;
+        private ApiResult channel;
         private bool loopRunning = false;
         private Keys modifier_Key = Keys.None;
 
@@ -76,7 +77,7 @@ namespace LX29_ChatClient.Forms
         //public event MessageReceived OnMessageReceived;
         [ReadOnly(true)]
         [Browsable(false)]
-        public ChannelInfo Channel
+        public ApiResult Channel
         {
             get { return channel; }
         }
@@ -133,20 +134,20 @@ namespace LX29_ChatClient.Forms
             Renderer.MessageReceived();
         }
 
-        public void SetAllMessages(MsgType type, ChannelInfo ci = null, string name = "")
+        public void SetAllMessages(MsgType type, ApiResult ci = null, string name = "")
         {
             if (ci != null) Renderer.Channel = ci;
             Renderer.SetAllMessages(type, name);
         }
 
-        public void SetChannel(ChannelInfo ci, MsgType type, string name = "")
+        public void SetChannel(ApiResult ci, MsgType type, string name = "")
         {
             channel = ci;
             SetAllMessages(type, ci, name);
             Stop();
             if (ci != null)
             {
-                ChatClient.TryConnect(ci.Name);
+                ChatClient.TryConnect(ci.ID);
             }
             ChatClient.OnMessageReceived += ChatClient_MessageReceived;
             ChatClient.OnTimeout += ChatClient_UserHasTimeouted;
@@ -336,7 +337,7 @@ namespace LX29_ChatClient.Forms
         {
             if (!this.Visible) return;
 
-            if (message.Channel.Equals(channel.Name))
+            if (message.Channel_Name.Equals(channel.Name))
             {
                 Renderer.MessageReceived();
             }
@@ -412,14 +413,14 @@ namespace LX29_ChatClient.Forms
                     case RectType.ModActionBan:
                         {
                             string name = curSelected.Content.ToString();
-                            ChatClient.SendMessage("/ban " + name, Channel.Name);
+                            ChatClient.SendMessage("/ban " + name, Channel.ID);
                         }
                         break;
 
                     case RectType.ModActionTimeout:
                         {
                             string name = curSelected.Content.ToString();
-                            ChatClient.SendMessage("/timeout " + name, Channel.Name);
+                            ChatClient.SendMessage("/timeout " + name, Channel.ID);
                         }
                         break;
 

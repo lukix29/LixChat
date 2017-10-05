@@ -85,11 +85,6 @@ namespace LX29_ChatClient
             private set;
         }
 
-        public Channels.ChannelInfo ChannelInfo
-        {
-            get { return ChatClient.Channels[Channel]; }
-        }
-
         public string DisplayName
         {
             get

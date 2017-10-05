@@ -71,7 +71,7 @@ namespace LX29_ChatClient.Addons
                             //if (msg.IsType(ca.MsgType) &&
                             bool cd = (!ca.IsCooldown);
                             bool geq = ca.Channel.StartsWith("*");
-                            bool cheq = ca.Channel.Equals(msg.Channel, StringComparison.OrdinalIgnoreCase);
+                            bool cheq = ca.Channel.Equals(msg.Channel_Name, StringComparison.OrdinalIgnoreCase);
                             bool msgL = (ca.Message.Length > 0);
                             bool actgL = (ca.Action.Length > 0);
                             if (cd && (geq || cheq) && msgL && actgL)
@@ -81,7 +81,7 @@ namespace LX29_ChatClient.Addons
                                     System.Threading.Tasks.Task.Run(async () =>
                                     {
                                         if (ca.Delay > 0) await System.Threading.Tasks.Task.Delay(ca.Delay * 1000);
-                                        ChatClient.SendMessage(ca.GetAction(msg), msg.Channel);
+                                        ChatClient.SendMessage(ca.GetAction(msg), msg.Channel.ID);
                                     });
                                 }
                             }
@@ -410,7 +410,7 @@ namespace LX29_ChatClient.Addons
             }
             if (sout.Contains("&channel"))
             {
-                string name = msg.Channel;
+                string name = msg.Channel_Name;
                 ChatUser user = ChatClient.Users.Get(name, name);
                 if (!user.IsEmpty)
                 {

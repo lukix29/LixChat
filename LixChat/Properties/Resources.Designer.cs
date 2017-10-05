@@ -165,21 +165,19 @@ namespace LX29_LixChat.Properties {
         ///    &lt;title&gt;LixChat - Session ID&lt;/title&gt;
         ///    &lt;meta name=&quot;ROBOTS&quot; content=&quot;NOFOLLOW&quot;&gt;
         ///    &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;
-        ///    &lt;script type=&quot;text/javascript&quot;&gt;
-        ///&lt;!--
-        ///--&gt;
-        ///    &lt;/script&gt;
         ///    &lt;style type=&quot;text/css&quot;&gt;
         ///        body {
-        ///            font-family: Consolas, sans-serif;
+        ///            font-family: Arial;
         ///            text-align: center;
         ///            background-color: #FFF;
-        ///            max-width: 500px;
+        ///            max-width: 1024px;
         ///            margin: auto;
         ///        }
-        ///
-        ///        input {
-        ///       [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///    &lt;/style&gt;
+        ///&lt;/head&gt;
+        ///&lt;body onload=&quot;initiate()&quot;&gt;
+        ///    &lt;h1&gt;LixChat Session-ID received!&lt;/h1&gt;
+        ///    &lt;p&gt;Y [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string index {
             get {
@@ -216,14 +214,14 @@ namespace LX29_LixChat.Properties {
         ///{
         ///    public class TestScripts
         ///    {
-        ///        public static object Test(ChatMessage Message)
-        ///        {
-        ///            if (Message.IsType(MsgType.Outgoing))
-        ///            {
-        ///                if (Message.ChatWords[0].Text.Equals(&quot;!test&quot;, StringComparison.OrdinalIgnoreCase))
-        ///                {
-        ///                    //ChatClient.SendMessage(&quot;Bestanden!&quot;, Message.Channel);
-        ///                    ChatClient.SendSilentMessage( [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///        //public static object Test(ChatMessage Message)
+        ///        //{
+        ///        //    if (Message.IsType(MsgType.Outgoing))
+        ///        //    {
+        ///        //        if (Message.ChatWords[0].Text.Equals(&quot;!test&quot;, StringComparison.OrdinalIgnoreCase))
+        ///        //        {
+        ///        //            //ChatClient.SendMessage(&quot;Bestanden!&quot;, Message.Channel);
+        ///        //            ChatClient.Se [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string MyScripts {
             get {
@@ -288,17 +286,19 @@ namespace LX29_LixChat.Properties {
         ///    &lt;title&gt;LixChat - Session ID&lt;/title&gt;
         ///    &lt;meta name=&quot;ROBOTS&quot; content=&quot;NOFOLLOW&quot;&gt;
         ///    &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;
-        ///    &lt;script type=&quot;text/javascript&quot;&gt;
-        ///&lt;!--
-        ///    function initiate() {
-        ///        // Change page so the history won&apos;t contain the token
-        ///        //document.location.replace(&quot;http://127.0.0.1:8080/success.html&quot;);
-        ///    }
-        ///--&gt;
-        ///    &lt;/script&gt;
         ///    &lt;style type=&quot;text/css&quot;&gt;
         ///        body {
-        ///            font-family: Consolas, sans [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///            font-family: Arial;
+        ///            text-align: center;
+        ///            background-color: #FFF;
+        ///            max-width: 1024px;
+        ///            margin: auto;
+        ///        }
+        ///    &lt;/style&gt;
+        ///&lt;/head&gt;
+        ///&lt;body onload=&quot;initiate()&quot;&gt;
+        ///    &lt;h1&gt;LixChat Session-ID received!&lt;/h1&gt;
+        ///    &lt;p&gt;Y [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string success {
             get {

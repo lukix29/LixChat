@@ -54,7 +54,7 @@ namespace LX29_ChatClient.Forms
             //make this movable and resizeable and better
             //own whisper dingens
             //int i = null;
-            chatView1.SetChannel(user.ChannelInfo, MsgType.All_Messages);
+            chatView1.SetChannel(user.ApiResult, MsgType.All_Messages);
             chatView1.SetAllMessages(MsgType.All_Messages, null, user.Name);
             label1.Text = user.DisplayName;
             apiInfoPanel1.InfosToShow = sortArray;

@@ -14,7 +14,7 @@ namespace LX29_ChatClient
 
         // public static DateTime now = DateTime.Now;
         // public static System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        private static Dictionary<string, ChannelInfo> channels = new Dictionary<string, ChannelInfo>();
+        private static Dictionary<int, ChannelInfo> channels = new Dictionary<int, ChannelInfo>();
 
         private static bool isSnycing = false;
 
@@ -28,15 +28,16 @@ namespace LX29_ChatClient
             try
             {
                 s = GetOnlyName(s.ToLower());
-                if (!channels.ContainsKey(s))
+
+                ApiResult so = TwitchApi.GetUserID(s);
+                if (!channels.ContainsKey(so.ID))
                 {
-                    ApiResult so = TwitchApi.GetUserID(s);
                     var sa = TwitchApi.GetStreamOrChannel(so.ID.ToString());
                     if (sa.Count > 0)
                     {
                         so = sa[0];
                         ChannelInfo si = new ChannelInfo(so);
-                        channels.Add(s, si);
+                        channels.Add(si.ID, si);
 
                         Emotes.LoadChannelEmotesAndBadges(si);
 
@@ -119,9 +120,9 @@ namespace LX29_ChatClient
         //    AutoActions.EnableActions = true;
         //}
 
-        public static void RemoveChannel(string channel)
+        public static void RemoveChannel(int channel)
         {
-            channel = GetOnlyName(channel.ToLower());
+            //channel = GetOnlyName(channel.ToLower());
             if (channels.ContainsKey(channel))
             {
                 channels.Remove(channel);
@@ -142,9 +143,9 @@ namespace LX29_ChatClient
             {
                 if (onlyOnline && !channel.IsOnline) continue;
                 ChannelInfo ci = new ChannelInfo(channel);
-                if (!channels.ContainsKey(ci.Name))
+                if (!channels.ContainsKey(ci.ID))
                 {
-                    channels.Add(ci.Name, ci);
+                    channels.Add(ci.ID, ci);
                     list.Add(ci);
                 }
             }
@@ -207,21 +208,21 @@ namespace LX29_ChatClient
                     ChannelInfo ci = new ChannelInfo(channel);
                     if (setts != null && setts.Count > 0)
                     {
-                        if (!channels.ContainsKey(ci.Name))
+                        if (!channels.ContainsKey(ci.ID))
                         {
                             if (setts.ContainsKey(ci.ID))
                             {
                                 ci.Load(setts[ci.ID]);
                             }
-                            channels.Add(ci.Name, ci);
+                            channels.Add(ci.ID, ci);
                             rest.Remove(ci.ID);
                         }
                     }
                     else
                     {
-                        if (!channels.ContainsKey(ci.Name))
+                        if (!channels.ContainsKey(ci.ID))
                         {
-                            channels.Add(ci.Name, ci);
+                            channels.Add(ci.ID, ci);
                         }
                     }
 
@@ -230,7 +231,7 @@ namespace LX29_ChatClient
                         if (ci.AutoLoginChat)
                         {
                             addChannel(ci.Name);
-                            ChatClient.TryConnect(ci.Name);
+                            ChatClient.TryConnect(ci.ID);
                         }
                     });
                 }
@@ -241,20 +242,20 @@ namespace LX29_ChatClient
                     foreach (var result in restResults)
                     {
                         ChannelInfo ci = new ChannelInfo(result);
-                        if (!channels.ContainsKey(ci.Name))
+                        if (!channels.ContainsKey(ci.ID))
                         {
                             if (rest.ContainsKey(ci.ID))
                             {
                                 var r = rest[ci.ID];
                                 ci.Load(r);
                             }
-                            channels.Add(ci.Name, ci);
+                            channels.Add(ci.ID, ci);
                             Task.Run(() =>
                             {
                                 if (ci.AutoLoginChat)
                                 {
                                     addChannel(ci.Name);
-                                    ChatClient.TryConnect(ci.Name);
+                                    ChatClient.TryConnect(ci.ID);
                                 }
                             });
                         }
@@ -292,26 +293,32 @@ namespace LX29_ChatClient
         {
             try
             {
-                var streams = TwitchApi.GetStreams(channels.Select(t => t.Value.ApiResult));
+                var streams = TwitchApi.GetFollowedStreams();
 
-                foreach (var channel in channels.Values)
+                //(channels.Select(t => t.Value.ID.ToString()).ToArray());
+                var rr = Channels.Values.Where(t => !streams.Any(t0 => t0.ID.Equals(t.ID))).Select(t => t.ID.ToString());
+
+                var rest = TwitchApi.GetStreamOrChannel(rr.ToArray());
+
+                streams.AddRange(rest);
+
+                foreach (var stream in streams)
                 {
-                    var stream = streams.FirstOrDefault(t => t.ID.Equals(channel.ID));
-                    if (stream != null)
+                    var channel = channels[stream.ID];
+
+                    channel.ApiResult = stream;
+
+                    if (channel.IsOnline)
                     {
-                        channel.ApiResult = stream;
                         Task.Run(() =>
                         {
-                            //Emotes.LoadChannelEmotes(channel);
                             FetchChatUsers(channel.Name);
                         });
                     }
-                    else
-                    {
-                        channel.ResetStreamStatus();
-                    }
+
                     channel.GetMpvWindow();
                 }
+
                 Emotes.Values.CheckLoadingTime();
                 SaveChannels();
                 ListLoaded(channels.Count, channels.Count, "Refreshed Channels");
@@ -368,25 +375,30 @@ namespace LX29_ChatClient
 
         private static void LoadStandardStreams()
         {
-            if (!channels.ContainsKey("lukix29"))
+            if (!channels.ContainsKey(79328905))
             {
                 ApiResult result = TwitchApi.GetStreamOrChannel("79328905")[0];
                 ChannelInfo ci = new ChannelInfo(result, true, true);
 
-                channels.Add(ci.Name, ci);
+                channels.Add(ci.ID, ci);
                 Task.Run(() =>
                 {
                     if (ci.AutoLoginChat)
                     {
                         addChannel(ci.Name);
-                        ChatClient.TryConnect(ci.Name);
+                        ChatClient.TryConnect(ci.ID);
                     }
                 });
             }
             else
             {
-                channels["lukix29"] = new ChannelInfo(channels["lukix29"], true, true);
+                channels[79328905] = new ChannelInfo(channels[79328905], true, true);
             }
+        }
+
+        private static void startRefresher()
+        {
+            LXTimer o = new LXTimer(new Action<LXTimer>(updateChannels), (int)Settings.UpdateInterval, System.Threading.Timeout.Infinite);
         }
 
         //private static void logInChats()
@@ -401,12 +413,6 @@ namespace LX29_ChatClient
         //    //TryConnect("lx29_tcvc");
         //    ListUpdated();
         //}
-
-        private static void startRefresher()
-        {
-            LXTimer o = new LXTimer(new Action<LXTimer>(updateChannels), (int)Settings.UpdateInterval, System.Threading.Timeout.Infinite);
-        }
-
         private static void updateChannels(LXTimer obj)
         {
             LXTimer o = obj;

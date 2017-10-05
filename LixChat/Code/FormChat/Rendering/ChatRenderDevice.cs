@@ -549,7 +549,7 @@ namespace LX29_ChatClient.Forms
         private float MeasureMessage(Graphics graphics, ChatMessage message, int idx, RectangleF bounds, float yInput = 0, float height = 0, bool measure = true)
         {
             bool drawImages = true;
-            bool alignText = false;
+            bool alignText = Settings.AlignText;
             float emote_Y_Offset = 4;
 
             var user = message.User;
@@ -671,7 +671,7 @@ namespace LX29_ChatClient.Forms
                         if (message.IsType(MsgType.Outgoing))
                         {
                             first = second;
-                            second = ChatClient.Users.Get(message.Channel, "");
+                            second = ChatClient.Users.Get(message.Channel_Name, "");
                         }
 
                         Color firstColor = first.GetColor();
@@ -799,7 +799,7 @@ namespace LX29_ChatClient.Forms
         #region Fields
 
         public bool AutoScroll = true;
-        public ChannelInfo Channel;
+        public LX29_Twitch.Api.ApiResult Channel;
         public List<SLRect> ClickableList = new List<SLRect>();
         public bool gifVisible = false;
         public RectangleF SelectRect = RectangleF.Empty;

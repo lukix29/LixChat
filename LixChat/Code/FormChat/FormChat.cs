@@ -64,9 +64,9 @@ namespace LX29_ChatClient.Forms
 
         private void ChatClient_OnWhisperReceived(ChatMessage message)
         {
-            if (!toolStrip1.Items.ContainsKey(message.Channel))
+            if (!toolStrip1.Items.ContainsKey(message.Channel_Name))
             {
-                AddTSMItem(message.Channel);
+                AddTSMItem(message.Channel_Name);
                 this.Invoke(new Action(() => SetNewMessageTSMi(message)));
             }
             else
@@ -130,7 +130,7 @@ namespace LX29_ChatClient.Forms
 
                 ChatClient.OnMessageReceived += chatView_OnMessageReceived;
 
-                chatView.SetChannel(currentChannel, MsgType.All_Messages);
+                chatView.SetChannel(currentChannel.ApiResult, MsgType.All_Messages);
             }
             catch (Exception x)
             {
@@ -191,7 +191,7 @@ namespace LX29_ChatClient.Forms
                 string name = "All_Messages";
                 if (message.IsType(MsgType.Whisper))
                 {
-                    name = message.Channel;
+                    name = message.Channel_Name;
                 }
                 if (message.Channel.Equals(currentChannel.Name) && !message.IsType(MessageType))
                 {

@@ -287,7 +287,62 @@ namespace LX29_Twitch.Api
             }
         }
 
-        public AddError Load()
+        public void RefreshSelectedToken()
+        {
+            try
+            {
+                string tok = TwitchApi.TokenFromSessionID(Selected.SessionID);
+                if (string.IsNullOrEmpty(tok)) throw new NullReferenceException();
+                Selected.SetToken(tok);
+                Save();
+                Task.Run(() => LX29_ChatClient.ChatClient.Reconnect());
+            }
+            catch (Exception x)
+            {
+                x.Handle("", true);
+            }
+        }
+
+        public AddError Remove(Predicate<TwitchUser> predicate)
+        {
+            if (users.Count - 1 > 0)
+            {
+                var user = users.FindIndex(0, predicate);
+                if (user >= 0)
+                {
+                    users.RemoveAt(user);
+                    return AddError.None;
+                }
+                return AddError.NotExist;
+            }
+            return AddError.CantBeEmpty;
+        }
+
+        public void Save()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var user in users)
+            {
+                sb.AppendLine(user.ToString());
+            }
+            File.WriteAllText(filePath, sb.ToString());
+        }
+
+        public AddError SetSelected(Func<TwitchUser, bool> predicate)
+        {
+            var idx = users.FindIndex(t => t.Selected);
+            var user = users.FirstOrDefault(predicate);
+            if (user != null)
+            {
+                users[idx].Selected = false;
+                user.Selected = true;
+                Save();
+                return AddError.None;
+            }
+            return AddError.NotExist;
+        }
+
+        private AddError Load()
         {
             if (File.Exists(filePath))
             {
@@ -314,54 +369,6 @@ namespace LX29_Twitch.Api
                     }
                 }
                 File.Delete(filePath);
-            }
-            return AddError.NotExist;
-        }
-
-        public void RefreshSelectedToken()
-        {
-            string tok = TwitchApi.TokenFromSessionID(Selected.SessionID);
-            if (string.IsNullOrEmpty(tok)) throw new NullReferenceException();
-            Selected.SetToken(tok);
-            Save();
-        }
-
-        public AddError Remove(Predicate<TwitchUser> predicate)
-        {
-            if (users.Count - 1 > 0)
-            {
-                var user = users.FindIndex(0, predicate);
-                if (user >= 0)
-                {
-                    users.RemoveAt(user);
-                    return AddError.None;
-                }
-                return AddError.NotExist;
-            }
-            return AddError.CantBeEmpty;
-        }
-
-        public void Save()
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (var user in users)
-            {
-                if (user.Selected) sb.Append("#");
-                sb.AppendLine(user.ToString());
-            }
-            File.WriteAllText(filePath, sb.ToString());
-        }
-
-        public AddError SetSelected(Func<TwitchUser, bool> predicate)
-        {
-            var idx = users.FindIndex(t => t.Selected);
-            var user = users.FirstOrDefault(predicate);
-            if (user != null)
-            {
-                users[idx].Selected = false;
-                user.Selected = true;
-                Save();
-                return AddError.None;
             }
             return AddError.NotExist;
         }

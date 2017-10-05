@@ -128,11 +128,10 @@ namespace LX29_Twitch.Api
 
             var channels = getChannelList(Channel_ID);
             url = "https://api.twitch.tv/kraken/streams/?channel=" + channels + "&limit=100&stream_type=all";
-            //url = "https://api.twitch.tv/kraken/streams/" + Channel_ID;
             var json = downloadString(url, "");
             var res = JSON.Parse(json);
 
-            var Rest = Channel_ID.Where(t => !res.Any(t0 => t0.ID.Equals(t))).ToArray();
+            var Rest = Channel_ID.Where(t => !res.Any(t0 => t0.ID.ToString().Equals(t))).ToArray();
             foreach (var id in Rest)
             {
                 url = "https://api.twitch.tv/kraken/channels/" + id;
@@ -148,7 +147,7 @@ namespace LX29_Twitch.Api
 
         public static List<PanelResult> GetStreamPanels(string ChannelName)
         {
-            string json = downloadString("https://api.twitch.tv/api/channels/" + ChannelName + "/panels", null, 3);
+            string json = downloadString("https://api.twitch.tv/api/channels/" + ChannelName + "/panels", null, 5);
             var list = JSON.ParsePanels(json);
             return list.OrderByDescending(t => t.Index).ToList();
         }
@@ -197,6 +196,10 @@ namespace LX29_Twitch.Api
         public static ApiResult GetUserIDFromSessionID(string sessionID, out string token)
         {
             token = TokenFromSessionID(sessionID);
+            if (string.IsNullOrEmpty(token))
+            {
+                token = TokenFromSessionID(sessionID);
+            }
             string result = downloadString("https://api.twitch.tv/kraken?oauth_token=" + token, null, 5);
             var res = JSON.ParseAuth(result);
             if (!res.token.valid)
@@ -258,7 +261,6 @@ namespace LX29_Twitch.Api
                         webclient.Headers.Add("Client-ID: " + CLIENT_ID);
                         if (!string.IsNullOrEmpty(tokken))
                         {
-                            tokken = "fsdkg";
                             webclient.Headers.Add("Authorization: OAuth " + tokken);
                         }
                     }

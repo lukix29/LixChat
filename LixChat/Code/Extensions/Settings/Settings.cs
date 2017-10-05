@@ -160,7 +160,8 @@ namespace LX29_ChatClient
             new SettingClasses("_LinePadding", "Line Padding", 1.0, 100.0, 0.1),
             new SettingClasses("_LineSpacing", "Line Spacing", 1.0, 100.0, 0.1),
             new SettingClasses("_WordPadding", "Word Padding", 1.0, 100.0, 0.1),
-            new SettingClasses("_TimePadding","Time Padding", 1.0, 100.0, 0.1)
+            new SettingClasses("_TimePadding", "Time Padding", 1.0, 100.0, 0.1),
+            new SettingClasses("_AlignText", "Align Text")
         };
 
         public static readonly SettingClasses[] UserBasic = new SettingClasses[]
@@ -228,6 +229,14 @@ namespace LX29_ChatClient
         public static readonly string _resourceDir = ".\\Resources\\";
         public static readonly string _scriptDir = _caonfigBaseDir + "Scripts\\";
         private static readonly string _settings_ini_path = _caonfigBaseDir + "settings.ini";
+
+        public static bool IsUpdatedCurrently
+        {
+            get
+            {
+                return System.IO.File.Exists(Settings._dataDir + "updated");
+            }
+        }
 
         public static Dictionary<string, object> Standard
         {
@@ -352,6 +361,8 @@ namespace LX29_ChatClient
 
         #region Text
 
+        private static bool _AlignText = false;
+
         private static double _ChatFontSize = 12.0;
         private static double _LinePadding = 5;
         private static double _LineSpacing = 5;
@@ -359,6 +370,16 @@ namespace LX29_ChatClient
         private static double _UserColorBrigthness = 0.05;
         private static double _UserColorSaturation = 1.0;
         private static double _WordPadding = 3;
+
+        public static bool AlignText
+        {
+            get { return _AlignText; }
+            set
+            {
+                _AlignText = value;
+                Save();
+            }
+        }
 
         public static string ChatFontName
         {
@@ -704,14 +725,7 @@ namespace LX29_ChatClient
             catch { }
             try { Directory.CreateDirectory(_scriptDir); }
             catch { }
-            try
-            {
-                if (!File.Exists(_scriptDir + "TestScript.cs"))
-                {
-                    File.WriteAllText(_scriptDir + "TestScript.cs", LX29_LixChat.Properties.Resources.MyScripts);
-                }
-            }
-            catch { }
+
             if (File.Exists(_settings_ini_path))
             {
                 try

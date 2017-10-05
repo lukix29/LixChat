@@ -201,6 +201,14 @@ namespace LX29_ChatClient.Addons.Scripts
         {
             try
             {
+                if (Settings.IsUpdatedCurrently)
+                {
+                    foreach (var s in Directory.GetFiles(Settings._scriptDir))
+                    {
+                        File.Delete(s);
+                    }
+                    File.WriteAllText(Settings._scriptDir + "TestScript.cs", LX29_LixChat.Properties.Resources.MyScripts);
+                }
                 var names = Directory.GetFiles(Settings._scriptDir, "*.cs", SearchOption.AllDirectories);
                 if (names.Length > 0)
                 {
