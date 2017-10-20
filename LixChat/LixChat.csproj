@@ -3937,6 +3937,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="1463551454_16.ico" />
+    <Content Include="Resources\mpv.exe" />
     <Content Include="Resources\pause.png" />
     <Content Include="Resources\play.png" />
     <Content Include="Resources\temp.png" />

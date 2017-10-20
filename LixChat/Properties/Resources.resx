@@ -190,4 +190,7 @@
   <data name="MyScripts" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\myscripts.cs;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="mpv" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\mpv.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LixChat", "LixChat\LixChat.csproj", "{D123264B-32F3-4DDC-A6B3-7D40C66F75B0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F948BA8A-69E4-4033-87AA-05BACA85F5AC} = {F948BA8A-69E4-4033-87AA-05BACA85F5AC}
+		{7991B9EF-A158-4DAF-969D-BBC9F30B7D66} = {7991B9EF-A158-4DAF-969D-BBC9F30B7D66}
 	EndProjectSection
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LixChat_Setup", "..\LixChat_Setup\LixChat_Setup.vdproj", "{E615A3B4-AE93-44DA-A438-C97A873D6988}"
@@ -14,6 +15,8 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LixChat_Setup", "..\LixChat
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updater", "updater\updater.csproj", "{F948BA8A-69E4-4033-87AA-05BACA85F5AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LX29_MPV_Frontend", "LX29_MPV_Frontend\LX29_MPV_Frontend\LX29_MPV_Frontend.csproj", "{7991B9EF-A158-4DAF-969D-BBC9F30B7D66}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +34,10 @@ Global
 		{E615A3B4-AE93-44DA-A438-C97A873D6988}.Release|Any CPU.Build.0 = Release
 		{F948BA8A-69E4-4033-87AA-05BACA85F5AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F948BA8A-69E4-4033-87AA-05BACA85F5AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7991B9EF-A158-4DAF-969D-BBC9F30B7D66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7991B9EF-A158-4DAF-969D-BBC9F30B7D66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7991B9EF-A158-4DAF-969D-BBC9F30B7D66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7991B9EF-A158-4DAF-969D-BBC9F30B7D66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

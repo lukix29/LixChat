@@ -1,12 +1,13 @@
 ﻿#define Drawing
 #define Interop
+#define Unsafe
+#define ManagedGDI
+#define ChatClient
 
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 using System.IO;
-
 using System.Net;
 
 #if Interop
@@ -43,6 +44,31 @@ namespace System
             return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
 
+        public static decimal Constrain(decimal x, decimal min, decimal max)
+        {
+            return Math.Max(min, Math.Max(max, x));
+        }
+
+        public static int Constrain(int x, int min, int max)
+        {
+            return Math.Max(min, Math.Max(max, x));
+        }
+
+        public static long Constrain(long x, long min, long max)
+        {
+            return Math.Max(min, Math.Max(max, x));
+        }
+
+        public static double Constrain(double x, double min, double max)
+        {
+            return Math.Max(min, Math.Max(max, x));
+        }
+
+        public static float Constrain(float x, float min, float max)
+        {
+            return Math.Max(min, Math.Max(max, x));
+        }
+
         public static double Map(double x, double in_min, double in_max, double out_min, double out_max)
         {
             return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -53,7 +79,7 @@ namespace System
             return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
 
-        private static readonly string[] SizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+        private static readonly string[] SizeSuffixes = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
 
         public static string SizeSuffix(this long value, int decimalPlaces = 3)
         {
@@ -106,6 +132,31 @@ namespace System
         }
 
         public static string SizeSuffix(this float value, int decimalPlaces = 3)
+        {
+            if (value < 0) { return "-" + SizeSuffix(-value); }
+            if (value == 0) { return "0.0 bytes"; }
+
+            // mag is 0 for bytes, 1 for KB, 2, for MB, etc.
+            int mag = (int)Math.Log(value, 1024);
+
+            // 1L << (mag * 10) == 2 ^ (10 * mag)
+            // [i.e. the number of bytes in the unit corresponding to mag]
+            decimal adjustedSize = (decimal)value / (1L << (mag * 10));
+
+            // make adjustment when the value is large enough that
+            // it would round up to 1000 or more
+            if (Math.Round(adjustedSize, decimalPlaces) >= 1000)
+            {
+                mag += 1;
+                adjustedSize /= 1024;
+            }
+
+            return string.Format("{0:n" + decimalPlaces + "} {1}",
+                adjustedSize,
+                SizeSuffixes[mag]);
+        }
+
+        public static string SizeSuffix(this double value, int decimalPlaces = 3)
         {
             if (value < 0) { return "-" + SizeSuffix(-value); }
             if (value == 0) { return "0.0 bytes"; }
@@ -381,6 +432,8 @@ namespace System
             return int32Rect;
         }
 
+#if Unsafe
+
         public static Bitmap MakeTransparent(this Bitmap bitmap, Color c, float factor)
         {
             long ticks = DateTime.Now.Ticks;
@@ -419,6 +472,7 @@ namespace System
                     }
                 }
             }
+
             bitmap.UnlockBits(bData_Orig);
             return bitmap;
             // MessageBox.Show(((DateTime.Now.Ticks - ticks) / (decimal)TimeSpan.TicksPerMillisecond).ToString());
@@ -466,6 +520,8 @@ namespace System
             return bitmap;
             // MessageBox.Show(((DateTime.Now.Ticks - ticks) / (decimal)TimeSpan.TicksPerMillisecond).ToString());
         }
+
+#endif
 
         public static void DrawText(this Graphics g, string text, Font font, Color b, float x, float y)
         {
@@ -548,8 +604,10 @@ namespace System
 
             if (imageQuality)
             {
+                g.PixelOffsetMode = Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                g.SmoothingMode = Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
             }
             else
             {
@@ -647,11 +705,13 @@ namespace System
 
         public static void DrawBitmap(this Graphics g, Bitmap image, float x, float y, float width, float height, bool drawHW)
         {
+#if ManagedGDI
             if (drawHW)
             {
                 ManagedGDI.AlphaBlend((Bitmap)image, g, new Rectangle((int)x, (int)y, (int)width, (int)height), 255);
             }
             else
+#endif
             {
                 g.DrawImage(image, x, y, width, height);
             }
@@ -661,6 +721,9 @@ namespace System
         {
             return ImageFormat.Gif.Equals(b.RawFormat);
         }
+
+#endif
+#if ChatClient
 
         public static MessageBoxResult Handle(this Exception e, string extraInfo = "", bool showMsgBox = false)
         {
