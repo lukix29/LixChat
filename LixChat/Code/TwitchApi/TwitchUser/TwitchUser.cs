@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace LX29_Twitch.Api
 {
@@ -153,6 +154,7 @@ namespace LX29_Twitch.Api
     public class TwitchUserCollection
     {
         private string filePath = "";
+        private DateTime lastCheck = DateTime.MinValue;
         private List<TwitchUser> users = new List<TwitchUser>();
 
         public TwitchUserCollection(string FileName)
@@ -199,6 +201,39 @@ namespace LX29_Twitch.Api
                 return new AddError(AddErrorInfo.Error, x.Message);
             }
             return AddError.Exists;
+        }
+
+        public bool CheckToken(bool reconnect)
+        {
+            try
+            {
+                if (DateTime.Now.Subtract(lastCheck).TotalSeconds < 5.0)
+                {
+                    return true;
+                }
+                string result = "";
+                using (WebClient webclient = new WebClient())
+                {
+                    webclient.Proxy = null;
+                    webclient.Encoding = Encoding.UTF8;
+
+                    webclient.Headers.Add("Accept: application/vnd.twitchtv.v5+json");
+                    webclient.Headers.Add("Client-ID: " + TwitchApi.CLIENT_ID);
+                    result = webclient.DownloadString(
+                        "https://api.twitch.tv/kraken?oauth_token=" + Selected.Token);
+                }
+                var res = LX29_Twitch.JSON_Parser.JSON.ParseAuth(result);
+                if (!res.token.valid)
+                {
+                    RefreshSelectedToken(reconnect);
+                }
+                lastCheck = DateTime.Now;
+                return res.token.valid;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public void FetchNewToken(System.Windows.Forms.Form Main, Action action = null, bool showBrowserSelector = false)
@@ -287,15 +322,19 @@ namespace LX29_Twitch.Api
             }
         }
 
-        public void RefreshSelectedToken()
+        public void RefreshSelectedToken(bool reconnect)
         {
             try
             {
                 string tok = TwitchApi.TokenFromSessionID(Selected.SessionID);
-                if (string.IsNullOrEmpty(tok)) throw new NullReferenceException();
+                if (string.IsNullOrEmpty(tok))
+                    throw new NullReferenceException();
                 Selected.SetToken(tok);
                 Save();
-                Task.Run(() => LX29_ChatClient.ChatClient.Reconnect());
+                if (reconnect)
+                {
+                    Task.Run(() => LX29_ChatClient.ChatClient.Reconnect());
+                }
             }
             catch (Exception x)
             {
@@ -325,7 +364,7 @@ namespace LX29_Twitch.Api
             {
                 sb.AppendLine(user.ToString());
             }
-            File.WriteAllText(filePath, sb.ToString());
+            File.WriteAllBytes(filePath, LX29_Crypt.LX29Crypt.Encrypt(sb.ToString()));
         }
 
         public AddError SetSelected(Func<TwitchUser, bool> predicate)
@@ -346,14 +385,14 @@ namespace LX29_Twitch.Api
         {
             if (File.Exists(filePath))
             {
-                var sa = File.ReadAllLines(filePath);
+                string si = LX29_Crypt.LX29Crypt.Decrypt(File.ReadAllBytes(filePath));
+                var sa = si.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                 if (sa.Length > 0)
                 {
                     try
                     {
                         foreach (var line in sa)
                         {
-                            //Stream aufnahme funktion!! mal machen halt
                             TwitchUser user = new TwitchUser(line.Trim('#'));
                             if (line.StartsWith("#"))
                             {

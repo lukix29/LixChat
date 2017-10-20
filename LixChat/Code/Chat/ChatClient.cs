@@ -327,19 +327,9 @@ namespace LX29_ChatClient
     {
         private static TwitchUserCollection _twitchUsers = new TwitchUserCollection(Settings._dataDir + "auth.txt");
 
-        public static ApiResult SelfApiResult
-        {
-            get { return _twitchUsers.Selected; }
-        }
-
         public static string SelfUserName
         {
             get { return _twitchUsers.Selected.Name; }
-        }
-
-        public static string SelfUserToken
-        {
-            get { return TwitchApi.User_Token; }// _twitchUsers.Selected.SessionID; }
         }
 
         public static TwitchUserCollection TwitchUsers
@@ -553,7 +543,8 @@ namespace LX29_ChatClient
                     ChatUser me = ChatClient.Users.Get(username, "");
                     ChatMessage m = new ChatMessage(rawMessage, me, name, true);
                     m.Types.Add(MsgType.Whisper);
-                    var client = clients.First().Value;
+                    var client = clients.FirstOrDefault(t => t.Value.Channel_Name.Equals("lukix29", StringComparison.OrdinalIgnoreCase)).Value;
+                    //Message = "." + Message.Remove(0, 1);
                     client.SendMessage(Message, false);
                     messages.AddWhisper(name, m);
                     // LogMessage(name, rawMessage);
@@ -683,75 +674,81 @@ namespace LX29_ChatClient
 
         private static void client_UserJoinedChannel(object sender, IrcChannelUserEventArgs e)
         {
-            if (e.User.Nick.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
+            if (e.User.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
             {
                 ChannelJoined(e.Channel);
             }
             var name = ((IRC)sender).Channel_Name;
-            users.Add(e.User.Nick, name);
+            users.Add(e.User, name);
         }
 
         private static void client_UserKicked(object sender, IrcChannelUserEventArgs e)
         {
-            if (e.User.Nick.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
+            if (e.User.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
             {
                 Disconnect(e.Channel);
                 ChannelParted(e.Channel);
                 ListUpdated();
             }
             var name = ((IRC)sender).Channel_Name;
-            users.SetOffline(e.User.Nick, name);
+            users.SetOffline(e.User, name);
         }
 
         private static void client_UserPartedChannel(object sender, IrcChannelUserEventArgs e)
         {
-            if (e.User.Nick.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
+            if (e.User.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
             {
                 Disconnect(e.Channel);
                 ChannelParted(e.Channel);
                 ListUpdated();
             }
             var name = ((IRC)sender).Channel_Name;
-            users.SetOffline(e.User.Nick, name);
+            users.SetOffline(e.User, name);
         }
 
         private static void client_UserQuit(object sender, IrcChannelUserEventArgs e)
         {
-            if (e.User.Nick.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
+            if (e.User.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
             {
                 Disconnect(e.Channel);
                 ChannelParted(e.Channel);
                 ListUpdated();
             }
             var name = ((IRC)sender).Channel_Name;
-            users.SetOffline(e.User.Nick, name);
+            users.SetOffline(e.User, name);
         }
 
         private static void connect(int channel, string channelName)
         {
-            Disconnect(channel);
-
-            IRC client = new IRC("irc.twitch.tv", channelName, channel, SelfUserName, SelfUserToken);
-
-            client.ConnectionComplete += client_ConnectionComplete;
-
-            client.ConnectAsync();
-
-            Task.Run(async () =>
+            try
             {
-                await Task.Delay(reconectTimeout);
-                if (!clients.ContainsKey(client._Channel))
+                Disconnect(channel);
+
+                IRC client = new IRC("irc.twitch.tv", channelName, channel);
+
+                client.ConnectionComplete += client_ConnectionComplete;
+
+                client.ConnectAsync();
+
+                Task.Run(async () =>
                 {
-                    reconectTimeout = Math.Min(32000, reconectTimeout * 2);
-                    SendSilentMessage("Chat Conecting Timeout (" + (reconectTimeout / 1000) + "s)!", channelName);
-                    Disconnect(client);
-                    connect(channel, channelName);
-                }
-                else
-                {
-                    reconectTimeout = 2000;
-                }
-            });
+                    await Task.Delay(reconectTimeout);
+                    if (!clients.ContainsKey(client._Channel))
+                    {
+                        SendSilentMessage("Chat Conecting Timeout (" + (reconectTimeout / 1000) + "s)!", channelName);
+                        reconectTimeout = Math.Min(32000, reconectTimeout * 2);
+                        Disconnect(client);
+                        connect(channel, channelName);
+                    }
+                    else
+                    {
+                        reconectTimeout = 2000;
+                    }
+                });
+            }
+            catch (Exception x)
+            {
+            }
         }
 
         private static void FetchChatUsers(string channelName)
@@ -974,16 +971,16 @@ namespace LX29_ChatClient
             File.WriteAllLines(Settings._dataDir + "HighlightKeywords.txt", chatHighlights);
         }
 
-        private static void addChannel(string Channel)
+        private static void addChannel(string channel)
         {
             try
             {
                 lock (syncRootMessage)
                 {
-                    if (Channel.Length == 0) return;
-                    Channel = Channel.ToLower().Trim();
+                    if (channel.Length == 0) return;
+                    var ch = channel.ToLower().Trim();
 
-                    users.Append(Channel);
+                    users.Append(ch);
 
                     //messages.AddChannel(Channel);
                 }

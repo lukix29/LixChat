@@ -619,17 +619,16 @@ namespace LX29_ChatClient.Forms
             #endregion Style&Font
 
             SizeF sf = SizeF.Empty;
-            if (Settings._isDebug)
+#if DEBUG
+            sf = graphics.MeasureText(idx.ToString(), timeFont);
+
+            if (!measure)
             {
-                sf = graphics.MeasureText(idx.ToString(), timeFont);
-
-                if (!measure)
-                {
-                    graphics.DrawText(idx.ToString(), Font, Color.Red, x, y + timeSizeFac);
-                }
-
-                x += sf.Width + _WordPadding + _TimePadding;
+                graphics.DrawText(idx.ToString(), Font, Color.Red, x, y + timeSizeFac);
             }
+
+            x += sf.Width + _WordPadding + _TimePadding;
+#endif
             if (ShowTimeStamp)
             {
                 string time = (ShowName) ? message.SendTime.ToLongTimeString() : message.SendTime.ToShortTimeString();

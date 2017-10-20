@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using LX29_ChatClient;
 
 namespace IRC_Client
 {
@@ -26,20 +27,20 @@ namespace IRC_Client
         public void HandleJoin(IrcMessage message)
         {
             if (Channel_Name != null)
-                OnUserJoinedChannel(new IrcChannelUserEventArgs(_Channel, new IrcUser(message.Prefix)));
+                OnUserJoinedChannel(new IrcChannelUserEventArgs(_Channel, message.Prefix));
         }
 
         public void HandleKick(IrcMessage message)
         {
             var channel = _Channel;
-            OnUserKicked(new IrcChannelUserEventArgs(channel, new IrcUser(message.Prefix),
-            new IrcUser(message.Prefix), message.Parameters[2]));
+            OnUserKicked(new IrcChannelUserEventArgs(channel, (message.Prefix),
+            (message.Prefix), message.Parameters[2]));
         }
 
         public void HandlePart(IrcMessage message)
         {
             OnUserPartedChannel(new IrcChannelUserEventArgs(_Channel,
-            new IrcUser(message.Prefix)));
+             (message.Prefix)));
         }
     }
 
@@ -53,8 +54,8 @@ namespace IRC_Client
 
         public void HandleQuit(IrcMessage message)
         {
-            var user = new IrcUser(message.Prefix);
-            if (User.Nick != user.Nick)
+            var user = (message.Prefix);
+            if (!ChatClient.TwitchUsers.Selected.Name.Equals(user))
             {
                 OnUserQuit(new IrcChannelUserEventArgs(_Channel, user));
             }
@@ -137,14 +138,14 @@ namespace IRC_Client
 
         private static readonly byte endLineChar = Encoding.UTF8.GetBytes("\n")[0];
 
-        public IRC(string serverAddress, string Channel, int Channel_ID, string name, string tokken)
+        public IRC(string serverAddress, string Channel, int Channel_ID)
         {
             this.Channel_Name = Channel;
             this._Channel = Channel_ID;
             if (serverAddress == null) throw new ArgumentNullException("serverAddress");
 
-            User = new IrcUser(name, name.ToLower(),
-                     "oauth:" + tokken);
+            //User = new IrcUser(name, name.ToLower(),
+            //         "oauth:" + tokken);
 
             ServerAddress = serverAddress;
 
@@ -225,8 +226,6 @@ namespace IRC_Client
                     ServerPort = 6667;
             }
         }
-
-        public IrcUser User { get; set; }
 
         public bool UserJoinedChannelisNull
         {
@@ -423,34 +422,21 @@ namespace IRC_Client
                 Socket.EndConnect(result);
 
                 NetworkStream = new NetworkStream(Socket);
-                //if (UseSSL)
-                //{
-                //    if (IgnoreInvalidSSL)
-                //    {
-                //        NetworkStream = new SslStream(NetworkStream, false, (sender, certificate, chain, policyErrors) => true);
-                //    }
-                //    else
-                //    {
-                //        NetworkStream = new SslStream(NetworkStream);
-                //    }
-                //    ((SslStream)NetworkStream).AuthenticateAsClient(ServerHostname);
-                //}
 
                 NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length, DataRecieved, null);
 
-                if (!string.IsNullOrEmpty(User.Password))
-                {
-                    SendRawMessage("PASS {0}", User.Password);
-                }
-                SendRawMessage("NICK {0}", User.Nick);
+                ChatClient.TwitchUsers.CheckToken(false);
+                string pw = "oauth:" + ChatClient.TwitchUsers.Selected.Token; //"oauth:mf693s423cet04ccfgdgfdgtkekk604rok";
 
-                SendRawMessage("USER {0} hostname servername :{1}", User.User, User.RealName);
+                SendRawMessage("PASS {0}", pw);
+
+                SendRawMessage("NICK {0}", ChatClient.TwitchUsers.Selected.Name);
+
+                SendRawMessage("USER {0} hostname servername :{1}", ChatClient.TwitchUsers.Selected.Name, ChatClient.TwitchUsers.Selected.Name);
 
                 SendRawMessage("CAP REQ :twitch.tv/membership", "#" + Channel_Name);
 
                 SendRawMessage("JOIN {0}", "#" + Channel_Name);
-
-                //SendRawMessage("TWITCHCLIENT", "#" + Channel);
 
                 SendRawMessage("CAP REQ :twitch.tv/commands", "#" + Channel_Name);
                 SendRawMessage("CAP REQ :twitch.tv/tags", "#" + Channel_Name);
@@ -626,154 +612,154 @@ namespace IRC_Client
     }
 }
 
-namespace IRC_Client
-{
-    public class IrcUser : IEquatable<IrcUser>
-    {
-        public IrcUser(string host)
-            : this()
-        {
-            if (!host.Contains("@") && !host.Contains("!"))
-                Nick = host;
-            else
-            {
-                string[] mask = host.Split('@', '!');
-                Nick = mask[0];
-                User = mask[1];
-                if (mask.Length <= 2)
-                {
-                    Hostname = "";
-                }
-                else
-                {
-                    Hostname = mask[2];
-                }
-            }
-        }
+//namespace IRC_Client
+//{
+//    public class IrcUser : IEquatable<IrcUser>
+//    {
+//        public IrcUser(string host)
+//            : this()
+//        {
+//            if (!host.Contains("@") && !host.Contains("!"))
+//                Nick = host;
+//            else
+//            {
+//                string[] mask = host.Split('@', '!');
+//                Nick = mask[0];
+//                User = mask[1];
+//                if (mask.Length <= 2)
+//                {
+//                    Hostname = "";
+//                }
+//                else
+//                {
+//                    Hostname = mask[2];
+//                }
+//            }
+//        }
 
-        public IrcUser(string nick, string user)
-            : this()
-        {
-            Nick = nick;
-            User = user;
-            RealName = User;
-            Mode = string.Empty;
-        }
+//        public IrcUser(string nick, string user)
+//            : this()
+//        {
+//            Nick = nick;
+//            User = user;
+//            RealName = User;
+//            Mode = string.Empty;
+//        }
 
-        public IrcUser(string nick, string user, string password)
-            : this(nick, user)
-        {
-            Password = password;
-        }
+//        public IrcUser(string nick, string user, string password)
+//            : this(nick, user)
+//        {
+//            Password = password;
+//        }
 
-        public IrcUser(string nick, string user, string password, string realName)
-            : this(nick, user, password)
-        {
-            RealName = realName;
-        }
+//        public IrcUser(string nick, string user, string password, string realName)
+//            : this(nick, user, password)
+//        {
+//            RealName = realName;
+//        }
 
-        internal IrcUser()
-        {
-            //Channels = new ChannelCollection();
-            ChannelModes = new Dictionary<string, char?>();
-        }
+//        internal IrcUser()
+//        {
+//            //Channels = new ChannelCollection();
+//            ChannelModes = new Dictionary<string, char?>();
+//        }
 
-        public string Hostmask
-        {
-            get
-            {
-                return Nick + "!" + User + "@" + Hostname;
-            }
-        }
+//        public string Hostmask
+//        {
+//            get
+//            {
+//                return Nick + "!" + User + "@" + Hostname;
+//            }
+//        }
 
-        public string Hostname { get; internal set; }
-        public string Mode { get; internal set; }
-        public string Nick { get; internal set; }
+//        public string Hostname { get; internal set; }
+//        public string Mode { get; internal set; }
+//        public string Nick { get; internal set; }
 
-        public string Password { get; internal set; }
-        public string RealName { get; internal set; }
-        public string User { get; internal set; }
-        //public ChannelCollection Channels { get; set; }
+//        public string Password { get; internal set; }
+//        public string RealName { get; internal set; }
+//        public string User { get; internal set; }
+//        //public ChannelCollection Channels { get; set; }
 
-        internal Dictionary<string, char?> ChannelModes { get; set; }
+//        internal Dictionary<string, char?> ChannelModes { get; set; }
 
-        public static bool Match(string mask, string value)
-        {
-            if (value == null)
-                value = string.Empty;
-            int i = 0;
-            int j = 0;
-            for (; j < value.Length && i < mask.Length; j++)
-            {
-                if (mask[i] == '?')
-                    i++;
-                else if (mask[i] == '*')
-                {
-                    i++;
-                    if (i >= mask.Length)
-                        return true;
-                    while (++j < value.Length && value[j] != mask[i]) ;
-                    if (j-- == value.Length)
-                        return false;
-                }
-                else
-                {
-                    if (char.ToUpper(mask[i]) != char.ToUpper(value[j]))
-                        return false;
-                    i++;
-                }
-            }
-            return i == mask.Length && j == value.Length;
-        }
+//        public static bool Match(string mask, string value)
+//        {
+//            if (value == null)
+//                value = string.Empty;
+//            int i = 0;
+//            int j = 0;
+//            for (; j < value.Length && i < mask.Length; j++)
+//            {
+//                if (mask[i] == '?')
+//                    i++;
+//                else if (mask[i] == '*')
+//                {
+//                    i++;
+//                    if (i >= mask.Length)
+//                        return true;
+//                    while (++j < value.Length && value[j] != mask[i]) ;
+//                    if (j-- == value.Length)
+//                        return false;
+//                }
+//                else
+//                {
+//                    if (char.ToUpper(mask[i]) != char.ToUpper(value[j]))
+//                        return false;
+//                    i++;
+//                }
+//            }
+//            return i == mask.Length && j == value.Length;
+//        }
 
-        public bool Equals(IrcUser other)
-        {
-            return other.Hostmask == Hostmask;
-        }
+//        public bool Equals(IrcUser other)
+//        {
+//            return other.Hostmask == Hostmask;
+//        }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is IrcUser)
-                return Equals((IrcUser)obj);
-            return false;
-        }
+//        public override bool Equals(object obj)
+//        {
+//            if (obj is IrcUser)
+//                return Equals((IrcUser)obj);
+//            return false;
+//        }
 
-        public override int GetHashCode()
-        {
-            return Hostmask.GetHashCode();
-        }
+//        public override int GetHashCode()
+//        {
+//            return Hostmask.GetHashCode();
+//        }
 
-        public bool Match(string mask)
-        {
-            if (mask.Contains("!") && mask.Contains("@"))
-            {
-                if (mask.Contains('$'))
-                    mask = mask.Remove(mask.IndexOf('$'));
-                var parts = mask.Split('!', '@');
-                if (Match(parts[0], Nick) && Match(parts[1], User) && Match(parts[2], Hostname))
-                    return true;
-            }
-            return false;
-        }
+//        public bool Match(string mask)
+//        {
+//            if (mask.Contains("!") && mask.Contains("@"))
+//            {
+//                if (mask.Contains('$'))
+//                    mask = mask.Remove(mask.IndexOf('$'));
+//                var parts = mask.Split('!', '@');
+//                if (Match(parts[0], Nick) && Match(parts[1], User) && Match(parts[2], Hostname))
+//                    return true;
+//            }
+//            return false;
+//        }
 
-        public override string ToString()
-        {
-            return Hostmask;
-        }
-    }
-}
+//        public override string ToString()
+//        {
+//            return Hostmask;
+//        }
+//    }
+//}
 
 namespace IRC_Client.Events
 {
     public class IrcChannelUserEventArgs : EventArgs
     {
-        internal IrcChannelUserEventArgs(int channel, IrcUser user)
+        internal IrcChannelUserEventArgs(int channel, string user)
         {
             Channel = channel;
             User = user;
         }
 
-        internal IrcChannelUserEventArgs(int channel, IrcUser kicker, IrcUser user, string reason)
+        internal IrcChannelUserEventArgs(int channel, string kicker, string user, string reason)
         {
             Channel = channel;
             Kicker = kicker;
@@ -783,9 +769,9 @@ namespace IRC_Client.Events
 
         public int Channel { get; set; }
 
-        public IrcUser Kicker { get; set; }
+        public string Kicker { get; set; }
         public string Reason { get; set; }
-        public IrcUser User { get; set; }
+        public string User { get; set; }
     }
 
     public class RawMessageEventArgs : EventArgs

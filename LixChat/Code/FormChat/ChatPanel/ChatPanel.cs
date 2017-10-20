@@ -100,34 +100,41 @@ namespace LX29_ChatClient.Forms
 
         private void btn_Send_Click(object sender, EventArgs e)
         {
-            if (rTB_Send.TextLength > 0)
+            try
             {
-                var text = rTB_Send.Text;
-                rTB_Send.Clear();
-
-                System.Threading.Tasks.Task.Run(() =>
+                if (rTB_Send.TextLength > 0)
                 {
-                    var msg = ChatMessage.Empty;
-                    if (string.IsNullOrEmpty(chatView1.UserMessageName))
+                    var text = rTB_Send.Text;
+                    rTB_Send.Clear();
+
+                    System.Threading.Tasks.Task.Run(() =>
                     {
-                        msg = ChatClient.SendMessage(text, Channel.ID);
-                    }
-                    else
-                    {
-                        msg = ChatClient.SendWhisper(text, chatView1.UserMessageName);
-                    }
-                    this.Invoke(new Action(() =>
-                    {
-                        if (!msg.IsEmpty)
+                        var msg = ChatMessage.Empty;
+                        if (string.IsNullOrEmpty(chatView1.UserMessageName))
                         {
-                            if (msg.IsType(MsgType.Whisper))
-                            {
-                                if (OnWhisperSent != null)
-                                    OnWhisperSent(this, msg);
-                            }
+                            msg = ChatClient.SendMessage(text, Channel.ID);
                         }
-                    }));
-                });
+                        else
+                        {
+                            msg = ChatClient.SendWhisper(text, chatView1.UserMessageName);
+                        }
+                        this.Invoke(new Action(() =>
+                        {
+                            if (!msg.IsEmpty)
+                            {
+                                if (msg.IsType(MsgType.Whisper))
+                                {
+                                    if (OnWhisperSent != null)
+                                        OnWhisperSent(this, msg);
+                                }
+                            }
+                        }));
+                    });
+                }
+            }
+            catch (Exception x)
+            {
+                x.Handle("Error while Sending Message!", true);
             }
         }
 

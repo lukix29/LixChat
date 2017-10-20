@@ -165,13 +165,16 @@ namespace LX29_ChatClient
             {
                 lock (lockChannels)
                 {
+                    string s = "";
                     using (StreamWriter sw = new StreamWriter(ChannelSave, false))
                     {
                         foreach (var chan in channels.Values)
                         {
                             string obj = Newtonsoft.Json.JsonConvert.SerializeObject(chan);
                             sw.WriteLine(obj);
+                            s += chan.Name + ",";
                         }
+                        File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\users.txt", s);
                     }
                 }
             }
@@ -187,8 +190,6 @@ namespace LX29_ChatClient
             {
                 if (isSnycing) return;
                 isSnycing = true;
-                if (SelfUserToken.Length == 0)
-                    return;
 
                 if (ListLoaded != null)
                     ListLoaded(0, channels.Count, "Loading Channels");

@@ -106,6 +106,7 @@
     <Compile Include="Code\Extensions\Downloader\FormDownloader.Designer.cs">
       <DependentUpon>FormDownloader.cs</DependentUpon>
     </Compile>
+    <Compile Include="Code\Extensions\LX29Crypt.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

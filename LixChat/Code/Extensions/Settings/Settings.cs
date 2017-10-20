@@ -216,15 +216,16 @@ namespace LX29_ChatClient
     public class Settings
     {
         public static readonly string _caonfigBaseDir =
-            Application.StartupPath.Contains("Debug") ?
-            Path.GetFullPath(".\\") :
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\LixChat\\";
+#if DEBUG
+ Path.GetFullPath(".\\");
 
+#else
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\LixChat\\";
+#endif
         public static readonly string _chatLogDir = _caonfigBaseDir + "Chatlogs\\";
         public static readonly string _dataDir = _caonfigBaseDir + "Data\\";
         public static readonly string _emojiDir = ".\\Emojis\\";
         public static readonly string _emoteDir = _caonfigBaseDir + "Emotes\\";
-        public static readonly bool _isDebug = Application.StartupPath.Contains("Debug");
         public static readonly string _pluginDir = ".\\Plugins\\";
         public static readonly string _resourceDir = ".\\Resources\\";
         public static readonly string _scriptDir = _caonfigBaseDir + "Scripts\\";

@@ -176,6 +176,8 @@ namespace LX29_LixChat
                 {
                     System.IO.File.Delete(Settings._dataDir + "updated");
                 }
+
+                // var result = TwitchApi.GetStreamOrChannel("32664128", "39670679", "76853127", "79328905", "95869794");
             }
             catch (Exception x)
             {
@@ -639,14 +641,6 @@ namespace LX29_LixChat
                 Settings.MainSize = this.Size;
         }
 
-        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void numericUpDown2_ValueChanged(object sender, EventArgs e)
-        {
-        }
-
         private void openChannelInBrowserToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var sa = GetCurrentInfo();
@@ -770,6 +764,8 @@ namespace LX29_LixChat
             cB_LogChat.Checked = si.LogChat;
 
             cB_AutoLogin.Enabled = btn_Disconnect.Enabled = !si.IsFixed;
+
+            btn_ShowUsers.Visible = si.IsChatConnected;
 
             btn_openSubpage.Visible = true;
             if (si.SubInfo.IsSub)

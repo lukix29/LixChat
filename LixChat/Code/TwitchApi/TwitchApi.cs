@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using LX29_ChatClient;
 
 namespace LX29_Twitch.Api
 {
@@ -35,11 +36,6 @@ namespace LX29_Twitch.Api
             get { return LX29_ChatClient.ChatClient.TwitchUsers.Selected.ID; }
         }
 
-        public static string User_Token
-        {
-            get { return LX29_ChatClient.ChatClient.TwitchUsers.Selected.Token; }
-        }
-
         public static string UUID
         {
             get
@@ -59,7 +55,7 @@ namespace LX29_Twitch.Api
                 bool wasFollowed = channelID.Followed;
                 string param = (wasFollowed) ? "DELETE" : "PUT";
                 string raw = uploadString(
-                    "https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels/" + channelID.ID, param, User_Token);
+                    "https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels/" + channelID.ID, param, ChatClient.TwitchUsers.Selected.Token);
                 if (!wasFollowed)
                 {
                     if (raw.Length > 0)
@@ -115,9 +111,9 @@ namespace LX29_Twitch.Api
 
         public static List<ApiResult> GetFollowedStreams()
         {
-            List<ApiResult> list = getResults("https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels", User_Token);
+            List<ApiResult> list = getResults("https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels", ChatClient.TwitchUsers.Selected.Token);
             string sb = getChannelList(list);
-            var str = getResults("https://api.twitch.tv/kraken/streams?channel=" + sb, User_Token);
+            var str = getResults("https://api.twitch.tv/kraken/streams?channel=" + sb, ChatClient.TwitchUsers.Selected.Token);
             return Combine(list, str);
         }
 
@@ -163,13 +159,13 @@ namespace LX29_Twitch.Api
         public static SubResult GetSubscription(int channel_ID)
         {
             var res = downloadString(
-                "https://api.twitch.tv/kraken/users/" + User_ID + "/subscriptions/" + channel_ID, User_Token, 5, false);
+                "https://api.twitch.tv/kraken/users/" + User_ID + "/subscriptions/" + channel_ID, ChatClient.TwitchUsers.Selected.Token, 5, false);
             return SubResult.Parse(res);
         }
 
         public static IEnumerable<JSON.Twitch_Api.Emoticon> GetUserEmotes()
         {
-            string s = downloadString("https://api.twitch.tv/kraken/users/" + User_ID + "/emotes", User_Token);
+            string s = downloadString("https://api.twitch.tv/kraken/users/" + User_ID + "/emotes", ChatClient.TwitchUsers.Selected.Token);
             return JSON.ParseTwitchEmotes(s);
         }
 
@@ -277,7 +273,7 @@ namespace LX29_Twitch.Api
                 {
                     if (code == (int)HttpStatusCode.NotFound)
                     {
-                        LX29_ChatClient.ChatClient.TwitchUsers.RefreshSelectedToken();
+                        LX29_ChatClient.ChatClient.TwitchUsers.RefreshSelectedToken(true);
                         return downloadString(url, tokken, api_version);
                     }
                     if (code == (int)HttpStatusCode.GatewayTimeout || code == (int)HttpStatusCode.RequestTimeout)

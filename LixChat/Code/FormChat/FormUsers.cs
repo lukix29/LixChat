@@ -160,13 +160,13 @@ namespace LX29_ChatClient.Forms
 
                 this.Invoke(new Action(() =>
                     {
-                        var selidx = lstB_Users.SelectedItem;
+                        var selidx = lstB_Users.TopIndex;
                         lstB_Users.BeginUpdate();
                         lstB_Users.Items.Clear();
                         lstB_Users.Items.AddRange(sa);
                         lstB_Users.EndUpdate();
                         this.Text = "Users: " + sa.Length;
-                        lstB_Users.SelectedItem = selidx;
+                        lstB_Users.TopIndex = selidx;
                     }));
             });
         }
