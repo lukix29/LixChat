@@ -229,10 +229,10 @@ namespace LX29_ChatClient.Forms
             Settings.StartBrowser(url);
         }
 
-        private void chatView1_OnUserNameClicked(ChatView sender, ChatUser emote, Point mouse)
+        private void chatView1_OnUserNameClicked(ChatView sender, ChatUser user, Point mouse)
         {
             Point location = this.PointToClient(mouse);
-            userInfoPanel1.Show(emote, location);
+            userInfoPanel1.Show(sender.Channel, user, location);
         }
 
         private void lstB_Search_DrawItem(object sender, DrawItemEventArgs e)

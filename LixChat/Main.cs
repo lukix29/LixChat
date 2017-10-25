@@ -1,6 +1,6 @@
 ﻿using LX29_ChatClient;
 using LX29_ChatClient.Channels;
-using LX29_Helpers;
+using LX29_MPV;
 using LX29_Twitch.Api;
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ namespace LX29_LixChat
 
         //private bool lockRTB = false;
         //private MPV_Wrapper mpv = new MPV_Wrapper("external");
-        private MPV_Wrapper mpvPreview = new MPV_Wrapper("preview");
+        private MpvLib mpvPreview = new MpvLib();
 
         private LX29_ChatClient.Forms.FormSettings settings = new LX29_ChatClient.Forms.FormSettings();
 
@@ -157,7 +157,7 @@ namespace LX29_LixChat
                     System.IO.Directory.CreateDirectory(Settings._pluginDir);
                 }
 
-                MPV_Wrapper.SetBorderSize(this.Size, this.ClientSize);
+                //MPV_Wrapper.SetBorderSize(this.Size, this.ClientSize);
 
                 this.Bounds = Settings.MainBounds.MaxSize(this.Bounds);
 
@@ -452,13 +452,6 @@ namespace LX29_LixChat
             if (sa != null)
             {
                 new LX29_ChatClient.Forms.FormUsers().Show(sa[0]);
-                //}
-                //IRC_Client.IRC irc = new IRC_Client.IRC("irc.twitch.tv", sa[0].Name, user.Name, user.Token);
-                //irc.ConnectAsync();
-                //irc.ConnectionComplete += (s, o) =>
-                //    {
-                //        ChatClient.SendMessage("Test", user.Name, irc);
-                //    };
             }
         }
 
@@ -476,17 +469,16 @@ namespace LX29_LixChat
             }
         }
 
-        private void btn_Test_Click(object sender, EventArgs e)
-        {
-        }
-
         private void button1_Click_2(object sender, EventArgs e)
         {
             var sa = GetCurrentInfo();
             if (sa != null)
             {
-                TwitchApi.FollowChannel(sa[0].ApiResult);
-                SetChatInfos(sa[0]);
+                foreach (var s in sa)
+                {
+                    TwitchApi.FollowChannel(s.ApiResult);
+                    SetChatInfos(s);
+                }
             }
         }
 
@@ -800,9 +792,9 @@ namespace LX29_LixChat
 
                 var vi = si.StreamURLS[quali.ToString()];
                 if (vi != null)
-                    mpvPreview.Start(vi.URL, 0, splitContainer_Preview.Panel1.Handle);
+                    mpvPreview.Start(vi.URL, splitContainer_Preview.Panel1.Handle, 0);
                 else
-                    mpvPreview.Stop();
+                    mpvPreview.Pause(true);
             }
             lastSelectedName = si.Name;
             //this.ResumeLayout();
@@ -864,6 +856,10 @@ namespace LX29_LixChat
         {
         }
 
+        private void toolStripMenuItem2_Click_1(object sender, EventArgs e)
+        {
+        }
+
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             //MsgType type = MsgType.All_Messages;
@@ -879,6 +875,16 @@ namespace LX29_LixChat
             DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
             LX29_MessageBox.Show("Programmed by Lukix29 ©" + cur.Year + "\r\n\r\nEmoji artwork provided by EmojiOne." +
                 "\r\n\r\nhttps://lixchat.com\r\nFeedback:\r\nfeedback@lixchat.com\r\n(Domain provided by ChoosenEye)\r\n\r\nIf you want to Support me:\r\nhttps://paypal.me/lukix29");
+        }
+
+        private void tsMi_ImportChannels_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var channels = ChatClient.LoadChannels(System.IO.Path.GetFullPath(ofd.FileName));
+                ChatClient.AddChannels(channels, true);
+            }
         }
 
         private void tSMi_LogOut_Click(object sender, EventArgs e)
@@ -938,10 +944,10 @@ namespace LX29_LixChat
             }
         }
 
-        private void tSMi_SyncAll_Click(object sender, EventArgs e)
-        {
-            Task.Run(() => ChatClient.ReSyncFollows(false));
-        }
+        //private void tSMi_SyncAll_Click(object sender, EventArgs e)
+        //{
+        //    Task.Run(() => ChatClient.ReSyncFollows(false));
+        //}
 
         private void tsMi_SyncOnlyOnline_Click(object sender, EventArgs e)
         {

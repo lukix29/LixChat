@@ -39,7 +39,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
@@ -52,6 +52,25 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -173,12 +192,8 @@
     <Compile Include="Code\Emotes\ChatEmotes.cs" />
     <Compile Include="Code\Chat\ChatManager.cs" />
     <Compile Include="Code\Chat\IrcClient.cs" />
-    <Compile Include="Code\Extensions\Extensions.cs" />
-    <Compile Include="Code\Extensions\MessageBox\MessageBox.cs">
+    <Compile Include="Code\Extensions\Extensions.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Code\Extensions\MessageBox\MessageBox.Designer.cs">
-      <DependentUpon>MessageBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Code\Extensions\MPV_Wrapper.cs" />
     <Compile Include="Code\Extensions\Settings\Settings.cs" />
@@ -279,9 +294,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Code\Extensions\Downloader\FormDownloader.resx">
       <DependentUpon>FormDownloader.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Code\Extensions\MessageBox\MessageBox.resx">
-      <DependentUpon>MessageBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Code\Extensions\Settings\ControlSettings.resx">
       <DependentUpon>ControlSettings.cs</DependentUpon>
@@ -3937,7 +3949,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="1463551454_16.ico" />
-    <Content Include="Resources\mpv.exe" />
+    <None Include="mpv.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="mpv-1.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="Resources\pause.png" />
     <Content Include="Resources\play.png" />
     <Content Include="Resources\temp.png" />

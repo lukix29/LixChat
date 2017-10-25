@@ -76,15 +76,12 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.tSMi_Accounts = new System.Windows.Forms.ToolStripMenuItem();
+            this.tSMi_Exit = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshChannelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_ReloadEmotes = new System.Windows.Forms.ToolStripMenuItem();
-            this.tSMi_Sync = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsMi_SyncOnlyOnline = new System.Windows.Forms.ToolStripMenuItem();
-            this.tSMi_SyncAll = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_ReconnectChat = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_ShowSettings = new System.Windows.Forms.ToolStripMenuItem();
-            this.tSMi_Exit = new System.Windows.Forms.ToolStripMenuItem();
             this.tSDDB_About_Menue = new System.Windows.Forms.ToolStripDropDownButton();
             this.tSMI_UpdateProgramm = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMI_About = new System.Windows.Forms.ToolStripMenuItem();
@@ -93,6 +90,7 @@
             this.tSProgBar_Loading = new System.Windows.Forms.ToolStripProgressBar();
             this.tsLabel_Info = new System.Windows.Forms.ToolStripLabel();
             this.toolTip_Main = new System.Windows.Forms.ToolTip(this.components);
+            this.tsMi_ImportChannels = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Preview)).BeginInit();
             this.splitContainer_Preview.Panel1.SuspendLayout();
             this.splitContainer_Preview.Panel2.SuspendLayout();
@@ -499,6 +497,7 @@
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripDropDownButton1,
+            this.toolStripMenuItem1,
             this.tSDDB_About_Menue,
             this.toolStripSeparator1,
             this.tsLbl_Infotext,
@@ -511,7 +510,6 @@
             this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tSMi_Accounts,
-            this.toolStripMenuItem1,
             this.tSMi_Exit});
             resources.ApplyResources(this.toolStripDropDownButton1, "toolStripDropDownButton1");
             this.toolStripDropDownButton1.ForeColor = System.Drawing.Color.Gainsboro;
@@ -525,13 +523,22 @@
             resources.ApplyResources(this.tSMi_Accounts, "tSMi_Accounts");
             this.tSMi_Accounts.Click += new System.EventHandler(this.tSMi_LogOut_Click);
             // 
+            // tSMi_Exit
+            // 
+            this.tSMi_Exit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.tSMi_Exit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            resources.ApplyResources(this.tSMi_Exit, "tSMi_Exit");
+            this.tSMi_Exit.ForeColor = System.Drawing.Color.Gainsboro;
+            this.tSMi_Exit.Name = "tSMi_Exit";
+            this.tSMi_Exit.Click += new System.EventHandler(this.tSMi_Exit_Click);
+            // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.refreshChannelsToolStripMenuItem,
             this.tSMi_ReloadEmotes,
-            this.tSMi_Sync,
+            this.tsMi_ImportChannels,
             this.tSMi_ReconnectChat,
             this.tSMi_ShowSettings});
             this.toolStripMenuItem1.ForeColor = System.Drawing.Color.Gainsboro;
@@ -554,32 +561,6 @@
             resources.ApplyResources(this.tSMi_ReloadEmotes, "tSMi_ReloadEmotes");
             this.tSMi_ReloadEmotes.Click += new System.EventHandler(this.tSMi_ReloadEmotes_Click);
             // 
-            // tSMi_Sync
-            // 
-            this.tSMi_Sync.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.tSMi_Sync.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsMi_SyncOnlyOnline,
-            this.tSMi_SyncAll});
-            resources.ApplyResources(this.tSMi_Sync, "tSMi_Sync");
-            this.tSMi_Sync.ForeColor = System.Drawing.Color.Gainsboro;
-            this.tSMi_Sync.Name = "tSMi_Sync";
-            // 
-            // tsMi_SyncOnlyOnline
-            // 
-            this.tsMi_SyncOnlyOnline.BackColor = System.Drawing.Color.Black;
-            this.tsMi_SyncOnlyOnline.ForeColor = System.Drawing.Color.White;
-            this.tsMi_SyncOnlyOnline.Name = "tsMi_SyncOnlyOnline";
-            resources.ApplyResources(this.tsMi_SyncOnlyOnline, "tsMi_SyncOnlyOnline");
-            this.tsMi_SyncOnlyOnline.Click += new System.EventHandler(this.tsMi_SyncOnlyOnline_Click);
-            // 
-            // tSMi_SyncAll
-            // 
-            this.tSMi_SyncAll.BackColor = System.Drawing.Color.Black;
-            this.tSMi_SyncAll.ForeColor = System.Drawing.Color.White;
-            this.tSMi_SyncAll.Name = "tSMi_SyncAll";
-            resources.ApplyResources(this.tSMi_SyncAll, "tSMi_SyncAll");
-            this.tSMi_SyncAll.Click += new System.EventHandler(this.tSMi_SyncAll_Click);
-            // 
             // tSMi_ReconnectChat
             // 
             this.tSMi_ReconnectChat.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
@@ -596,15 +577,6 @@
             this.tSMi_ShowSettings.Name = "tSMi_ShowSettings";
             resources.ApplyResources(this.tSMi_ShowSettings, "tSMi_ShowSettings");
             this.tSMi_ShowSettings.Click += new System.EventHandler(this.tSMi_ShowSettings_Click);
-            // 
-            // tSMi_Exit
-            // 
-            this.tSMi_Exit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.tSMi_Exit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            resources.ApplyResources(this.tSMi_Exit, "tSMi_Exit");
-            this.tSMi_Exit.ForeColor = System.Drawing.Color.Gainsboro;
-            this.tSMi_Exit.Name = "tSMi_Exit";
-            this.tSMi_Exit.Click += new System.EventHandler(this.tSMi_Exit_Click);
             // 
             // tSDDB_About_Menue
             // 
@@ -661,6 +633,15 @@
             this.toolTip_Main.ReshowDelay = 100;
             this.toolTip_Main.UseAnimation = false;
             this.toolTip_Main.UseFading = false;
+            // 
+            // tsMi_ImportChannels
+            // 
+            this.tsMi_ImportChannels.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.tsMi_ImportChannels.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            resources.ApplyResources(this.tsMi_ImportChannels, "tsMi_ImportChannels");
+            this.tsMi_ImportChannels.ForeColor = System.Drawing.Color.Gainsboro;
+            this.tsMi_ImportChannels.Name = "tsMi_ImportChannels";
+            this.tsMi_ImportChannels.Click += new System.EventHandler(this.tsMi_ImportChannels_Click);
             // 
             // Main
             // 
@@ -743,19 +724,12 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private System.Windows.Forms.Button btn_StartStream;
         private System.Windows.Forms.Button btn_Show_Video_Info;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem tSMi_ReloadEmotes;
         private System.Windows.Forms.Button btn_Follow;
-        private System.Windows.Forms.ToolStripMenuItem tSMi_Sync;
-        private System.Windows.Forms.ToolStripMenuItem tsMi_SyncOnlyOnline;
-        private System.Windows.Forms.ToolStripMenuItem tSMi_SyncAll;
-        private System.Windows.Forms.ToolStripMenuItem tSMi_ReconnectChat;
         private System.Windows.Forms.ToolTip toolTip_Main;
         private System.Windows.Forms.Button btn_ShowUsers;
         private System.Windows.Forms.ComboBox comBox_StreamQuali;
         private System.Windows.Forms.Button btn_AutoChatActions;
         private System.Windows.Forms.Button btn_openSubpage;
-        private System.Windows.Forms.ToolStripMenuItem tSMi_ShowSettings;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox cB_LogChat;
         private System.Windows.Forms.ToolStripDropDownButton tSDDB_About_Menue;
@@ -766,10 +740,15 @@
         private System.Windows.Forms.Button btn_Record;
         private LX29_ChatClient.Forms.ChannelListBox lstB_Channels;
         private LX29_Twitch.Forms.ApiInfoPanel apiInfoPanel1;
-        private System.Windows.Forms.ToolStripMenuItem refreshChannelsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openStreamInBrowserPopoutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openChannelInBrowserToolStripMenuItem;
         private Code.FormStream.Player.PlayerControl playerControl1;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem refreshChannelsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tSMi_ReloadEmotes;
+        private System.Windows.Forms.ToolStripMenuItem tSMi_ReconnectChat;
+        private System.Windows.Forms.ToolStripMenuItem tSMi_ShowSettings;
+        private System.Windows.Forms.ToolStripMenuItem tsMi_ImportChannels;
     }
 }
 

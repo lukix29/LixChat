@@ -345,7 +345,7 @@ namespace LX29_ChatClient
         private readonly static string[] commands = new string[] { ".ban", ".timeout", ".unban" };
         private readonly static object lockChannels = new object();
         private static DateTime lastSend = DateTime.MinValue;
-        private static int reconectTimeout = 8000;
+        private static Dictionary<int, int> reconTimeouts = new Dictionary<int, int>();
         private static SortMode[] sortArr;
 
         public static long ReceivedBytes
@@ -564,6 +564,7 @@ namespace LX29_ChatClient
 
         public static void TryConnect(int channel, bool force = false)
         {
+            if (!channels.ContainsKey(channel)) return;
             try
             {
                 //channel = GetOnlyName(channel).ToLower().Trim();
@@ -611,7 +612,7 @@ namespace LX29_ChatClient
                     }
                     if (hasAdded)
                     {
-                        reconectTimeout = 2000;
+                        reconTimeouts[c._Channel] = 8000;
                         Task.Run(() => FetchChatUsers(c.Channel_Name));
                         ListUpdated();
                     }
@@ -650,9 +651,9 @@ namespace LX29_ChatClient
                 c.Quit();
                 Task.Run(async () =>
                 {
-                    SendSilentMessage("Error Conecting to Chat, reconecting in " + (reconectTimeout / 1000) + "s!", c.Channel_Name);
-                    await Task.Delay(reconectTimeout);
-                    reconectTimeout = Math.Min(32000, reconectTimeout * 2);
+                    SendSilentMessage("Error Conecting to Chat, reconecting in " + (reconTimeouts[c._Channel] / 1000) + "s!", c.Channel_Name);
+                    await Task.Delay(reconTimeouts[c._Channel]);
+                    reconTimeouts[c._Channel] = Math.Min(32000, reconTimeouts[c._Channel] * 2);
                     SendSilentMessage("Reconecting now!", c.Channel_Name);
                     Disconnect(c);
                     connect(c._Channel, c.Channel_Name);
@@ -732,17 +733,21 @@ namespace LX29_ChatClient
 
                 Task.Run(async () =>
                 {
-                    await Task.Delay(reconectTimeout);
+                    if (!reconTimeouts.ContainsKey(channel))
+                    {
+                        reconTimeouts.Add(channel, 8000);
+                    }
+                    await Task.Delay(reconTimeouts[channel]);
                     if (!clients.ContainsKey(client._Channel))
                     {
-                        SendSilentMessage("Chat Conecting Timeout (" + (reconectTimeout / 1000) + "s)!", channelName);
-                        reconectTimeout = Math.Min(32000, reconectTimeout * 2);
+                        SendSilentMessage("Chat Conecting Timeout (" + (reconTimeouts[channel] / 1000) + "s)!", channelName);
+                        reconTimeouts[channel] = Math.Min(64000, reconTimeouts[channel] * 2);
                         Disconnect(client);
                         connect(channel, channelName);
                     }
                     else
                     {
-                        reconectTimeout = 2000;
+                        reconTimeouts[channel] = 8000;
                     }
                 });
             }
@@ -892,7 +897,7 @@ namespace LX29_ChatClient
         private static List<string> chatHighlights = new List<string>();
 
         private static Dictionary<int, IRC> clients = new Dictionary<int, IRC>();
-        private static MessageCollection messages = new MessageCollection();
+        private static MessageCollection messages;// = new MessageCollection();
 
         //private static Dictionary<string, List<ChatMessage>> messages = new Dictionary<string, List<ChatMessage>>();
         //private static Dictionary<string, List<ChatMessage>> whisper = new Dictionary<string, List<ChatMessage>>();

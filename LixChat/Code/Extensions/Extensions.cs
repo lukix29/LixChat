@@ -186,10 +186,6 @@ namespace System
     {
         public const int BufferSize = 1024;
 
-#if Drawing
-        public static readonly Size maxSize = new Size(int.MaxValue, int.MaxValue);
-#endif
-
         private static int errorCount = 0;
 
         private static object errorLock = new object();
@@ -363,6 +359,26 @@ namespace System
         }
 
 #if Drawing
+        public static readonly Size maxSize = new Size(int.MaxValue, int.MaxValue);
+
+        public static void DrawBitmap(this Graphics g, Bitmap image, float x, float y, float width, float height, bool drawHW)
+        {
+#if ManagedGDI
+            if (drawHW)
+            {
+                ManagedGDI.AlphaBlend((Bitmap)image, g, new Rectangle((int)x, (int)y, (int)width, (int)height), 255);
+            }
+            else
+#endif
+            {
+                g.DrawImage(image, x, y, width, height);
+            }
+        }
+
+        public static bool IsGif(this Bitmap b)
+        {
+            return ImageFormat.Gif.Equals(b.RawFormat);
+        }
 
         public static BorderSize GetBorderSize(this Form form)
         {
@@ -701,30 +717,6 @@ namespace System
             return localTime;
         }
 
-#if Drawing
-
-        public static void DrawBitmap(this Graphics g, Bitmap image, float x, float y, float width, float height, bool drawHW)
-        {
-#if ManagedGDI
-            if (drawHW)
-            {
-                ManagedGDI.AlphaBlend((Bitmap)image, g, new Rectangle((int)x, (int)y, (int)width, (int)height), 255);
-            }
-            else
-#endif
-            {
-                g.DrawImage(image, x, y, width, height);
-            }
-        }
-
-        public static bool IsGif(this Bitmap b)
-        {
-            return ImageFormat.Gif.Equals(b.RawFormat);
-        }
-
-#endif
-#if ChatClient
-
         public static MessageBoxResult Handle(this Exception e, string extraInfo = "", bool showMsgBox = false)
         {
             lock (errorLock)
@@ -732,8 +724,9 @@ namespace System
                 string err = DateTime.Now.ToString() + "\r\n" + e.ToString() + "\r\n\r\n";
                 try
                 {
+#if ChatClient
                     File.AppendAllText(LX29_ChatClient.Settings._dataDir + "Error.log", err);
-
+#endif
                     var sa = e.ToString().Split("\r\n");
                     StringBuilder sb = new StringBuilder();
 
@@ -754,7 +747,7 @@ namespace System
                         sb.AppendLine();
                         sb.AppendLine(extraInfo);
                     }
-
+#if ChatClient
                     if (LX29_ChatClient.Settings.ShowErrors || showMsgBox)
                     {
                         return LX29_MessageBox.Show(sb.ToString(), "Error!", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error);
@@ -767,6 +760,9 @@ namespace System
                             return MessageBoxResult.Ignore;
                         }
                     }
+#else
+                        return LX29_MessageBox.Show(sb.ToString(), "Error!", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error);
+#endif
                     errorCount++;
                     Threading.Thread.CurrentThread.Join(100);
                     return MessageBoxResult.Retry;
@@ -775,8 +771,6 @@ namespace System
                 return MessageBoxResult.None;
             }
         }
-
-#endif
 
         public static string HashCode(this string s)
         {
@@ -1269,6 +1263,8 @@ namespace System
 #endif
 }
 
+#if Drawing
+
 namespace System.Windows.Forms
 {
     public struct BorderSize
@@ -1290,7 +1286,428 @@ namespace System.Windows.Forms
     }
 }
 
-#if Drawing
+namespace System.Windows.Forms
+{
+    public struct LX29_MessageBoxResult
+    {
+        public MessageBoxResult Result;
+        public string Value;
+
+        public LX29_MessageBoxResult(MessageBoxResult result, string value)
+        {
+            Result = result;
+            Value = value;
+        }
+    }
+
+    public class LX29_MessageBox
+    {
+        public static MessageBoxResult Show(string text, string caption = "", MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
+        {
+            using (MessageBoxForm f = new MessageBoxForm())
+            {
+                return f.ShowDialog(text, caption, buttons, icon).Result;
+            }
+        }
+
+        public static LX29_MessageBoxResult Show(string text, bool ShowTextbox, string textBoxText, string textBoxTitle, string caption = "", MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
+        {
+            using (MessageBoxForm f = new MessageBoxForm())
+            {
+                return f.ShowDialog(text, caption, buttons, icon, ShowTextbox, textBoxText, textBoxTitle);
+            }
+        }
+    }
+
+    public enum MessageBoxResult
+    {
+        OK,
+        Cancel,
+        Retry,
+        Abort,
+        Ignore,
+        No,
+        Yes,
+        None
+    }
+
+    public partial class MessageBoxForm : Form
+    {
+        private MessageBoxResult diagRes = MessageBoxResult.None;
+
+        public MessageBoxForm()
+        {
+            InitializeComponent();
+            rtB_Main.LinkClicked += txtB_Main_LinkClicked;
+            rtB_Main.AddContextMenu();
+        }
+
+        public new Color BackColor
+        {
+            get { return base.BackColor; }
+            set
+            {
+                base.BackColor = value;
+                rtB_Main.BackColor = value;
+                button1.BackColor = Color.FromArgb(40, 40, 40);
+                button2.BackColor = button1.BackColor;
+                button3.BackColor = button1.BackColor;
+            }
+        }
+
+        public new string Text
+        {
+            get { return rtB_Main.Text; }
+            set
+            {
+                rtB_Main.Text = value;
+            }
+        }
+
+        public string Title
+        {
+            get { return base.Text; }
+            set { base.Text = value; }
+        }
+
+        public LX29_MessageBoxResult ShowDialog(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, bool ShowTextbox = false, string textBoxText = "", string textBoxTitle = "")
+        {
+            this.Text = text.Trim('\r', '\n', ' ');
+            //var temp = text.Split("\r\n");
+            //List<string> lines = new List<string>();
+            //foreach (var line in temp)
+            //{
+            //    if (line.Length > 100)
+            //    {
+            //        lines.Add(line.Remove(101));
+            //        lines.Add(line.Substring(100));
+            //    }
+            //    else
+            //    {
+            //        lines.Add(line);
+            //    }
+            //}
+            //var msr = lines.OrderByDescending(t => t.Length).First();
+            //Size s = TextRenderer.MeasureText(this.Text, new Font(this.Font.Name, this.Font.Size + 1.2f));
+            //this.Width = Math.Max(350, s.Width);
+            //this.Height = Math.Min(640, s.Height + (this.Height - button1.Top) + txtB_Main.Top);
+
+            //520
+            if (!ShowTextbox)
+            {
+                label1.Location = button1.Location;
+                rtB_Main.Height = (label1.Top - rtB_Main.Top) - 5;
+            }
+            var border = this.GetBorderSize();
+            var s = rtB_Main.GetPreferredSize(new System.Drawing.Size());
+            int width = Math.Max(520, s.Width + (border.SmallBorder * 4) + rtB_Main.Left + (this.ClientSize.Width - rtB_Main.Right));
+            int height = Math.Min(640, s.Height + (this.ClientSize.Height - label1.Top) +
+                rtB_Main.Top + border.BigSmall + 10);
+
+            Screen screen = Screen.FromControl(this);
+            this.Width = Math.Min(screen.Bounds.Width - this.Left, width);
+            this.Height = Math.Min(screen.Bounds.Height - this.Top, height);
+
+            this.Title = caption;
+            switch (icon)
+            {
+                case MessageBoxIcon.Error:
+                    BackColor = Color.DarkRed;
+                    System.Media.SystemSounds.Exclamation.Play();
+                    break;
+
+                case MessageBoxIcon.Question:
+                    System.Media.SystemSounds.Question.Play();
+                    break;
+
+                case MessageBoxIcon.Asterisk:
+                    System.Media.SystemSounds.Asterisk.Play();
+                    break;
+            }
+
+            switch (buttons)
+            {
+                case MessageBoxButtons.OK:
+                    button1.Text = "OK";
+                    button2.Text = "";
+                    button3.Text = "";
+                    break;
+
+                case MessageBoxButtons.OKCancel:
+                    button1.Text = "OK";
+                    button2.Text = "Cancel";
+                    button3.Text = "";
+                    break;
+
+                case MessageBoxButtons.AbortRetryIgnore:
+                    button1.Text = "Retry";
+                    button2.Text = "Abort";
+                    button3.Text = "Ignore";
+                    break;
+
+                case MessageBoxButtons.YesNoCancel:
+                    button1.Text = "OK";
+                    button2.Text = "No";
+                    button3.Text = "Cancel";
+                    break;
+
+                case MessageBoxButtons.YesNo:
+                    button1.Text = "Yes";
+                    button2.Text = "No";
+                    button3.Text = "";
+                    break;
+
+                case MessageBoxButtons.RetryCancel:
+                    button1.Text = "Retry";
+                    button2.Text = "Cancel";
+                    button3.Text = "";
+                    break;
+            }
+            button1.Visible = (button1.Text.Length > 0);
+            button2.Visible = (button2.Text.Length > 0);
+            button3.Visible = (button3.Text.Length > 0);
+
+            textBox1.Visible = ShowTextbox;
+            textBox1.Text = textBoxText;
+            label1.Visible = ShowTextbox;
+            label1.Text = textBoxTitle;
+            if (ShowTextbox)
+                textBox1.Show();
+
+            this.BringToFront();
+            this.TopMost = true;
+            base.ShowDialog();
+            return new LX29_MessageBoxResult(diagRes, textBox1.Text);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            diagRes = (MessageBoxResult)Enum.Parse(typeof(MessageBoxResult), button1.Text);
+            this.Close();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            diagRes = (MessageBoxResult)Enum.Parse(typeof(MessageBoxResult), button2.Text);
+            this.Close();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            diagRes = (MessageBoxResult)Enum.Parse(typeof(MessageBoxResult), button3.Text);
+            this.Close();
+        }
+
+        private void MessageBoxForm_Load(object sender, EventArgs e)
+        {
+            //txtB_Main.WordWrap = false;
+            //txtB_Main.ContentsResized += txtB_Main_ContentsResized;
+        }
+
+        private void MessageBoxForm_Resize(object sender, EventArgs e)
+        {
+            base.Text = this.Size.ToString();
+        }
+
+        private void txtB_Main_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            LX29_ChatClient.Settings.StartBrowser(e.LinkText);
+        }
+
+        //private void txtB_Main_ContentsResized(object sender, ContentsResizedEventArgs e)
+        //{
+        //    var richTextBox = (RichTextBox)sender;
+        //    richTextBox.Width = e.NewRectangle.Width;
+        //    richTextBox.Height = e.NewRectangle.Height;
+
+        //    this.Width = Math.Max(350, e.NewRectangle.Width);
+        //    this.Height = Math.Min(640, e.NewRectangle.Height + (this.Height - button1.Top) + txtB_Main.Top);
+        //}
+    }
+
+    partial class MessageBoxForm
+    {
+        private Button btn_Copy;
+
+        private System.Windows.Forms.Button button1;
+
+        private System.Windows.Forms.Button button2;
+
+        private System.Windows.Forms.Button button3;
+
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        private Label label1;
+
+        private RichTextBox rtB_Main;
+
+        private TextBox textBox1;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.btn_Copy = new System.Windows.Forms.Button();
+            this.rtB_Main = new System.Windows.Forms.RichTextBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.SuspendLayout();
+            //
+            // button1
+            //
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button1.AutoSize = true;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.Location = new System.Drawing.Point(12, 202);
+            this.button1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.button1.MinimumSize = new System.Drawing.Size(90, 30);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(90, 30);
+            this.button1.TabIndex = 1;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            //
+            // button2
+            //
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button2.AutoSize = true;
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button2.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button2.Location = new System.Drawing.Point(114, 202);
+            this.button2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.button2.MinimumSize = new System.Drawing.Size(90, 30);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(90, 30);
+            this.button2.TabIndex = 2;
+            this.button2.Text = "button2";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            //
+            // button3
+            //
+            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button3.AutoSize = true;
+            this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button3.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button3.Location = new System.Drawing.Point(216, 202);
+            this.button3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.button3.MinimumSize = new System.Drawing.Size(90, 30);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(90, 30);
+            this.button3.TabIndex = 3;
+            this.button3.Text = "button3";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            //
+            // btn_Copy
+            //
+            this.btn_Copy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_Copy.AutoSize = true;
+            this.btn_Copy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_Copy.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_Copy.Location = new System.Drawing.Point(479, 202);
+            this.btn_Copy.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.btn_Copy.MinimumSize = new System.Drawing.Size(90, 30);
+            this.btn_Copy.Name = "btn_Copy";
+            this.btn_Copy.Size = new System.Drawing.Size(90, 30);
+            this.btn_Copy.TabIndex = 4;
+            this.btn_Copy.Text = "Copy Text";
+            this.btn_Copy.UseVisualStyleBackColor = true;
+            //
+            // txtB_Main
+            //
+            this.rtB_Main.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rtB_Main.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.rtB_Main.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.rtB_Main.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold);
+            this.rtB_Main.ForeColor = System.Drawing.Color.Gainsboro;
+            this.rtB_Main.Location = new System.Drawing.Point(12, 12);
+            this.rtB_Main.Name = "txtB_Main";
+            this.rtB_Main.ReadOnly = true;
+            this.rtB_Main.Size = new System.Drawing.Size(557, 142);
+            this.rtB_Main.TabIndex = 6;
+            this.rtB_Main.Text = "";
+            //
+            // textBox1
+            //
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox1.BackColor = System.Drawing.SystemColors.InactiveCaptionText;
+            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBox1.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox1.ForeColor = System.Drawing.Color.Gainsboro;
+            this.textBox1.Location = new System.Drawing.Point(12, 176);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(161, 22);
+            this.textBox1.TabIndex = 8;
+            this.textBox1.Visible = false;
+            //
+            // label1
+            //
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 157);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(36, 16);
+            this.label1.TabIndex = 9;
+            this.label1.Text = "Input";
+            this.label1.Visible = false;
+            //
+            // MessageBoxForm
+            //
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.ClientSize = new System.Drawing.Size(581, 234);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.rtB_Main);
+            this.Controls.Add(this.btn_Copy);
+            this.Controls.Add(this.button3);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.button1);
+            this.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.Name = "MessageBoxForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Load += new System.EventHandler(this.MessageBoxForm_Load);
+            this.Resize += new System.EventHandler(this.MessageBoxForm_Resize);
+            this.ResumeLayout(false);
+            this.PerformLayout();
+        }
+
+        #endregion Windows Form Designer generated code
+    }
+}
 
 namespace System.Drawing
 {

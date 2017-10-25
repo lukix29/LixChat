@@ -5,7 +5,7 @@ using System.IO;
 using System.Net;
 using System.Windows.Forms;
 
-namespace LX29_Helpers
+namespace LX29_MPV
 {
     public class MPV_Downloader
     {

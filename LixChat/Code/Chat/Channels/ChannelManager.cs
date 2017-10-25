@@ -56,6 +56,38 @@ namespace LX29_ChatClient
             //return AddError.Error;
         }
 
+        public static void AddChannels(Dictionary<int, ChannelInfo> rest, bool save = false)
+        {
+            var restResults = TwitchApi.GetStreamOrChannel(rest.Keys.Select(t => t.ToString()).ToArray());
+            foreach (var result in restResults)
+            {
+                ChannelInfo ci = new ChannelInfo(result);
+                if (!channels.ContainsKey(ci.ID))
+                {
+                    if (rest.ContainsKey(ci.ID))
+                    {
+                        var r = rest[ci.ID];
+                        ci.Load(r);
+                    }
+                    channels.Add(ci.ID, ci);
+                    Task.Run(() =>
+                    {
+                        if (ci.AutoLoginChat)
+                        {
+                            addChannel(ci.Name);
+                            ChatClient.TryConnect(ci.ID);
+                        }
+                    });
+                }
+            }
+            if (save)
+            {
+                if (ListLoaded != null)
+                    ListLoaded(channels.Count, channels.Count, "Imported " + channels.Count + " Channels");
+                SaveChannels();
+            }
+        }
+
         public static System.Reflection.PropertyInfo[] GetMemberNames(object target, bool dynamicOnly = false)
         {
             return target.GetType().GetProperties();
@@ -75,6 +107,7 @@ namespace LX29_ChatClient
         {
             try
             {
+                messages = new MessageCollection();
                 int size = Enum.GetNames(typeof(SortMode)).Length;
                 sortArr = new SortMode[size];
                 for (int x = 0; x < size; x++)
@@ -119,6 +152,41 @@ namespace LX29_ChatClient
         //    catch (Exception x) { x.Handle("", false); }
         //    AutoActions.EnableActions = true;
         //}
+
+        public static Dictionary<int, ChannelInfo> LoadChannels(string saveFile)
+        {
+            try
+            {
+                if (File.Exists(saveFile))
+                {
+                    var input = File.ReadAllLines(saveFile);
+                    Dictionary<int, ChannelInfo> dict = new Dictionary<int, ChannelInfo>();
+                    foreach (var s in input)
+                    {
+                        var b = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelInfo>(s);
+                        dict.Add(b.ID, b);
+                    }
+                    return dict;
+                    //var values = CustomSettings.LoadList(input);
+
+                    //Dictionary<int, Dictionary<string, string>> dict = new Dictionary<int, Dictionary<string, string>>();
+                    //foreach (var vals in values)
+                    //{
+                    //    int ID = (int)vals["ID"];
+                    //    dict.Add(ID, new Dictionary<string, string>());
+                    //    foreach (var item in vals)
+                    //    {
+                    //        dict[ID].Add(item.Key, item.Value);
+                    //    }
+                    //}
+
+                    //if (dict.Count == 0) File.Delete(ChannelSave);
+                    //return dict;
+                }
+            }
+            catch { }
+            return new Dictionary<int, ChannelInfo>();
+        }
 
         public static void RemoveChannel(int channel)
         {
@@ -200,7 +268,7 @@ namespace LX29_ChatClient
 
                 var follows = TwitchApi.GetFollowedStreams();
 
-                var setts = LoadChannels();
+                var setts = LoadChannels(ChannelSave);
 
                 var rest = new Dictionary<int, ChannelInfo>(setts);
                 List<string> chatLogins = new List<string>();
@@ -239,28 +307,7 @@ namespace LX29_ChatClient
 
                 if (rest.Count > 0)
                 {
-                    var restResults = TwitchApi.GetStreamOrChannel(rest.Keys.Select(t => t.ToString()).ToArray());
-                    foreach (var result in restResults)
-                    {
-                        ChannelInfo ci = new ChannelInfo(result);
-                        if (!channels.ContainsKey(ci.ID))
-                        {
-                            if (rest.ContainsKey(ci.ID))
-                            {
-                                var r = rest[ci.ID];
-                                ci.Load(r);
-                            }
-                            channels.Add(ci.ID, ci);
-                            Task.Run(() =>
-                            {
-                                if (ci.AutoLoginChat)
-                                {
-                                    addChannel(ci.Name);
-                                    ChatClient.TryConnect(ci.ID);
-                                }
-                            });
-                        }
-                    }
+                    AddChannels(rest);
                 }
 
                 LoadStandardStreams();
@@ -337,41 +384,6 @@ namespace LX29_ChatClient
                         return;
                 }
             }
-        }
-
-        private static Dictionary<int, ChannelInfo> LoadChannels()
-        {
-            try
-            {
-                if (File.Exists(ChannelSave))
-                {
-                    var input = File.ReadAllLines(ChannelSave);
-                    Dictionary<int, ChannelInfo> dict = new Dictionary<int, ChannelInfo>();
-                    foreach (var s in input)
-                    {
-                        var b = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelInfo>(s);
-                        dict.Add(b.ID, b);
-                    }
-                    return dict;
-                    //var values = CustomSettings.LoadList(input);
-
-                    //Dictionary<int, Dictionary<string, string>> dict = new Dictionary<int, Dictionary<string, string>>();
-                    //foreach (var vals in values)
-                    //{
-                    //    int ID = (int)vals["ID"];
-                    //    dict.Add(ID, new Dictionary<string, string>());
-                    //    foreach (var item in vals)
-                    //    {
-                    //        dict[ID].Add(item.Key, item.Value);
-                    //    }
-                    //}
-
-                    //if (dict.Count == 0) File.Delete(ChannelSave);
-                    //return dict;
-                }
-            }
-            catch { }
-            return new Dictionary<int, ChannelInfo>();
         }
 
         private static void LoadStandardStreams()

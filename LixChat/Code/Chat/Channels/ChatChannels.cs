@@ -1,5 +1,5 @@
 ﻿using LX29_ChatClient.Forms;
-using LX29_Helpers;
+using LX29_MPV;
 using LX29_Twitch.Api;
 using LX29_Twitch.Api.Video;
 using LX29_Twitch.Forms;
@@ -39,7 +39,7 @@ namespace LX29_ChatClient.Channels
         public readonly object LockObject = new object();
 
         [JsonIgnore]
-        public readonly MPV_Wrapper MPV;
+        public readonly MpvLib MPV;
 
         private static int fetchCnt = 0;
         private bool _AutoLoginChat = false;
@@ -83,7 +83,7 @@ namespace LX29_ChatClient.Channels
 
             Modes = new ChannelModes();
 
-            MPV = new MPV_Wrapper(Name);
+            MPV = new MpvLib();
 
             Task.Run(async () =>
             {
@@ -336,12 +336,9 @@ namespace LX29_ChatClient.Channels
             var procs = System.Diagnostics.Process.GetProcessesByName("mpv");
             foreach (var proc in procs)
             {
-                if (proc.MainWindowTitle.Contains(MPV_Wrapper.WindowIdentifier))
+                if (proc.MainWindowTitle.Equals(Name + " | MPV-Frontend"))
                 {
-                    if (proc.MainWindowTitle.ToLower().StartsWith(Name))
-                    {
-                        MPV.SetProcess(proc);
-                    }
+                    MPV.SetProcess(proc);
                 }
             }
         }
@@ -541,20 +538,20 @@ namespace LX29_ChatClient.Channels
             if (isStartingStream) return;
             isStartingStream = true;
 
-            if (external == PlayerType.Record_ShowMPV && !File.Exists(Settings._pluginDir + "\\MPV\\ffmpeg.exe"))
+            if (external == PlayerType.Record_ShowMPV && !File.Exists(Settings._pluginDir + "\\ffmpeg.exe"))
             {
                 FormDownloader fd = new FormDownloader();
                 fd.ShowDialog("FFMPEG ist needed for Recording.\r\nDownload now?",
                 "https://github.com/lukix29/LixChat/raw/master/LixChat/Resources/ffmpeg.7z",
-                Settings._pluginDir + "\\MPV\\ffmpeg.7z");
+                Settings._pluginDir + "\\ffmpeg.7z");
             }
-            if (!File.Exists(Settings._pluginDir + "\\MPV\\mpv.exe"))
-            {
-                FormDownloader fd = new FormDownloader();
-                fd.ShowDialog("MPV ist needed for watching Streams.\r\nDownload now?",
-                  "https://github.com/lukix29/LixChat/raw/master/LixChat/Resources/mpv.7z",
-                Settings._pluginDir + "\\MPV\\mpv.7z");
-            }
+            //if (!File.Exists(".\\mpv-1.dll"))
+            //{
+            //    FormDownloader fd = new FormDownloader();
+            //    fd.ShowDialog("MPV ist needed for watching Streams.\r\nDownload now?",
+            //      "https://github.com/lukix29/LixChat/raw/master/LixChat/Resources/mpv.7z",
+            //    Settings._pluginDir + "\\MPV\\mpv.7z");
+            //}
             switch (external)
             {
                 case PlayerType.Record_ShowMPV:
@@ -675,11 +672,11 @@ namespace LX29_ChatClient.Channels
                 switch (type)
                 {
                     case PlayerType.Record_ShowMPV:
-                        b = MPV.Record(this.Name, url, 100, (int)Settings.MpvBufferBytes, IntPtr.Zero, (int)Settings.MpvBufferSeconds, this.PlayerPosition);
+                        b = MpvLib.Record(this.Name, url);
                         break;
 
                     case PlayerType.ExternalMPV:
-                        b = MPV.Start(this.Name, url, 100, (int)Settings.MpvBufferBytes, IntPtr.Zero, (int)Settings.MpvBufferSeconds, this.PlayerPosition);
+                        b = MPV.StartAlone(this.Name, url, 100, (int)Settings.MpvBufferBytes, (int)Settings.MpvBufferSeconds, this.PlayerPosition);
                         break;
                 }
                 return b;
@@ -693,6 +690,11 @@ namespace LX29_ChatClient.Channels
         }
 
         #endregion MPV Player Methods
+
+        public override string ToString()
+        {
+            return ID + " - " + Name;
+        }
 
         private void chatForm_FormClosed(object sender, System.Windows.Forms.FormClosedEventArgs e)
         {

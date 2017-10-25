@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LX29_ChatClient.Channels;
-using LX29_Helpers;
+using LX29_MPV;
 
 namespace LX29_LixChat.Code.FormStream.Player
 {
@@ -101,7 +101,7 @@ namespace LX29_LixChat.Code.FormStream.Player
             set;
         }
 
-        private MPV_Wrapper mpv
+        private MpvLib mpv
         {
             get
             {
@@ -198,7 +198,7 @@ namespace LX29_LixChat.Code.FormStream.Player
 
         public void Stop()
         {
-            mpv.Stop();
+            mpv.Dispose();
         }
 
         private void btn_Pause_CheckedChanged(object sender, EventArgs e)
@@ -207,7 +207,7 @@ namespace LX29_LixChat.Code.FormStream.Player
             if (!cb_Pause.Checked)
             {
                 cb_Pause.BackgroundImage = LX29_LixChat.Properties.Resources.play;
-                if (!_ShowOnTopBorderless) mpv.Stop();
+                if (!_ShowOnTopBorderless) mpv.Pause(true);
                 else mpv.Pause(true);
             }
             else
@@ -306,10 +306,9 @@ namespace LX29_LixChat.Code.FormStream.Player
                 var video = Stream.StreamURLS[quality];
                 if (video != null)
                 {
-                    if (mpv.Start(video.URL,
-                        (int)this.Invoke(new Func<int>(() => { return (int)volumeControl1.Value; })),
-                        Int16.MaxValue,
-                       (IntPtr)this.Invoke(new Func<IntPtr>(() => { return panelVideo.Handle; }))))
+                    int volume = (int)this.Invoke(new Func<int>(() => { return (int)volumeControl1.Value; }));
+                    IntPtr hndl = (IntPtr)this.Invoke(new Func<IntPtr>(() => { return panelVideo.Handle; }));
+                    if (mpv.Start(video.URL, hndl, volume))
                     {
                         setBtnPause(true);
                     }

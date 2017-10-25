@@ -44,7 +44,7 @@ namespace LX29_ChatClient.Forms
             base.Hide();
         }
 
-        public void Show(ChatUser user, Point location)
+        public void Show(ApiResult channel, ChatUser user, Point location)
         {
             //this.Location = location;
             chatView1.ShowName = false;
@@ -54,7 +54,7 @@ namespace LX29_ChatClient.Forms
             //make this movable and resizeable and better
             //own whisper dingens
             //int i = null;
-            chatView1.SetChannel(user.ApiResult, MsgType.All_Messages);
+            chatView1.SetChannel(channel, MsgType.All_Messages);
             chatView1.SetAllMessages(MsgType.All_Messages, null, user.Name);
             label1.Text = user.DisplayName;
             apiInfoPanel1.InfosToShow = sortArray;

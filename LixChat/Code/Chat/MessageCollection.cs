@@ -237,8 +237,6 @@ namespace LX29_ChatClient
 
                 //Fix Cinema Mode view
                 //Add top-chat-controls to chatpanel????????????
-
-                Load();
             }
 
             public Dictionary<string, List<ChatMessage>> AllMessages
@@ -444,7 +442,9 @@ namespace LX29_ChatClient
                 {
                     x.Handle("", true);
                     File.Delete(path);
+#if DEBUG
                     Load();
+#endif
                 }
                 finally
                 {
@@ -489,6 +489,7 @@ namespace LX29_ChatClient
             public MessageCollection()
             {
                 messages = new MessageBuffer();
+                messages.Load();
                 Notifications.Load();
             }
 
