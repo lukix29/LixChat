@@ -689,7 +689,7 @@ namespace LX29_ChatClient
                 {
                     form.Title = "Select Standard Browser";
                     form.ButtonSelect.Text = "Select Browser";
-                    form.ButtonCopy.Visible = false;
+                    //form.ButtonCopy.Visible = false;
                 }
                 form.ShowDialog();
                 if (form.Abort != DialogResult.Abort)

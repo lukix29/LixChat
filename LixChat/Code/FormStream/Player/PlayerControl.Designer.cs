@@ -132,6 +132,7 @@
             0,
             0});
             this.volumeControl1.ValueChanged += new System.EventHandler(this.volumeControl1_ValueChanged_1);
+            this.volumeControl1.Load += new System.EventHandler(this.volumeControl1_Load);
             // 
             // cB_Borderless
             // 

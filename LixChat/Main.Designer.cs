@@ -136,7 +136,7 @@
             this.playerControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.playerControl1.Name = "playerControl1";
             this.playerControl1.PreviewImage = ((System.Drawing.Image)(resources.GetObject("playerControl1.PreviewImage")));
-            this.playerControl1.Quality = null;
+            this.playerControl1.Quality = "";
             this.playerControl1.ShowOnTopBorderless = false;
             this.playerControl1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.playerControl1.Stream = null;

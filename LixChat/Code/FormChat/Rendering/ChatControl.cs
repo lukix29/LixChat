@@ -236,6 +236,7 @@ namespace LX29_ChatClient.Forms
                     x1 = (int)Renderer.SelectRect.X;
                 }
                 Renderer.SelectRect = RectangleF.FromLTRB(x0, Renderer.SelectRect.Y, x1, Renderer.SelectRect.Y + 1);
+                _Render();
             }
             else
             {
@@ -253,6 +254,7 @@ namespace LX29_ChatClient.Forms
                 else if (curSelected.Type != RectType.Text)
                 {
                     Cursor = Cursors.Hand;
+                    _Render();
                     //renderer.AutoScroll = false;
                 }
                 // this.Invalidate();
@@ -333,6 +335,52 @@ namespace LX29_ChatClient.Forms
             // if (Scrollbar != null) Scrollbar.OnResize(e);
         }
 
+        private void _Render()
+        {
+            if (!Pause)
+            {
+                if (!Renderer.gifVisible)
+                {
+                    wait = 1000;
+                }
+                else
+                {
+                    wait = 30;
+                }
+                if (Renderer.Render())
+                {
+                    if (!_isscrolldownvisible)
+                    {
+                        if (this.InvokeRequired)
+                        {
+                            this.Invoke(new Action(ShowScrollDownLabel));
+                        }
+                        else
+                        {
+                            ShowScrollDownLabel();
+                        }
+                        _isscrolldownvisible = true;
+                    }
+                }
+                else
+                {
+                    if (_isscrolldownvisible)
+                    {
+                        if (this.InvokeRequired)
+                        {
+                            this.Invoke(new Action(HideScrollDownLabel));
+                        }
+                        else
+                        {
+                            HideScrollDownLabel();
+                        }
+                        _isscrolldownvisible = false;
+                    }
+                }
+            }
+            else wait = 1000;
+        }
+
         private void ChatClient_MessageReceived(ChatMessage message)
         {
             if (!this.Visible) return;
@@ -340,6 +388,7 @@ namespace LX29_ChatClient.Forms
             if (message.Channel_Name.Equals(channel.Name))
             {
                 Renderer.MessageReceived();
+                _Render();
             }
             //{
             //    renderer.SetAllMessages(renderer.MessageType, "");
@@ -400,6 +449,7 @@ namespace LX29_ChatClient.Forms
                     lbl_ScrollDown.Visible = false;
                 }
             }
+            _Render();
             // this.Invalidate();
         }
 
@@ -482,62 +532,7 @@ namespace LX29_ChatClient.Forms
 
                 try
                 {
-                    if (!Pause)
-                    {
-                        if (!Renderer.gifVisible)
-                        {
-                            wait = 100;
-                        }
-                        else
-                        {
-                            wait = 30;
-                        }
-                        if (Renderer.Render())
-                        {
-                            if (!_isscrolldownvisible)
-                            {
-                                if (this.InvokeRequired)
-                                {
-                                    this.Invoke(new Action(ShowScrollDownLabel));
-                                }
-                                else
-                                {
-                                    ShowScrollDownLabel();
-                                }
-                                _isscrolldownvisible = true;
-                            }
-                        }
-                        else
-                        {
-                            if (_isscrolldownvisible)
-                            {
-                                if (this.InvokeRequired)
-                                {
-                                    this.Invoke(new Action(HideScrollDownLabel));
-                                }
-                                else
-                                {
-                                    HideScrollDownLabel();
-                                }
-                                _isscrolldownvisible = false;
-                            }
-                        }
-                        //}
-                        //else
-                        //{
-                        //    if (this.InvokeRequired)
-                        //    {
-                        //        this.Invoke(new Action(this.Invalidate));
-                        //    }
-                        //    else
-                        //    {
-                        //        this.Invalidate();
-                        //    }
-
-                        //    wait = 200;
-                        //}
-                    }
-                    else wait = 500;
+                    _Render();
 
                     double tt = ((DateTime.Now.Ticks - dt) / (double)TimeSpan.TicksPerMillisecond);
                     if (tt < wait)

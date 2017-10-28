@@ -31,7 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormBrowserSelector));
             this.listView1 = new System.Windows.Forms.ListView();
             this.btn_Select = new System.Windows.Forms.Button();
-            this.btn_copy = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -67,20 +66,6 @@
             this.btn_Select.UseVisualStyleBackColor = true;
             this.btn_Select.Click += new System.EventHandler(this.btn_Select_Click);
             // 
-            // btn_copy
-            // 
-            this.btn_copy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_copy.AutoSize = true;
-            this.btn_copy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_copy.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_copy.Location = new System.Drawing.Point(141, 295);
-            this.btn_copy.Name = "btn_copy";
-            this.btn_copy.Size = new System.Drawing.Size(178, 28);
-            this.btn_copy.TabIndex = 3;
-            this.btn_copy.Text = "Copy Login Url to Clipboard";
-            this.btn_copy.UseVisualStyleBackColor = true;
-            this.btn_copy.Click += new System.EventHandler(this.btn_copy_Click);
-            // 
             // label1
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -100,7 +85,6 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.ClientSize = new System.Drawing.Size(331, 330);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.btn_copy);
             this.Controls.Add(this.btn_Select);
             this.Controls.Add(this.listView1);
             this.ForeColor = System.Drawing.Color.Gainsboro;
@@ -120,7 +104,6 @@
 
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.Button btn_Select;
-        private System.Windows.Forms.Button btn_copy;
         private System.Windows.Forms.Label label1;
 
     }

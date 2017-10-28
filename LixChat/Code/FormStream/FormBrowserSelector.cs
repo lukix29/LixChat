@@ -35,10 +35,10 @@ namespace LX29_Twitch.Forms
             private set;
         }
 
-        public Button ButtonCopy
-        {
-            get { return btn_copy; }
-        }
+        //public Button ButtonCopy
+        //{
+        //    get { return btn_copy; }
+        //}
 
         public Button ButtonSelect
         {
@@ -105,13 +105,13 @@ namespace LX29_Twitch.Forms
             }
         }
 
-        private void btn_copy_Click(object sender, EventArgs e)
-        {
-            Clipboard.SetText(LX29_Twitch.Api.TwitchApi.AuthApiUrl);
-            canClose = true;
-            Abort = DialogResult.Yes;
-            this.Close();
-        }
+        //private void btn_copy_Click(object sender, EventArgs e)
+        //{
+        //    Clipboard.SetText(LX29_Twitch.Api.TwitchApi.AuthApiUrl);
+        //    canClose = true;
+        //    Abort = DialogResult.Yes;
+        //    this.Close();
+        //}
 
         private void btn_Select_Click(object sender, EventArgs e)
         {

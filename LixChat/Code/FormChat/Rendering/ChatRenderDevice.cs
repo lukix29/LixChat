@@ -197,25 +197,25 @@ namespace LX29_ChatClient.Forms
             {
                 int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType, WhisperName);
                 messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType, msgcnt - 256, msgcnt - ViewStart);
+                //DrawMessagesNew();
+                //bufferedGraphics.Render();
             }
         }
 
         public bool Render()
         {
-            Graphics g = bufferedGraphics.Graphics;
-
             lock (drawLock)
             {
-                g.Clear(UserColors.ChatBackground);
+                bufferedGraphics.Graphics.Clear(UserColors.ChatBackground);
                 if (ShowAllEmotes)
                 {
-                    DrawEmotes(g);
+                    DrawEmotes();
                 }
                 else
                 {
-                    DrawMessagesNew(g);
+                    DrawMessagesNew();
                 }
-                DrawInfoOverlay(g);
+                DrawInfoOverlay();
                 //  control.Scrollbar.OnPaint(g);
                 bufferedGraphics.Render();
             }
@@ -284,10 +284,12 @@ namespace LX29_ChatClient.Forms
             // fggdf;
         }
 
-        private void DrawEmotes(Graphics g)
+        private void DrawEmotes()
         {
             try
             {
+                Graphics g = bufferedGraphics.Graphics;
+
                 RectangleF bounds = g.VisibleClipBounds;
 
                 if (!ChatClient.Emotes.Finished)
@@ -365,8 +367,10 @@ namespace LX29_ChatClient.Forms
             }
         }
 
-        private void DrawInfoOverlay(Graphics g)
+        private void DrawInfoOverlay()
         {
+            Graphics g = bufferedGraphics.Graphics;
+
             EmoteBase emote = null;
             float width = g.VisibleClipBounds.Width;
             float Height = g.VisibleClipBounds.Height;
@@ -473,10 +477,11 @@ namespace LX29_ChatClient.Forms
             MeasureMessage(graphics, message, idx, bounds, yInput, height, false);
         }
 
-        private void DrawMessagesNew(Graphics g)
+        private void DrawMessagesNew()
         {
             try
             {
+                Graphics g = bufferedGraphics.Graphics;
                 int i = 0;
                 RectangleF bounds = g.VisibleClipBounds;
                 float bottom = ((viewStart == 0) ? 5 : (15 - _LineSpacing));
@@ -531,15 +536,13 @@ namespace LX29_ChatClient.Forms
                         g.DrawString("<Waiting for Messages>", new Font("Arial", 12), Brushes.LightGray, bounds, centerStrFormat);
                     }
                 }
-
-                if (FPS <= 100)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    sb.AppendLine("Size: " + this.Font.Size.ToString("F1") + "pt");
-                    sb.AppendLine("Refresh/s: " + FPS);
-                    sb.AppendLine("V-Msg: " + visibleMessages);
-                    g.DrawString(sb.ToString(), this.timeFont, Brushes.Red, bounds, infoStrFormat);
-                }
+#if DEBUG
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("Size: " + this.Font.Size.ToString("F1") + "pt");
+                sb.AppendLine("Refresh/s: " + FPS);
+                sb.AppendLine("V-Msg: " + visibleMessages);
+                g.DrawString(sb.ToString(), this.timeFont, Brushes.Red, bounds, infoStrFormat);
+#endif
             }
             catch
             {
@@ -551,7 +554,7 @@ namespace LX29_ChatClient.Forms
             bool drawImages = true;
             bool alignText = Settings.AlignText;
             float emote_Y_Offset = 4;
-
+            //gifVisible = true;
             var user = message.User;
 
             if (!message.Timeout.IsEmpty && !ShowTimeoutMessages && !user.IsEmpty)
@@ -619,6 +622,7 @@ namespace LX29_ChatClient.Forms
             #endregion Style&Font
 
             SizeF sf = SizeF.Empty;
+
 #if DEBUG
             sf = graphics.MeasureText(idx.ToString(), timeFont);
 
@@ -629,6 +633,7 @@ namespace LX29_ChatClient.Forms
 
             x += sf.Width + _WordPadding + _TimePadding;
 #endif
+
             if (ShowTimeStamp)
             {
                 string time = (ShowName) ? message.SendTime.ToLongTimeString() : message.SendTime.ToShortTimeString();

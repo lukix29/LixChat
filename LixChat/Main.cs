@@ -371,7 +371,7 @@ namespace LX29_LixChat
 
         private void btn_Record_Click(object sender, EventArgs e)
         {
-            if (LX29_MessageBox.Show("Stream recording is experimental!\r\nRecording stops when the Player is closed.\r\nStart Recording?", "Experimental Feature", MessageBoxButtons.YesNo) == MessageBoxResult.Yes)
+            if (LX29_MessageBox.Show("Stream recording is experimental!\r\nStart Recording?", "Experimental Feature", MessageBoxButtons.YesNo) == MessageBoxResult.Yes)
             {
                 var sa = GetCurrentInfo();
                 if (sa != null)

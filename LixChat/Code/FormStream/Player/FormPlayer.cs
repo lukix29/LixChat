@@ -13,6 +13,7 @@ namespace LX29_Twitch.Forms
         private bool moveMouseDown = false;
 
         private Rectangle oldSize = new Rectangle();
+        private FormWindowState oldState = FormWindowState.Normal;
         private bool resizeMouseDown = false;
         private ChannelInfo stream = null;
 
@@ -142,12 +143,21 @@ namespace LX29_Twitch.Forms
                 if (playerControl.SetFullscreen())
                 {
                     oldSize = this.Bounds;
+                    oldState = this.WindowState;
 
                     this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 
                     Rectangle r = Screen.GetBounds(this);
-                    this.Location = r.Location;
-                    this.Size = r.Size;
+                    if (this.WindowState == FormWindowState.Maximized)
+                    {
+                        this.WindowState = FormWindowState.Normal;
+                        this.WindowState = FormWindowState.Maximized;
+                    }
+                    else
+                    {
+                        this.Size = r.Size;
+                        this.Location = r.Location;
+                    }
 
                     panelMove.Visible = panelResize.Visible = false;
                     this.TopMost = true;
@@ -163,10 +173,12 @@ namespace LX29_Twitch.Forms
                     {
                         this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
                     }
+                    this.ClientSize = oldSize.Size;
                     this.Location = oldSize.Location;
-                    this.Size = oldSize.Size;
 
                     panelMove.Visible = panelResize.Visible = true;
+
+                    this.WindowState = oldState;
                 }
             }
             catch

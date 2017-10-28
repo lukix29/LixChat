@@ -188,6 +188,89 @@ namespace LX29_MPV
             return false;
         }
 
+        public static bool StartExternal(string Title, string fileName, int volume = 100, int cache = 0, int cacheSecs = 10, System.Drawing.Rectangle rect = new System.Drawing.Rectangle())
+        {
+            //string serr = "";
+            //string sout = "";
+            try
+            {
+                if (cache > 0)
+                {
+                    string cash = "";
+                    cash = " --cache-initial=" + cache +
+                            " --cache-backbuffer=" + cache +
+                            " --cache=" + cache +
+                            " --cache-secs=" + cacheSecs;
+                }
+                if (!rect.IsEmpty)
+                {
+                    Screen sc = Screen.FromRectangle(rect);
+                    if (rect.Y < sc.Bounds.Y)
+                    {
+                        rect.Y = sc.Bounds.Y;
+                    }
+                    if (rect.X < sc.Bounds.X)
+                    {
+                        rect.X = sc.Bounds.X;
+                    }
+                }
+                //if (process != null)
+                //{
+                //    process.Kill();
+                //}
+                Process process = new Process();
+                //process.StartInfo.UseShellExecute = false;
+                process.StartInfo.WorkingDirectory = Path.GetFullPath(".\\");
+                process.StartInfo.FileName = "mpv.exe";
+
+                process.StartInfo.Arguments = "title=" + Title + " url=" + fileName;
+                if (!rect.IsEmpty)
+                {
+                    process.StartInfo.Arguments += " bounds=" + rect.ToString();
+                }
+                //(" --osc=yes --no-ytdl --no-taskbar-progress --af=format=channels=2.0"
+                //+ geom + " --title=\"" + Title + "\"" +
+                //cash + " --hls-bitrate=max" +
+                //" --volume=" + Math.Max(0, Math.Min(100, volume)) +
+                //intPtr + fileName);
+                process.Start();
+
+                bool HasStarted = false;
+                DateTime timeOut = DateTime.Now;
+                while (true)
+                {
+                    try
+                    {
+                        System.Threading.Thread.Sleep(100);
+                        if (DateTime.Now.Subtract(timeOut).TotalSeconds > 10 ||
+                            process.MainWindowHandle != IntPtr.Zero)
+                        {
+                            if (!process.HasExited)
+                            {
+                                HasStarted = true;
+                            }
+                            break;
+                        }
+                        if (process.HasExited)
+                        {
+                            break;
+                        }
+                    }
+                    catch { break; }
+                }
+                return HasStarted;
+            }
+            catch (Exception x)
+            {
+                switch (x.Handle())
+                {
+                    case MessageBoxResult.Retry:
+                        return StartExternal(Title, fileName, volume, cache, cacheSecs, rect);
+                }
+            }
+            return false;
+        }
+
         public void Dispose()
         {
             Dispose(true);
@@ -268,6 +351,7 @@ namespace LX29_MPV
             {
                 _start(handle, fileName);
                 SetVolume(volume);
+                return true;
             }
             catch (Exception x)
             {
@@ -276,89 +360,6 @@ namespace LX29_MPV
                     case MessageBoxResult.Retry:
                         Start(fileName, handle, volume, cacheSecs, cache);
                         break;
-                }
-            }
-            return false;
-        }
-
-        public bool StartAlone(string Title, string fileName, int volume = 100, int cache = 0, int cacheSecs = 10, System.Drawing.Rectangle rect = new System.Drawing.Rectangle())
-        {
-            //string serr = "";
-            //string sout = "";
-            try
-            {
-                if (cache > 0)
-                {
-                    string cash = "";
-                    cash = " --cache-initial=" + cache +
-                            " --cache-backbuffer=" + cache +
-                            " --cache=" + cache +
-                            " --cache-secs=" + cacheSecs;
-                }
-                if (!rect.IsEmpty)
-                {
-                    Screen sc = Screen.FromRectangle(rect);
-                    if (rect.Y < sc.Bounds.Y)
-                    {
-                        rect.Y = sc.Bounds.Y;
-                    }
-                    if (rect.X < sc.Bounds.X)
-                    {
-                        rect.X = sc.Bounds.X;
-                    }
-                }
-                if (process != null)
-                {
-                    process.Kill();
-                }
-                process = new Process();
-                //process.StartInfo.UseShellExecute = false;
-                process.StartInfo.WorkingDirectory = Path.GetFullPath(".\\");
-                process.StartInfo.FileName = "mpv.exe";
-
-                process.StartInfo.Arguments = "title=" + Title + " url=" + fileName;
-                if (!rect.IsEmpty)
-                {
-                    process.StartInfo.Arguments += " bounds=" + rect.ToString();
-                }
-                //(" --osc=yes --no-ytdl --no-taskbar-progress --af=format=channels=2.0"
-                //+ geom + " --title=\"" + Title + "\"" +
-                //cash + " --hls-bitrate=max" +
-                //" --volume=" + Math.Max(0, Math.Min(100, volume)) +
-                //intPtr + fileName);
-                process.Start();
-
-                bool HasStarted = false;
-                DateTime timeOut = DateTime.Now;
-                while (true)
-                {
-                    try
-                    {
-                        System.Threading.Thread.Sleep(100);
-                        if (DateTime.Now.Subtract(timeOut).TotalSeconds > 10 ||
-                            process.MainWindowHandle != IntPtr.Zero)
-                        {
-                            if (!process.HasExited)
-                            {
-                                HasStarted = true;
-                            }
-                            break;
-                        }
-                        if (process.HasExited)
-                        {
-                            break;
-                        }
-                    }
-                    catch { break; }
-                }
-                return HasStarted;
-            }
-            catch (Exception x)
-            {
-                switch (x.Handle())
-                {
-                    case MessageBoxResult.Retry:
-                        return StartAlone(Title, fileName, volume, cache, cacheSecs, rect);
                 }
             }
             return false;
@@ -425,18 +426,18 @@ namespace LX29_MPV
             return Encoding.UTF8.GetBytes(s + "\0");
         }
 
-        private void _start(IntPtr handle, string url)
+        private bool _start(IntPtr handle, string url)
         {
             if (_mpvHandle != IntPtr.Zero)
                 _mpvTerminateDestroy(_mpvHandle);
 
             LoadMpvDynamic();
             if (_libMpvDll == IntPtr.Zero)
-                return;
+                return false;
 
             _mpvHandle = _mpvCreate.Invoke();
             if (_mpvHandle == IntPtr.Zero)
-                return;
+                return false;
 
             _mpvInitialize.Invoke(_mpvHandle);
             _mpvSetOptionString(_mpvHandle, GetUtf8Bytes("keep-open"), GetUtf8Bytes("always"));
@@ -446,6 +447,8 @@ namespace LX29_MPV
             var windowId = handle.ToInt64();
             _mpvSetOption(_mpvHandle, GetUtf8Bytes("wid"), format, ref windowId);
             DoMpvCommand("loadfile", url);
+
+            return true;
         }
 
         //if (HasStarted)

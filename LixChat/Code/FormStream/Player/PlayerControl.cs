@@ -170,6 +170,7 @@ namespace LX29_LixChat.Code.FormStream.Player
         {
             try
             {
+                Quality = quality;
                 this.UseWaitCursor = true;
                 this.Stream = Stream;
                 IntPtr handle = panelVideo.Handle;
@@ -187,7 +188,7 @@ namespace LX29_LixChat.Code.FormStream.Player
                         comBox_previewQuali.SelectedItem = quality;
                     }));
 
-                    startStream(quality);
+                    startStream(handle, volume);
                 });
                 timer1.Enabled = true;
             }
@@ -217,7 +218,7 @@ namespace LX29_LixChat.Code.FormStream.Player
                 {
                     Quality = comBox_previewQuali.SelectedItem.ToString();
                 }
-                startStream(Quality);
+                startStream(panelVideo.Handle, (int)volumeControl1.Value);
             }
         }
 
@@ -258,9 +259,10 @@ namespace LX29_LixChat.Code.FormStream.Player
         {
             try
             {
+                Quality = comBox_previewQuali.SelectedItem.ToString();
                 if (mpv.IsRunning)
                 {
-                    startStream(comBox_previewQuali.SelectedItem.ToString());
+                    startStream(panelVideo.Handle, (int)volumeControl1.Value);
                 }
             }
             catch { }
@@ -299,16 +301,16 @@ namespace LX29_LixChat.Code.FormStream.Player
             }));
         }
 
-        private void startStream(string quality)
+        private void startStream(IntPtr handle, int volume)
         {
             try
             {
-                var video = Stream.StreamURLS[quality];
+                var video = Stream.StreamURLS[Quality];
                 if (video != null)
                 {
-                    int volume = (int)this.Invoke(new Func<int>(() => { return (int)volumeControl1.Value; }));
-                    IntPtr hndl = (IntPtr)this.Invoke(new Func<IntPtr>(() => { return panelVideo.Handle; }));
-                    if (mpv.Start(video.URL, hndl, volume))
+                    //int volume = (int)this.Invoke(new Func<int>(() => { return (int)volumeControl1.Value; }));
+                    //IntPtr hndl = (IntPtr)this.Invoke(new Func<IntPtr>(() => { return panelVideo.Handle; }));
+                    if (mpv.Start(video.URL, handle, volume))
                     {
                         setBtnPause(true);
                     }
@@ -328,7 +330,7 @@ namespace LX29_LixChat.Code.FormStream.Player
                 switch (x.Handle())
                 {
                     case MessageBoxResult.Retry:
-                        startStream(quality);
+                        startStream(handle, volume);
                         break;
                 }
             }
@@ -358,6 +360,10 @@ namespace LX29_LixChat.Code.FormStream.Player
                 oldMousePoint = mousePoint;
             }
             catch { }
+        }
+
+        private void volumeControl1_Load(object sender, EventArgs e)
+        {
         }
 
         private void volumeControl1_ValueChanged_1(object sender, EventArgs e)

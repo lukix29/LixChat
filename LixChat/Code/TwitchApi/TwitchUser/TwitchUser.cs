@@ -85,8 +85,9 @@ namespace LX29_Twitch.Api
 
     public class TwitchUser
     {
-        public TwitchUser(string sessionID)
+        public TwitchUser(string sessionID, bool streamer)
         {
+            IsStreamer = streamer;
             Selected = false;
             SessionID = sessionID;
             string tok = "";
@@ -105,6 +106,12 @@ namespace LX29_Twitch.Api
         public int ID
         {
             get { return ApiResult.ID; }
+        }
+
+        public bool IsStreamer
+        {
+            get;
+            set;
         }
 
         public string Name
@@ -147,7 +154,7 @@ namespace LX29_Twitch.Api
 
         public override string ToString()
         {
-            return (Selected ? "#" : "") + SessionID;
+            return (Selected ? "#" : "") + SessionID + "=" + IsStreamer;
         }
     }
 
@@ -177,13 +184,13 @@ namespace LX29_Twitch.Api
             get { return users[index]; }
         }
 
-        public AddError Add(string sessionID)
+        public AddError Add(string sessionID, bool streamer)
         {
             try
             {
                 if (!users.Any(t => t.SessionID.Equals(sessionID)))
                 {
-                    TwitchUser user = new TwitchUser(sessionID);
+                    TwitchUser user = new TwitchUser(sessionID, streamer);
                     if (!users.Any(t => t.ID.Equals(user.ID)))
                     {
                         users.Add(user);
@@ -256,11 +263,11 @@ namespace LX29_Twitch.Api
                         Main.TopMost = false;
                     }));
                 };
-            input.OnSessionIDReceived += (sessionID) =>
+            input.OnSessionIDReceived += (sessionID, streamer) =>
             {
                 if (isdoun) return;
                 isdoun = true;
-                var result = Add(sessionID);
+                var result = Add(sessionID, streamer);
                 if (result == AddError.None)
                 {
                     if (action != null)
@@ -309,7 +316,7 @@ namespace LX29_Twitch.Api
             }
             else if (err == AddError.Error)
             {
-                if (err.Info.Contains("NullReferenceException: GetUserIDFromSessionID"))
+                if (err.Info.Contains("System.IndexOutOfRangeException"))
                 {
                     FetchNewToken(Main, action, true);
                     return;
@@ -393,7 +400,8 @@ namespace LX29_Twitch.Api
                     {
                         foreach (var line in sa)
                         {
-                            TwitchUser user = new TwitchUser(line.Trim('#'));
+                            var arr = line.Trim('#').Split('=');
+                            TwitchUser user = new TwitchUser(arr[0], bool.Parse(arr[1]));
                             if (line.StartsWith("#"))
                             {
                                 user.Selected = true;

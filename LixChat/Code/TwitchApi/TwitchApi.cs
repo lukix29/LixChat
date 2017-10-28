@@ -16,16 +16,6 @@ namespace LX29_Twitch.Api
         private static string _uuid = null;
         private static Random rd = new Random();
 
-        public static string AuthApiUrl
-        {
-            get
-            {
-                return "https://api.lixchat.com/lix/authorize.php?guid=" + UUID;
-
-                // return "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=" + CLIENT_ID + "&redirect_uri=http://localhost:12685&force_verify=true&scope=chat_login+user_subscriptions+user_read+user_follows_edit";
-            }
-        }
-
         public static string SessionID
         {
             get { return LX29_ChatClient.ChatClient.TwitchUsers.Selected.SessionID; }
@@ -46,6 +36,13 @@ namespace LX29_Twitch.Api
                 }
                 return _uuid;
             }
+        }
+
+        public static string AuthApiUrl(bool streamer)
+        {
+            return "https://api.lixchat.com/lix/authorize.php?guid=" + UUID + ((streamer) ? "scope=streamer" : "scope=chatter");
+
+            // return "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=" + CLIENT_ID + "&redirect_uri=http://localhost:12685&force_verify=true&scope=chat_login+user_subscriptions+user_read+user_follows_edit";
         }
 
         public static bool FollowChannel(ApiResult channelID)
