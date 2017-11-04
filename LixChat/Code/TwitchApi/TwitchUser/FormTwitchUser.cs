@@ -6,7 +6,7 @@ namespace LX29_Twitch.Api.Controls
 {
     public partial class FormTwitchUser : Form
     {
-        private TwitchUserCollection Users;
+        //private TwitchUserCollection Users;
 
         public FormTwitchUser()
         {
@@ -17,10 +17,9 @@ namespace LX29_Twitch.Api.Controls
 
         public event ChangedToken OnChangedToken;
 
-        public void Show(TwitchUserCollection collection)
+        public new void Show()
         {
-            Users = collection;
-            foreach (var user in Users.Values)
+            foreach (var user in TwitchUserCollection.Values)
             {
                 listBox1.Items.Add(user.Name);
             }
@@ -32,7 +31,7 @@ namespace LX29_Twitch.Api.Controls
         {
             int idx = listBox1.SelectedIndex;
             listBox1.Items.Clear();
-            foreach (var user in Users.Values)
+            foreach (var user in TwitchUserCollection.Values)
             {
                 listBox1.Items.Add(user.Name);
             }
@@ -41,27 +40,27 @@ namespace LX29_Twitch.Api.Controls
 
         private void btn_Add_Click(object sender, EventArgs e)
         {
-            Users.FetchNewToken(this, () => this.Invoke(new Action(addUser)), false);
+            TwitchUserCollection.FetchNewToken(this, () => this.Invoke(new Action(addUser)), false);
         }
 
         private void btn_Remove_Click(object sender, EventArgs e)
         {
             string name = listBox1.SelectedItem.ToString();
-            var result = Users.Remove(t => t.Name.Equals(name));
+            var result = TwitchUserCollection.Remove(t => t.Name.Equals(name));
             listBox1.Invalidate();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             string name = listBox1.SelectedItem.ToString();
-            var result = Users.SetSelected(t => t.Name.Equals(name));
+            var result = TwitchUserCollection.SetSelected(t => t.Name.Equals(name));
             if (result == AddError.None)
             {
                 button1.BackColor = Color.DarkGreen;
             }
             listBox1.Invalidate();
             if (OnChangedToken != null)
-                OnChangedToken(Users.Selected);
+                OnChangedToken(TwitchUserCollection.Selected);
             //Handler reconecting chat
         }
 
@@ -77,7 +76,7 @@ namespace LX29_Twitch.Api.Controls
 
         private void listBox1_DrawItem(object sender, DrawItemEventArgs e)
         {
-            var element = Users[e.Index];
+            var element = TwitchUserCollection.Get(e.Index);
             Rectangle bounds = e.Bounds;
             bounds.Y = bounds.Height * e.Index;
             if (element.Selected)
@@ -97,7 +96,7 @@ namespace LX29_Twitch.Api.Controls
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             var name = listBox1.SelectedItem.ToString();
-            var result = Users.Values.Find(t => t.Name.Equals(name));
+            var result = TwitchUserCollection.Values.Find(t => t.Name.Equals(name));
             apiInfoPanel1.SetChatInfos(result.ApiResult);
             lbl_name.Text = result.GetValue<string>(ApiInfo.display_name);
             button1.BackColor = result.Selected ? Color.DarkGreen : Color.Black;

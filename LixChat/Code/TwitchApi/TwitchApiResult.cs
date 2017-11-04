@@ -85,6 +85,13 @@ namespace LX29_Twitch.Api
             values = new Dictionary<ApiInfo, object>();
         }
 
+        public ApiResult(LX29_ChatClient.Dashboard.User user)
+        {
+            var typ = user.GetType();
+            var props = typ.GetProperties();
+            SetValues<LX29_ChatClient.Dashboard.User>(props, user);
+        }
+
         public ApiResult(JSON.Twitch_Api.User user)
         {
             var typ = user.GetType();
@@ -303,11 +310,31 @@ namespace LX29_Twitch.Api
                 if (values.ContainsKey(info))
                 {
                     var val = values[info];
-                    string s = val.ToString();
+                    string s = "";
+                    if (val is float)
+                    {
+                        s = ((float)val).ToString("N0");
+                    }
+                    else if (val is int)
+                    {
+                        s = ((int)val).ToString("N0");
+                    }
+                    else
+                    {
+                        s = val.ToString();
+                    }
                     if (s.Length > 0)
                     {
                         sb.Append(Enum.GetName(typeof(ApiInfo), info).Replace("_", " ").ToTitleCase() + ": ");
 
+                        if (info == ApiInfo.video_height)
+                        {
+                            s += "p";
+                        }
+                        else if (info == ApiInfo.average_fps)
+                        {
+                            s += "fps";
+                        }
                         sb.AppendLine(s + newLine);
                     }
                 }
@@ -332,6 +359,7 @@ namespace LX29_Twitch.Api
             if (si == null) return string.Empty;
             bool b = false;
             int val = 0;
+            float Fval = 0.0f;
             if (type == ApiInfo.stream_type)
             {
                 StreamType streamType = StreamType.None;
@@ -374,25 +402,25 @@ namespace LX29_Twitch.Api
                 }
                 return s;
             }
-            else if (type == ApiInfo.followers || type == ApiInfo.viewers ||
-                type == ApiInfo.views || type == ApiInfo.video_height || type == ApiInfo.average_fps)
-            {
-                string s = (si.ToString().Contains('.')) ? si.ToString().Remove(si.ToString().IndexOf('.')) : si.ToString();
-                int i = 0;
-                if (int.TryParse(s, out i))
-                {
-                    s = i.ToString("N0");
-                    if (type == ApiInfo.video_height)
-                    {
-                        s += "p";
-                    }
-                    else if (type == ApiInfo.average_fps)
-                    {
-                        s += "fps";
-                    }
-                    return s;
-                }
-            }
+            //else if (type == ApiInfo.viewers || type == ApiInfo.views ||
+            //    type == ApiInfo.video_height || type == ApiInfo.average_fps)
+            //{
+            //    //string s = (si.ToString().Contains('.')) ? si.ToString().Remove(si.ToString().IndexOf('.')) : si.ToString();
+            //    float i = 0;
+            //    if (float.TryParse(si.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out i))
+            //    {
+            //        string s = i.ToString("N0");
+            //        if (type == ApiInfo.video_height)
+            //        {
+            //            s += "p";
+            //        }
+            //        else if (type == ApiInfo.average_fps)
+            //        {
+            //            s += "fps";
+            //        }
+            //        return s;
+            //    }
+            //}
             else if (type == ApiInfo.sub_plan)
             {
                 SubType subtype = SubType.Prime;
@@ -408,6 +436,10 @@ namespace LX29_Twitch.Api
             else if (si != null && int.TryParse(si.ToString(), out val))
             {
                 return val;
+            }
+            else if (si != null && float.TryParse(si.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out Fval))
+            {
+                return Fval;
             }
             return ((si != null) ? si.ToString() : "");
         }

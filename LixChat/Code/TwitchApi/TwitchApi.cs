@@ -16,14 +16,14 @@ namespace LX29_Twitch.Api
         private static string _uuid = null;
         private static Random rd = new Random();
 
-        public static string SessionID
-        {
-            get { return LX29_ChatClient.ChatClient.TwitchUsers.Selected.SessionID; }
-        }
+        //public static string SessionID
+        //{
+        //    get { return LX29_ChatClient.ChatClient.TwitchUsers.Selected.SessionID; }
+        //}
 
         public static int User_ID
         {
-            get { return LX29_ChatClient.ChatClient.TwitchUsers.Selected.ID; }
+            get { return TwitchUserCollection.Selected.ID; }
         }
 
         public static string UUID
@@ -32,7 +32,9 @@ namespace LX29_Twitch.Api
             {
                 if (string.IsNullOrEmpty(_uuid))
                 {
-                    _uuid = LX29_Tools.GetUniqueHash();
+                    bool elec = System.IO.File.Exists("elec.txt");
+
+                    _uuid = elec ? "electrinchen_test" : LX29_Tools.GetUniqueHash();
                 }
                 return _uuid;
             }
@@ -40,9 +42,67 @@ namespace LX29_Twitch.Api
 
         public static string AuthApiUrl(bool streamer)
         {
-            return "https://api.lixchat.com/lix/authorize.php?guid=" + UUID + ((streamer) ? "scope=streamer" : "scope=chatter");
+            return "https://api.lixchat.com/lix/authorize.php?guid=" + UUID + ((streamer) ? "scope=streamer" : "scope=viewer");
 
             // return "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=" + CLIENT_ID + "&redirect_uri=http://localhost:12685&force_verify=true&scope=chat_login+user_subscriptions+user_read+user_follows_edit";
+        }
+
+        public static string downloadString(string url, string tokken = null, int api_version = 5, bool handleError = true)
+        {
+            try
+            {
+                using (WebClient webclient = new WebClient())
+                {
+                    webclient.Proxy = null;
+                    webclient.Encoding = Encoding.UTF8;
+                    if (url.Contains("api.twitch.tv"))
+                    {
+                        webclient.Headers.Add("Accept: application/vnd.twitchtv.v" + api_version + "+json");
+                        webclient.Headers.Add("Client-ID: " + CLIENT_ID);
+                        if (!string.IsNullOrEmpty(tokken))
+                        {
+                            webclient.Headers.Add("Authorization: OAuth " + tokken);
+                        }
+                    }
+                    string s = webclient.DownloadString(url);
+                    return s;
+                }
+            }
+            catch (WebException x)
+            {
+                int code = 0;
+                var info = TwitchApiErrors.GetError(x, out code);
+
+                if (handleError)
+                {
+                    if (!string.IsNullOrEmpty(tokken))
+                    {
+                        if (code == (int)HttpStatusCode.NotFound)
+                        {
+                            TwitchUserCollection.RefreshSelectedToken(true);
+                            return downloadString(url, tokken, api_version);
+                        }
+                    }
+                    if (code == (int)HttpStatusCode.GatewayTimeout || code == (int)HttpStatusCode.RequestTimeout)
+                    {
+                        return downloadString(url, tokken, api_version);
+                    }
+                    else
+                    {
+                        var res = x.Handle(info);
+                        switch (res)
+                        {
+                            case System.Windows.Forms.MessageBoxResult.Retry:
+                                return downloadString(url, tokken, api_version);
+                        }
+                    }
+                }
+                else
+                {
+                    return code.ToString();
+                }
+            }
+            return string.Empty;
         }
 
         public static bool FollowChannel(ApiResult channelID)
@@ -52,7 +112,7 @@ namespace LX29_Twitch.Api
                 bool wasFollowed = channelID.Followed;
                 string param = (wasFollowed) ? "DELETE" : "PUT";
                 string raw = uploadString(
-                    "https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels/" + channelID.ID, param, ChatClient.TwitchUsers.Selected.Token);
+                    "https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels/" + channelID.ID, param, TwitchUserCollection.Selected.Token);
                 if (!wasFollowed)
                 {
                     if (raw.Length > 0)
@@ -72,7 +132,7 @@ namespace LX29_Twitch.Api
             return false;
         }
 
-        public static Dictionary<string, LX29_ChatClient.ChatUser> GetChatUsers(string ChannelName)
+        public static IEnumerable<LX29_ChatClient.ChatUser> GetChatUsers(string ChannelName)
         {
             string values = downloadString("https://tmi.twitch.tv/group/user/" + ChannelName + "/chatters").ToString()
                 .ReplaceAll("", " ", "\n", "\"").Replace("_links:{},", "");
@@ -103,23 +163,35 @@ namespace LX29_Twitch.Api
             users.AddRange(values.GetBetween("viewers:[", "]").Split(",")
                 .Select(t => new { UType = LX29_ChatClient.UserType.NORMAL, Name = t }));
 
-            return users.Select(t => new LX29_ChatClient.ChatUser(t.Name, ChannelName, t.UType)).ToDictionary(t => t.Name);
+            return users.Select(t => new LX29_ChatClient.ChatUser(t.Name, ChannelName, t.UType));
+        }
+
+        public static DateTime GetFollow(int channel, int user)
+        {
+            string json = downloadString("https://api.twitch.tv/kraken/users/" + user + "/follows/channels/" + channel, null, 5, false);
+            if (!json.Equals("404"))
+            {
+                var result = JSON.DeserializeObject<JSON.Twitch_Api.Follow>(json);
+
+                return result.created_at;
+            }
+            return DateTime.MinValue;
         }
 
         public static List<ApiResult> GetFollowedStreams()
         {
-            List<ApiResult> list = getResults("https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels", ChatClient.TwitchUsers.Selected.Token);
+            List<ApiResult> list = getResults("https://api.twitch.tv/kraken/users/" + User_ID + "/follows/channels?sortby=last_broadcast", TwitchUserCollection.Selected.Token);
             string sb = getChannelList(list);
-            var str = getResults("https://api.twitch.tv/kraken/streams?channel=" + sb, ChatClient.TwitchUsers.Selected.Token);
+            var str = getResults("https://api.twitch.tv/kraken/streams?sortby=last_broadcast&channel=" + sb, TwitchUserCollection.Selected.Token);
             return Combine(list, str);
         }
 
-        public static List<ApiResult> GetStreamOrChannel(params string[] Channel_ID)
+        public static List<ApiResult> GetStreamOrChannel(params int[] Channel_ID)
         {
             Dictionary<ApiInfo, string> arr = new Dictionary<ApiInfo, string>();
             string url = "";
 
-            var channels = getChannelList(Channel_ID);
+            var channels = getChannelList(Channel_ID.Select(t => t.ToString()));
             url = "https://api.twitch.tv/kraken/streams/?channel=" + channels + "&limit=100&stream_type=all";
             var json = downloadString(url, "");
             var res = JSON.Parse(json);
@@ -156,13 +228,13 @@ namespace LX29_Twitch.Api
         public static SubResult GetSubscription(int channel_ID)
         {
             var res = downloadString(
-                "https://api.twitch.tv/kraken/users/" + User_ID + "/subscriptions/" + channel_ID, ChatClient.TwitchUsers.Selected.Token, 5, false);
+                "https://api.twitch.tv/kraken/users/" + User_ID + "/subscriptions/" + channel_ID, TwitchUserCollection.Selected.Token, 5, false);
             return SubResult.Parse(res);
         }
 
         public static IEnumerable<JSON.Twitch_Api.Emoticon> GetUserEmotes()
         {
-            string s = downloadString("https://api.twitch.tv/kraken/users/" + User_ID + "/emotes", ChatClient.TwitchUsers.Selected.Token);
+            string s = downloadString("https://api.twitch.tv/kraken/users/" + User_ID + "/emotes", TwitchUserCollection.Selected.Token);
             return JSON.ParseTwitchEmotes(s);
         }
 
@@ -200,6 +272,7 @@ namespace LX29_Twitch.Api
                 //   new KeyNotFoundException().Handle("Error while getting Token from Session-ID", true);
                 throw new NullReferenceException("GetUserIDFromSessionID");
             }
+
             return new ApiResult(res);
         }
 
@@ -240,67 +313,13 @@ namespace LX29_Twitch.Api
             return list;
         }
 
-        private static string downloadString(string url, string tokken = null, int api_version = 5, bool handleError = true)
-        {
-            try
-            {
-                using (WebClient webclient = new WebClient())
-                {
-                    webclient.Proxy = null;
-                    webclient.Encoding = Encoding.UTF8;
-                    if (url.Contains("api.twitch.tv"))
-                    {
-                        webclient.Headers.Add("Accept: application/vnd.twitchtv.v" + api_version + "+json");
-                        webclient.Headers.Add("Client-ID: " + CLIENT_ID);
-                        if (!string.IsNullOrEmpty(tokken))
-                        {
-                            webclient.Headers.Add("Authorization: OAuth " + tokken);
-                        }
-                    }
-                    string s = webclient.DownloadString(url);
-                    return s;
-                }
-            }
-            catch (WebException x)
-            {
-                int code = 0;
-                var info = TwitchApiErrors.GetError(x, out code);
-
-                if (handleError)
-                {
-                    if (code == (int)HttpStatusCode.NotFound)
-                    {
-                        LX29_ChatClient.ChatClient.TwitchUsers.RefreshSelectedToken(true);
-                        return downloadString(url, tokken, api_version);
-                    }
-                    if (code == (int)HttpStatusCode.GatewayTimeout || code == (int)HttpStatusCode.RequestTimeout)
-                    {
-                        return downloadString(url, tokken, api_version);
-                    }
-                    else
-                    {
-                        var res = x.Handle(info);
-                        switch (res)
-                        {
-                            case System.Windows.Forms.MessageBoxResult.Retry:
-                                return downloadString(url, tokken, api_version);
-                        }
-                    }
-                }
-                else
-                {
-                    return code.ToString();
-                }
-            }
-            return string.Empty;
-        }
-
         private static string getChannelList(IEnumerable<string> results)
         {
             StringBuilder sb = new StringBuilder();
             foreach (var a in results)
             {
-                sb.Append(a + ",");
+                if (!a.Equals("0"))
+                    sb.Append(a + ",");
             }
             if (sb.Length > 0) sb.Remove(sb.Length - 1, 1);
             return sb.ToString();
@@ -308,7 +327,7 @@ namespace LX29_Twitch.Api
 
         private static string getChannelList(IEnumerable<ApiResult> results)
         {
-            var ids = results.Select(t => t.ID.ToString());
+            var ids = results.Where(t => t.ID > 0).Select(t => t.ID.ToString());
             return getChannelList(ids);
         }
 
@@ -317,7 +336,8 @@ namespace LX29_Twitch.Api
             int total = 100;
             int limit = 100;
             int offset = 0;
-            string s = downloadString(Url + ((Url.Contains("?") ? "&" : "?")) + "limit=" + limit + "&sortby=last_broadcast", token);
+            string delimiter = (Url.Contains("?")) ? "&" : "?";
+            string s = downloadString(Url + delimiter + "limit=" + limit, token);
             string tt = s.GetBetween("\"_total\":", ",");
             int.TryParse(tt, out total);
 
@@ -328,7 +348,7 @@ namespace LX29_Twitch.Api
                 offset += list.Count;
                 while (true)
                 {
-                    s = downloadString(Url + ((Url.Contains("?") ? "&" : "?")) + "limit=" + limit + "&sortby=last_broadcast&offset=" + offset, token);
+                    s = downloadString(Url + delimiter + "limit=" + limit + "&offset=" + offset, token);
                     var temp = JSON.Parse(s);
                     if (temp.Count > 0)
                     {
@@ -376,6 +396,12 @@ namespace LX29_Twitch.Api
                 }
             }
             return null;
+        }
+
+        private class follow
+        {
+            public DateTime created_at { get; set; }
+            public bool notifications { get; set; }
         }
     }
 

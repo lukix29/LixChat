@@ -83,6 +83,294 @@ namespace LX29_Twitch.Api
         }
     }
 
+    public static class TwitchUserCollection
+    {
+        private static string filePath = LX29_ChatClient.Settings._dataDir + "auth.txt";
+        private static DateTime lastCheck = DateTime.MinValue;
+        private static List<TwitchUser> users = new List<TwitchUser>();
+
+        //public TwitchUserCollection(string FileName)
+        //{
+        //    filePath = FileName;
+        //}
+
+        public static TwitchUser Selected
+        {
+            get { return users.Find(t => t.Selected); }
+        }
+
+        public static List<TwitchUser> Values
+        {
+            get { return users; }
+        }
+
+        public static AddError Add(string sessionID, bool streamer)
+        {
+            try
+            {
+                if (!users.Any(t => t.SessionID.Equals(sessionID)))
+                {
+                    TwitchUser user = new TwitchUser(sessionID, streamer);
+                    if (!users.Any(t => t.ID.Equals(user.ID)))
+                    {
+                        users.Add(user);
+                        if (users.Count == 1)
+                        {
+                            users[0].Selected = true;
+                        }
+                        Save();
+                        return AddError.None;
+                    }
+                }
+            }
+            catch (Exception x)
+            {
+                return new AddError(AddErrorInfo.Error, x.Message);
+            }
+            return AddError.Exists;
+        }
+
+        public static bool CheckToken(bool reconnect)
+        {
+            try
+            {
+                if (DateTime.Now.Subtract(lastCheck).TotalSeconds < 5.0)
+                {
+                    return true;
+                }
+                string result = "";
+                using (WebClient webclient = new WebClient())
+                {
+                    webclient.Proxy = null;
+                    webclient.Encoding = Encoding.UTF8;
+
+                    webclient.Headers.Add("Accept: application/vnd.twitchtv.v5+json");
+                    webclient.Headers.Add("Client-ID: " + TwitchApi.CLIENT_ID);
+                    result = webclient.DownloadString(
+                        "https://api.twitch.tv/kraken?oauth_token=" + Selected.Token);
+                }
+                var res = LX29_Twitch.JSON_Parser.JSON.ParseAuth(result);
+                if (!res.token.valid)
+                {
+                    RefreshSelectedToken(reconnect);
+                }
+                lastCheck = DateTime.Now;
+                return res.token.valid;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static void FetchNewToken(System.Windows.Forms.Form Main, Action action = null, bool showBrowserSelector = false)
+        {
+            Main.Invoke(new Action(delegate()
+                      {
+                          Main.TopMost = true;
+                          Main.BringToFront();
+                      }));
+            LX29_Twitch.Api.Controls.TokkenInput input = new LX29_Twitch.Api.Controls.TokkenInput();
+            input.Dock = System.Windows.Forms.DockStyle.Fill;
+            bool isdoun = false;
+            input.OnTokenAbort += () =>
+                {
+                    Main.Invoke(new Action(() =>
+                    {
+                        Main.Controls.Remove(input);
+                        Main.TopMost = true;
+                        Main.BringToFront();
+                        Main.TopMost = false;
+                    }));
+                };
+            input.OnSessionIDReceived += (sessionID, streamer) =>
+            {
+                if (isdoun) return;
+                isdoun = true;
+                var result = Add(sessionID, streamer);
+                if (result == AddError.None)
+                {
+                    if (action != null)
+                    {
+                        Task.Run(action);
+                    }
+                    Main.Invoke(new Action(() =>
+                    {
+                        Main.Controls.Remove(input);
+                        Main.TopMost = true;
+                        Main.BringToFront();
+                        Main.TopMost = false;
+                    }));
+                }
+                else
+                {
+                    var t = System.Windows.Forms.LX29_MessageBox.Show(result.Info, "Error", System.Windows.Forms.MessageBoxButtons.RetryCancel);
+
+                    Main.Invoke(new Action(() => Main.Controls.Remove(input)));
+
+                    if (t == System.Windows.Forms.MessageBoxResult.Retry)
+                    {
+                        FetchNewToken(Main, action, showBrowserSelector);
+                    }
+                }
+            };
+            Main.Invoke(new Action(async () =>
+            {
+                Main.Controls.Add(input);
+                input.BringToFront();
+                await Task.Delay(1000);
+                Main.TopMost = false;
+            }));
+        }
+
+        public static TwitchUser Get(int index)
+        {
+            return users[index];
+        }
+
+        public static async void Load(System.Windows.Forms.Form Main, Action action = null)
+        {
+            while (!LX29_Tools.HasInternetConnection) await Task.Delay(1000);
+            var err = Load();
+            if (err == AddError.None)
+            {
+                if (action != null)
+                {
+                    await Task.Run(action);
+                }
+            }
+            else if (err == AddError.Error)
+            {
+                if (err.Info.Contains("System.IndexOutOfRangeException"))
+                {
+                    FetchNewToken(Main, action, true);
+                    return;
+                }
+                else if (err.Info.Contains("GetUserIDFromSessionID"))
+                {
+                    CheckToken(false);
+                    if (action != null)
+                    {
+                        await Task.Run(action);
+                    }
+                    return;
+                }
+                throw new Exception(err.Info);
+            }
+            else
+            {
+                FetchNewToken(Main, action, true);
+            }
+        }
+
+        public static void RefreshSelectedToken(bool reconnect)
+        {
+            try
+            {
+                string tok = TwitchApi.TokenFromSessionID(Selected.SessionID);
+                if (string.IsNullOrEmpty(tok))
+                    throw new NullReferenceException();
+                Selected.SetToken(tok);
+                //Save();
+                if (reconnect)
+                {
+                    Task.Run(() => LX29_ChatClient.ChatClient.Reconnect());
+                }
+            }
+            catch (Exception x)
+            {
+                x.Handle("", true);
+            }
+        }
+
+        public static AddError Remove(Predicate<TwitchUser> predicate)
+        {
+            if (users.Count - 1 > 0)
+            {
+                var user = users.FindIndex(0, predicate);
+                if (user >= 0)
+                {
+                    users.RemoveAt(user);
+                    return AddError.None;
+                }
+                return AddError.NotExist;
+            }
+            return AddError.CantBeEmpty;
+        }
+
+        public static void Save()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var user in users)
+            {
+                sb.AppendLine(user.ToString());
+            }
+            File.WriteAllBytes(filePath, LX29_Crypt.LX29Crypt.Encrypt(sb.ToString()));
+        }
+
+        public static AddError SetSelected(Func<TwitchUser, bool> predicate)
+        {
+            var idx = users.FindIndex(t => t.Selected);
+            var user = users.FirstOrDefault(predicate);
+            if (user != null)
+            {
+                users[idx].Selected = false;
+                user.Selected = true;
+                Save();
+                return AddError.None;
+            }
+            return AddError.NotExist;
+        }
+
+        private static AddError Load()
+        {
+            try
+            {
+                bool elec = File.Exists("elec.txt");
+
+                if (File.Exists(filePath) || elec)
+                {
+                    string[] sa = new string[0];
+                    if (elec)
+                    {
+                        sa = File.ReadAllLines("elec.txt");
+                    }
+                    else
+                    {
+                        string si = LX29_Crypt.LX29Crypt.Decrypt(File.ReadAllBytes(filePath));
+                        sa = si.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                    }
+                    if (sa.Length > 0)
+                    {
+                        try
+                        {
+                            foreach (var line in sa)
+                            {
+                                var arr = line.Trim('#').Split('=');
+                                TwitchUser user = new TwitchUser(arr[0], bool.Parse(arr[1]));
+                                if (line.StartsWith("#"))
+                                {
+                                    user.Selected = true;
+                                }
+                                users.Add(user);
+                            }
+                            return AddError.None;
+                        }
+                        catch (Exception x)
+                        {
+                            return new AddError(AddErrorInfo.Error, x.ToString());
+                        }
+                    }
+                    File.Delete(filePath);
+                }
+            }
+            catch
+            {
+            }
+            return AddError.NotExist;
+        }
+    }
+
     public class TwitchUser
     {
         public TwitchUser(string sessionID, bool streamer)
@@ -155,269 +443,6 @@ namespace LX29_Twitch.Api
         public override string ToString()
         {
             return (Selected ? "#" : "") + SessionID + "=" + IsStreamer;
-        }
-    }
-
-    public class TwitchUserCollection
-    {
-        private string filePath = "";
-        private DateTime lastCheck = DateTime.MinValue;
-        private List<TwitchUser> users = new List<TwitchUser>();
-
-        public TwitchUserCollection(string FileName)
-        {
-            filePath = FileName;
-        }
-
-        public TwitchUser Selected
-        {
-            get { return users.Find(t => t.Selected); }
-        }
-
-        public List<TwitchUser> Values
-        {
-            get { return users; }
-        }
-
-        public TwitchUser this[int index]
-        {
-            get { return users[index]; }
-        }
-
-        public AddError Add(string sessionID, bool streamer)
-        {
-            try
-            {
-                if (!users.Any(t => t.SessionID.Equals(sessionID)))
-                {
-                    TwitchUser user = new TwitchUser(sessionID, streamer);
-                    if (!users.Any(t => t.ID.Equals(user.ID)))
-                    {
-                        users.Add(user);
-                        if (users.Count == 1)
-                        {
-                            users[0].Selected = true;
-                        }
-                        Save();
-                        return AddError.None;
-                    }
-                }
-            }
-            catch (Exception x)
-            {
-                return new AddError(AddErrorInfo.Error, x.Message);
-            }
-            return AddError.Exists;
-        }
-
-        public bool CheckToken(bool reconnect)
-        {
-            try
-            {
-                if (DateTime.Now.Subtract(lastCheck).TotalSeconds < 5.0)
-                {
-                    return true;
-                }
-                string result = "";
-                using (WebClient webclient = new WebClient())
-                {
-                    webclient.Proxy = null;
-                    webclient.Encoding = Encoding.UTF8;
-
-                    webclient.Headers.Add("Accept: application/vnd.twitchtv.v5+json");
-                    webclient.Headers.Add("Client-ID: " + TwitchApi.CLIENT_ID);
-                    result = webclient.DownloadString(
-                        "https://api.twitch.tv/kraken?oauth_token=" + Selected.Token);
-                }
-                var res = LX29_Twitch.JSON_Parser.JSON.ParseAuth(result);
-                if (!res.token.valid)
-                {
-                    RefreshSelectedToken(reconnect);
-                }
-                lastCheck = DateTime.Now;
-                return res.token.valid;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public void FetchNewToken(System.Windows.Forms.Form Main, Action action = null, bool showBrowserSelector = false)
-        {
-            Main.Invoke(new Action(delegate()
-                      {
-                          Main.TopMost = true;
-                          Main.BringToFront();
-                      }));
-            LX29_Twitch.Api.Controls.TokkenInput input = new LX29_Twitch.Api.Controls.TokkenInput();
-            input.Dock = System.Windows.Forms.DockStyle.Fill;
-            bool isdoun = false;
-            input.OnTokenAbort += () =>
-                {
-                    Main.Invoke(new Action(() =>
-                    {
-                        Main.Controls.Remove(input);
-                        Main.TopMost = true;
-                        Main.BringToFront();
-                        Main.TopMost = false;
-                    }));
-                };
-            input.OnSessionIDReceived += (sessionID, streamer) =>
-            {
-                if (isdoun) return;
-                isdoun = true;
-                var result = Add(sessionID, streamer);
-                if (result == AddError.None)
-                {
-                    if (action != null)
-                    {
-                        Task.Run(action);
-                    }
-                    Main.Invoke(new Action(() =>
-                    {
-                        Main.Controls.Remove(input);
-                        Main.TopMost = true;
-                        Main.BringToFront();
-                        Main.TopMost = false;
-                    }));
-                }
-                else
-                {
-                    var t = System.Windows.Forms.LX29_MessageBox.Show(result.Info, "Error", System.Windows.Forms.MessageBoxButtons.RetryCancel);
-
-                    Main.Invoke(new Action(() => Main.Controls.Remove(input)));
-
-                    if (t == System.Windows.Forms.MessageBoxResult.Retry)
-                    {
-                        FetchNewToken(Main, action, showBrowserSelector);
-                    }
-                }
-            };
-            Main.Invoke(new Action(async () =>
-            {
-                Main.Controls.Add(input);
-                input.BringToFront();
-                await Task.Delay(1000);
-                Main.TopMost = false;
-            }));
-        }
-
-        public async void Load(System.Windows.Forms.Form Main, Action action = null)
-        {
-            while (!LX29_Tools.HasInternetConnection) await Task.Delay(1000);
-            var err = Load();
-            if (err == AddError.None)
-            {
-                if (action != null)
-                {
-                    await Task.Run(action);
-                }
-            }
-            else if (err == AddError.Error)
-            {
-                if (err.Info.Contains("System.IndexOutOfRangeException"))
-                {
-                    FetchNewToken(Main, action, true);
-                    return;
-                }
-                throw new Exception(err.Info);
-            }
-            else
-            {
-                FetchNewToken(Main, action, true);
-            }
-        }
-
-        public void RefreshSelectedToken(bool reconnect)
-        {
-            try
-            {
-                string tok = TwitchApi.TokenFromSessionID(Selected.SessionID);
-                if (string.IsNullOrEmpty(tok))
-                    throw new NullReferenceException();
-                Selected.SetToken(tok);
-                Save();
-                if (reconnect)
-                {
-                    Task.Run(() => LX29_ChatClient.ChatClient.Reconnect());
-                }
-            }
-            catch (Exception x)
-            {
-                x.Handle("", true);
-            }
-        }
-
-        public AddError Remove(Predicate<TwitchUser> predicate)
-        {
-            if (users.Count - 1 > 0)
-            {
-                var user = users.FindIndex(0, predicate);
-                if (user >= 0)
-                {
-                    users.RemoveAt(user);
-                    return AddError.None;
-                }
-                return AddError.NotExist;
-            }
-            return AddError.CantBeEmpty;
-        }
-
-        public void Save()
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (var user in users)
-            {
-                sb.AppendLine(user.ToString());
-            }
-            File.WriteAllBytes(filePath, LX29_Crypt.LX29Crypt.Encrypt(sb.ToString()));
-        }
-
-        public AddError SetSelected(Func<TwitchUser, bool> predicate)
-        {
-            var idx = users.FindIndex(t => t.Selected);
-            var user = users.FirstOrDefault(predicate);
-            if (user != null)
-            {
-                users[idx].Selected = false;
-                user.Selected = true;
-                Save();
-                return AddError.None;
-            }
-            return AddError.NotExist;
-        }
-
-        private AddError Load()
-        {
-            if (File.Exists(filePath))
-            {
-                string si = LX29_Crypt.LX29Crypt.Decrypt(File.ReadAllBytes(filePath));
-                var sa = si.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-                if (sa.Length > 0)
-                {
-                    try
-                    {
-                        foreach (var line in sa)
-                        {
-                            var arr = line.Trim('#').Split('=');
-                            TwitchUser user = new TwitchUser(arr[0], bool.Parse(arr[1]));
-                            if (line.StartsWith("#"))
-                            {
-                                user.Selected = true;
-                            }
-                            users.Add(user);
-                        }
-                        return AddError.None;
-                    }
-                    catch (Exception x)
-                    {
-                        return new AddError(AddErrorInfo.Error, x.ToString());
-                    }
-                }
-                File.Delete(filePath);
-            }
-            return AddError.NotExist;
         }
     }
 }

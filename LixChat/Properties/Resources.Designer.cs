@@ -121,6 +121,16 @@ namespace LX29_LixChat.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap chat {
+            get {
+                object obj = ResourceManager.GetObject("chat", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap close {
             get {
                 object obj = ResourceManager.GetObject("close", resourceCulture);
@@ -146,6 +156,16 @@ namespace LX29_LixChat.Properties {
         internal static string emojis {
             get {
                 return ResourceManager.GetString("emojis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap follow {
+            get {
+                object obj = ResourceManager.GetObject("follow", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -343,6 +363,16 @@ namespace LX29_LixChat.Properties {
             get {
                 object obj = ResourceManager.GetObject("updater", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap viewer {
+            get {
+                object obj = ResourceManager.GetObject("viewer", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

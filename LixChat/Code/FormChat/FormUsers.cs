@@ -15,7 +15,7 @@ namespace LX29_ChatClient.Forms
         private string search = "";
 
         //private int treeMax = 0;
-        private Dictionary<string, ChatUser> users = new Dictionary<string, ChatUser>();
+        private IEnumerable<ChatUser> users = new List<ChatUser>();
 
         public FormUsers()
         {
@@ -149,13 +149,13 @@ namespace LX29_ChatClient.Forms
             treeView1.Nodes.AddRange(list.ToArray());
         }
 
-        private void SetUsers(Dictionary<string, ChatUser> users)
+        private void SetUsers(IEnumerable<ChatUser> users)
         {
             Task.Run(() =>
             {
                 this.users = users;
 
-                var sa = users.Keys.Where(t => t.ToLower().StartsWith(search)).Select(t => new { name = t, count = ChatClient.Messages.Count(channel.Name, MsgType.All_Messages, t) })
+                var sa = users.Where(t => t.Name.ToLower().StartsWith(search)).Select(t => new { name = t, count = ChatClient.Messages.Count(channel.Name, MsgType.All_Messages, t.Name) })
                 .OrderByDescending(t => t.count).Select(t => string.Format("{0,-4:####}", t.count) + " - " + t.name).ToArray();
 
                 this.Invoke(new Action(() =>

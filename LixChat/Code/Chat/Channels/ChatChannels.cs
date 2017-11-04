@@ -676,7 +676,7 @@ namespace LX29_ChatClient.Channels
                         break;
 
                     case PlayerType.ExternalMPV:
-                        b = MpvLib.StartExternal(this.Name, url, 100, (int)Settings.MpvBufferBytes, (int)Settings.MpvBufferSeconds, this.PlayerPosition);
+                        b = MPV.StartExternal(this.Name, url, 100, (int)Settings.MpvBufferBytes, (int)Settings.MpvBufferSeconds, this.PlayerPosition);
                         break;
                 }
                 return b;

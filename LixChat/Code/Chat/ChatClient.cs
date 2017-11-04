@@ -325,16 +325,9 @@ namespace LX29_ChatClient
 
     public static partial class ChatClient
     {
-        private static TwitchUserCollection _twitchUsers = new TwitchUserCollection(Settings._dataDir + "auth.txt");
-
         public static string SelfUserName
         {
-            get { return _twitchUsers.Selected.Name; }
-        }
-
-        public static TwitchUserCollection TwitchUsers
-        {
-            get { return _twitchUsers; }
+            get { return TwitchUserCollection.Selected.Name; }
         }
     }
 
@@ -751,15 +744,15 @@ namespace LX29_ChatClient
                     }
                 });
             }
-            catch (Exception x)
+            catch
             {
             }
         }
 
         private static void FetchChatUsers(string channelName)
         {
-            var cus = TwitchApi.GetChatUsers(channelName);
-            var cur = users.Get(channelName);
+            var cus = TwitchApi.GetChatUsers(channelName).ToDictionary(t => t.Name);
+            var cur = users.Get(channelName).ToDictionary(t => t.Name);
             //  File.WriteAllLines("users.txt", cus.Keys.ToArray());
             try
             {
@@ -891,8 +884,8 @@ namespace LX29_ChatClient
         public static AutoActions AutoActions = new AutoActions();
         public static EmoteCollection Emotes = new EmoteCollection();
         public static QuickTextCollection QuickText = new QuickTextCollection();
-        private static readonly object syncRootMessage = new object();
-        private static readonly object syncRootUsers = new object();
+        //private static readonly object syncRootMessage = new object();
+        //private static readonly object syncRootUsers = new object();
 
         private static List<string> chatHighlights = new List<string>();
 
@@ -974,23 +967,6 @@ namespace LX29_ChatClient
         public static void SaveChatHighlightWord()
         {
             File.WriteAllLines(Settings._dataDir + "HighlightKeywords.txt", chatHighlights);
-        }
-
-        private static void addChannel(string channel)
-        {
-            try
-            {
-                lock (syncRootMessage)
-                {
-                    if (channel.Length == 0) return;
-                    var ch = channel.ToLower().Trim();
-
-                    users.Append(ch);
-
-                    //messages.AddChannel(Channel);
-                }
-            }
-            catch { }
         }
     }
 }

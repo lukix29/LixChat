@@ -188,7 +188,7 @@ namespace LX29_MPV
             return false;
         }
 
-        public static bool StartExternal(string Title, string fileName, int volume = 100, int cache = 0, int cacheSecs = 10, System.Drawing.Rectangle rect = new System.Drawing.Rectangle())
+        public bool StartExternal(string Title, string fileName, int volume = 100, int cache = 0, int cacheSecs = 10, System.Drawing.Rectangle rect = new System.Drawing.Rectangle())
         {
             //string serr = "";
             //string sout = "";
@@ -257,6 +257,10 @@ namespace LX29_MPV
                         }
                     }
                     catch { break; }
+                }
+                if (HasStarted)
+                {
+                    MainWindowHandle = process.MainWindowHandle;
                 }
                 return HasStarted;
             }

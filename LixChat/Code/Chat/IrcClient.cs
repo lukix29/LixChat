@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using LX29_ChatClient;
+using LX29_Twitch.Api;
 
 namespace IRC_Client
 {
@@ -55,7 +56,7 @@ namespace IRC_Client
         public void HandleQuit(IrcMessage message)
         {
             var user = (message.Prefix);
-            if (!ChatClient.TwitchUsers.Selected.Name.Equals(user))
+            if (!TwitchUserCollection.Selected.Name.Equals(user))
             {
                 OnUserQuit(new IrcChannelUserEventArgs(_Channel, user));
             }
@@ -401,7 +402,7 @@ namespace IRC_Client
                     WriteQueue.Enqueue(message);
                 }
             }
-            catch { }
+            catch { OnNetworkError(new SocketException((int)SocketError.NotConnected)); }
         }
 
         public void SetHandler(string message, MessageHandler handler)
@@ -425,14 +426,14 @@ namespace IRC_Client
 
                 NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length, DataRecieved, null);
 
-                ChatClient.TwitchUsers.CheckToken(false);
-                string pw = "oauth:" + ChatClient.TwitchUsers.Selected.Token; //"oauth:mf693s423cet04ccfgdgfdgtkekk604rok";
+                TwitchUserCollection.CheckToken(false);
+                string pw = "oauth:" + TwitchUserCollection.Selected.Token; //"oauth:mf693s423cet04ccfgdgfdgtkekk604rok";
 
                 SendRawMessage("PASS {0}", pw);
 
-                SendRawMessage("NICK {0}", ChatClient.TwitchUsers.Selected.Name);
+                SendRawMessage("NICK {0}", TwitchUserCollection.Selected.Name);
 
-                SendRawMessage("USER {0} hostname servername :{1}", ChatClient.TwitchUsers.Selected.Name, ChatClient.TwitchUsers.Selected.Name);
+                SendRawMessage("USER {0} hostname servername :{1}", TwitchUserCollection.Selected.Name, TwitchUserCollection.Selected.Name);
 
                 SendRawMessage("CAP REQ :twitch.tv/membership", "#" + Channel_Name);
 

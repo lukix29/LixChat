@@ -68,6 +68,7 @@
             this.btn_openSubpage = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.treeView1 = new System.Windows.Forms.TreeView();
+            this.btn_Dashboard = new System.Windows.Forms.Button();
             this.apiInfoPanel1 = new LX29_Twitch.Forms.ApiInfoPanel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -80,6 +81,7 @@
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshChannelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_ReloadEmotes = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsMi_ImportChannels = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_ReconnectChat = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_ShowSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.tSDDB_About_Menue = new System.Windows.Forms.ToolStripDropDownButton();
@@ -90,7 +92,6 @@
             this.tSProgBar_Loading = new System.Windows.Forms.ToolStripProgressBar();
             this.tsLabel_Info = new System.Windows.Forms.ToolStripLabel();
             this.toolTip_Main = new System.Windows.Forms.ToolTip(this.components);
-            this.tsMi_ImportChannels = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Preview)).BeginInit();
             this.splitContainer_Preview.Panel1.SuspendLayout();
             this.splitContainer_Preview.Panel2.SuspendLayout();
@@ -301,6 +302,7 @@
             this.flowLayoutPanel1.Controls.Add(this.cB_LogChat);
             this.flowLayoutPanel1.Controls.Add(this.btn_openSubpage);
             this.flowLayoutPanel1.Controls.Add(this.groupBox1);
+            this.flowLayoutPanel1.Controls.Add(this.btn_Dashboard);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
             // 
@@ -447,6 +449,16 @@
             this.treeView1.TabStop = false;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             // 
+            // btn_Dashboard
+            // 
+            this.btn_Dashboard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            resources.ApplyResources(this.btn_Dashboard, "btn_Dashboard");
+            this.btn_Dashboard.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btn_Dashboard.Name = "btn_Dashboard";
+            this.btn_Dashboard.TabStop = false;
+            this.btn_Dashboard.UseVisualStyleBackColor = false;
+            this.btn_Dashboard.Click += new System.EventHandler(this.btn_Dashboard_Click);
+            // 
             // apiInfoPanel1
             // 
             this.apiInfoPanel1.BackColor = System.Drawing.Color.Black;
@@ -561,6 +573,15 @@
             resources.ApplyResources(this.tSMi_ReloadEmotes, "tSMi_ReloadEmotes");
             this.tSMi_ReloadEmotes.Click += new System.EventHandler(this.tSMi_ReloadEmotes_Click);
             // 
+            // tsMi_ImportChannels
+            // 
+            this.tsMi_ImportChannels.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.tsMi_ImportChannels.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            resources.ApplyResources(this.tsMi_ImportChannels, "tsMi_ImportChannels");
+            this.tsMi_ImportChannels.ForeColor = System.Drawing.Color.Gainsboro;
+            this.tsMi_ImportChannels.Name = "tsMi_ImportChannels";
+            this.tsMi_ImportChannels.Click += new System.EventHandler(this.tsMi_ImportChannels_Click);
+            // 
             // tSMi_ReconnectChat
             // 
             this.tSMi_ReconnectChat.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
@@ -633,15 +654,6 @@
             this.toolTip_Main.ReshowDelay = 100;
             this.toolTip_Main.UseAnimation = false;
             this.toolTip_Main.UseFading = false;
-            // 
-            // tsMi_ImportChannels
-            // 
-            this.tsMi_ImportChannels.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.tsMi_ImportChannels.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            resources.ApplyResources(this.tsMi_ImportChannels, "tsMi_ImportChannels");
-            this.tsMi_ImportChannels.ForeColor = System.Drawing.Color.Gainsboro;
-            this.tsMi_ImportChannels.Name = "tsMi_ImportChannels";
-            this.tsMi_ImportChannels.Click += new System.EventHandler(this.tsMi_ImportChannels_Click);
             // 
             // Main
             // 
@@ -749,6 +761,7 @@
         private System.Windows.Forms.ToolStripMenuItem tSMi_ReconnectChat;
         private System.Windows.Forms.ToolStripMenuItem tSMi_ShowSettings;
         private System.Windows.Forms.ToolStripMenuItem tsMi_ImportChannels;
+        private System.Windows.Forms.Button btn_Dashboard;
     }
 }
 

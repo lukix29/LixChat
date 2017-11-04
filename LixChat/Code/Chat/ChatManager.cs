@@ -36,10 +36,8 @@ namespace LX29_ChatClient
         public readonly static ChatUser Emtpy = new ChatUser("", "");
 
         public Color Color = Color.White;
+        public ApiResult result = null;
         private string displayName = "";
-
-        private ApiResult result = null;
-
         private HashSet<UserType> typelist = new HashSet<UserType>();
 
         public ChatUser(string UserName, string channel, UserType type = UserType.NORMAL)
@@ -52,6 +50,10 @@ namespace LX29_ChatClient
             Badges = new BadgeBase[0];
             typelist = new HashSet<UserType>();
             typelist.Add(type);
+            if (channel.Equals(Name))
+            {
+                typelist.Add(UserType.broadcaster);
+            }
             Channel = channel;
         }
 
@@ -67,10 +69,11 @@ namespace LX29_ChatClient
                 if (result == null)
                 {
                     result = TwitchApi.GetUserID(Name);
-                    result = TwitchApi.GetStreamOrChannel(result.ID.ToString())[0];
+                    result = TwitchApi.GetStreamOrChannel(result.ID)[0];
                 }
                 return result;
             }
+            set { result = value; }
         }
 
         public BadgeBase[] Badges
@@ -91,8 +94,7 @@ namespace LX29_ChatClient
             {
                 if (string.IsNullOrEmpty(displayName))
                 {
-                    if (result != null && !result.IsEmpty)
-                        displayName = result.GetValue<string>(ApiInfo.display_name);
+                    displayName = ApiResult.GetValue<string>(ApiInfo.display_name);
                 }
                 if (string.IsNullOrEmpty(displayName))
                 {
@@ -111,7 +113,7 @@ namespace LX29_ChatClient
             get { return To_Timer.Result.HasTimeOut; }
         }
 
-        public string ID
+        public int ID
         {
             get;
             private set;
@@ -181,7 +183,7 @@ namespace LX29_ChatClient
                 {
                     if (parameters.ContainsKey(irc_params.user_id))
                     {
-                        ID = parameters[irc_params.user_id];
+                        ID = int.Parse(parameters[irc_params.user_id]);
                     }
                     else
                     {
@@ -204,11 +206,18 @@ namespace LX29_ChatClient
                     {
                         color = UserColors.RandomColor(Name);
                     }
+                    if (channel.Equals(Name))
+                    {
+                        typelist.Add(UserType.broadcaster);
+                    }
 
                     HashSet<UserType> tpyes = new HashSet<UserType>();
                     Badges = GetBadges(parameters, channel, Name, out tpyes);
                     if (tpyes.Count > 0)
                     {
+                        if (tpyes.Contains(UserType.moderator))
+                        {
+                        }
                         foreach (var t in tpyes)
                         {
                             if (!typelist.Contains(t))

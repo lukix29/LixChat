@@ -16,11 +16,12 @@ namespace LX29_ChatClient
     {
         public class ChatUserCollection// : IDictionary<string, Dictionary<string, ChatUser>>
         {
-            private Dictionary<string, Dictionary<string, ChatUser>> users;
+            private List<ChatUser> users;
+            private static readonly object syncRoot = new object();
 
             public ChatUserCollection()
             {
-                users = new Dictionary<string, Dictionary<string, ChatUser>>();
+                users = new List<ChatUser>();
             }
 
             public ChatUser Self
@@ -36,25 +37,18 @@ namespace LX29_ChatClient
                     {
                         return;
                     }
-                    lock (syncRootUsers)
+                    lock (syncRoot)
                     {
                         string channel = user.Channel;
                         string name = user.Name;
-                        if (users.ContainsKey(channel))
+                        if (!Contains(name, channel))
                         {
-                            if (!users[channel].ContainsKey(name))
-                            {
-                                users[channel].Add(name, user);
-                            }
-                            else
-                            {
-                                users[channel][name] = user;
-                            }
+                            users.Add(user);
                         }
                         else
                         {
-                            addChannel(channel);
-                            Add(user);
+                            var u = users.FindIndex(t => t.Channel.Equals(channel) && t.Name.Equals(name));
+                            users[u] = user;
                         }
                     }
                 }
@@ -76,78 +70,92 @@ namespace LX29_ChatClient
                 Dictionary<irc_params, string> parameters,
                 string name, TimeOutResult toResult)
             {
+                //    if (!Contains(name, channel))
+                //    {
+                //        var user = new ChatUser(channel, parameters, name, toResult);
+                //        Add(user);
+                //    }
+                //}
+
                 try
                 {
                     if (channel.Length == 0 || name.Length == 0)
                     {
                         return;
                     }
-                    lock (syncRootUsers)
+                    lock (syncRoot)
                     {
-                        if (users.ContainsKey(channel))
+                        if (!Contains(name, channel))
                         {
-                            if (!users[channel].ContainsKey(name))
+                            ChatUser cu;
+                            if (!toResult.IsEmpty)
                             {
-                                ChatUser cu;
-                                if (!toResult.IsEmpty)
-                                {
-                                }
-                                if (parameters != null)
-                                {
-                                    cu = new ChatUser(channel, parameters, name, toResult);
-                                }
-                                else
-                                {
-                                    cu = new ChatUser(name, channel);
-                                }
-                                users[channel].Add(name, cu);
+                            }
+                            if (parameters != null)
+                            {
+                                cu = new ChatUser(channel, parameters, name, toResult);
                             }
                             else
                             {
-                                users[channel][name].Parse(channel, parameters, name, toResult);
+                                cu = new ChatUser(name, channel);
                             }
+                            users.Add(cu);
                         }
                         else
                         {
-                            addChannel(channel);
-                            Add(channel, parameters, name, toResult);
+                            var user = users.First(t => t.Channel.Equals(channel) && t.Name.Equals(name));
+                            user.Parse(channel, parameters, name, toResult);
                         }
                     }
                 }
                 catch { }
             }
 
-            public void Append(string channel)
+            //public void Append(string channel)
+            //{
+            //    if (!users.ContainsKey(channel))
+            //    {
+            //        users.Add(channel, new Dictionary<string, ChatUser>());
+            //    }
+            //}
+            public ChatUser FirstOrDefault(string name, string channel)
             {
-                if (!users.ContainsKey(channel))
+                lock (syncRoot)
                 {
-                    users.Add(channel, new Dictionary<string, ChatUser>());
+                    return users.FirstOrDefault(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase));
                 }
             }
 
-            public bool Contains(string name)
+            public bool Contains(string name, string channel)
             {
-                return users.Any(t => t.Value.ContainsKey(name));
+                lock (syncRoot)
+                {
+                    return users.Any(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase));
+                }
             }
 
             public int Count(string channel)
             {
-                return users[channel].Count;
+                lock (syncRoot)
+                {
+                    return users.Count(t => t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase));
+                }
             }
 
             public int Count(string channel, Func<ChatUser, bool> predicate)
             {
-                channel = channel.ToLower().Trim();
-                return users[channel].Values.Count(predicate);
+                lock (syncRoot)
+                {
+                    return users.Where(t => t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase)).Count(predicate);
+                }
             }
 
             public IEnumerable<ChatUser> Find(string name, string channel)
             {
-                if (users.ContainsKey(channel))
+                lock (syncRoot)
                 {
-                    return users[channel].Values.Where(t => t.Name.StartsWith(name));
+                    return users.Where(t => t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase) && t.Name.StartsWith(name));
                 }
-                return new List<ChatUser>();
             }
 
             public ChatUser Get(string name, string channel, bool create = false)
@@ -156,22 +164,30 @@ namespace LX29_ChatClient
                 {
                     if (!string.IsNullOrEmpty(name))
                     {
-                        channel = channel.ToLower().Trim();
-                        name = name.ToLower().Trim();
-                        if (string.IsNullOrEmpty(channel))
+                        if (!string.IsNullOrEmpty(channel))
                         {
-                            foreach (string s in users.Keys)
+                            channel = channel.ToLower().Trim();
+                            name = name.ToLower().Trim();
+                            lock (syncRoot)
                             {
-                                if (users[s].ContainsKey(name))
+                                var user = users.FirstOrDefault(t => t.Channel.Equals(channel) && t.Name.Equals(name));
+                                if (user != null && !user.IsEmpty)
                                 {
-                                    return users[s][name];
+                                    return user;
                                 }
                             }
+                            //foreach (string s in users.Keys)
+                            //{
+                            //    if (users.ContainsKey(name))
+                            //    {
+                            //        return users[name];
+                            //    }
+                            //}
                         }
-                        else if (users.ContainsKey(channel) && users[channel].ContainsKey(name))
-                        {
-                            return users[channel][name];
-                        }
+                        //else if (users.ContainsKey(channel) && users[channel].ContainsKey(name))
+                        //{
+                        //    return users[channel][name];
+                        //}
                     }
                     if (create) return new ChatUser(name, channel);
                 }
@@ -181,40 +197,45 @@ namespace LX29_ChatClient
                 return ChatUser.Emtpy;
             }
 
-            public Dictionary<string, ChatUser> Get(string channel)
+            public IEnumerable<ChatUser> Get(string channel)
             {
-                if (users.ContainsKey(channel.ToLower().Trim()))
+                lock (syncRoot)
                 {
-                    return users[channel.ToLower().Trim()];
+                    return users.Where(t => t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase));
                 }
-                return null;
+                //if (users.ContainsKey(channel.ToLower().Trim()))
+                //{
+                //    return users[channel.ToLower().Trim()];
+                //}
+                //return null;
             }
 
             public string[] GetAllNames()
             {
-                return users.SelectMany(t => t.Value).Select(t => t.Key).ToArray();
+                lock (syncRoot)
+                {
+                    return users.Select(t => t.Name).ToArray();
+                }
             }
 
-            public void SetOffline(string key, string channel)
+            public void SetOffline(string name, string channel)
             {
-                if (users.ContainsKey(channel))
+                //var user = users.FirstOrDefault(t=>t.cha)
+                if (Contains(name, channel))
                 {
-                    if (users[channel].ContainsKey(key))
-                    {
-                        users[channel][key].IsOnline = false;
-                    }
+                    Get(name, channel).IsOnline = false;//    users[channel][key].IsOnline = false;
                 }
                 else
                 {
-                    addChannel(channel);
-                    Add(key, channel);
-                    users[channel][key].IsOnline = false;
+                    //addChannel(channel);
+                    Add(name, channel);
+                    Get(name, channel).IsOnline = false;
                 }
             }
 
-            private IEnumerable<ChatUser> Users(string channel)
+            private List<ChatUser> Users(string channel)
             {
-                return users[channel].Values;
+                return users;
             }
         }
 
@@ -591,10 +612,10 @@ namespace LX29_ChatClient
 
             public void AddWhisper(string name, ChatMessage msg)
             {
-                if (!users.Contains(name))
-                {
-                    users.Add(new ChatUser(name, name));
-                }
+                //if (!users.Contains(name, name))
+                //{
+                //    users.Add(new ChatUser(name, name));
+                //}
                 if (!whisper.ContainsKey(name))
                 {
                     whisper.Add(name, new List<ChatMessage>());

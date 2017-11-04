@@ -41,8 +41,6 @@ namespace LX29_ChatClient.Emotes
 
         private long lasTime = 0;
 
-        //private object locko = new object();
-
         public EmoteImage(Dictionary<string, string> urls, string name, EmoteOrigin origin)
         {
             Name = name.Trim();
@@ -124,6 +122,18 @@ namespace LX29_ChatClient.Emotes
             //    }
             //}
             LoadTime = DateTime.MaxValue;
+        }
+
+        //private object locko = new object();
+        public Bitmap Bitmap
+        {
+            get
+            {
+                var img = GetImage(EmoteImageSize.Large);
+                if (img != null)
+                    return img.First();
+                else return new Bitmap(1, 1);
+            }
         }
 
         public int Delay
@@ -320,6 +330,11 @@ namespace LX29_ChatClient.Emotes
             {
                 DownloadImage(size.Key);
             }
+        }
+
+        public EmoteImageDrawResult Draw(Graphics g, Rectangle rec, EmoteImageSize size)
+        {
+            return Draw(g, rec.X, rec.Y, rec.Width, rec.Height, size);
         }
 
         public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size)

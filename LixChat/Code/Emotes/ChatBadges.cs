@@ -57,7 +57,7 @@ namespace LX29_ChatClient.Emotes
         }
 
         [JsonIgnore]
-        private Dictionary<string, EmoteImage> URLS
+        public Dictionary<string, EmoteImage> URLS
         {
             get;
             set;
@@ -204,6 +204,11 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
+        public bool ContainsKey(string key)
+        {
+            return badges.ContainsKey(key);
+        }
+
         public void Fetch_Channel_Badges(ChannelInfo ci = null)
         {
             try
@@ -243,7 +248,7 @@ namespace LX29_ChatClient.Emotes
                     }
                 }
             }
-            catch (Exception x)
+            catch
             {
                 //switch (x.Handle())
                 //{
@@ -262,6 +267,21 @@ namespace LX29_ChatClient.Emotes
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable)badges.Keys).GetEnumerator();
+        }
+
+        public EmoteImage GetImage(UserType type)
+        {
+            var name = Enum.GetName(typeof(UserType), type);
+            return badges[name].URLS.First().Value;
+        }
+
+        public EmoteImage GetSubBadge(string channel)
+        {
+            if (badges.ContainsKey(channel))
+            {
+                return badges[channel].URLS["0"];
+            }
+            return null;
         }
 
         public void Load()

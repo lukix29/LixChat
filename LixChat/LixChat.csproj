@@ -126,6 +126,13 @@
       <DependentUpon>FormDownloader.cs</DependentUpon>
     </Compile>
     <Compile Include="Code\Extensions\LX29Crypt.cs" />
+    <Compile Include="Code\FormDashboard\DashboardData.cs" />
+    <Compile Include="Code\FormDashboard\FormDashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Code\FormDashboard\FormDashboard.Designer.cs">
+      <DependentUpon>FormDashboard.cs</DependentUpon>
+    </Compile>
     <Compile Include="Code\FormStream\FormFollowers.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -324,6 +331,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Code\FormChat\FormUsers.resx">
       <DependentUpon>FormUsers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code\FormDashboard\FormDashboard.resx">
+      <DependentUpon>FormDashboard.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Code\FormStream\ChannelListBox.resx">
       <DependentUpon>ChannelListBox.cs</DependentUpon>
@@ -3955,12 +3965,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="1463551454_16.ico" />
+    <Content Include="Resources\chat.png" />
+    <Content Include="Resources\viewer.png" />
     <None Include="mpv.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="mpv-1.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="Resources\follow.png" />
     <Content Include="Resources\pause.png" />
     <Content Include="Resources\play.png" />
     <Content Include="Resources\temp.png" />

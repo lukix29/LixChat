@@ -36,12 +36,34 @@ namespace LX29_ChatClient.Forms
             }
         }
 
+        public int SplitterDistance
+        {
+            get { return splitContainer1.SplitterDistance; }
+            set { splitContainer1.SplitterDistance = value; }
+        }
+
         public new void Hide()
         {
             chatView1.Pause = true;
             mouseDown = false;
             mouseMoveDown = false;
             base.Hide();
+        }
+
+        public void SetUser(ApiResult channel, Dashboard.User user)
+        {
+            chatView1.ShowName = false;
+            chatView1.Pause = false;
+
+            chatView1.SetChannel(channel, MsgType.All_Messages);
+            chatView1.SetAllMessages(MsgType.All_Messages, null, user.name);
+            label1.Text = user.DisplayName;
+            apiInfoPanel1.InfosToShow = sortArray;
+            Task.Run(() =>
+            {
+                var result = TwitchApi.GetStreamOrChannel(user._id)[0];
+                this.Invoke(new Action(() => apiInfoPanel1.SetChatInfos(result, "\r\n")));
+            });
         }
 
         public void Show(ApiResult channel, ChatUser user, Point location)
@@ -61,7 +83,7 @@ namespace LX29_ChatClient.Forms
             Task.Run(() =>
             {
                 var result = user.ApiResult;
-                this.BeginInvoke(new Action(() => apiInfoPanel1.SetChatInfos(result, "\r\n")));
+                this.Invoke(new Action(() => apiInfoPanel1.SetChatInfos(result, "\r\n")));
             });
             base.Show();
         }

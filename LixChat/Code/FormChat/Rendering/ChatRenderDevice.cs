@@ -259,7 +259,7 @@ namespace LX29_ChatClient.Forms
             WhisperName = name;
             MessageType = Type;
             var user = ChatClient.Users.Get(ChatClient.SelfUserName, Channel.Name);
-            if (user != null)
+            if (user != null && !user.IsEmpty)
             {
                 UserIsMod = user.Types.Any(t => ((int)t >= (int)UserType.moderator));
             }

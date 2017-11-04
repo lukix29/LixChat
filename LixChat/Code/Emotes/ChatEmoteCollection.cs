@@ -294,7 +294,7 @@ namespace LX29_ChatClient.Emotes
                     }
                 }
             }
-            catch (Exception x)
+            catch
             {
             }
             return true;

@@ -83,83 +83,114 @@ namespace System
 
         public static string SizeSuffix(this long value, int decimalPlaces = 3)
         {
-            if (value < 0) { return "-" + SizeSuffix(-value); }
-            if (value == 0) { return "0.0 bytes"; }
+            return SizeSuffix((double)value, decimalPlaces);
+            //if (value < 0) { return "-" + SizeSuffix(-value); }
+            //if (value == 0) { return "0.0 bytes"; }
 
-            // mag is 0 for bytes, 1 for KB, 2, for MB, etc.
-            int mag = (int)Math.Log(value, 1024);
+            //// mag is 0 for bytes, 1 for KB, 2, for MB, etc.
+            //int mag = (int)Math.Log(value, 1024);
 
-            // 1L << (mag * 10) == 2 ^ (10 * mag)
-            // [i.e. the number of bytes in the unit corresponding to mag]
-            decimal adjustedSize = (decimal)value / (1L << (mag * 10));
+            //// 1L << (mag * 10) == 2 ^ (10 * mag)
+            //// [i.e. the number of bytes in the unit corresponding to mag]
+            //decimal adjustedSize = (decimal)value / (1L << (mag * 10));
 
-            // make adjustment when the value is large enough that
-            // it would round up to 1000 or more
-            if (Math.Round(adjustedSize, decimalPlaces) >= 1000)
-            {
-                mag += 1;
-                adjustedSize /= 1024;
-            }
+            //// make adjustment when the value is large enough that
+            //// it would round up to 1000 or more
+            //if (Math.Round(adjustedSize, decimalPlaces) >= 1000)
+            //{
+            //    mag += 1;
+            //    adjustedSize /= 1024;
+            //}
 
-            return string.Format("{0:n" + decimalPlaces + "} {1}",
-                adjustedSize,
-                SizeSuffixes[mag]);
+            //return string.Format("{0:n" + decimalPlaces + "} {1}",
+            //    adjustedSize,
+            //    SizeSuffixes[mag]);
         }
 
         public static string SizeSuffix(this int value, int decimalPlaces = 3)
         {
-            if (value < 0) { return "-" + SizeSuffix(-value); }
-            if (value == 0) { return "0.0 bytes"; }
+            return SizeSuffix((double)value, decimalPlaces);
+            //if (value < 0) { return "-" + SizeSuffix(-value); }
+            //if (value == 0) { return "0.0 bytes"; }
 
-            // mag is 0 for bytes, 1 for KB, 2, for MB, etc.
-            int mag = (int)Math.Log(value, 1024);
+            //// mag is 0 for bytes, 1 for KB, 2, for MB, etc.
+            //int mag = (int)Math.Log(value, 1024);
 
-            // 1L << (mag * 10) == 2 ^ (10 * mag)
-            // [i.e. the number of bytes in the unit corresponding to mag]
-            decimal adjustedSize = (decimal)value / (1L << (mag * 10));
+            //// 1L << (mag * 10) == 2 ^ (10 * mag)
+            //// [i.e. the number of bytes in the unit corresponding to mag]
+            //decimal adjustedSize = (decimal)value / (1L << (mag * 10));
 
-            // make adjustment when the value is large enough that
-            // it would round up to 1000 or more
-            if (Math.Round(adjustedSize, decimalPlaces) >= 1000)
-            {
-                mag += 1;
-                adjustedSize /= 1024;
-            }
+            //// make adjustment when the value is large enough that
+            //// it would round up to 1000 or more
+            //if (Math.Round(adjustedSize, decimalPlaces) >= 1000)
+            //{
+            //    mag += 1;
+            //    adjustedSize /= 1024;
+            //}
 
-            return string.Format("{0:n" + decimalPlaces + "} {1}",
-                adjustedSize,
-                SizeSuffixes[mag]);
+            //return string.Format("{0:n" + decimalPlaces + "} {1}",
+            //    adjustedSize,
+            //    SizeSuffixes[mag]);
         }
 
         public static string SizeSuffix(this float value, int decimalPlaces = 3)
         {
-            if (value < 0) { return "-" + SizeSuffix(-value); }
-            if (value == 0) { return "0.0 bytes"; }
+            return SizeSuffix((double)value, decimalPlaces);
+            //if (value < 0) { return "-" + SizeSuffix(-value); }
+            //if (value == 0) { return "0.0 bytes"; }
+
+            //// mag is 0 for bytes, 1 for KB, 2, for MB, etc.
+            //int mag = (int)Math.Log(value, 1024);
+
+            //// 1L << (mag * 10) == 2 ^ (10 * mag)
+            //// [i.e. the number of bytes in the unit corresponding to mag]
+            //decimal adjustedSize = (decimal)value / (1L << (mag * 10));
+
+            //// make adjustment when the value is large enough that
+            //// it would round up to 1000 or more
+            //if (Math.Round(adjustedSize, decimalPlaces) >= 1000)
+            //{
+            //    mag += 1;
+            //    adjustedSize /= 1024;
+            //}
+
+            //return string.Format("{0:n" + decimalPlaces + "} {1}",
+            //    adjustedSize,
+            //    SizeSuffixes[mag]);
+        }
+
+        public static string SizeMag(this int value, int decimalPlaces = 3)
+        {
+            if (value < 0) { return "-" + SizeMag(-value); }
+            if (value == 0) { return "0"; }
 
             // mag is 0 for bytes, 1 for KB, 2, for MB, etc.
-            int mag = (int)Math.Log(value, 1024);
+            int mag = (int)Math.Log(value, 1000);
 
             // 1L << (mag * 10) == 2 ^ (10 * mag)
             // [i.e. the number of bytes in the unit corresponding to mag]
-            decimal adjustedSize = (decimal)value / (1L << (mag * 10));
+            double adjustedSize = (double)value / (1L << (mag * 10));
 
             // make adjustment when the value is large enough that
             // it would round up to 1000 or more
             if (Math.Round(adjustedSize, decimalPlaces) >= 1000)
             {
                 mag += 1;
-                adjustedSize /= 1024;
+                adjustedSize /= 1000;
             }
 
-            return string.Format("{0:n" + decimalPlaces + "} {1}",
-                adjustedSize,
-                SizeSuffixes[mag]);
+            if (Math.Abs(adjustedSize % 1) <= (double.Epsilon * 100))
+            {
+                decimalPlaces = 0;
+            }
+
+            return adjustedSize.ToString("N" + decimalPlaces) + SizeSuffixes[mag].ReplaceAll("", "B", "i");
         }
 
         public static string SizeSuffix(this double value, int decimalPlaces = 3)
         {
             if (value < 0) { return "-" + SizeSuffix(-value); }
-            if (value == 0) { return "0.0 bytes"; }
+            if (value == 0) { return "0 bytes"; }
 
             // mag is 0 for bytes, 1 for KB, 2, for MB, etc.
             int mag = (int)Math.Log(value, 1024);
@@ -373,6 +404,22 @@ namespace System
             {
                 g.DrawImage(image, x, y, width, height);
             }
+        }
+
+        public static Point Center(this Rectangle r)
+        {
+            return new Point(r.X + r.Width / 2, r.Y + r.Height / 2);
+        }
+
+        public static PointF Center(this RectangleF r)
+        {
+            return new PointF(r.X + r.Width / 2, r.Y + r.Height / 2);
+        }
+
+        public static Point Angle(this Rectangle r, float angle)
+        {
+            return new Point((int)((r.Width / 2) * Math.Cos(angle)),
+            (int)((r.Height / 2) * Math.Sin(angle)));
         }
 
         public static bool IsGif(this Bitmap b)

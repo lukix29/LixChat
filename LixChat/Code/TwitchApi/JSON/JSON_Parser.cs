@@ -8,6 +8,11 @@ namespace LX29_Twitch.JSON_Parser
 {
     public static class JSON
     {
+        public static T DeserializeObject<T>(string input)
+        {
+            return JsonConvert.DeserializeObject<T>(input);
+        }
+
         public static List<ApiResult> Parse(string input)
         {
             try
@@ -425,7 +430,7 @@ namespace LX29_Twitch.JSON_Parser
             public class Follow
             {
                 public Channel channel { get; set; }
-                public string created_at { get; set; }
+                public DateTime created_at { get; set; }
                 public bool notifications { get; set; }
             }
 
@@ -571,6 +576,7 @@ namespace LX29_Twitch.JSON_Parser
                 public string created_at { get; set; }
                 public string sub_plan { get; set; }
                 public string sub_plan_name { get; set; }
+                public User user { get; set; }
             }
 
             public class Token
@@ -591,14 +597,13 @@ namespace LX29_Twitch.JSON_Parser
 
             public class User
             {
-                public string _id { get; set; }
-                public string bio { get; set; }
-                public string created_at { get; set; }
+                public int _id { get; set; }
+                public DateTime created_at { get; set; }
                 public string display_name { get; set; }
                 public string logo { get; set; }
                 public string name { get; set; }
                 public string type { get; set; }
-                public string updated_at { get; set; }
+                public DateTime updated_at { get; set; }
             }
         }
 

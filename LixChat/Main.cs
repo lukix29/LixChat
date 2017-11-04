@@ -321,6 +321,12 @@ namespace LX29_LixChat
             ChatClient.AutoActions.OpenChatActions();
         }
 
+        private void btn_Dashboard_Click(object sender, EventArgs e)
+        {
+            LX29_ChatClient.Dashboard.FormDashboard formd = new LX29_ChatClient.Dashboard.FormDashboard();
+            formd.Show();
+        }
+
         private void btn_Disconnect_Click(object sender, EventArgs e)
         {
             if (lockChatSettings) return;
@@ -447,7 +453,7 @@ namespace LX29_LixChat
 
         private void btn_ShowUsers_Click(object sender, EventArgs e)
         {
-            var user = ChatClient.TwitchUsers.Values.FirstOrDefault(t => !t.ID.Equals(ChatClient.TwitchUsers.Selected.ID));
+            var user = TwitchUserCollection.Values.FirstOrDefault(t => !t.ID.Equals(TwitchUserCollection.Selected.ID));
             var sa = GetCurrentInfo();
             if (sa != null)
             {
@@ -891,7 +897,7 @@ namespace LX29_LixChat
         {
             LX29_Twitch.Api.Controls.FormTwitchUser users = new LX29_Twitch.Api.Controls.FormTwitchUser();
             users.OnChangedToken += users_OnChangedToken;
-            users.Show(ChatClient.TwitchUsers);
+            users.Show();
             //File.Delete(ChatClient.dataDir + "auth.txt");
             //Application.Restart();
         }

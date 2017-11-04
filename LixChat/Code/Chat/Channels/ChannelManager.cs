@@ -32,7 +32,7 @@ namespace LX29_ChatClient
                 ApiResult so = TwitchApi.GetUserID(s);
                 if (!channels.ContainsKey(so.ID))
                 {
-                    var sa = TwitchApi.GetStreamOrChannel(so.ID.ToString());
+                    var sa = TwitchApi.GetStreamOrChannel(so.ID);
                     if (sa.Count > 0)
                     {
                         so = sa[0];
@@ -58,7 +58,7 @@ namespace LX29_ChatClient
 
         public static void AddChannels(Dictionary<int, ChannelInfo> rest, bool save = false)
         {
-            var restResults = TwitchApi.GetStreamOrChannel(rest.Keys.Select(t => t.ToString()).ToArray());
+            var restResults = TwitchApi.GetStreamOrChannel(rest.Keys.ToArray());
             foreach (var result in restResults)
             {
                 ChannelInfo ci = new ChannelInfo(result);
@@ -74,7 +74,6 @@ namespace LX29_ChatClient
                     {
                         if (ci.AutoLoginChat)
                         {
-                            addChannel(ci.Name);
                             ChatClient.TryConnect(ci.ID);
                         }
                     });
@@ -114,7 +113,7 @@ namespace LX29_ChatClient
                 {
                     sortArr[x] = (SortMode)x;
                 }
-                TwitchUsers.Load(Main, new Action(SyncFollows));
+                TwitchUserCollection.Load(Main, new Action(SyncFollows));
             }
             catch (Exception x)
             {
@@ -242,7 +241,7 @@ namespace LX29_ChatClient
                             sw.WriteLine(obj);
                             s += chan.Name + ",";
                         }
-                        File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\users.txt", s);
+                        //File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\users.txt", s);
                     }
                 }
             }
@@ -265,6 +264,8 @@ namespace LX29_ChatClient
                 Task.Run(() => LoadChatHighlightWords());
                 Task.Run(() => AutoActions.Load());
                 Task.Run(() => LX29_ChatClient.Addons.Scripts.ScriptClassCollection.LoadScripts());
+
+                LoadSelfStream();
 
                 var follows = TwitchApi.GetFollowedStreams();
 
@@ -299,7 +300,6 @@ namespace LX29_ChatClient
                     {
                         if (ci.AutoLoginChat)
                         {
-                            addChannel(ci.Name);
                             ChatClient.TryConnect(ci.ID);
                         }
                     });
@@ -310,7 +310,6 @@ namespace LX29_ChatClient
                     AddChannels(rest);
                 }
 
-                LoadStandardStreams();
                 SaveChannels();
 
                 isSnycing = false;
@@ -344,7 +343,7 @@ namespace LX29_ChatClient
                 var streams = TwitchApi.GetFollowedStreams();
 
                 //(channels.Select(t => t.Value.ID.ToString()).ToArray());
-                var rr = Channels.Values.Where(t => !streams.Any(t0 => t0.ID.Equals(t.ID))).Select(t => t.ID.ToString());
+                var rr = Channels.Values.Where(t => !streams.Any(t0 => t0.ID.Equals(t.ID))).Select(t => t.ID);
 
                 var rest = TwitchApi.GetStreamOrChannel(rr.ToArray());
 
@@ -358,10 +357,10 @@ namespace LX29_ChatClient
 
                     if (channel.IsOnline)
                     {
-                        Task.Run(() =>
-                        {
-                            FetchChatUsers(channel.Name);
-                        });
+                        //Task.Run(() =>
+                        // {
+                        FetchChatUsers(channel.Name);
+                        //});
                     }
 
                     channel.GetMpvWindow();
@@ -386,26 +385,23 @@ namespace LX29_ChatClient
             }
         }
 
-        private static void LoadStandardStreams()
+        private static void LoadSelfStream()
         {
-            if (!channels.ContainsKey(79328905))
+            int id = TwitchUserCollection.Selected.ID;
+            if (!channels.ContainsKey(id))
             {
-                ApiResult result = TwitchApi.GetStreamOrChannel("79328905")[0];
+                ApiResult result = TwitchApi.GetStreamOrChannel(id)[0];
                 ChannelInfo ci = new ChannelInfo(result, true, true);
 
                 channels.Add(ci.ID, ci);
                 Task.Run(() =>
                 {
-                    if (ci.AutoLoginChat)
-                    {
-                        addChannel(ci.Name);
-                        ChatClient.TryConnect(ci.ID);
-                    }
+                    ChatClient.TryConnect(ci.ID);
                 });
             }
             else
             {
-                channels[79328905] = new ChannelInfo(channels[79328905], true, true);
+                channels[id] = new ChannelInfo(channels[id], true, true);
             }
         }
 
