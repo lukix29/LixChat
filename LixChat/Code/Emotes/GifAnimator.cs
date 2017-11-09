@@ -174,6 +174,11 @@ namespace LX29_ChatClient.Emotes
             private set;
         }
 
+        public bool IsLoaded
+        {
+            get { return _sizes.Count > 0; }
+        }
+
         public DateTime LoadTime
         {
             get;

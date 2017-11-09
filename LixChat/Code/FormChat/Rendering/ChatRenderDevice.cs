@@ -1,5 +1,4 @@
-﻿using LX29_ChatClient.Channels;
-using LX29_ChatClient.Emotes;
+﻿using LX29_ChatClient.Emotes;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -778,7 +777,6 @@ namespace LX29_ChatClient.Forms
                         msgColor = Link_Color;
                         isLink = true;
                     }
-
                     sf = graphics.MeasureText(w.Text, userFont);
                     if (x + sf.Width > bounds.Right)
                     {

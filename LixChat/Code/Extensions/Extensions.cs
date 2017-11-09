@@ -211,6 +211,28 @@ namespace System
                 adjustedSize,
                 SizeSuffixes[mag]);
         }
+
+        public static string SingleDuration(this TimeSpan now)
+        {
+            if ((int)now.TotalDays >= 30)
+            {
+                int m = (int)(now.TotalDays / 30);
+                return m + (m > 1 ? " Months" : " Month");
+            }
+            if ((int)now.TotalDays > 0)
+            {
+                return (int)now.TotalDays + ((int)now.TotalDays > 1 ? " Days" : " Day");
+            }
+            if ((int)now.TotalHours > 0)
+            {
+                return (int)now.TotalHours + ((int)now.TotalHours > 1 ? " Hours" : " Hour");
+            }
+            if ((int)now.TotalMinutes > 0)
+            {
+                return (int)now.TotalMinutes + ((int)now.TotalMinutes > 1 ? " Mins" : " Min");
+            }
+            return "0 Mins";
+        }
     }
 
     public static class Extensions
@@ -588,20 +610,20 @@ namespace System
 
         public static void DrawText(this Graphics g, string text, Font font, Color b, float x, float y)
         {
-            TextRenderer.DrawText(g, text.Replace("&", "&&"), font, new Point((int)x, (int)y), b,
-                  TextFormatFlags.NoPadding | TextFormatFlags.Left | TextFormatFlags.TextBoxControl);
+            TextRenderer.DrawText(g, text, font, new Point((int)x, (int)y), b,
+                  TextFormatFlags.NoPadding | TextFormatFlags.Left | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPrefix);
         }
 
         public static void DrawText(this Graphics g, string text, Font font, Color b, RectangleF bounds, TextFormatFlags centerStrFormat)
         {
-            TextRenderer.DrawText(g, text.Replace("&", "&&"), font, Rectangle.Truncate(bounds), b, centerStrFormat);
+            TextRenderer.DrawText(g, text, font, Rectangle.Truncate(bounds), b, centerStrFormat | TextFormatFlags.NoPrefix);
         }
 
         public static SizeF MeasureText(this Graphics g, string text, Font font)
         {
             //return g.MeasureString(text, font);
             return TextRenderer.MeasureText(g, text, font, maxSize,
-                TextFormatFlags.NoPadding | TextFormatFlags.Left | TextFormatFlags.TextBoxControl);
+                TextFormatFlags.NoPadding | TextFormatFlags.Left | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPrefix);
         }
 
         #endregion DRAWING

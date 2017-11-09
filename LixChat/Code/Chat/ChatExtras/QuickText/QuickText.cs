@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace LX29_ChatClient.Addons
 {
@@ -64,10 +65,30 @@ namespace LX29_ChatClient.Addons
         {
         }
 
+        [JsonRequired]
+        public List<QuickText> Values
+        {
+            get { return list; }
+            set { list = value; }
+        }
+
         public QuickText this[int index]
         {
             get { return list[index]; }
             set { list.Insert(index, value); }
+        }
+
+        public static QuickTextCollection Load()
+        {
+            string path = Settings._dataDir + "QuickText.json";
+            if (System.IO.File.Exists(path))
+            {
+                return JsonConvert.DeserializeObject<QuickTextCollection>(System.IO.File.ReadAllText(path));
+                //var sa = System.IO.File.ReadAllLines(path);
+                //list = CustomSettings.Load<QuickText, QuickTextType>(
+                //    sa, ((a, s) => a.Channel.Equals(s)), (t => new QuickText(t)));
+            }
+            return new QuickTextCollection();
         }
 
         public void Add(QuickText item)
@@ -88,17 +109,6 @@ namespace LX29_ChatClient.Addons
             return this.GetEnumerator();
         }
 
-        public void Load()
-        {
-            string path = Settings._dataDir + "QuickText.txt";
-            if (System.IO.File.Exists(path))
-            {
-                //var sa = System.IO.File.ReadAllLines(path);
-                //list = CustomSettings.Load<QuickText, QuickTextType>(
-                //    sa, ((a, s) => a.Channel.Equals(s)), (t => new QuickText(t)));
-            }
-        }
-
         public void Remove(int index)
         {
             list.RemoveAt(index);
@@ -106,6 +116,16 @@ namespace LX29_ChatClient.Addons
 
         public void Save()
         {
+            string path = Settings._dataDir + "QuickText.json";
+            var json = JsonConvert.SerializeObject(this);
+            System.IO.File.WriteAllText(path, json);
+            //using (StreamWriter sw = new StreamWriter(path, false))
+            //{
+            //    foreach (var act in actions)
+            //    {
+            //        sw.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(act));
+            //    }
+            //}
             //string path = Settings.dataDir + "QuickText.txt";
             //var s = CustomSettings.GetSettings<QuickText, QuickTextType>(
             //    list, new Func<QuickText, string>(t => t.Channel));

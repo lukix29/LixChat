@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using LX29_ChatClient;
 
 namespace LX29_Twitch.Api
 {
@@ -240,10 +239,25 @@ namespace LX29_Twitch.Api
 
         public static List<ApiResult> GetUserID(params string[] name)
         {
-            string url = "https://api.twitch.tv/kraken/users?login=" + getChannelList(name);
-            string id = downloadString(url);
+            List<ApiResult> list = new List<ApiResult>();
+            List<string> temp = new List<string>(name);
+            while (list.Count < name.Length)
+            {
+                string url = "https://api.twitch.tv/kraken/users?login=" + getChannelList(temp.Take(Math.Min(temp.Count, 100)));
+                string id = downloadString(url);
+                temp.RemoveRange(0, Math.Min(temp.Count, 100));
 
-            return JSON.Parse(id);
+                var t = JSON.Parse(id);
+                if (t != null)
+                {
+                    list.AddRange(t);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return list;
         }
 
         public static ApiResult GetUserID(string name)

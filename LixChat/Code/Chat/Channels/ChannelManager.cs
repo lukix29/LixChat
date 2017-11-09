@@ -20,7 +20,7 @@ namespace LX29_ChatClient
 
         private static string ChannelSave
         {
-            get { return Settings._dataDir + "Channels_" + SelfUserName + ".txt"; }
+            get { return Settings._dataDir + "Channels_" + SelfUserName + ".json"; }
         }
 
         public static AddError AddChannel(string s)
@@ -262,7 +262,10 @@ namespace LX29_ChatClient
                     ListLoaded(0, channels.Count, "Loading Channels");
 
                 Task.Run(() => LoadChatHighlightWords());
-                Task.Run(() => AutoActions.Load());
+                //Task.Run(() => AutoActions.Load());
+
+                Task.Run(() => { AutoActions = LX29_ChatClient.Addons.AutoActions.Load(); });
+
                 Task.Run(() => LX29_ChatClient.Addons.Scripts.ScriptClassCollection.LoadScripts());
 
                 LoadSelfStream();

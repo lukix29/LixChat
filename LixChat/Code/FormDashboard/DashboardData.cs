@@ -1,11 +1,9 @@
-﻿using System;
+﻿using LX29_Twitch.Api;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using LX29_Twitch.Api;
-using LX29_Twitch.JSON_Parser;
-using Newtonsoft.Json;
 
 namespace LX29_ChatClient.Dashboard
 {
@@ -20,55 +18,127 @@ namespace LX29_ChatClient.Dashboard
         public List<Sub> subscriptions { get; set; }
     }
 
-    public class DashboardData
+    public class DashboardData : IDisposable
     {
+        public List<Tipeee.DonationHost> DonationHosts = new List<Tipeee.DonationHost>();
+
+        private const string summit = "summit1g";
+        private string _tipeKey = "";
+
         public DashboardData()
         {
+            Chatters = new Dictionary<string, Viewer>();
+            ChatClient.OnUserNoticeReceived += ChatClient_OnUserNoticeReceived;
+
+            var dt = Channel.GetValue<DateTime>(ApiInfo.stream_created_at);
+            StreamStart = dt.Ticks > 0 ? dt : DateTime.MaxValue;
         }
 
+        public delegate void UserNoticeReceived(NoticeMessage notice);
+
+        public event UserNoticeReceived OnUserNoticeReceived;
+
+        [JsonIgnore]
         public Channels.ChannelInfo Channel
         {
             get { return ChatClient.Channels[User.ID]; }
         }
 
+        [JsonIgnore]
+        public List<NoticeMessage> ChatSubs
+        {
+            get
+            {
+                if (ChatClient.UserNotices.ContainsKey(summit))
+                    return ChatClient.UserNotices[summit];
+                else
+                    return new List<NoticeMessage>();
+            }
+        }
+
+        [JsonIgnore]
         public int ChatterCount
         {
             get { return Chatters.Count; }
         }
 
+        [JsonIgnore]
         public Dictionary<string, Viewer> Chatters
         {
             get;
             private set;
         }
 
+        [JsonIgnore]
+        public int DonationAmount
+        {
+            get { return DonationHosts.Where(t => !t.is_host).Sum(t => t.amount); }
+        }
+
+        [JsonIgnore]
+        public IEnumerable<Tipeee.DonationHost> DonationSinceStreamStart
+        {
+            get
+            {
+                return DonationHosts
+                  .Where(t => !t.is_host && t.created_at.Subtract(StreamStart).TotalSeconds > 0);
+            }
+        }
+
+        [JsonIgnore]
         public int FollowCount
         {
             get { return Channel.ApiResult.GetValue<int>(ApiInfo.followers); }
         }
 
+        [JsonIgnore]
+        public int HostAmount
+        {
+            get { return DonationHosts.Where(t => t.is_host).Sum(t => t.amount); }
+        }
+
+        [JsonIgnore]
+        public IEnumerable<Tipeee.DonationHost> HostSinceStreamStart
+        {
+            get
+            {
+                return DonationHosts
+                  .Where(t => t.is_host && t.created_at.Subtract(StreamStart).TotalSeconds > 0);
+            }
+        }
+
+        [JsonIgnore]
         public int ReSubsSinceStreamStart
         {
             get
             {
-                var ts = Channel.ApiResult.GetValue<DateTime>(ApiInfo.stream_created_at);
+                var ts = StreamStart;
                 var sec = Subs.Count(t => (t.created_at.Subtract(ts).TotalSeconds > 0) && (t.sub_plan.Contains("resub")));
                 return sec;
             }
         }
 
+        public DateTime StreamStart
+        {
+            get;
+            set;
+        }
+
+        [JsonIgnore]
         public int SubCount
         {
             get;
             private set;
         }
 
+        [JsonIgnore]
         public List<Sub> Subs
         {
             get;
             private set;
         }
 
+        [JsonIgnore]
         public int SubsSinceStreamStart
         {
             get
@@ -85,14 +155,62 @@ namespace LX29_ChatClient.Dashboard
             }
         }
 
+        public string TipeeeKey
+        {
+            get { return _tipeKey; }
+            set
+            {
+                _tipeKey = value;
+            }
+        }
+
+        [JsonIgnore]
         public TwitchUser User
         {
             get { return TwitchUserCollection.Selected; }
         }
 
+        [JsonIgnore]
+        public List<NoticeMessage> UserBans
+        {
+            get
+            {
+                if (ChatClient.UserBans.ContainsKey(summit))
+                    return ChatClient.UserBans[summit];
+                else
+                    return new List<NoticeMessage>();
+            }
+        }
+
+        [JsonIgnore]
         public int ViewerCount
         {
             get { return Channel.ApiResult.GetValue<int>(ApiInfo.viewers); }
+        }
+
+        public static DashboardData Load(string file)
+        {
+            if (System.IO.File.Exists(file))
+            {
+                var json = LX29_Cryptography.LX29Crypt.Decrypt(System.IO.File.ReadAllBytes(file));
+                var data = JsonConvert.DeserializeObject<DashboardData>(json);
+                return data;
+            }
+            return new DashboardData();
+        }
+
+        public bool Dispose(bool b)
+        {
+            if (b)
+            {
+                Dispose();
+            }
+            return b;
+        }
+
+        public void Dispose()
+        {
+            ChatClient.OnUserNoticeReceived -= ChatClient_OnUserNoticeReceived;
         }
 
         public void GetSubscriptions()
@@ -102,12 +220,27 @@ namespace LX29_ChatClient.Dashboard
                 TwitchUserCollection.CheckToken(false);
                 Dictionary<string, Viewer> subs = new Dictionary<string, Viewer>();
                 //var fols = downloadFollows();
+
                 Subs = downloadSubs();
-                var con = Subs.Distinct(new DistinctItemComparer()).ToDictionary(t => t.user.name);// fols.Concat(sbs);
+                //ysdfgh;
+                Dictionary<string, Sub> con = new Dictionary<string, Sub>();
+                foreach (var s in Subs)
+                {
+                    if (con.ContainsKey(s.user.name))
+                    {
+                        if (int.Parse(s.sub_plan) > int.Parse(con[s.user.name].sub_plan))
+                        {
+                            con[s.user.name] = s;
+                        }
+                    }
+                    else
+                    {
+                        con.Add(s.user.name, s);
+                    }
+                }
+                Subs = con.Values.ToList();
 
-                SubCount = Subs.Count;
-
-                //FollowCount = Channel.ApiResult.GetValue<int>(ApiInfo.followers);// fols.Count;
+                SubCount = con.Count;
 
                 while (ChatClient.Users.Count(User.Name) == 0)
                 {
@@ -118,7 +251,7 @@ namespace LX29_ChatClient.Dashboard
                 List<string> noID = new List<string>();
                 foreach (var u in users)
                 {
-                    Viewer v = new Viewer();
+                    Viewer v = Chatters.ContainsKey(u.name) ? Chatters[u.name] : new Viewer();
                     if (con.ContainsKey(u.name))
                     {
                         v.sub = con[u.name];
@@ -138,16 +271,62 @@ namespace LX29_ChatClient.Dashboard
                     subs.Add(u.name, v);
                 }
                 var ids = TwitchApi.GetUserID(noID.ToArray());
-                foreach (var id in ids)
-                {
-                    subs[id.Name].user.FromApiResult(id);
-                }
+                if (ids != null)
+                    foreach (var id in ids)
+                    {
+                        subs[id.Name].user.FromApiResult(id);
+                    }
 
                 Chatters = subs;
             }
             catch
             {
             }
+        }
+
+        public void LoadTipeee()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(_tipeKey)) return;
+                DonationHosts.Clear();
+                //https://www.tipeeestream.com/dashboard/api-key
+                string url = "https://api.tipeeestream.com/v1.0/events.json?apiKey=" + TipeeeKey + "&type[]=donation&type[]=hosting";
+                using (var wc = new System.Net.WebClient())
+                {
+                    wc.Proxy = null;
+                    string json = wc.DownloadString(url);
+                    var donations = JsonConvert.DeserializeObject<Tipeee.JSON>(json);
+                    foreach (var di in donations.datas.items)
+                    {
+                        Tipeee.DonationHost don = new Tipeee.DonationHost()
+                        {
+                            type = di.type,
+                            amount = di.is_host ? di.parameters.viewers : di.amount,
+                            created_at = di.created_at,
+                            currency = di.is_host ? " Viewer" : di.parameters.currency,
+                            message = di.parameters.message,
+                            name = di.is_host ? di.parameters.hostname : di.parameters.username
+                        };
+                        if (!don.name.Equals(User.Name))
+                        {
+                            DonationHosts.Add(don);
+                        }
+                        else
+                        {
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        public void Save()
+        {
+            System.IO.File.WriteAllBytes(Settings._dataDir + "dashboard.json",
+                LX29_Cryptography.LX29Crypt.Encrypt(JsonConvert.SerializeObject(this)));
         }
 
         private static IEnumerable<User> GetChatUsers(string ChannelName)
@@ -182,6 +361,12 @@ namespace LX29_ChatClient.Dashboard
                 .Select(t => new { UType = LX29_ChatClient.UserType.NORMAL, Name = t }));
 
             return users.Select(t => new User() { name = t.Name, usertype = t.UType });
+        }
+
+        private void ChatClient_OnUserNoticeReceived(NoticeMessage notice)
+        {
+            if (OnUserNoticeReceived != null)
+                OnUserNoticeReceived(notice);
         }
 
         private List<Sub> downloadFollows()
@@ -237,9 +422,10 @@ namespace LX29_ChatClient.Dashboard
             {
                 //offset += subs.Count;
                 Parallel.For(1, parts + 1, new Action<int>((i) =>
+                //for (int i = 1; i <= parts; i++)
                 {
-                    s = TwitchApi.downloadString(url + delimiter + "limit=" + limit + "&offset=" + (limit * i), token);
-                    var temp = JsonConvert.DeserializeObject<ChannelSubJson>(s).subscriptions;
+                    var st = TwitchApi.downloadString(url + delimiter + "limit=" + limit + "&offset=" + (i * limit), token);
+                    var temp = JsonConvert.DeserializeObject<ChannelSubJson>(st).subscriptions;
                     if (temp.Count > 0)
                     {
                         //offset += temp.Count;
@@ -278,19 +464,113 @@ namespace LX29_ChatClient.Dashboard
         public User user { get; set; }
     }
 
+    public class Tipeee
+    {
+        public class DonationHost
+        {
+            public int amount { get; set; }
+            public DateTime created_at { get; set; }
+            public string currency { get; set; }
+
+            public bool is_host
+            { get { return string.IsNullOrEmpty(message); } }
+
+            public string message { get; set; }
+            public string name { get; set; }
+            public string type { get; set; }
+        }
+
+        //public class Host
+        //{
+        //    public DateTime created_at { get; set; }
+        //}
+
+        public class JSON
+        {
+            public Datas datas { get; set; }
+            public string message { get; set; }
+
+            public class Currency
+            {
+                public bool available { get; set; }
+                public string code { get; set; }
+                public string label { get; set; }
+                public string symbol { get; set; }
+            }
+
+            public class Datas
+            {
+                public List<Item> items { get; set; }
+                public int total_count { get; set; }
+            }
+
+            public class Item
+            {
+                private User _user = new User();
+                public string @ref { get; set; }
+                public int amount { get { return parameters.amount; } }
+                public DateTime created_at { get; set; }
+                public bool display { get; set; }
+                public string formattedAmount { get; set; }
+                public int id { get; set; }
+                public DateTime inserted_at { get; set; }
+                public bool is_host { get { return type.Equals("hosting"); } }
+                public Parameters parameters { get; set; }
+                public string type { get; set; }
+                public User user { get; set; }
+            }
+
+            public class Parameters
+            {
+                public int amount { get; set; }
+                public string currency { get; set; }
+                public int fees { get; set; }
+                public string formattedMessage { get; set; }
+                public string hostname { get; set; }
+                public string identifier { get; set; }
+                public string message { get; set; }
+                public int paypalCampaign { get; set; }
+                public string username { get; set; }
+                public int viewers { get; set; }
+            }
+
+            //public class Provider
+            //{
+            //    public string code { get; set; }
+            //    public DateTime connectedAt { get; set; }
+            //    public DateTime created_at { get; set; }
+            //    public string id { get; set; }
+            //    public DateTime last_follow_update { get; set; }
+            //    public string username { get; set; }
+            //}
+
+            //public class User
+            //{
+            //    //public string avatar { get; set; }
+            //    //public string country { get; set; }
+            //    public DateTime created_at { get; set; }
+            //    //public Currency currency { get; set; }
+            //    //public DateTime hasPayment { get; set; }
+            //    public int id { get; set; }
+            //    //public List<Provider> providers { get; set; }
+            //    //public string pseudo { get; set; }
+            //    //public DateTime session_at { get; set; }
+            //    public string username { get; set; }
+            //}
+        }
+    }
+
     public class User
     {
         public int _id { get; set; }
         public DateTime created_at { get; set; }
         public string display_name { get; set; }
-
         public string DisplayName { get { return (display_name != null) ? display_name : name; } }
+        public int id { get { return _id; } set { _id = value; } }
         public string logo { get; set; }
-
         public string name { get; set; }
-
         public DateTime updated_at { get; set; }
-
+        public string username { get { return name; } set { name = value; } }
         public UserType usertype { get; set; }
 
         public void FromApiResult(ApiResult id)
@@ -319,7 +599,7 @@ namespace LX29_ChatClient.Dashboard
     {
         public bool Equals(Sub x, Sub y)
         {
-            return x.user._id == y.user._id;
+            return x.user._id == y.user._id && int.Parse(x.sub_plan) != int.Parse(y.sub_plan);
         }
 
         public int GetHashCode(Sub obj)

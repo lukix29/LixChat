@@ -1,4 +1,5 @@
 using IRC_Client.Events;
+using LX29_Twitch.Api;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,8 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using LX29_ChatClient;
-using LX29_Twitch.Api;
 
 namespace IRC_Client
 {

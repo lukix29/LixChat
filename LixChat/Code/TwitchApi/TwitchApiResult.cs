@@ -58,7 +58,7 @@ namespace LX29_Twitch.Api
         watch_party = 1
     }
 
-    public enum SubType
+    public enum SubType : int
     {
         NoSubProgram = -2000,
         NoSub = -1000,

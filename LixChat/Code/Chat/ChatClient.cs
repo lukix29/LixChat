@@ -25,6 +25,8 @@ namespace LX29_ChatClient
 
         public delegate void LoadedList(int count, int max, string info);
 
+        public delegate void UserNoticeReceived(NoticeMessage notice);
+
         public static event LoadedList ListLoaded;
 
         public static event _JoinedChannel OnChannelJoined;
@@ -34,6 +36,8 @@ namespace LX29_ChatClient
         public static event _ReceivedHandler OnMessageReceived;
 
         public static event _TimeoutHandler OnTimeout;
+
+        public static event UserNoticeReceived OnUserNoticeReceived;
 
         public static void ListUpdated()
         {
@@ -118,6 +122,58 @@ namespace LX29_ChatClient
         //    return msg_ids.NONE;
         //}
 
+        private static Dictionary<string, List<NoticeMessage>> notices = new Dictionary<string, List<NoticeMessage>>();
+        private static Dictionary<string, List<NoticeMessage>> timeouts = new Dictionary<string, List<NoticeMessage>>();
+
+        public static Dictionary<string, List<NoticeMessage>> UserBans
+        {
+            get { return timeouts; }
+        }
+
+        public static Dictionary<string, List<NoticeMessage>> UserNotices
+        {
+            get { return notices; }
+        }
+
+        private static void AddNotice(string channel, string name, string info, int value, SubType type = SubType.NoSub)
+        {
+            //if (type == SubType.NoSub)
+            //{
+            //}
+            NoticeMessage ntc = new NoticeMessage()
+            {
+                Name = name,
+                Value = value,
+                Message = info,
+                Type = type,
+                CreatedAt = DateTime.Now
+            };
+            if (type == SubType.NoSub)
+            {
+                if (timeouts.ContainsKey(channel))
+                {
+                    timeouts[channel].Add(ntc);
+                }
+                else
+                {
+                    timeouts.Add(channel, new List<NoticeMessage>(new NoticeMessage[] { ntc }));
+                }
+            }
+            else
+            {
+                if (notices.ContainsKey(channel))
+                {
+                    notices[channel].Add(ntc);
+                }
+                else
+                {
+                    notices.Add(channel, new List<NoticeMessage>(new NoticeMessage[] { ntc }));
+                }
+            }
+            if (OnUserNoticeReceived != null)
+                OnUserNoticeReceived(ntc);
+        }
+
         private static Dictionary<irc_params, string> ParseParams(string raw, string spliType)
         {
             Dictionary<irc_params, string> parameters = new Dictionary<irc_params, string>();
@@ -192,6 +248,7 @@ namespace LX29_ChatClient
                                     Message = tor.Message;
                                     UserHasTimeouted(tor);
                                 }
+                                AddNotice(channelName, name, Message, tor.TimeOutDuration);
                             }
                             break;
 
@@ -222,32 +279,33 @@ namespace LX29_ChatClient
                                 {
                                     system_msg = parameters[irc_params.system_msg].Replace("\\s", " ");
                                 }
-                                else
-                                {
-                                    string subType = "";
-                                    string msg_id = "";
-                                    string months = "";
+                                string subType = "";
+                                string msg_id = "";
+                                int months = 0;
+                                SubType st = SubType.NoSub;
 
-                                    if (parameters.ContainsKey(irc_params.msg_id))
+                                if (parameters.ContainsKey(irc_params.msg_id))
+                                {
+                                    msg_id = parameters[irc_params.msg_id].Replace("_", " ").ToTitleCase();
+                                }
+                                if (parameters.ContainsKey(irc_params.msg_param_months))
+                                {
+                                    int.TryParse(parameters[irc_params.msg_param_months], out months);
+                                }
+                                if (parameters.ContainsKey(irc_params.msg_param_sub_plan))
+                                {
+                                    if (Enum.TryParse<SubType>(parameters[irc_params.msg_param_sub_plan], out st))
                                     {
-                                        msg_id = parameters[irc_params.msg_id].Replace("_", " ").ToTitleCase();
+                                        subType = Enum.GetName(typeof(SubType), st);
                                     }
-                                    if (parameters.ContainsKey(irc_params.msg_param_months))
-                                    {
-                                        months = parameters[irc_params.msg_param_months];
-                                    }
-                                    if (parameters.ContainsKey(irc_params.msg_param_sub_plan))
-                                    {
-                                        SubType st = SubType.NoSub;
-                                        if (Enum.TryParse<SubType>(parameters[irc_params.msg_param_sub_plan], out st))
-                                        {
-                                            subType = Enum.GetName(typeof(SubType), st);
-                                        }
-                                    }
+                                }
+                                if (string.IsNullOrEmpty(system_msg))
+                                {
                                     system_msg = subType + " " + msg_id + " " + months + "x";
                                 }
-                                //SendSilentMessage(system_msg, channelName, MsgType.UserNotice);
-                                //messages.Add(channelName, parameters, Name, Message, spliType, tor);
+
+                                AddNotice(channelName, Name, Message, months, st);
+
                                 messages.Add(channelName, system_msg, true, MsgType.UserNotice);
                             }
                             break;
@@ -887,8 +945,6 @@ namespace LX29_ChatClient
         //private static readonly object syncRootMessage = new object();
         //private static readonly object syncRootUsers = new object();
 
-        private static List<string> chatHighlights = new List<string>();
-
         private static Dictionary<int, IRC> clients = new Dictionary<int, IRC>();
         private static MessageCollection messages;// = new MessageCollection();
 
@@ -904,7 +960,8 @@ namespace LX29_ChatClient
 
         public static List<string> ChatHighlights
         {
-            get { return chatHighlights; }
+            get;
+            set;
         }
 
         public static Dictionary<int, IRC> Clients
@@ -925,17 +982,17 @@ namespace LX29_ChatClient
         public static void AddChatHighlightWord(string word, bool save = true)
         {
             if (string.IsNullOrEmpty(word)) return;
-            if (!chatHighlights.Contains(word.ToLower()))
+            if (!ChatHighlights.Contains(word.ToLower()))
             {
-                chatHighlights.Add(word.ToLower());
+                ChatHighlights.Add(word.ToLower());
                 if (save) SaveChatHighlightWord();
             }
-            var bitmap = LX29_LixChat.Properties.Resources.loading;
+            //var bitmap = LX29_LixChat.Properties.Resources.loading;
         }
 
         public static void ClearChatHighlightWord()
         {
-            chatHighlights.Clear();
+            ChatHighlights.Clear();
         }
 
         public static void FetchEmotes()
@@ -954,19 +1011,41 @@ namespace LX29_ChatClient
         {
             if (File.Exists(Settings._dataDir + "HighlightKeywords.txt"))
             {
-                var lines = File.ReadAllLines(Settings._dataDir + "HighlightKeywords.txt");
+                var lines = File.ReadAllLines(Settings._dataDir + "HighlightKeywords.json");
                 foreach (var line in lines)
                 {
                     AddChatHighlightWord(line, false);
                 }
+                File.Delete(Settings._dataDir + "HighlightKeywords.txt");
             }
+            if (File.Exists(Settings._dataDir + "HighlightKeywords.json"))
+            {
+                ChatHighlights = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(
+                    File.ReadAllText(Settings._dataDir + "HighlightKeywords.json"));
+            }
+            if (ChatHighlights == null) ChatHighlights = new List<string>();
             AddChatHighlightWord(SelfUserName);
             AddChatHighlightWord(SelfUserName.RemoveNonCharsAndDigits());
         }
 
         public static void SaveChatHighlightWord()
         {
-            File.WriteAllLines(Settings._dataDir + "HighlightKeywords.txt", chatHighlights);
+            File.WriteAllText(Settings._dataDir + "HighlightKeywords.json", Newtonsoft.Json.JsonConvert.SerializeObject(ChatHighlights));
         }
+    }
+
+    public class NoticeMessage
+    {
+        public DateTime CreatedAt { get; set; }
+
+        public bool IsSub
+        {
+            get { return Type >= 0; }
+        }
+
+        public string Message { get; set; }
+        public string Name { get; set; }
+        public SubType Type { get; set; }
+        public int Value { get; set; }
     }
 }

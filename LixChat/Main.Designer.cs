@@ -20,7 +20,7 @@
                     components.Dispose();
                 }
                 //mpv.Dispose();
-                mpvPreview.Dispose();
+                //mpvPreview.Dispose();
             }
 
             base.Dispose(disposing);
@@ -230,6 +230,7 @@
             this.lstB_Channels.Name = "lstB_Channels";
             this.lstB_Channels.SelectedIndex = 0;
             this.lstB_Channels.SelectedIndexChanged += new LX29_ChatClient.Forms.ChannelListBox.OnSelectedIndexChanged(this.lstB_Channels_SelectedIndexChanged);
+            this.lstB_Channels.Load += new System.EventHandler(this.lstB_Channels_Load);
             this.lstB_Channels.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstB_Channels_MouseDoubleClick);
             // 
             // cMS_ListBox

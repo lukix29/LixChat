@@ -1,12 +1,10 @@
-﻿using System;
+﻿using LX29_ChatClient;
+using System;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Pipes;
-using System.Security.Principal;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
-using LX29_ChatClient;
 
 namespace LX29_MPV
 {
@@ -110,7 +108,7 @@ namespace LX29_MPV
 
         public MpvLib()
         {
-            //socketName = "mpv_" + name;// +"_" + rdName(8);
+            //Load();
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -142,7 +140,7 @@ namespace LX29_MPV
 
         public bool IsRunning
         {
-            get { return (process == null) ? (_mpvHandle != IntPtr.Zero) : (process.MainWindowHandle != IntPtr.Zero); }
+            get { return (process == null) ? (_libMpvDll != IntPtr.Zero) : (process.MainWindowHandle != IntPtr.Zero); }
         }
 
         public System.Drawing.Rectangle Position
@@ -182,6 +180,119 @@ namespace LX29_MPV
                 {
                     case MessageBoxResult.Retry:
                         Record(Title, fileName);
+                        break;
+                }
+            }
+            return false;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public bool Dispose(bool dispose)
+        {
+            if (dispose)
+            {
+                if (_mpvHandle != IntPtr.Zero)
+                {
+                    _mpvTerminateDestroy(_mpvHandle);
+                    _mpvHandle = IntPtr.Zero;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        public string GetProperty(MPV_Property property)
+        {
+            if (_mpvHandle == IntPtr.Zero)
+                return null;
+            var lpBuffer = IntPtr.Zero;
+            var name = Enum.GetName(typeof(MPV_Property), property).Replace("_", "-");
+            _mpvGetPropertyString(_mpvHandle, GetUtf8Bytes(name), MpvFormatString, ref lpBuffer);
+            var value = Marshal.PtrToStringAnsi(lpBuffer);
+            _mpvFree(lpBuffer);
+            return value;
+        }
+
+        public void Load()
+        {
+            if (_mpvHandle != IntPtr.Zero)
+                _mpvTerminateDestroy(_mpvHandle);
+
+            LoadMpvDynamic();
+            if (_libMpvDll == IntPtr.Zero)
+                return;
+
+            _mpvHandle = _mpvCreate.Invoke();
+            if (_mpvHandle == IntPtr.Zero)
+                return;
+
+            _mpvInitialize.Invoke(_mpvHandle);
+            _mpvSetOptionString(_mpvHandle, GetUtf8Bytes("keep-open"), GetUtf8Bytes("no"));
+            _mpvSetOptionString(_mpvHandle, GetUtf8Bytes("af"), GetUtf8Bytes("format=channels=2.0"));
+        }
+
+        //public void Pause(bool enable)
+        //{
+        //    SetProperty(MPV_Property.pause, enable);
+        //}
+
+        public void SetProcess(Process p)
+        {
+            try
+            {
+                process = p;
+            }
+            catch (Exception x)
+            {
+                switch (x.Handle())
+                {
+                    case MessageBoxResult.Retry:
+                        SetProcess(p);
+                        break;
+                }
+            }
+        }
+
+        public void SetProperty(MPV_Property property, object value)
+        {
+            if (_mpvHandle == IntPtr.Zero)
+                return;
+
+            string val = value.ToString();
+            if (value is bool)
+            {
+                val = ((bool)value) ? "yes" : "no";
+            }
+
+            var name = Enum.GetName(typeof(MPV_Property), property).Replace("_", "-");
+
+            var buff = GetUtf8Bytes(val);
+            _mpvSetProperty(_mpvHandle, GetUtf8Bytes(name), MpvFormatString, ref buff);
+        }
+
+        public void SetVolume(int volume)
+        {
+            SetProperty(MPV_Property.volume, Math.Max(0, Math.Min(120, volume)));
+        }
+
+        public bool Start(string fileName, IntPtr handle, int volume = 100, int cacheSecs = 10, int cache = 32000)
+        {
+            try
+            {
+                bool b = _start(handle, fileName);
+                SetVolume(volume);
+                return b;
+            }
+            catch (Exception x)
+            {
+                switch (x.Handle())
+                {
+                    case MessageBoxResult.Retry:
+                        Start(fileName, handle, volume, cacheSecs, cache);
                         break;
                 }
             }
@@ -275,96 +386,13 @@ namespace LX29_MPV
             return false;
         }
 
-        public void Dispose()
+        public bool Stop()
         {
-            Dispose(true);
-        }
-
-        public bool Dispose(bool dispose)
-        {
-            if (dispose)
+            if (IsRunning)
             {
-                if (_mpvHandle != IntPtr.Zero)
-                {
-                    _mpvTerminateDestroy(_mpvHandle);
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public string GetProperty(MPV_Property property)
-        {
-            if (_mpvHandle == IntPtr.Zero)
-                return null;
-            var lpBuffer = IntPtr.Zero;
-            var name = Enum.GetName(typeof(MPV_Property), property).Replace("_", "-");
-            _mpvGetPropertyString(_mpvHandle, GetUtf8Bytes(name), MpvFormatString, ref lpBuffer);
-            var value = Marshal.PtrToStringAnsi(lpBuffer);
-            _mpvFree(lpBuffer);
-            return value;
-        }
-
-        public void Pause(bool enable)
-        {
-            SetProperty(MPV_Property.pause, enable);
-        }
-
-        public void SetProcess(Process p)
-        {
-            try
-            {
-                process = p;
-            }
-            catch (Exception x)
-            {
-                switch (x.Handle())
-                {
-                    case MessageBoxResult.Retry:
-                        SetProcess(p);
-                        break;
-                }
-            }
-        }
-
-        public void SetProperty(MPV_Property property, object value)
-        {
-            if (_mpvHandle == IntPtr.Zero)
-                return;
-
-            string val = value.ToString();
-            if (value is bool)
-            {
-                val = ((bool)value) ? "yes" : "no";
-            }
-
-            var name = Enum.GetName(typeof(MPV_Property), property).Replace("_", "-");
-
-            var buff = GetUtf8Bytes(val);
-            _mpvSetProperty(_mpvHandle, GetUtf8Bytes(name), MpvFormatString, ref buff);
-        }
-
-        public void SetVolume(int volume)
-        {
-            SetProperty(MPV_Property.volume, Math.Max(0, Math.Min(120, volume)));
-        }
-
-        public bool Start(string fileName, IntPtr handle, int volume = 100, int cacheSecs = 10, int cache = 32000)
-        {
-            try
-            {
-                _start(handle, fileName);
-                SetVolume(volume);
+                _mpvTerminateDestroy(_mpvHandle);
+                _mpvHandle = IntPtr.Zero;
                 return true;
-            }
-            catch (Exception x)
-            {
-                switch (x.Handle())
-                {
-                    case MessageBoxResult.Retry:
-                        Start(fileName, handle, volume, cacheSecs, cache);
-                        break;
-                }
             }
             return false;
         }
@@ -432,25 +460,13 @@ namespace LX29_MPV
 
         private bool _start(IntPtr handle, string url)
         {
-            if (_mpvHandle != IntPtr.Zero)
-                _mpvTerminateDestroy(_mpvHandle);
-
-            LoadMpvDynamic();
-            if (_libMpvDll == IntPtr.Zero)
-                return false;
-
-            _mpvHandle = _mpvCreate.Invoke();
-            if (_mpvHandle == IntPtr.Zero)
-                return false;
-
-            _mpvInitialize.Invoke(_mpvHandle);
-            _mpvSetOptionString(_mpvHandle, GetUtf8Bytes("keep-open"), GetUtf8Bytes("always"));
-            _mpvSetOptionString(_mpvHandle, GetUtf8Bytes("af"), GetUtf8Bytes("format=channels=2.0"));
-
+            Load();
             int format = 4;
             var windowId = handle.ToInt64();
             _mpvSetOption(_mpvHandle, GetUtf8Bytes("wid"), format, ref windowId);
             DoMpvCommand("loadfile", url);
+
+            //IsRunning = true;
 
             return true;
         }

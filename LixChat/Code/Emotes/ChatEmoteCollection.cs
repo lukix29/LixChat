@@ -235,9 +235,9 @@ namespace LX29_ChatClient.Emotes
 
             try
             {
-                if (!File.Exists(Settings._dataDir + "EmoteCache.txt")) return true;
+                if (!File.Exists(Settings._dataDir + "EmoteCache.json")) return true;
 
-                using (JsonTextReader reader = new JsonTextReader(new StreamReader(File.OpenRead(Settings._dataDir + "EmoteCache.txt"))))
+                using (JsonTextReader reader = new JsonTextReader(new StreamReader(File.OpenRead(Settings._dataDir + "EmoteCache.json"))))
                 {
                     bool emoteStart = false;
                     int cnt = 0;
@@ -527,7 +527,7 @@ namespace LX29_ChatClient.Emotes
             {
                 JsonSerializer serializer = new JsonSerializer();
 
-                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(Settings._dataDir + "EmoteCache.txt")))
+                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(Settings._dataDir + "EmoteCache.json")))
                 {
                     writer.WriteStartObject();
                     writer.WritePropertyName("created");
@@ -747,6 +747,11 @@ namespace LX29_ChatClient.Emotes
             private set;
         }
 
+        public bool ShowEmojis
+        {
+            get { return Settings.ShowEmojis; }
+        }
+
         public EmoteBase Add(Emote e)
         {
             if (e.IsEmpty) return null;
@@ -918,7 +923,7 @@ namespace LX29_ChatClient.Emotes
                 {
                     return emotionary._emoji_unicodes.Values.SkipWhile(t => t.Name.Equals(name)).Take(1);// _emoji_names[Name];
                 }
-                else
+                else if (ShowEmojis)
                 {
                     try
                     {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,25 +27,49 @@ namespace LX29_ChatClient.Addons
         {
             chatactions = new List<ChatAction>();
             EnableActions = true;
-            Loaded = false;
         }
 
+        [JsonIgnore]
         public bool ChatActionShowing
         {
             get;
             set;
         }
 
+        [JsonRequired]
         public bool EnableActions
         {
             get;
             private set;
         }
 
-        public bool Loaded
+        [JsonRequired]
+        public List<ChatAction> Values
         {
-            get;
-            private set;
+            get { return chatactions; }
+            set { chatactions = value; }
+        }
+
+        //[JsonIgnore]
+        //public bool Loaded
+        //{
+        //    get;
+        //    private set;
+        //}
+
+        public static AutoActions Load()
+        {
+            string path = Settings._dataDir + "AutoActions.json";
+
+            var action = LoadOld();
+            if (System.IO.File.Exists(path))
+            {
+                if (action == null)
+                {
+                    return JsonConvert.DeserializeObject<AutoActions>(System.IO.File.ReadAllText(path));
+                }
+            }
+            return new AutoActions();
         }
 
         public void CheckActions(ChatMessage msg)
@@ -102,34 +127,11 @@ namespace LX29_ChatClient.Addons
             }
         }
 
-        //public bool ChangeChatAction(ChatAction action)
-        //{
-        //    if (!action.IsEmpty)
-        //    {
-        //        if (!chatactions.Contains(action))
-        //        {
-        //            chatactions.Add(action);
-        //            return true;
-        //        }
-        //        else
-        //        {
-        //            var idx = chatactions.IndexOf(action);
-        //            chatactions[idx] = action;
-        //            return true;
-        //        }
-        //    }
-        //    return false;
-        //}
         public ChatAction FirstOrDefault(Func<ChatAction, bool> predicate)
         {
             return chatactions.FirstOrDefault(predicate);
         }
 
-        //public ChatAction this[int index]
-        //{
-        //    get { return chatactions[index]; }
-        //    set { chatactions[index] = value; }
-        //}
         public List<ChatAction> GetChannelActions()//string Channel)
         {
             return chatactions.Select(t => (ChatAction)t.Clone()).ToList();//.Where(t =>
@@ -140,39 +142,6 @@ namespace LX29_ChatClient.Addons
         public List<ChatAction>.Enumerator GetEnumerator()
         {
             return chatactions.GetEnumerator();
-        }
-
-        //public ChatAction GetChatAction(Func<ChatAction, bool> predicate)
-        //{
-        //    return chatactions.FirstOrDefault(predicate);
-        //}
-        public void Load()
-        {
-            try
-            {
-                string path = Settings._dataDir + "AutoActions.txt";
-                if (System.IO.File.Exists(path))
-                {
-                    chatactions.Clear();
-                    string input = System.IO.File.ReadAllText(path);
-                    if (!input.Contains("\r\n"))
-                    {
-                        input = input.Replace("},{", "}\r\n{").Replace("}]", "}").Replace("[{", "{");
-                    }
-                    var sa = input.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var val in sa)
-                    {
-                        ChatAction action = Newtonsoft.Json.JsonConvert.DeserializeObject<ChatAction>(val);
-                        chatactions.Add(action);
-                    }
-                }
-            }
-            catch
-            {
-                File.Copy(Settings._dataDir + "AutoActions.txt", Settings._dataDir + "AutoActions.bak", true);
-                File.Delete(Settings._dataDir + "AutoActions.txt");
-            }
-            Loaded = true;
         }
 
         public void OpenChatActions()
@@ -200,14 +169,14 @@ namespace LX29_ChatClient.Addons
             {
                 chatactions.Clear();
                 chatactions.AddRange(actions.Select(t => (ChatAction)t.Clone()));
-                string path = Settings._dataDir + "AutoActions.txt";
-                using (StreamWriter sw = new StreamWriter(path, false))
-                {
-                    foreach (var act in actions)
-                    {
-                        sw.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(act));
-                    }
-                }
+                string path = Settings._dataDir + "AutoActions.json";
+                //using (StreamWriter sw = new StreamWriter(path, false))
+                //{
+                //    foreach (var act in actions)
+                //    {
+                File.WriteAllText(path, Newtonsoft.Json.JsonConvert.SerializeObject(this));
+                //    }
+                //}
             }
             catch (Exception x)
             {
@@ -218,6 +187,35 @@ namespace LX29_ChatClient.Addons
                         break;
                 }
             }
+        }
+
+        private static AutoActions LoadOld()
+        {
+            try
+            {
+                string path = Settings._dataDir + "AutoActions.txt";
+                if (System.IO.File.Exists(path))
+                {
+                    AutoActions actions = new AutoActions();
+                    string input = System.IO.File.ReadAllText(path);
+                    if (!input.Contains("\r\n"))
+                    {
+                        input = input.Replace("},{", "}\r\n{").Replace("}]", "}").Replace("[{", "{");
+                    }
+                    var sa = input.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var val in sa)
+                    {
+                        ChatAction action = Newtonsoft.Json.JsonConvert.DeserializeObject<ChatAction>(val);
+                        actions.Values.Add(action);
+                    }
+                    System.IO.File.Delete(path);
+                    return actions;
+                }
+            }
+            catch
+            {
+            }
+            return null;
         }
     }
 

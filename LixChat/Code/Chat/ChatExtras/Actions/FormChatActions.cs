@@ -1,9 +1,8 @@
-﻿using LX29_ChatClient.Channels;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace LX29_ChatClient.Addons
 {
@@ -289,11 +288,11 @@ namespace LX29_ChatClient.Addons
             this.Text = "Chat Actions";
         }
 
-        private async void LoadActions(bool withuser)
+        private void LoadActions(bool withuser)
         {
             try
             {
-                while (!ChatClient.AutoActions.Loaded) await System.Threading.Tasks.Task.Delay(100);
+                //while (!ChatClient.AutoActions.Loaded) await System.Threading.Tasks.Task.Delay(100);
 
                 actions = ChatClient.AutoActions.GetChannelActions();
 

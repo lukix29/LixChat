@@ -133,6 +133,9 @@
     <Compile Include="Code\FormDashboard\FormDashboard.Designer.cs">
       <DependentUpon>FormDashboard.cs</DependentUpon>
     </Compile>
+    <Compile Include="Code\FormDashboard\LX29_TreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Code\FormStream\FormFollowers.cs">
       <SubType>Form</SubType>
     </Compile>

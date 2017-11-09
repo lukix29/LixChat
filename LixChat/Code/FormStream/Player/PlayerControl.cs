@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using LX29_ChatClient.Channels;
+using LX29_MPV;
+using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using LX29_ChatClient.Channels;
-using LX29_MPV;
 
 namespace LX29_LixChat.Code.FormStream.Player
 {
@@ -40,9 +36,17 @@ namespace LX29_LixChat.Code.FormStream.Player
 
         public delegate void PlayerControlsShown(bool controlsVisible, bool isFullscreen);
 
+        public delegate void Started();
+
+        public delegate void Stopped();
+
         public event BordelessChanged OnBordelessChanged;
 
         public event PlayerControlsShown OnPlayerControlsShown;
+
+        public event Started OnStarted;
+
+        public event Stopped OnStopped;
 
         public event OnTopChanged OnTopMostChanged;
 
@@ -62,6 +66,11 @@ namespace LX29_LixChat.Code.FormStream.Player
         public bool IsOnTop
         {
             get { return cB_OnTop.Checked; }
+        }
+
+        public bool IsRunning
+        {
+            get { return mpv.IsRunning; }
         }
 
         public Image PreviewImage
@@ -199,7 +208,10 @@ namespace LX29_LixChat.Code.FormStream.Player
 
         public void Stop()
         {
-            mpv.Dispose();
+            mpv.Stop();
+            setBtnPause(false);
+            if (OnStopped != null)
+                OnStopped();
         }
 
         private void btn_Pause_CheckedChanged(object sender, EventArgs e)
@@ -208,8 +220,9 @@ namespace LX29_LixChat.Code.FormStream.Player
             if (!cb_Pause.Checked)
             {
                 cb_Pause.BackgroundImage = LX29_LixChat.Properties.Resources.play;
-                if (!_ShowOnTopBorderless) mpv.Pause(true);
-                else mpv.Pause(true);
+                mpv.Stop();
+                if (OnStopped != null)
+                    OnStopped();
             }
             else
             {
@@ -305,6 +318,7 @@ namespace LX29_LixChat.Code.FormStream.Player
         {
             try
             {
+                Stop();
                 var video = Stream.StreamURLS[Quality];
                 if (video != null)
                 {
@@ -313,6 +327,8 @@ namespace LX29_LixChat.Code.FormStream.Player
                     if (mpv.Start(video.URL, handle, volume))
                     {
                         setBtnPause(true);
+                        if (OnStarted != null)
+                            OnStarted();
                     }
                     else
                     {

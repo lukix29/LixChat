@@ -1,7 +1,6 @@
 ﻿using LX29_ChatClient;
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace LX29_Twitch.Api.Controls

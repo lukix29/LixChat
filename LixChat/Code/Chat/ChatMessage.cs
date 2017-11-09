@@ -359,99 +359,106 @@ namespace LX29_ChatClient
 
         public ChatMessage(string message, string user, string channel, TimeOutResult toResult, string outerMessageType, Dictionary<irc_params, string> parameters)
         {
-            Types = new HashSet<MsgType>();
-            if (parameters.ContainsKey(irc_params.msg_id))
+            try
             {
-                msg_ids ids = msg_ids.NONE;
-                if (Enum.TryParse<msg_ids>(parameters[irc_params.msg_id], out ids))
+                Types = new HashSet<MsgType>();
+                if (parameters.ContainsKey(irc_params.msg_id))
                 {
-                    Message_ID = ids;
-                }
-                else
-                {
-                    Message_ID = msg_ids.NONE;
-                }
-            }
-            if (user == ChatClient.SelfUserName)
-            {
-                Types.Add(MsgType.Outgoing);
-            }
-            if (message.Length > 0)
-            {
-                if (message.Contains(ACTION))
-                {
-                    Types.Add(MsgType.Action);
-                    message = message.ReplaceAll("", "\u0001", ACTION).Trim();
-                }
-                if (outerMessageType.Equals(WHISPER))
-                {
-                    Types.Add(MsgType.Whisper);
-                    message = message.ReplaceAll("", "\u0001", WHISPER).Trim();
-                }
-                else
-                {
-                    string msg = " " + message.ToLower() + " ";
-                    if (!user.Equals(ChatClient.SelfUserName, StringComparison.OrdinalIgnoreCase)
-                        && ChatClient.ChatHighlights
-                        .Any(t => System.Text.RegularExpressions.Regex
-                            .IsMatch(msg, @"\W" + t + @"\W")))
+                    msg_ids ids = msg_ids.NONE;
+                    if (Enum.TryParse<msg_ids>(parameters[irc_params.msg_id], out ids))
                     {
-                        Types.Add(MsgType.HL_Messages);
+                        Message_ID = ids;
+                    }
+                    else
+                    {
+                        Message_ID = msg_ids.NONE;
                     }
                 }
+                if (user == ChatClient.SelfUserName)
+                {
+                    Types.Add(MsgType.Outgoing);
+                }
+                if (message.Length > 0)
+                {
+                    if (message.Contains(ACTION))
+                    {
+                        Types.Add(MsgType.Action);
+                        message = message.ReplaceAll("", "\u0001", ACTION).Trim();
+                    }
+                    if (outerMessageType.Equals(WHISPER))
+                    {
+                        Types.Add(MsgType.Whisper);
+                        message = message.ReplaceAll("", "\u0001", WHISPER).Trim();
+                    }
+                    else
+                    {
+                        string msg = " " + message.ToLower() + " ";
+                        if (!user.Equals(ChatClient.SelfUserName, StringComparison.OrdinalIgnoreCase)
+                            && ChatClient.ChatHighlights != null && ChatClient.ChatHighlights
+                            .Any(t => System.Text.RegularExpressions.Regex
+                                .IsMatch(msg, @"\W" + t + @"\W")))
+                        {
+                            Types.Add(MsgType.HL_Messages);
+                        }
+                    }
+                }
+                switch (outerMessageType)
+                {
+                    case GLOBALUSERSTATE:
+                        break;
+
+                    case WHISPER:
+                        Types.Add(MsgType.Whisper);// IsWhisper = true;
+                        message = message.ReplaceAll("", "\u0001", WHISPER).Trim();
+                        break;
+
+                    case NOTICE:
+                        Types.Add(MsgType.Notice);
+                        break;
+
+                    case USERNOTICE:
+                        Types.Add(MsgType.UserNotice);
+                        break;
+
+                    case USERSTATE:
+                        Types.Add(MsgType.State);
+                        break;
+
+                    case CLEARCHAT:
+                        Types.Add(MsgType.Clearchat);
+                        break;
+                }
+
+                if (parameters.ContainsKey(irc_params.tmi_sent_ts))
+                {
+                    long t = long.Parse(parameters[irc_params.tmi_sent_ts]);
+                    DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                    SendTime = epoch.AddMilliseconds(t).ToLocalTime();
+                }
+
+                ChatWords = ChatClient.Emotes.ParseEmoteFromMessage(parameters, message, channel, Types);
+
+                Parameters = parameters;
+                Message = message;
+
+                if (Message.StartsWith(".")) Message = Message.Remove(0, 1);
+
+                Channel_Name = channel;
+                Timeout = toResult;
+
+                //if (Types.Count == 0)
+                //{
+                //    Types.Add(MsgType.All_Messages);
+                //}
+
+                Name = user.ToLower();
+                User = ChatClient.Users.Get(Name, channel);
+                SendTime = DateTime.Now;
             }
-            switch (outerMessageType)
+            catch (Exception x)
             {
-                case GLOBALUSERSTATE:
-                    break;
-
-                case WHISPER:
-                    Types.Add(MsgType.Whisper);// IsWhisper = true;
-                    message = message.ReplaceAll("", "\u0001", WHISPER).Trim();
-                    break;
-
-                case NOTICE:
-                    Types.Add(MsgType.Notice);
-                    break;
-
-                case USERNOTICE:
-                    Types.Add(MsgType.UserNotice);
-                    break;
-
-                case USERSTATE:
-                    Types.Add(MsgType.State);
-                    break;
-
-                case CLEARCHAT:
-                    Types.Add(MsgType.Clearchat);
-                    break;
+                throw x;
             }
-
-            if (parameters.ContainsKey(irc_params.tmi_sent_ts))
-            {
-                long t = long.Parse(parameters[irc_params.tmi_sent_ts]);
-                DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                SendTime = epoch.AddMilliseconds(t).ToLocalTime();
-            }
-
-            ChatWords = ChatClient.Emotes.ParseEmoteFromMessage(parameters, message, channel, Types);
-
-            Parameters = parameters;
-            Message = message;
-
-            if (Message.StartsWith(".")) Message = Message.Remove(0, 1);
-
-            Channel_Name = channel;
-            Timeout = toResult;
-
-            //if (Types.Count == 0)
-            //{
-            //    Types.Add(MsgType.All_Messages);
-            //}
-
-            Name = user.ToLower();
-            User = ChatClient.Users.Get(Name, channel);
-            SendTime = DateTime.Now;
         }
 
         public ChatMessage(string message, ChatUser user, string channel, bool isSent, params MsgType[] types)

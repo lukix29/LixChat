@@ -1,5 +1,5 @@
-﻿using LX29_ChatClient.Channels;
-using LX29_ChatClient.Emotes;
+﻿using LX29_ChatClient.Emotes;
+using LX29_Twitch.Api;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using LX29_Twitch.Api;
 
 namespace LX29_ChatClient.Forms
 {
@@ -524,22 +523,23 @@ namespace LX29_ChatClient.Forms
         //private Renderer renderer;
         private async void RefreshLoop()
         {
-            long dt = DateTime.Now.Ticks;
+            var watch = new System.Diagnostics.Stopwatch();
+
             while (!this.IsDisposed)
             {
                 if (this.IsDisposed)
                     break;
 
+                watch.Restart();
                 try
                 {
                     _Render();
 
-                    double tt = ((DateTime.Now.Ticks - dt) / (double)TimeSpan.TicksPerMillisecond);
-                    if (tt < wait)
+                    if (watch.ElapsedMilliseconds < wait)
                     {
-                        await Task.Delay((int)Math.Max(0, Math.Min(1000, (wait - tt))));
+                        await Task.Delay((int)Math.Max(0, Math.Min(10000, (wait - watch.ElapsedMilliseconds))));
                     }
-                    dt = DateTime.Now.Ticks;
+                    //dt = DateTime.Now.Ticks;
                 }
                 catch
                 {

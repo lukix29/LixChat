@@ -1,4 +1,5 @@
 ﻿using LX29_Twitch.Forms;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,7 +7,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 
 namespace LX29_ChatClient
 {
@@ -247,6 +247,7 @@ namespace LX29_ChatClient
 
         #region EmoteBadge
 
+        private static bool _ShowEmojis = false;
         private static bool _AlternateBG = true;
         private static bool _AnimatedEmotes = true;
         private static bool _AnimateGifInSearch = true;
@@ -257,6 +258,16 @@ namespace LX29_ChatClient
         private static double _EmoteSizeFac = 1.5;
         private static bool _HwEmoteDrawing = false;
         private static bool _ShowTimeStamp = true;
+
+        public static bool ShowEmojis
+        {
+            get { return _ShowEmojis; }
+            set
+            {
+                _ShowEmojis = value;
+                Save();
+            }
+        }
 
         public static bool AlternateBG
         {

@@ -1,10 +1,9 @@
-﻿using LX29_ChatClient.Channels;
+﻿using LX29_Twitch.Api;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using LX29_Twitch.Api;
 using System.Windows.Forms;
 
 namespace LX29_ChatClient.Forms

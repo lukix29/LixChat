@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Net;
 
 namespace LX29_Twitch.Api
 {
@@ -305,7 +305,7 @@ namespace LX29_Twitch.Api
             {
                 sb.AppendLine(user.ToString());
             }
-            File.WriteAllBytes(filePath, LX29_Crypt.LX29Crypt.Encrypt(sb.ToString()));
+            File.WriteAllBytes(filePath, LX29_Cryptography.LX29Crypt.Encrypt(sb.ToString()));
         }
 
         public static AddError SetSelected(Func<TwitchUser, bool> predicate)
@@ -337,7 +337,7 @@ namespace LX29_Twitch.Api
                     }
                     else
                     {
-                        string si = LX29_Crypt.LX29Crypt.Decrypt(File.ReadAllBytes(filePath));
+                        string si = LX29_Cryptography.LX29Crypt.Decrypt(File.ReadAllBytes(filePath));
                         sa = si.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                     }
                     if (sa.Length > 0)
