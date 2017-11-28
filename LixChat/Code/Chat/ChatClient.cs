@@ -950,6 +950,7 @@ namespace LX29_ChatClient
         //private static readonly object syncRootMessage = new object();
         //private static readonly object syncRootUsers = new object();
 
+        private static List<string> chathighlights = new List<string>();
         private static Dictionary<int, IRC> clients = new Dictionary<int, IRC>();
         private static MessageCollection messages;// = new MessageCollection();
 
@@ -965,8 +966,8 @@ namespace LX29_ChatClient
 
         public static List<string> ChatHighlights
         {
-            get;
-            set;
+            get { return chathighlights; }
+            set { chathighlights = value; }
         }
 
         public static Dictionary<int, IRC> Clients
@@ -984,13 +985,22 @@ namespace LX29_ChatClient
             get { return users; }
         }
 
+        public static void FetchEmotes()
+        {
+            //File.Delete(Settings.dataDir + "Emotes.txt");
+            Emotes.Values.Dispose();
+            Emotes.FetchEmotes(channels.Values.ToList(), true);
+        }
+
+        #region ChatHighlightWords
+
         public static void AddChatHighlightWord(string word, bool save = true)
         {
             if (string.IsNullOrEmpty(word)) return;
             if (!ChatHighlights.Contains(word.ToLower()))
             {
                 ChatHighlights.Add(word.ToLower());
-                if (save) SaveChatHighlightWord();
+                if (save) SaveChatHighlightWords();
             }
             //var bitmap = LX29_LixChat.Properties.Resources.loading;
         }
@@ -998,13 +1008,6 @@ namespace LX29_ChatClient
         public static void ClearChatHighlightWord()
         {
             ChatHighlights.Clear();
-        }
-
-        public static void FetchEmotes()
-        {
-            //File.Delete(Settings.dataDir + "Emotes.txt");
-            Emotes.Values.Dispose();
-            Emotes.FetchEmotes(channels.Values.ToList(), true);
         }
 
         //public static IEnumerable<ChannelInfo> GetChannels(IEnumerable<string> names)
@@ -1016,14 +1019,14 @@ namespace LX29_ChatClient
         {
             if (File.Exists(Settings._dataDir + "HighlightKeywords.txt"))
             {
-                var lines = File.ReadAllLines(Settings._dataDir + "HighlightKeywords.json");
+                var lines = File.ReadAllLines(Settings._dataDir + "HighlightKeywords.txt");
                 foreach (var line in lines)
                 {
                     AddChatHighlightWord(line, false);
                 }
-                File.Delete(Settings._dataDir + "HighlightKeywords.txt");
+                SaveChatHighlightWords();
             }
-            if (File.Exists(Settings._dataDir + "HighlightKeywords.json"))
+            else if (File.Exists(Settings._dataDir + "HighlightKeywords.json"))
             {
                 ChatHighlights = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(
                     File.ReadAllText(Settings._dataDir + "HighlightKeywords.json"));
@@ -1033,10 +1036,12 @@ namespace LX29_ChatClient
             AddChatHighlightWord(SelfUserName.RemoveNonCharsAndDigits());
         }
 
-        public static void SaveChatHighlightWord()
+        public static void SaveChatHighlightWords()
         {
             File.WriteAllText(Settings._dataDir + "HighlightKeywords.json", Newtonsoft.Json.JsonConvert.SerializeObject(ChatHighlights));
         }
+
+        #endregion ChatHighlightWords
     }
 
     public class NoticeMessage : IEqualityComparer<NoticeMessage>

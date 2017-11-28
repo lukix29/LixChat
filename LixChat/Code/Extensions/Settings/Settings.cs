@@ -144,7 +144,8 @@ namespace LX29_ChatClient
             new SettingClasses("_EmoteSizeFac", "Emote Size", 0.1, 10, 0.1),
             new SettingClasses("_EmoteSize", "Emote Quality", 1.0, 3.0, 1.0),
             new SettingClasses("_HwEmoteDrawing", "Hardware Accel"),
-            new SettingClasses("_AnimatedEmotes", "Animated Gif Emotes")
+            new SettingClasses("_AnimatedEmotes", "Animated Gif Emotes"),
+            new SettingClasses("_ShowEmojis", "Show Emojis")
        };
 
         public static readonly SettingClasses[] PlayerBasic = new SettingClasses[]

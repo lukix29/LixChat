@@ -62,9 +62,9 @@ namespace LX29_ChatClient.Addons
             string path = Settings._dataDir + "AutoActions.json";
 
             var action = LoadOld();
-            if (System.IO.File.Exists(path))
+            if (action == null)
             {
-                if (action == null)
+                if (System.IO.File.Exists(path))
                 {
                     return JsonConvert.DeserializeObject<AutoActions>(System.IO.File.ReadAllText(path));
                 }
@@ -208,7 +208,7 @@ namespace LX29_ChatClient.Addons
                         ChatAction action = Newtonsoft.Json.JsonConvert.DeserializeObject<ChatAction>(val);
                         actions.Values.Add(action);
                     }
-                    System.IO.File.Delete(path);
+                    //System.IO.File.Delete(path);
                     return actions;
                 }
             }

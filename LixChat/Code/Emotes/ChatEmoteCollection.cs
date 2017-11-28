@@ -729,6 +729,7 @@ namespace LX29_ChatClient.Emotes
         public EmoteCollection()
         {
             //Task.Run(loadStdEmotes);
+            Badges = new BadgeCollection();
         }
 
         public delegate void ChannelLoaded(ChannelInfo ci, int count, int max, string info);

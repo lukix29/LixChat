@@ -5,8 +5,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace LX29_ChatClient.Forms
 {
@@ -241,41 +241,55 @@ namespace LX29_ChatClient.Forms
         public async void _refreshLoop()
         {
             var watch = new System.Diagnostics.Stopwatch();
-
-            while (isRunning)
+            var fpswatch = new System.Diagnostics.Stopwatch();
+            int fpscnt = 0;
+            try
             {
-                watch.Restart();
-                try
+                while (isRunning)
                 {
-                    if (!Pause)
+                    watch.Restart();
+                    try
                     {
-                        //if (!gifVisible)
-                        //{
-                        //    wait = 1000;
-                        //}
-                        //else
-                        //{
-                        wait = 30;
-                        //}
-                        bool visible = Render();
-                        if (OnShowScrollDownLabel != null)
-                            OnShowScrollDownLabel(visible);
+                        if (!Pause)
+                        {
+                            wait = 30;
+
+                            bool visible = Render();
+
+                            if (OnShowScrollDownLabel != null)
+                                OnShowScrollDownLabel(visible);
+                        }
+                        else wait = 1000;
+
+                        if (!isRunning)
+                            break;
+
+#if DEBUG
+                        fpscnt++;
+                        if (fpswatch.ElapsedMilliseconds > 1000)
+                        {
+                            FPS = fpscnt;
+                            fpscnt = 0;
+
+                            fpswatch.Restart();
+                        }
+#endif
+
+                        var elap = watch.ElapsedMilliseconds;
+                        if (elap < wait)
+                        {
+                            await Task.Delay((int)Math.Max(0, Math.Min(1000, (wait - elap))));
+                        }
                     }
-                    else wait = 1000;
-
-                    if (!isRunning)
-                        break;
-
-                    var elap = watch.ElapsedMilliseconds;
-                    if (elap < wait)
+                    catch
                     {
-                        await Task.Delay((int)Math.Max(0, Math.Min(10000, (wait - elap))));
                     }
-                    //dt = DateTime.Now.Ticks;
                 }
-                catch
-                {
-                }
+            }
+            finally
+            {
+                watch.Stop();
+                fpswatch.Stop();
             }
         }
 
@@ -315,16 +329,6 @@ namespace LX29_ChatClient.Forms
                     //  control.Scrollbar.OnPaint(g);
                     bufferedGraphics.Render();
                 }
-
-                int ttms = (int)((DateTime.Now.Ticks - dtFps) / TimeSpan.TicksPerMillisecond);
-                if (ttms > 1000)
-                {
-                    FPS = fpscnt;
-                    fpscnt = 0;
-
-                    dtFps = DateTime.Now.Ticks;
-                }
-                fpscnt++;
 
                 if (_softScroll > 0)
                 {
@@ -956,11 +960,12 @@ namespace LX29_ChatClient.Forms
         private BufferedGraphicsContext bufferedGraphicsContex = null;
         private StringFormat centerStrFormat = new StringFormat();
         private ChatView control;
-        private long dtFps = DateTime.Now.Ticks;
-        private long dtFPS_Lock = DateTime.Now.Ticks;
+
+        //private long dtFPS_Lock = DateTime.Now.Ticks;
         private Font font = new Font("Arial", 12f);
+
         private int FPS = 0;
-        private int fpscnt = 0;
+        //private int fpscnt = 0;
 
         // private Color HL_Color = Color.White;
         private StringFormat infoStrFormat = new StringFormat();

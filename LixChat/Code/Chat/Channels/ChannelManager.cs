@@ -156,6 +156,8 @@ namespace LX29_ChatClient
         {
             try
             {
+                if (!File.Exists(saveFile)) saveFile = saveFile.Replace(".json", ".txt");
+
                 if (File.Exists(saveFile))
                 {
                     var input = File.ReadAllLines(saveFile);

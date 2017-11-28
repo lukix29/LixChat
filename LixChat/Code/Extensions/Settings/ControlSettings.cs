@@ -372,6 +372,7 @@ namespace LX29_ChatClient.Forms
             }
             catch (Exception x)
             {
+                MessageBox.Show(x.ToString());
                 switch (x.Handle())
                 {
                     case MessageBoxResult.Retry:
