@@ -118,6 +118,9 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Code\Extensions\DeviceContext.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Code\Extensions\Downloader\Downloader.cs" />
     <Compile Include="Code\Extensions\Downloader\FormDownloader.cs">
       <SubType>Form</SubType>
@@ -3969,6 +3972,7 @@
   <ItemGroup>
     <Content Include="1463551454_16.ico" />
     <Content Include="Resources\chat.png" />
+    <None Include="Resources\loadingwide.gif" />
     <Content Include="Resources\viewer.png" />
     <None Include="mpv.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

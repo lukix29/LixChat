@@ -35,6 +35,7 @@
             this.tSMi_Search = new System.Windows.Forms.ToolStripMenuItem();
             this.lbl_ScrollDown = new System.Windows.Forms.Label();
             this.elementHost1 = new System.Windows.Forms.Integration.ElementHost();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.cMS_TextOptions.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -92,6 +93,11 @@
             this.elementHost1.Visible = false;
             this.elementHost1.Child = null;
             // 
+            // timer1
+            // 
+            this.timer1.Interval = 50;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // ChatView
             // 
             this.BackColor = System.Drawing.Color.Black;
@@ -117,6 +123,7 @@
         private System.Windows.Forms.ToolStripTextBox tSMi_Text;
         private System.Windows.Forms.Label lbl_ScrollDown;
         private System.Windows.Forms.Integration.ElementHost elementHost1;
+        private System.Windows.Forms.Timer timer1;
 
     }
 }

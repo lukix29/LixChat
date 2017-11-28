@@ -122,26 +122,27 @@ namespace LX29_ChatClient
         //    return msg_ids.NONE;
         //}
 
-        private static Dictionary<string, List<NoticeMessage>> notices = new Dictionary<string, List<NoticeMessage>>();
-        private static Dictionary<string, List<NoticeMessage>> timeouts = new Dictionary<string, List<NoticeMessage>>();
+        private static Dictionary<string, HashSet<NoticeMessage>> subs = new Dictionary<string, HashSet<NoticeMessage>>();
+        private static Dictionary<string, HashSet<NoticeMessage>> timeouts = new Dictionary<string, HashSet<NoticeMessage>>();
 
-        public static Dictionary<string, List<NoticeMessage>> UserBans
+        public static Dictionary<string, HashSet<NoticeMessage>> UserBans
         {
             get { return timeouts; }
         }
 
-        public static Dictionary<string, List<NoticeMessage>> UserNotices
+        public static Dictionary<string, HashSet<NoticeMessage>> UserNotices
         {
-            get { return notices; }
+            get { return subs; }
         }
 
-        private static void AddNotice(string channel, string name, string info, int value, SubType type = SubType.NoSub)
+        private static void AddNotice(string channel, string name, string info, int value, SubType type = SubType.NoSub, bool isBan = false)
         {
             //if (type == SubType.NoSub)
             //{
             //}
             NoticeMessage ntc = new NoticeMessage()
             {
+                IsBan = isBan,
                 Name = name,
                 Value = value,
                 Message = info,
@@ -150,24 +151,28 @@ namespace LX29_ChatClient
             };
             if (type == SubType.NoSub)
             {
-                if (timeouts.ContainsKey(channel))
+                if (ntc.Value > 0)
                 {
-                    timeouts[channel].Add(ntc);
-                }
-                else
-                {
-                    timeouts.Add(channel, new List<NoticeMessage>(new NoticeMessage[] { ntc }));
+                    if (timeouts.ContainsKey(channel))
+                    {
+                        timeouts[channel].Add(ntc);
+                    }
+                    else
+                    {
+                        timeouts.Add(channel, new HashSet<NoticeMessage>(new NoticeMessage[] { ntc }));
+                    }
                 }
             }
             else
             {
-                if (notices.ContainsKey(channel))
+                if (subs.ContainsKey(channel))
                 {
-                    notices[channel].Add(ntc);
+                    if (!subs[channel].Contains(ntc))
+                        subs[channel].Add(ntc);
                 }
                 else
                 {
-                    notices.Add(channel, new List<NoticeMessage>(new NoticeMessage[] { ntc }));
+                    subs.Add(channel, new HashSet<NoticeMessage>(new NoticeMessage[] { ntc }));
                 }
             }
             if (OnUserNoticeReceived != null)
@@ -248,7 +253,7 @@ namespace LX29_ChatClient
                                     Message = tor.Message;
                                     UserHasTimeouted(tor);
                                 }
-                                AddNotice(channelName, name, Message, tor.TimeOutDuration);
+                                AddNotice(channelName, name, tor.Reason, tor.TimeOutDuration, SubType.NoSub, tor.IsBanned);
                             }
                             break;
 
@@ -1034,9 +1039,11 @@ namespace LX29_ChatClient
         }
     }
 
-    public class NoticeMessage
+    public class NoticeMessage : IEqualityComparer<NoticeMessage>
     {
         public DateTime CreatedAt { get; set; }
+
+        public bool IsBan { get; set; }
 
         public bool IsSub
         {
@@ -1044,8 +1051,21 @@ namespace LX29_ChatClient
         }
 
         public string Message { get; set; }
+
         public string Name { get; set; }
+
         public SubType Type { get; set; }
+
         public int Value { get; set; }
+
+        public bool Equals(NoticeMessage x, NoticeMessage y)
+        {
+            return x.CreatedAt.Subtract(y.CreatedAt).TotalSeconds < 2;
+        }
+
+        public int GetHashCode(NoticeMessage obj)
+        {
+            return obj.CreatedAt.GetHashCode();
+        }
     }
 }

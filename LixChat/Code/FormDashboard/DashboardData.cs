@@ -20,9 +20,29 @@ namespace LX29_ChatClient.Dashboard
 
     public class DashboardData : IDisposable
     {
+        public static readonly Dictionary<SubType, string> SubTierNames = new Dictionary<SubType, string>()
+        {
+            {SubType.NoSub, "None"},
+            {SubType.Prime, "Prime"},
+            {SubType.Tier1, "5$"},
+            {SubType.Tier2, "10$"},
+            {SubType.Tier3, "25$"}
+        };
+
         public List<Tipeee.DonationHost> DonationHosts = new List<Tipeee.DonationHost>();
 
-        private const string summit = "summit1g";
+        private string summit
+        {
+            get
+            {
+#if DEBUG
+                return "gronkh";
+#else
+                return Channel.Name;
+#endif
+            }
+        }
+
         private string _tipeKey = "";
 
         public DashboardData()
@@ -45,14 +65,14 @@ namespace LX29_ChatClient.Dashboard
         }
 
         [JsonIgnore]
-        public List<NoticeMessage> ChatSubs
+        public HashSet<NoticeMessage> ChatSubs
         {
             get
             {
                 if (ChatClient.UserNotices.ContainsKey(summit))
                     return ChatClient.UserNotices[summit];
                 else
-                    return new List<NoticeMessage>();
+                    return new HashSet<NoticeMessage>();
             }
         }
 
@@ -107,6 +127,11 @@ namespace LX29_ChatClient.Dashboard
             }
         }
 
+        public bool IsTipeeeEnabled
+        {
+            get { { return !string.IsNullOrEmpty(_tipeKey); } }
+        }
+
         [JsonIgnore]
         public int ReSubsSinceStreamStart
         {
@@ -127,8 +152,7 @@ namespace LX29_ChatClient.Dashboard
         [JsonIgnore]
         public int SubCount
         {
-            get;
-            private set;
+            get { return Subs.Count; }
         }
 
         [JsonIgnore]
@@ -171,14 +195,14 @@ namespace LX29_ChatClient.Dashboard
         }
 
         [JsonIgnore]
-        public List<NoticeMessage> UserBans
+        public HashSet<NoticeMessage> UserBans
         {
             get
             {
                 if (ChatClient.UserBans.ContainsKey(summit))
                     return ChatClient.UserBans[summit];
                 else
-                    return new List<NoticeMessage>();
+                    return new HashSet<NoticeMessage>();
             }
         }
 
@@ -223,24 +247,9 @@ namespace LX29_ChatClient.Dashboard
 
                 Subs = downloadSubs();
                 //ysdfgh;
-                Dictionary<string, Sub> con = new Dictionary<string, Sub>();
-                foreach (var s in Subs)
-                {
-                    if (con.ContainsKey(s.user.name))
-                    {
-                        if (int.Parse(s.sub_plan) > int.Parse(con[s.user.name].sub_plan))
-                        {
-                            con[s.user.name] = s;
-                        }
-                    }
-                    else
-                    {
-                        con.Add(s.user.name, s);
-                    }
-                }
-                Subs = con.Values.ToList();
+                var con = getsubs();
 
-                SubCount = con.Count;
+                //SubCount = con.Count;
 
                 while (ChatClient.Users.Count(User.Name) == 0)
                 {
@@ -365,6 +374,20 @@ namespace LX29_ChatClient.Dashboard
 
         private void ChatClient_OnUserNoticeReceived(NoticeMessage notice)
         {
+            //if (notice.IsSub)
+            //{
+            //    Sub sub = new Sub()
+            //    {
+            //        created_at = notice.CreatedAt,
+            //        _id = notice.CreatedAt.Ticks.ToString(),
+            //        sub_plan = Enum.GetName(typeof(SubType), notice.Type),
+            //        sub_plan_name = notice.Value.ToString(),
+            //        user = new User() { name = notice.Name }
+            //    };
+            //    //if (Subs == null) Subs = new List<Sub>();
+            //    //Subs.Add(sub);
+            //    //getsubs();
+            //}
             if (OnUserNoticeReceived != null)
                 OnUserNoticeReceived(notice);
         }
@@ -442,6 +465,27 @@ namespace LX29_ChatClient.Dashboard
                 }));
             }
             return subs;
+        }
+
+        private Dictionary<string, Sub> getsubs()
+        {
+            Dictionary<string, Sub> con = new Dictionary<string, Sub>();
+            foreach (var s in Subs)
+            {
+                if (con.ContainsKey(s.user.name))
+                {
+                    if (int.Parse(s.sub_plan) > int.Parse(con[s.user.name].sub_plan))
+                    {
+                        con[s.user.name] = s;
+                    }
+                }
+                else
+                {
+                    con.Add(s.user.name, s);
+                }
+            }
+            Subs = con.Values.ToList();
+            return con;
         }
     }
 

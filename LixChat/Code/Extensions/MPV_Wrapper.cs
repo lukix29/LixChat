@@ -195,14 +195,19 @@ namespace LX29_MPV
         {
             if (dispose)
             {
-                if (_mpvHandle != IntPtr.Zero)
+                try
                 {
-                    _mpvTerminateDestroy(_mpvHandle);
+                    if (_mpvHandle != IntPtr.Zero)
+                    {
+                        _mpvTerminateDestroy(_mpvHandle);
+                    }
+                }
+                finally
+                {
                     _mpvHandle = IntPtr.Zero;
                 }
-                return true;
             }
-            return false;
+            return true;
         }
 
         public string GetProperty(MPV_Property property)
@@ -216,29 +221,6 @@ namespace LX29_MPV
             _mpvFree(lpBuffer);
             return value;
         }
-
-        public void Load()
-        {
-            if (_mpvHandle != IntPtr.Zero)
-                _mpvTerminateDestroy(_mpvHandle);
-
-            LoadMpvDynamic();
-            if (_libMpvDll == IntPtr.Zero)
-                return;
-
-            _mpvHandle = _mpvCreate.Invoke();
-            if (_mpvHandle == IntPtr.Zero)
-                return;
-
-            _mpvInitialize.Invoke(_mpvHandle);
-            _mpvSetOptionString(_mpvHandle, GetUtf8Bytes("keep-open"), GetUtf8Bytes("no"));
-            _mpvSetOptionString(_mpvHandle, GetUtf8Bytes("af"), GetUtf8Bytes("format=channels=2.0"));
-        }
-
-        //public void Pause(bool enable)
-        //{
-        //    SetProperty(MPV_Property.pause, enable);
-        //}
 
         public void SetProcess(Process p)
         {
@@ -257,6 +239,10 @@ namespace LX29_MPV
             }
         }
 
+        //public void Pause(bool enable)
+        //{
+        //    SetProperty(MPV_Property.pause, enable);
+        //}
         public void SetProperty(MPV_Property property, object value)
         {
             if (_mpvHandle == IntPtr.Zero)
@@ -386,51 +372,21 @@ namespace LX29_MPV
             return false;
         }
 
-        public bool Stop()
+        public void Stop()
         {
-            if (IsRunning)
+            try
             {
-                _mpvTerminateDestroy(_mpvHandle);
-                _mpvHandle = IntPtr.Zero;
-                return true;
+                if (_mpvHandle != IntPtr.Zero)
+                {
+                    _mpvTerminateDestroy(_mpvHandle);
+                }
             }
-            return false;
+            finally
+            {
+                _mpvHandle = IntPtr.Zero;
+            }
         }
 
-        //        DateTime timeOut = DateTime.Now;
-        //        while (true)
-        //        {
-        //            try
-        //            {
-        //                System.Threading.Thread.Sleep(100);
-        //                if (DateTime.Now.Subtract(timeOut).TotalSeconds > 2)
-        //                {
-        //                    if (!process.HasExited)
-        //                    {
-        //                        IsRunning = true;
-        //                    }
-        //                    break;
-        //                }
-        //                if (process.HasExited)
-        //                {
-        //                    break;
-        //                }
-        //            }
-        //            catch { break; }
-        //        }
-        //        if (IsRunning)
-        //        {
-        //            try
-        //            {
-        //                pipe.Connect(1000);
-        //            }
-        //            catch (Exception x)
-        //            {
-        //                switch (x.Handle())
-        //                {
-        //                    case MessageBoxResult.Retry:
-        //                        Record(Title, fileName, volume, cache, handle, cacheSecs, rect);
-        //                        break;
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi, BestFitMapping = false)]
         internal static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
 
@@ -471,6 +427,68 @@ namespace LX29_MPV
             return true;
         }
 
+        //process = new Process();
+        private void DoMpvCommand(params string[] args)
+        {
+            IntPtr[] byteArrayPointers;
+            var mainPtr = AllocateUtf8IntPtrArrayWithSentinel(args, out byteArrayPointers);
+            _mpvCommand(_mpvHandle, mainPtr);
+            foreach (var ptr in byteArrayPointers)
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
+            Marshal.FreeHGlobal(mainPtr);
+        }
+
+        //    if (rect.X < sc.Bounds.X + 10)
+        //    {
+        //        rect.X = sc.Bounds.X + 10;
+        //    }
+        //    if (rect.Right > sc.Bounds.Right - 20)
+        //    {
+        //        rect.Width = sc.Bounds.Width - 20;
+        //    }
+        //    if (rect.Y < sc.Bounds.Y + 10)
+        //    {
+        //        rect.Y = sc.Bounds.Y + 10;
+        //    }
+        //    if (rect.Bottom > sc.Bounds.Bottom - 20)
+        //    {
+        //        rect.Height = sc.Bounds.Height - 20;
+        //    }
+        //    geom = " --geometry=" + rect.Width + "x" + rect.Height +
+        //        ((rect.X < 0) ? "-" : "+") + Math.Abs(rect.X) +
+        //        ((rect.Y < 0) ? "-" : "+") + Math.Abs(rect.Y);
+        //}
+        //pipe = new NamedPipeClientStream(".", socketName,
+        //      PipeDirection.InOut, PipeOptions.Asynchronous,
+        //      TokenImpersonationLevel.Anonymous);
+        private object GetDllType(Type type, string name)
+        {
+            IntPtr address = GetProcAddress(_libMpvDll, name);
+            if (address != IntPtr.Zero)
+                return Marshal.GetDelegateForFunctionPointer(address, type);
+            return null;
+        }
+
+        private void Load()
+        {
+            if (_mpvHandle != IntPtr.Zero)
+                _mpvTerminateDestroy(_mpvHandle);
+
+            LoadMpvDynamic();
+            if (_libMpvDll == IntPtr.Zero)
+                return;
+
+            _mpvHandle = _mpvCreate.Invoke();
+            if (_mpvHandle == IntPtr.Zero)
+                return;
+
+            _mpvInitialize.Invoke(_mpvHandle);
+            _mpvSetOptionString(_mpvHandle, GetUtf8Bytes("keep-open"), GetUtf8Bytes("no"));
+            _mpvSetOptionString(_mpvHandle, GetUtf8Bytes("af"), GetUtf8Bytes("format=channels=2.0"));
+        }
+
         //if (HasStarted)
         //{
         //    //{ "command": ["command_name", "param1", "param2", ...] }
@@ -497,52 +515,6 @@ namespace LX29_MPV
         //if (!rect.IsEmpty)
         //{
         //    Screen sc = Screen.FromRectangle(rect);
-
-        //    if (rect.X < sc.Bounds.X + 10)
-        //    {
-        //        rect.X = sc.Bounds.X + 10;
-        //    }
-        //    if (rect.Right > sc.Bounds.Right - 20)
-        //    {
-        //        rect.Width = sc.Bounds.Width - 20;
-        //    }
-        //    if (rect.Y < sc.Bounds.Y + 10)
-        //    {
-        //        rect.Y = sc.Bounds.Y + 10;
-        //    }
-        //    if (rect.Bottom > sc.Bounds.Bottom - 20)
-        //    {
-        //        rect.Height = sc.Bounds.Height - 20;
-        //    }
-        //    geom = " --geometry=" + rect.Width + "x" + rect.Height +
-        //        ((rect.X < 0) ? "-" : "+") + Math.Abs(rect.X) +
-        //        ((rect.Y < 0) ? "-" : "+") + Math.Abs(rect.Y);
-        //}
-        //pipe = new NamedPipeClientStream(".", socketName,
-        //      PipeDirection.InOut, PipeOptions.Asynchronous,
-        //      TokenImpersonationLevel.Anonymous);
-
-        //process = new Process();
-        private void DoMpvCommand(params string[] args)
-        {
-            IntPtr[] byteArrayPointers;
-            var mainPtr = AllocateUtf8IntPtrArrayWithSentinel(args, out byteArrayPointers);
-            _mpvCommand(_mpvHandle, mainPtr);
-            foreach (var ptr in byteArrayPointers)
-            {
-                Marshal.FreeHGlobal(ptr);
-            }
-            Marshal.FreeHGlobal(mainPtr);
-        }
-
-        private object GetDllType(Type type, string name)
-        {
-            IntPtr address = GetProcAddress(_libMpvDll, name);
-            if (address != IntPtr.Zero)
-                return Marshal.GetDelegateForFunctionPointer(address, type);
-            return null;
-        }
-
         private void LoadMpvDynamic()
         {
             _libMpvDll = LoadLibrary("mpv-1.dll");

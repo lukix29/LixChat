@@ -248,14 +248,14 @@ namespace LX29_ChatClient.Emotes
                     }
                 }
             }
-            catch
+            catch (Exception x)
             {
-                //switch (x.Handle())
-                //{
-                //    case System.Windows.Forms.MessageBoxResult.Retry:
-                //        Fetch_Channel_Badges(ci);
-                //        break;
-                //}
+                switch (x.Handle())
+                {
+                    case System.Windows.Forms.MessageBoxResult.Retry:
+                        Fetch_Channel_Badges(ci);
+                        break;
+                }
             }
         }
 

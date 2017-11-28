@@ -131,7 +131,7 @@ namespace LX29_ChatClient.Emotes
             {
                 var img = GetImage(EmoteImageSize.Large);
                 if (img != null)
-                    return img.First();
+                    return img;
                 else return new Bitmap(1, 1);
             }
         }
@@ -379,9 +379,9 @@ namespace LX29_ChatClient.Emotes
                         FrameIndex = 0;
                     }
                     //Monitor.Enter(images.SyncRoot);
-                    lock (images[FrameIndex])
+                    lock (images)
                     {
-                        g.DrawBitmap(images[FrameIndex], X, Y, Width, Height, Settings.HwEmoteDrawing);
+                        g.DrawBitmap(images, X, Y, Width, Height, Settings.HwEmoteDrawing);
                     }
                     //Monitor.Exit(images.SyncRoot);
                     LoadTime = DateTime.Now;
@@ -397,7 +397,7 @@ namespace LX29_ChatClient.Emotes
             return result;
         }
 
-        public Bitmap[] GetImage(EmoteImageSize size)
+        public Bitmap GetImage(EmoteImageSize size)
         {
             //lock (LockObject)
             //{
@@ -408,10 +408,10 @@ namespace LX29_ChatClient.Emotes
 
             if (_images.ContainsKey(size))
             {
-                return _images[size];
+                return _images[size][FrameIndex];
             }
             var max = (EmoteImageSize)_images.Keys.Max(t => (int)t);
-            return _images[max];
+            return _images[max][FrameIndex];
             //}
         }
 

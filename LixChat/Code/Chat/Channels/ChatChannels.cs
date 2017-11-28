@@ -249,7 +249,7 @@ namespace LX29_ChatClient.Channels
                     if (img != null)
                         return img;
                 }
-                return LX29_LixChat.Properties.Resources.loading;
+                return null;
             }
         }
 

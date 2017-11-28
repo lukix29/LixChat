@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Globalization;
 
 namespace LX29_ChatClient.Dashboard
 {
@@ -40,7 +41,7 @@ namespace LX29_ChatClient.Dashboard
 
             listView1.LargeImageList.Images.Add(name, new Bitmap(40, 40, System.Drawing.Imaging.PixelFormat.Format1bppIndexed));
 
-            var item = new ListViewItem(value.SizeMag(2), name) { Name = name };
+            var item = new ListViewItem(value.SizeMag(CultureInfo.CurrentCulture, 2), name) { Name = name };
 
             if (!hiderects.ContainsKey(name))
             {
@@ -83,9 +84,11 @@ namespace LX29_ChatClient.Dashboard
             SetControls();
         }
 
-        private void ChatEventsDrawItem(int Index, Rectangle Bounds, Graphics g)
+        #region Drawing
+
+        private void ChatEventsDrawItem(NoticeMessage Index, Rectangle Bounds, Graphics g)
         {
-            var ev = data.ChatSubs[Index];
+            var ev = Index;
 
             int x = Bounds.X;
 
@@ -96,12 +99,17 @@ namespace LX29_ChatClient.Dashboard
                 g.DrawString(txt, font, Brushes.Gainsboro, x, Bounds.Y);
                 x += (int)size.Width;
 
-                txt = ev.Type + " ";
+                txt = DashboardData.SubTierNames[ev.Type] + " ";
                 size = g.MeasureString(txt, listBox1.Font);
                 g.DrawString(txt, listBox1.Font, Brushes.Gainsboro, x, Bounds.Y);
                 x += (int)size.Width;
 
-                txt = ev.Value.SizeMag(0) + " ";
+                txt = "Sub ";
+                size = g.MeasureString(txt, listBox1.Font);
+                g.DrawString(txt, listBox1.Font, Brushes.Gainsboro, x, Bounds.Y);
+                x += (int)size.Width;
+
+                txt = ev.Value.SingleMag("Month");
                 size = g.MeasureString(txt, listBox1.Font);
                 g.DrawString(txt, font, Brushes.Gainsboro, x, Bounds.Y);
                 x += (int)size.Width;
@@ -122,25 +130,9 @@ namespace LX29_ChatClient.Dashboard
             }
         }
 
-        private void data_OnUserNoticeReceived(NoticeMessage notice)
+        private void DrawTipeee(Tipeee.DonationHost Index, Rectangle Bounds, Graphics g)
         {
-            this.Invoke(new Action(() =>
-            {
-                if (!notice.IsSub)
-                {
-                    listBox_BanEvents.Items.Insert(0, notice.Name);
-                }
-                else
-                {
-                    UpdateEventList();
-                }
-                listBox_BanEvents.Refresh();
-            }));
-        }
-
-        private void DrawTipeee(int Index, Rectangle Bounds, Graphics g)
-        {
-            var dh = data.DonationHosts[Index];
+            var dh = Index;
             int x = Bounds.X;
 
             using (var font = new Font(listBox1.Font, FontStyle.Bold))
@@ -155,7 +147,8 @@ namespace LX29_ChatClient.Dashboard
                 g.DrawString(txt, listBox1.Font, Brushes.Gainsboro, x, Bounds.Y);
                 x += (int)size.Width;
 
-                txt = dh.amount.SizeMag(2) + dh.currency + " ";
+                if (dh.is_host) txt = dh.amount.SizeMag(CultureInfo.CurrentCulture, 0, "N") + dh.currency + " ";
+                else txt = dh.amount.SizeMag(CultureInfo.CurrentCulture, 2, "C") + " ";
                 size = g.MeasureString(txt, listBox1.Font);
                 g.DrawString(txt, font, Brushes.Gainsboro, x, Bounds.Y);
                 x += (int)size.Width;
@@ -176,6 +169,100 @@ namespace LX29_ChatClient.Dashboard
             }
         }
 
+        private void listBox_BanEvents_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            var ev = (NoticeMessage)listBox_BanEvents.Items[e.Index];
+
+            e.DrawBackground();
+
+            string txt = "";
+            SizeF size = SizeF.Empty;
+            string delta = DateTime.Now.Subtract(ev.CreatedAt).SingleDuration() + " ago";
+            using (var fago = new Font(listBox1.Font.FontFamily, 10))
+            {
+                e.Graphics.DrawString(delta, fago, Brushes.LightGray, e.Bounds,
+                    new StringFormat() { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Near });
+
+                if (ev.Value > 0)
+                {
+                    txt = "for " + TimeSpan.FromSeconds(ev.Value).SingleDuration();//.SizeMag(0);
+                    size = e.Graphics.MeasureString(txt, fago);
+                    e.Graphics.DrawString(txt, fago, Brushes.LightGray, e.Bounds,
+                        new StringFormat() { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Far });
+                }
+                //size = e.Graphics.MeasureString(txt, listBox1.Font);
+                //e.Graphics.DrawString(txt, font, Brushes.Gainsboro, x, e.Bounds.Y);
+                //x += (int)size.Width;
+            }
+
+            Rectangle Bounds = e.Bounds;
+            Bounds.Width = (int)(Bounds.Width - size.Width) - 5;
+
+            using (var font = new Font(listBox1.Font, FontStyle.Bold))
+            {
+                txt = (ev.IsBan ? "Ban" : "TO");
+                size = e.Graphics.MeasureString(txt, listBox1.Font);
+                e.Graphics.DrawString(txt, listBox1.Font, Brushes.Gainsboro, Bounds,
+                    new StringFormat() { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center });
+
+                Bounds.Width -= (int)size.Width;
+
+                txt = ev.Name + " ";
+                // size = e.Graphics.MeasureString(txt, listBox1.Font);
+                e.Graphics.DrawString(txt, font, Brushes.Gainsboro, Bounds,
+                    new StringFormat() { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Near, Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap });
+
+                // Bounds.Width -= (int)size.Width;
+
+                if (!string.IsNullOrEmpty(ev.Message))
+                {
+                    txt = "\"" + ev.Message + "\"";
+                    e.Graphics.DrawString(txt, listBox1.Font, Brushes.Gainsboro, Bounds, new StringFormat() { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Far, Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap });
+                }
+            }
+            e.Graphics.DrawRectangle(Pens.DarkGray, e.Bounds);
+        }
+
+        private void listBox_BanEvents_MeasureItem(object sender, MeasureItemEventArgs e)
+        {
+            e.ItemHeight *= 2;
+        }
+
+        private void listBox1_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            //var a = new { Type = false, Index = 0 };
+            var a1 = (listboxitem)listBox1.Items[e.Index];
+
+            e.DrawBackground();
+
+            if (a1.Type)
+            {
+                DrawTipeee((Tipeee.DonationHost)a1.Value, e.Bounds, e.Graphics);
+            }
+            else
+            {
+                ChatEventsDrawItem((NoticeMessage)a1.Value, e.Bounds, e.Graphics);
+            }
+            e.Graphics.DrawRectangle(Pens.DarkGray, e.Bounds);
+        }
+
+        #endregion Drawing
+
+        private void data_OnUserNoticeReceived(NoticeMessage notice)
+        {
+            this.Invoke(new Action(() =>
+            {
+                //if (!notice.IsSub)
+                //{
+                UpdateBanList();
+                //}
+                //else
+                //{
+                UpdateEventList();
+                //}
+            }));
+        }
+
         private void enterTipeeeKeyToolStripMenuItem_Click(object sender, EventArgs e)
         {
         }
@@ -183,7 +270,7 @@ namespace LX29_ChatClient.Dashboard
         private void FormDashboard_Load(object sender, EventArgs e)
         {
             panelSettings.Dock = DockStyle.Fill;
-            panelEvents.Visible = !string.IsNullOrEmpty(data.TipeeeKey);
+            //panelEvents.Visible = !string.IsNullOrEmpty(data.TipeeeKey);
 
             pictureBox1.Visible = true;
             pictureBox1.BringToFront();
@@ -236,62 +323,11 @@ namespace LX29_ChatClient.Dashboard
         {
         }
 
-        private void listBox_BanEvents_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            var ev = data.UserBans[e.Index];
-
-            int x = e.Bounds.X;
-
-            e.DrawBackground();
-
-            using (var font = new Font(listBox1.Font, FontStyle.Bold))
-            {
-                var txt = ev.Name + " ";
-                SizeF size = e.Graphics.MeasureString(txt, listBox1.Font);
-                e.Graphics.DrawString(txt, font, Brushes.Gainsboro, x, e.Bounds.Y);
-                x += (int)size.Width;
-
-                txt = ev.Type + " ";
-                size = e.Graphics.MeasureString(txt, listBox1.Font);
-                e.Graphics.DrawString(txt, listBox1.Font, Brushes.Gainsboro, x, e.Bounds.Y);
-                x += (int)size.Width;
-
-                txt = ev.Value.SizeMag(0) + " ";
-                size = e.Graphics.MeasureString(txt, listBox1.Font);
-                e.Graphics.DrawString(txt, font, Brushes.Gainsboro, x, e.Bounds.Y);
-                x += (int)size.Width;
-
-                if (!string.IsNullOrEmpty(ev.Message))
-                {
-                    txt = "\"" + ev.Message + "\"";
-                    size = e.Graphics.MeasureString(txt, listBox1.Font);
-                    e.Graphics.DrawString(txt, listBox1.Font, Brushes.Gainsboro, e.Bounds, new StringFormat() { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Far, Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap });
-                    x += (int)size.Width;
-                }
-
-                string delta = DateTime.Now.Subtract(ev.CreatedAt).SingleDuration() + " ago";
-                using (var fago = new Font(listBox1.Font.FontFamily, 10))
-                {
-                    e.Graphics.DrawString(delta, fago, Brushes.LightGray, e.Bounds, new StringFormat() { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Near });
-                }
-            }
-            e.Graphics.DrawRectangle(Pens.Black, e.Bounds.X, e.Bounds.Bottom - 1, e.Bounds.Width, 1);
-        }
-
-        private void listBox_BanEvents_MeasureItem(object sender, MeasureItemEventArgs e)
-        {
-            var dh = data.UserBans[e.Index];
-            if (!string.IsNullOrEmpty(dh.Message))
-            {
-                e.ItemHeight *= 2;
-            }
-        }
-
         private void listBox_BanEvents_MouseHover(object sender, EventArgs e)
         {
             if (listBox_BanEvents.SelectedIndex >= 0)
             {
-                var un = data.UserBans[listBox_BanEvents.SelectedIndex];
+                var un = ((NoticeMessage)listBox_BanEvents.Items[listBox_BanEvents.SelectedIndex]);
                 toolTip1.Show(un.Message, listBox_BanEvents, this.PointToClient(Cursor.Position));
             }
         }
@@ -314,24 +350,6 @@ namespace LX29_ChatClient.Dashboard
         //    }
         //}
 
-        private void listBox1_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            //var a = new { Type = false, Index = 0 };
-            var a1 = (listboxitem)listBox1.Items[e.Index];
-
-            e.DrawBackground();
-
-            if (a1.Type)
-            {
-                DrawTipeee(e.Index, e.Bounds, e.Graphics);
-            }
-            else
-            {
-                ChatEventsDrawItem(e.Index, e.Bounds, e.Graphics);
-            }
-            e.Graphics.DrawRectangle(Pens.Black, e.Bounds.X, e.Bounds.Bottom - 1, e.Bounds.Width, 1);
-        }
-
         private void listBox1_MeasureItem(object sender, MeasureItemEventArgs e)
         {
             var a1 = (listboxitem)listBox1.Items[e.Index];
@@ -339,11 +357,11 @@ namespace LX29_ChatClient.Dashboard
             var msg = "";
             if (a1.Type)
             {
-                msg = data.DonationHosts[e.Index].message;
+                msg = ((Tipeee.DonationHost)a1.Value).message;
             }
             else
             {
-                msg = data.ChatSubs[e.Index].Message;
+                msg = ((NoticeMessage)a1.Value).Message;
             }
             if (!string.IsNullOrEmpty(msg))
             {
@@ -569,27 +587,12 @@ namespace LX29_ChatClient.Dashboard
             //    listBox_SubEvents.Items.Add(n.Name);
             //}
             //listBox_SubEvents.EndUpdate();
+            UpdateBanList();
 
-            listBox_BanEvents.BeginUpdate();
-            listBox_BanEvents.Items.Clear();
-            foreach (var n in data.UserBans)
-            {
-                listBox_BanEvents.Items.Add(n.Name);
-            }
-            listBox_BanEvents.EndUpdate();
+            textBox1.Text = (data.IsTipeeeEnabled) ? data.TipeeeKey : copTipTxt;
+            splitContainer2.SplitterDistance = (data.IsTipeeeEnabled) ? 110 : 1;
 
-            //panelEvents.Visible = !string.IsNullOrEmpty(data.TipeeeKey);
-            textBox1.Text = !string.IsNullOrEmpty(data.TipeeeKey) ? data.TipeeeKey : copTipTxt;
-            panelEvents.Visible = true;
-            //if (panelEvents.Visible)
-            {
-                UpdateEventList();
-
-                label1.Text = "All Donate (" + data.DonationHosts.Count(t => !t.is_host) + ")\r\n" + data.DonationAmount.SizeMag(3) + "€";
-                label2.Text = "New Donate (" + data.DonationSinceStreamStart.Count() + ")\r\n" + data.DonationSinceStreamStart.Sum(t => t.amount).SizeMag(3) + "€";
-                label3.Text = "All Hosts (" + data.DonationHosts.Count(t => t.is_host) + ")\r\n" + data.HostAmount.SizeMag(2) + " Viewer";
-                label4.Text = "New Hosts (" + data.HostSinceStreamStart.Count() + ")\r\n" + data.HostSinceStreamStart.Sum(t => t.amount).SizeMag(2) + " Viewer";
-            }
+            UpdateEventList();
         }
 
         private void textBox1_Enter(object sender, EventArgs e)
@@ -758,20 +761,49 @@ namespace LX29_ChatClient.Dashboard
             timer2.Enabled = true;
         }
 
+        private void UpdateBanList()
+        {
+            var bans = data.UserBans.OrderBy(t => DateTime.Now.Subtract(t.CreatedAt).TotalSeconds);
+            listBox_BanEvents.BeginUpdate();
+            listBox_BanEvents.Items.Clear();
+            foreach (var n in bans)
+            {
+                listBox_BanEvents.Items.Add(n);
+            }
+            listBox_BanEvents.EndUpdate();
+        }
+
         private void UpdateEventList()
         {
+            var arr = data.DonationHosts.Select((a, i) => new { time = a.created_at, value = true, OBJECT = (object)a })
+                .Concat(data.ChatSubs.Select((a, i) => new { time = a.CreatedAt, value = false, OBJECT = (object)a }))
+                //.Concat(data.Subs.Select((a, i) => new
+                //{
+                //    time = a.created_at,
+                //    value = false,
+                //    index = (object)new NoticeMessage()
+                //    {
+                //        CreatedAt = a.created_at,
+                //        Type = LX29_Twitch.Api.SubType.Prime, //change to actual subtype
+                //        Message = a.sub_plan,
+                //        Name = a.user.name
+                //    }
+                //}))
+                .OrderByDescending(t => t.time.Ticks);
+
             listBox1.BeginUpdate();
             listBox1.Items.Clear();
-            var arr = data.DonationHosts.Select((a, i) => new { time = a.created_at, value = true, index = i })
-                .Concat(data.ChatSubs.Select((a, i) => new { time = a.CreatedAt, value = false, index = i }))
-                .OrderByDescending(t => t.time.Ticks).ToList();
-
-            for (int i = 0; i < arr.Count; i++)
+            foreach (var ai in arr)
             {
-                var a = new listboxitem() { Type = arr[i].value, Index = arr[i].index };
+                var a = new listboxitem() { Type = ai.value, Value = ai.OBJECT };
                 listBox1.Items.Add(a);
             }
             listBox1.EndUpdate();
+
+            label1.Text = "All Donate (" + data.DonationHosts.Count(t => !t.is_host) + ")\r\n" + data.DonationAmount.SizeMag(CultureInfo.CurrentCulture, 2, "C");
+            label2.Text = "New Donate (" + data.DonationSinceStreamStart.Count() + ")\r\n" + data.DonationSinceStreamStart.Sum(t => t.amount).SizeMag(CultureInfo.CurrentCulture, 2, "C");
+            label3.Text = "All Hosts (" + data.DonationHosts.Count(t => t.is_host) + ")\r\n" + data.HostAmount.SizeMag(CultureInfo.CurrentCulture, 2) + " Viewer";
+            label4.Text = "New Hosts (" + data.HostSinceStreamStart.Count() + ")\r\n" + data.HostSinceStreamStart.Sum(t => t.amount).SizeMag(CultureInfo.CurrentCulture, 2) + " Viewer";
         }
 
         private class clickdata
@@ -783,8 +815,8 @@ namespace LX29_ChatClient.Dashboard
 
         private class listboxitem
         {
-            public int Index { get; set; }
             public bool Type { get; set; }
+            public object Value { get; set; }
         }
     }
 }

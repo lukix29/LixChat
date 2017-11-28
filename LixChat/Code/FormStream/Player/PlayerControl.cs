@@ -76,7 +76,17 @@ namespace LX29_LixChat.Code.FormStream.Player
         public Image PreviewImage
         {
             get { return panelVideo.Image; }
-            set { panelVideo.Image = value; }
+            set
+            {
+                if (value == null)
+                {
+                    panelVideo.Image = LX29_LixChat.Properties.Resources.loadingwide;
+                }
+                else
+                {
+                    panelVideo.Image = value;
+                }
+            }
         }
 
         public string Quality

@@ -159,10 +159,10 @@ namespace System
             //    SizeSuffixes[mag]);
         }
 
-        public static string SizeMag(this int value, int decimalPlaces = 3)
+        public static string SizeMag(this int value, System.Globalization.CultureInfo culture, int decimalPlaces = 3, string format = "N")
         {
-            if (value < 0) { return "-" + SizeMag(-value); }
-            if (value == 0) { return "0"; }
+            if (value < 0) { return "-" + SizeMag(-value, culture, decimalPlaces, format); }
+            if (value == 0) { return value.ToString(format + decimalPlaces, culture); }
 
             // mag is 0 for bytes, 1 for KB, 2, for MB, etc.
             int mag = (int)Math.Log(value, 1000);
@@ -184,7 +184,7 @@ namespace System
                 decimalPlaces = 0;
             }
 
-            return adjustedSize.ToString("N" + decimalPlaces) + SizeSuffixes[mag].ReplaceAll("", "B", "i");
+            return adjustedSize.ToString(format + decimalPlaces, culture) + SizeSuffixes[mag].ReplaceAll("", "B", "i");
         }
 
         public static string SizeSuffix(this double value, int decimalPlaces = 3)
@@ -212,6 +212,11 @@ namespace System
                 SizeSuffixes[mag]);
         }
 
+        public static string SingleMag(this int m, string form)
+        {
+            return m + (m > 1 ? form + "s" : form);
+        }
+
         public static string SingleDuration(this TimeSpan now)
         {
             if ((int)now.TotalDays >= 30)
@@ -230,6 +235,10 @@ namespace System
             if ((int)now.TotalMinutes > 0)
             {
                 return (int)now.TotalMinutes + ((int)now.TotalMinutes > 1 ? " Mins" : " Min");
+            }
+            if ((int)now.TotalSeconds > 0)
+            {
+                return (int)now.TotalSeconds + ((int)now.TotalSeconds > 1 ? " Mins" : " Min");
             }
             return "0 Mins";
         }
@@ -290,6 +299,16 @@ namespace System
             }
             find = "";
             return false;
+        }
+
+        public static string RemoveFrom(this string input, string from)
+        {
+            int i = input.IndexOf(from);
+            if (i > 0)
+            {
+                return input.Remove(i);
+            }
+            return input;
         }
 
         public static int CountStrings(this string input, string stringToFind)

@@ -326,8 +326,10 @@ namespace LX29_Twitch.Api
         {
             try
             {
-                bool elec = File.Exists("elec.txt");
-
+                bool elec = false;
+#if DEBUG
+                elec = File.Exists("elec.txt");
+#endif
                 if (File.Exists(filePath) || elec)
                 {
                     string[] sa = new string[0];

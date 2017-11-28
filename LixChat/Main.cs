@@ -743,7 +743,7 @@ namespace LX29_LixChat
             lockChatSettings = true;
 
             playerControl1.Stream = si;
-            playerControl1.SizeMode = si.PreviewImage.IsGif() ? PictureBoxSizeMode.CenterImage : PictureBoxSizeMode.Zoom;
+            //playerControl1.SizeMode = si.PreviewImage.IsGif() ? PictureBoxSizeMode.CenterImage : PictureBoxSizeMode.Zoom;
 
             comBox_StreamQuali.Text = "Loading";
             comBox_StreamQuali.Items.Add("SOURCE");

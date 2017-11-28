@@ -218,6 +218,16 @@ namespace LX29_LixChat.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap loadingwide {
+            get {
+                object obj = ResourceManager.GetObject("loadingwide", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Mute {
             get {
                 object obj = ResourceManager.GetObject("Mute", resourceCulture);

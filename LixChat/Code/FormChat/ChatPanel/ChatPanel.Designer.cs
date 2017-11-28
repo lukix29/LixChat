@@ -29,12 +29,21 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ChatPanel));
             this.rTB_Send = new System.Windows.Forms.RichTextBox();
             this.lstB_Search = new System.Windows.Forms.ListBox();
             this.btn_Send = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.chatView1 = new LX29_ChatClient.Forms.ChatView();
             this.userInfoPanel1 = new LX29_ChatClient.Forms.UserInfoPanel();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tS_Btn_Emotes = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // rTB_Send
@@ -73,6 +82,7 @@
             this.lstB_Search.Visible = false;
             this.lstB_Search.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstB_Search_DrawItem);
             this.lstB_Search.SelectedIndexChanged += new System.EventHandler(this.lstB_Search_SelectedIndexChanged);
+            this.lstB_Search.VisibleChanged += new System.EventHandler(this.lstB_Search_VisibleChanged);
             // 
             // btn_Send
             // 
@@ -103,9 +113,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.chatView1.BackColor = System.Drawing.Color.Black;
-            this.chatView1.Location = new System.Drawing.Point(0, 0);
+            this.chatView1.Location = new System.Drawing.Point(0, 21);
             this.chatView1.Name = "chatView1";
-            this.chatView1.Size = new System.Drawing.Size(572, 513);
+            this.chatView1.Size = new System.Drawing.Size(572, 492);
             this.chatView1.TabIndex = 0;
             this.chatView1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.chatView1_MouseDown);
             this.chatView1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.chatView1_MouseUp);
@@ -117,14 +127,93 @@
             this.userInfoPanel1.Location = new System.Drawing.Point(96, 111);
             this.userInfoPanel1.Name = "userInfoPanel1";
             this.userInfoPanel1.Size = new System.Drawing.Size(339, 148);
+            this.userInfoPanel1.SplitterDistance = 178;
             this.userInfoPanel1.TabIndex = 6;
             this.userInfoPanel1.Visible = false;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.pictureBox1.Image = global::LX29_LixChat.Properties.Resources.loading;
+            this.pictureBox1.Location = new System.Drawing.Point(4, 384);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(128, 128);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 7;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Visible = false;
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripButton2,
+            this.toolStripButton1,
+            this.toolStripButton3,
+            this.tS_Btn_Emotes});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+            this.toolStrip1.Size = new System.Drawing.Size(572, 25);
+            this.toolStrip1.TabIndex = 16;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tS_Btn_Emotes
+            // 
+            this.tS_Btn_Emotes.BackColor = System.Drawing.Color.Black;
+            this.tS_Btn_Emotes.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tS_Btn_Emotes.ForeColor = System.Drawing.Color.White;
+            this.tS_Btn_Emotes.Image = ((System.Drawing.Image)(resources.GetObject("tS_Btn_Emotes.Image")));
+            this.tS_Btn_Emotes.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tS_Btn_Emotes.Name = "tS_Btn_Emotes";
+            this.tS_Btn_Emotes.Size = new System.Drawing.Size(50, 22);
+            this.tS_Btn_Emotes.Text = "Emotes";
+            this.tS_Btn_Emotes.Click += new System.EventHandler(this.tS_Btn_Emotes_Click);
+            // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.BackColor = System.Drawing.Color.Black;
+            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButton1.ForeColor = System.Drawing.Color.White;
+            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(66, 22);
+            this.toolStripButton1.Text = "Highlights";
+            this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
+            // 
+            // toolStripButton2
+            // 
+            this.toolStripButton2.BackColor = System.Drawing.Color.Black;
+            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButton2.ForeColor = System.Drawing.Color.White;
+            this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
+            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton2.Name = "toolStripButton2";
+            this.toolStripButton2.Size = new System.Drawing.Size(79, 22);
+            this.toolStripButton2.Text = "All Messages";
+            this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
+            // 
+            // toolStripButton3
+            // 
+            this.toolStripButton3.BackColor = System.Drawing.Color.Black;
+            this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButton3.ForeColor = System.Drawing.Color.White;
+            this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
+            this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton3.Name = "toolStripButton3";
+            this.toolStripButton3.Size = new System.Drawing.Size(62, 22);
+            this.toolStripButton3.Text = "Outgoing";
+            this.toolStripButton3.Click += new System.EventHandler(this.toolStripButton3_Click);
             // 
             // ChatPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.Controls.Add(this.toolStrip1);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.userInfoPanel1);
             this.Controls.Add(this.btn_Send);
             this.Controls.Add(this.lstB_Search);
@@ -133,7 +222,11 @@
             this.Name = "ChatPanel";
             this.Size = new System.Drawing.Size(572, 612);
             this.Load += new System.EventHandler(this.ChatPanel_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -145,5 +238,11 @@
         private System.Windows.Forms.Button btn_Send;
         private System.Windows.Forms.Timer timer1;
         private UserInfoPanel userInfoPanel1 = new UserInfoPanel();
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton tS_Btn_Emotes;
+        private System.Windows.Forms.ToolStripButton toolStripButton2;
+        private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.Windows.Forms.ToolStripButton toolStripButton3;
     }
 }

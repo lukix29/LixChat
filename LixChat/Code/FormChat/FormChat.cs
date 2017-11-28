@@ -47,13 +47,13 @@ namespace LX29_ChatClient.Forms
             SetColor(item, false);
             item.MouseUp += item_Click;
 
-            if (!insert) toolStrip1.Items.Add(item);
-            else toolStrip1.Items.Insert(0, item);
+            //if (!insert) toolStrip1.Items.Add(item);
+            //else toolStrip1.Items.Insert(0, item);
 
-            if (name.Equals("Whisper", StringComparison.OrdinalIgnoreCase))
-            {
-                toolStrip1.Items.Add(new ToolStripSeparator());
-            }
+            //if (name.Equals("Whisper", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    toolStrip1.Items.Add(new ToolStripSeparator());
+            //}
         }
 
         private void AddTSMItem(MsgType si, bool insert = false)
@@ -64,15 +64,15 @@ namespace LX29_ChatClient.Forms
 
         private void ChatClient_OnWhisperReceived(ChatMessage message)
         {
-            if (!toolStrip1.Items.ContainsKey(message.Channel_Name))
-            {
-                AddTSMItem(message.Channel_Name);
-                this.Invoke(new Action(() => SetNewMessageTSMi(message)));
-            }
-            else
-            {
-                this.Invoke(new Action(() => SetNewMessageTSMi(message)));
-            }
+            //if (!toolStrip1.Items.ContainsKey(message.Channel_Name))
+            //{
+            //    AddTSMItem(message.Channel_Name);
+            //    this.Invoke(new Action(() => SetNewMessageTSMi(message)));
+            //}
+            //else
+            //{
+            //    this.Invoke(new Action(() => SetNewMessageTSMi(message)));
+            //}
         }
 
         private void chatPanel1_Load(object sender, EventArgs e)
@@ -86,10 +86,10 @@ namespace LX29_ChatClient.Forms
 
         private void chatView_OnMessageReceived(ChatMessage msg)
         {
-            if (msg.Channel.Equals(currentChannel.Name))
-            {
-                SetNewMessageTSMi(msg);
-            }
+            //if (msg.Channel.Equals(currentChannel.Name))
+            //{
+            //    SetNewMessageTSMi(msg);
+            //}
         }
 
         private void FormChat_FormClosing(object sender, FormClosingEventArgs e)
@@ -110,19 +110,19 @@ namespace LX29_ChatClient.Forms
                 this.TransparencyKey = Color.DarkGoldenrod;
                 chatView.BackColor = UserColors.ChatBackground;
 
-                var ca = toolStrip1.Items.Cast<ToolStripItem>()
-                    .Where(t => t.Text.Equals("Emotes") || t.Text.Equals("Settings")).ToArray();
-                toolStrip1.Items.Clear();
-                toolStrip1.Items.AddRange(ca);
+                //var ca = toolStrip1.Items.Cast<ToolStripItem>()
+                //    .Where(t => t.Text.Equals("Emotes") || t.Text.Equals("Settings")).ToArray();
+                //toolStrip1.Items.Clear();
+                //toolStrip1.Items.AddRange(ca);
 
-                toolStrip1.Items.Insert(0, new ToolStripSeparator());
-                AddTSMItem(MsgType.HL_Messages, true);
-                AddTSMItem(MsgType.Outgoing, true);
-                AddTSMItem(MsgType.All_Messages, true);
-                foreach (var name in ChatClient.Messages.Whispers.Keys)
-                {
-                    AddTSMItem(name);
-                }
+                //toolStrip1.Items.Insert(0, new ToolStripSeparator());
+                //AddTSMItem(MsgType.HL_Messages, true);
+                //AddTSMItem(MsgType.Outgoing, true);
+                //AddTSMItem(MsgType.All_Messages, true);
+                //foreach (var name in ChatClient.Messages.Whispers.Keys)
+                //{
+                //    AddTSMItem(name);
+                //}
 
                 ChatClient.Messages.OnWhisperReceived += ChatClient_OnWhisperReceived;
 
@@ -161,7 +161,7 @@ namespace LX29_ChatClient.Forms
                 {
                     chatView.SetAllMessages(MsgType.Whisper, null, nme);
                 }
-                chatView.ShowEmotes = false;
+                chatView.ViewAllEmotes = false;
                 SetColor(tsb, false);
                 chatView.RefreshMessages();
             }
@@ -184,28 +184,28 @@ namespace LX29_ChatClient.Forms
             }
         }
 
-        private void SetNewMessageTSMi(ChatMessage message)
-        {
-            try
-            {
-                string name = "All_Messages";
-                if (message.IsType(MsgType.Whisper))
-                {
-                    name = message.Channel_Name;
-                }
-                if (message.Channel.Equals(currentChannel.Name) && !message.IsType(MessageType))
-                {
-                    var item = toolStrip1.Items.Find(name, true);
-                    if (item.Length > 0)
-                    {
-                        SetColor(item[0], true);
-                    }
-                }
-            }
-            catch
-            {
-            }
-        }
+        //private void SetNewMessageTSMi(ChatMessage message)
+        //{
+        //    try
+        //    {
+        //        string name = "All_Messages";
+        //        if (message.IsType(MsgType.Whisper))
+        //        {
+        //            name = message.Channel_Name;
+        //        }
+        //        if (message.Channel.Equals(currentChannel.Name) && !message.IsType(MessageType))
+        //        {
+        //            var item = toolStrip1.Items.Find(name, true);
+        //            if (item.Length > 0)
+        //            {
+        //                SetColor(item[0], true);
+        //            }
+        //        }
+        //    }
+        //    catch
+        //    {
+        //    }
+        //}
 
         private void timer1_Tick(object sender, EventArgs e)
         {
@@ -224,7 +224,7 @@ namespace LX29_ChatClient.Forms
 
         private void tS_Btn_Emotes_Click(object sender, EventArgs e)
         {
-            chatView.ShowEmotes = true;
+            chatView.ViewAllEmotes = true;
         }
     }
 }

@@ -83,6 +83,7 @@ namespace LX29_ChatClient
                     {
                         return;
                     }
+                    name = name.RemoveFrom("!");
                     lock (syncRoot)
                     {
                         if (!Contains(name, channel))

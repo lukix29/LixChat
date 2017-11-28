@@ -384,8 +384,7 @@ namespace IRC_Client
             {
                 if (NetworkStream == null)
                 {
-                    OnNetworkError(new SocketException((int)SocketError.NotConnected));
-                    return;
+                    throw new Exception();
                 }
 
                 message = string.Format(message, format);

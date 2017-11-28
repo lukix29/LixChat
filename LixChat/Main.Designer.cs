@@ -136,10 +136,10 @@
             resources.ApplyResources(this.playerControl1, "playerControl1");
             this.playerControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.playerControl1.Name = "playerControl1";
-            this.playerControl1.PreviewImage = ((System.Drawing.Image)(resources.GetObject("playerControl1.PreviewImage")));
+            this.playerControl1.PreviewImage = global::LX29_LixChat.Properties.Resources.loadingwide;
             this.playerControl1.Quality = "";
             this.playerControl1.ShowOnTopBorderless = false;
-            this.playerControl1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.playerControl1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.playerControl1.Stream = null;
             // 
             // lbl_preview

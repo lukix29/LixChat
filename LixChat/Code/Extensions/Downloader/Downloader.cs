@@ -107,20 +107,20 @@ namespace LX29_MPV
         {
             try
             {
-                string url = "https://github.com/lukix29/LixChat/raw/master/LixChat/Data/LixChat.exe";
-                DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
-                HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+                var url = "https://github.com/lukix29/LixChat/raw/master/LixChat/Data/LixChat.exe";
+                var cur = Extensions.GetLinkerTime(Application.ExecutablePath);
+                var req = (HttpWebRequest)HttpWebRequest.Create(url);
                 req.Proxy = null;
-                string path = Path.GetFullPath(Path.GetTempFileName().Replace(".tmp", ".exe"));
-                bool doUpdate = false;
+                var path = Path.GetFullPath(Path.GetTempFileName().Replace(".tmp", ".exe"));
+                var doUpdate = false;
                 using (var resp = req.GetResponse())
                 {
-                    long length = resp.ContentLength;
+                    var length = resp.ContentLength;
 
                     using (var sr = resp.GetResponseStream())
                     {
                         byte[] buffer;
-                        DateTime online = sr.GetOnlineLinkerTime(out buffer);
+                        var online = sr.GetOnlineLinkerTime(out buffer);
                         if (online.Ticks > cur.Ticks || force)
                         {
                             using (var fs = File.OpenWrite(path))
@@ -142,7 +142,7 @@ namespace LX29_MPV
                             wc.Proxy = null;
                             data = wc.DownloadData("https://github.com/lukix29/LixChat/raw/master/LixChat/Resources/updater.exe");
                         }
-                        string updater = Path.GetTempFileName().Replace(".tmp", ".exe");
+                        var updater = Path.GetTempFileName().Replace(".tmp", ".exe");
                         File.WriteAllBytes(updater, data);
                         Process.Start(updater, "\"" + path + "\" \"" + Application.ExecutablePath + "\"");
                         Application.Exit();
@@ -170,31 +170,31 @@ namespace LX29_MPV
             }
             try
             {
-                DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
-                HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(updateURL);
+                var cur = Extensions.GetLinkerTime(Application.ExecutablePath);
+                var req = (HttpWebRequest)HttpWebRequest.Create(updateURL);
                 req.Proxy = null;
-                string path = Path.GetFullPath(Path.GetTempPath() + "LixChat_Setup.msi");
+                var path = Path.GetFullPath(Path.GetTempPath() + "LixChat_Setup.msi");
 
-                string line = "";
-                bool doUpdate = false;
-                string dlUrl = "";
+                var line = "";
+                var doUpdate = false;
+                var dlUrl = "";
                 using (var resp = req.GetResponse())
                 {
-                    long length = resp.ContentLength;
+                    var length = resp.ContentLength;
 
-                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    using (var reader = new StreamReader(resp.GetResponseStream()))
                     {
-                        while ((line = sr.ReadLine()) != null)
+                        while ((line = reader.ReadLine()) != null)
                         {
                             line = line.Trim().Replace("\"", "");
                             if (line.StartsWith("</entry>")) break;
                             if (line.StartsWith("<updated>"))
                             {
                                 var tr = line.ReplaceAll(" ", "<updated>", "</updated>", "T").Replace("-", ".");
-                                DateTime dt = DateTime.MinValue;
+                                var dt = DateTime.MinValue;
                                 if (DateTime.TryParse(tr, out dt))
                                 {
-                                    int hrs = (int)dt.Subtract(cur).TotalHours;
+                                    var hrs = (int)dt.Subtract(cur).TotalHours;
                                     doUpdate = (hrs >= 12) || force;
                                     if (!doUpdate) break;
                                 }
@@ -210,10 +210,10 @@ namespace LX29_MPV
                 }
                 if (doUpdate)
                 {
-                    if (LX29_MessageBox.Show("Update found!\r\nDownload now?", "Update", MessageBoxButtons.YesNo) == MessageBoxResult.Yes)
+                    if (LX29_MessageBox.Show("Update found!\r\nDownload now?", "LixChat Update", MessageBoxButtons.YesNo) == MessageBoxResult.Yes)
                     {
                         // https://github.com/lukix29/LixChat/releases/download/1.0.7/LixChat_Setup.msi
-                        using (WebClient wc = new WebClient())
+                        using (var wc = new WebClient())
                         {
                             wc.Proxy = null;
                             wc.DownloadProgressChanged += (sender, e) =>

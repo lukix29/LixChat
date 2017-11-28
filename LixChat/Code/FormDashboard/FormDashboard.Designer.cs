@@ -41,11 +41,16 @@
             this.btn_SaveApiKey = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.listBox_BanEvents = new System.Windows.Forms.ListBox();
             this.listView1 = new System.Windows.Forms.ListView();
             this.panelEvents = new System.Windows.Forms.Panel();
+            this.panelEventsResize = new System.Windows.Forms.Panel();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
-            this.panelEventsResize = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.timerTime = new System.Windows.Forms.Timer(this.components);
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -53,11 +58,6 @@
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.listBox_BanEvents = new System.Windows.Forms.ListBox();
             this.treeView1 = new LX29_ChatClient.Dashboard.LX29_TreeView();
             this.userInfoPanel1 = new LX29_ChatClient.Forms.UserInfoPanel();
             this.panelMain.SuspendLayout();
@@ -68,13 +68,13 @@
             this.splitContainer1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panelEvents.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // timer1
@@ -203,6 +203,21 @@
             this.panel1.Size = new System.Drawing.Size(616, 593);
             this.panel1.TabIndex = 9;
             // 
+            // listBox_BanEvents
+            // 
+            this.listBox_BanEvents.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.listBox_BanEvents.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.listBox_BanEvents.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.listBox_BanEvents.ForeColor = System.Drawing.Color.Gainsboro;
+            this.listBox_BanEvents.FormattingEnabled = true;
+            this.listBox_BanEvents.IntegralHeight = false;
+            this.listBox_BanEvents.ItemHeight = 19;
+            this.listBox_BanEvents.Location = new System.Drawing.Point(379, 79);
+            this.listBox_BanEvents.Name = "listBox_BanEvents";
+            this.listBox_BanEvents.Size = new System.Drawing.Size(233, 241);
+            this.listBox_BanEvents.TabIndex = 12;
+            this.listBox_BanEvents.MouseHover += new System.EventHandler(this.listBox_BanEvents_MouseHover);
+            // 
             // listView1
             // 
             this.listView1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
@@ -231,8 +246,42 @@
             this.panelEvents.Controls.Add(this.splitContainer2);
             this.panelEvents.Location = new System.Drawing.Point(3, 326);
             this.panelEvents.Name = "panelEvents";
-            this.panelEvents.Size = new System.Drawing.Size(441, 223);
+            this.panelEvents.Size = new System.Drawing.Size(507, 223);
             this.panelEvents.TabIndex = 7;
+            // 
+            // panelEventsResize
+            // 
+            this.panelEventsResize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelEventsResize.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(20)))), ((int)(((byte)(40)))));
+            this.panelEventsResize.BackgroundImage = global::LX29_LixChat.Properties.Resources.resize;
+            this.panelEventsResize.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.panelEventsResize.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelEventsResize.Cursor = System.Windows.Forms.Cursors.SizeNWSE;
+            this.panelEventsResize.Location = new System.Drawing.Point(489, 205);
+            this.panelEventsResize.Name = "panelEventsResize";
+            this.panelEventsResize.Size = new System.Drawing.Size(15, 15);
+            this.panelEventsResize.TabIndex = 5;
+            this.panelEventsResize.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseDown);
+            this.panelEventsResize.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseMove);
+            this.panelEventsResize.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseUp);
+            // 
+            // splitContainer2
+            // 
+            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer2.Name = "splitContainer2";
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.tableLayoutPanel1);
+            this.splitContainer2.Panel1MinSize = 1;
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.listBox1);
+            this.splitContainer2.Size = new System.Drawing.Size(505, 221);
+            this.splitContainer2.SplitterDistance = 126;
+            this.splitContainer2.TabIndex = 12;
             // 
             // tableLayoutPanel1
             // 
@@ -250,7 +299,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(110, 221);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(126, 221);
             this.tableLayoutPanel1.TabIndex = 11;
             // 
             // label1
@@ -262,26 +311,52 @@
             this.label1.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(104, 55);
+            this.label1.Size = new System.Drawing.Size(120, 55);
             this.label1.TabIndex = 6;
-            this.label1.Text = "All Donations\r\n500.55k€";
+            this.label1.Text = "Enter Tipeee Api-Key\r\nunder Settings.";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // panelEventsResize
+            // label2
             // 
-            this.panelEventsResize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelEventsResize.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(20)))), ((int)(((byte)(40)))));
-            this.panelEventsResize.BackgroundImage = global::LX29_LixChat.Properties.Resources.resize;
-            this.panelEventsResize.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.panelEventsResize.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelEventsResize.Cursor = System.Windows.Forms.Cursors.SizeNWSE;
-            this.panelEventsResize.Location = new System.Drawing.Point(423, 205);
-            this.panelEventsResize.Name = "panelEventsResize";
-            this.panelEventsResize.Size = new System.Drawing.Size(15, 15);
-            this.panelEventsResize.TabIndex = 5;
-            this.panelEventsResize.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseDown);
-            this.panelEventsResize.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseMove);
-            this.panelEventsResize.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseUp);
+            this.label2.AutoSize = true;
+            this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.label2.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(3, 55);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(120, 55);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "Enter Tipeee Api-Key\r\nunder Settings.";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.label3.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(3, 110);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(120, 55);
+            this.label3.TabIndex = 8;
+            this.label3.Text = "Enter Tipeee Api-Key\r\nunder Settings.";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.label4.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(3, 165);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(120, 56);
+            this.label4.TabIndex = 9;
+            this.label4.Text = "Enter Tipeee Api-Key\r\nunder Settings.";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // listBox1
             // 
@@ -295,7 +370,7 @@
             this.listBox1.ItemHeight = 19;
             this.listBox1.Location = new System.Drawing.Point(0, 0);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(325, 221);
+            this.listBox1.Size = new System.Drawing.Size(375, 221);
             this.listBox1.TabIndex = 10;
             this.listBox1.MouseHover += new System.EventHandler(this.listBox1_MouseHover);
             // 
@@ -351,81 +426,6 @@
             this.toolStripMenuItem1.Text = "Dashboard Settings";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.label4.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(3, 165);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(104, 56);
-            this.label4.TabIndex = 9;
-            this.label4.Text = "label4";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.label3.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(3, 110);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(104, 55);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "label3";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.label2.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(3, 55);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(104, 55);
-            this.label2.TabIndex = 7;
-            this.label2.Text = "label2";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // splitContainer2
-            // 
-            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer2.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer2.Name = "splitContainer2";
-            // 
-            // splitContainer2.Panel1
-            // 
-            this.splitContainer2.Panel1.Controls.Add(this.tableLayoutPanel1);
-            this.splitContainer2.Panel1MinSize = 110;
-            // 
-            // splitContainer2.Panel2
-            // 
-            this.splitContainer2.Panel2.Controls.Add(this.listBox1);
-            this.splitContainer2.Size = new System.Drawing.Size(439, 221);
-            this.splitContainer2.SplitterDistance = 110;
-            this.splitContainer2.TabIndex = 12;
-            // 
-            // listBox_BanEvents
-            // 
-            this.listBox_BanEvents.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.listBox_BanEvents.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.listBox_BanEvents.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.listBox_BanEvents.ForeColor = System.Drawing.Color.Gainsboro;
-            this.listBox_BanEvents.FormattingEnabled = true;
-            this.listBox_BanEvents.IntegralHeight = false;
-            this.listBox_BanEvents.ItemHeight = 19;
-            this.listBox_BanEvents.Location = new System.Drawing.Point(379, 79);
-            this.listBox_BanEvents.Name = "listBox_BanEvents";
-            this.listBox_BanEvents.Size = new System.Drawing.Size(233, 241);
-            this.listBox_BanEvents.TabIndex = 12;
-            this.listBox_BanEvents.MouseHover += new System.EventHandler(this.listBox_BanEvents_MouseHover);
-            // 
             // treeView1
             // 
             this.treeView1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
@@ -475,15 +475,15 @@
             this.splitContainer1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panelEvents.ResumeLayout(false);
+            this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
+            this.splitContainer2.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
-            this.splitContainer2.Panel1.ResumeLayout(false);
-            this.splitContainer2.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
-            this.splitContainer2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

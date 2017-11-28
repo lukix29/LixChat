@@ -31,13 +31,10 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormChat));
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.tS_Btn_Emotes = new System.Windows.Forms.ToolStripButton();
             this.cMS_TextOptions = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsMi_CopyText = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_PasteText = new System.Windows.Forms.ToolStripMenuItem();
             this.chatPanel1 = new LX29_ChatClient.Forms.ChatPanel();
-            this.toolStrip1.SuspendLayout();
             this.cMS_TextOptions.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,32 +43,6 @@
             this.timer1.Enabled = true;
             this.timer1.Interval = 2000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // toolStrip1
-            // 
-            this.toolStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tS_Btn_Emotes});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.toolStrip1.Size = new System.Drawing.Size(669, 25);
-            this.toolStrip1.TabIndex = 15;
-            this.toolStrip1.Text = "toolStrip1";
-            this.toolStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.toolStrip1_ItemClicked);
-            // 
-            // tS_Btn_Emotes
-            // 
-            this.tS_Btn_Emotes.BackColor = System.Drawing.Color.Black;
-            this.tS_Btn_Emotes.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tS_Btn_Emotes.ForeColor = System.Drawing.Color.White;
-            this.tS_Btn_Emotes.Image = ((System.Drawing.Image)(resources.GetObject("tS_Btn_Emotes.Image")));
-            this.tS_Btn_Emotes.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tS_Btn_Emotes.Name = "tS_Btn_Emotes";
-            this.tS_Btn_Emotes.Size = new System.Drawing.Size(50, 22);
-            this.tS_Btn_Emotes.Text = "Emotes";
-            this.tS_Btn_Emotes.Click += new System.EventHandler(this.tS_Btn_Emotes_Click);
             // 
             // cMS_TextOptions
             // 
@@ -95,14 +66,12 @@
             // 
             // chatPanel1
             // 
-            this.chatPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.chatPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.chatPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            this.chatPanel1.Location = new System.Drawing.Point(0, 28);
+            this.chatPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chatPanel1.Location = new System.Drawing.Point(0, 0);
             this.chatPanel1.Name = "chatPanel1";
-            this.chatPanel1.Size = new System.Drawing.Size(669, 634);
+            this.chatPanel1.Size = new System.Drawing.Size(669, 662);
             this.chatPanel1.TabIndex = 22;
             this.chatPanel1.Load += new System.EventHandler(this.chatPanel1_Load);
             // 
@@ -111,7 +80,6 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(669, 662);
-            this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.chatPanel1);
             this.ForeColor = System.Drawing.Color.White;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -121,11 +89,8 @@
             this.TransparencyKey = System.Drawing.Color.Fuchsia;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormChat_FormClosing);
             this.Load += new System.EventHandler(this.FormChat_Load);
-            this.toolStrip1.ResumeLayout(false);
-            this.toolStrip1.PerformLayout();
             this.cMS_TextOptions.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -133,12 +98,10 @@
 
         private System.Windows.Forms.Timer timer1;
         //private System.Windows.Forms.WebBrowser htmlPanel;
-        private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ContextMenuStrip cMS_TextOptions;
         private System.Windows.Forms.ToolStripMenuItem tsMi_CopyText;
         private System.Windows.Forms.ToolStripMenuItem tSMi_PasteText;
         private ChatPanel chatPanel1;
-        private System.Windows.Forms.ToolStripButton tS_Btn_Emotes;
 
     }
 }

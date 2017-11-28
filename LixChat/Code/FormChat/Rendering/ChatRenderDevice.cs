@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace LX29_ChatClient.Forms
 {
@@ -91,7 +92,7 @@ namespace LX29_ChatClient.Forms
 
         private Color Link_Color = Color.DodgerBlue;
         private List<ChatMessage> messages = new List<ChatMessage>();
-        private bool swapColor = true;
+        //private bool swapColor = true;
 
         private IOrderedEnumerable<EmoteBase> tempEmotes = null;
 
@@ -124,7 +125,7 @@ namespace LX29_ChatClient.Forms
 
             MessageType = MsgType.All_Messages;
             AutoScroll = true;
-
+            SoftScrollMax = 10000;
             Font = new Font(Settings.ChatFontName, (float)Settings.ChatFontSize);
         }
 
@@ -195,56 +196,153 @@ namespace LX29_ChatClient.Forms
             if (AutoScroll || force)
             {
                 int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType, WhisperName);
-                messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType, msgcnt - 256, msgcnt - ViewStart);
+                messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType, msgcnt - 256, msgcnt);// - ViewStart);
                 //DrawMessagesNew();
                 //bufferedGraphics.Render();
             }
         }
 
+        private bool isrenderingasync = false;
+
+        //public async void _RenderAsync()
+        //{
+        //    if (!isrenderingasync)
+        //    {
+        //        isrenderingasync = true;
+        //        await Task.Run(() => Render());
+        //        isrenderingasync = false;
+        //    }
+        //}
+
+        private int wait = 30;
+
+        public delegate void ShowScrollDownLabel(bool visible);
+
+        public event ShowScrollDownLabel OnShowScrollDownLabel;
+
+        private bool isRunning = false;
+
+        public bool IsRunning
+        {
+            get { return isRunning; }
+            set { isRunning = value; }
+        }
+
+        //private Renderer renderer;
+        public void Start()
+        {
+            if (!isRunning)
+            {
+                isRunning = true;
+                Task.Run(() => _refreshLoop());
+            }
+        }
+
+        public async void _refreshLoop()
+        {
+            var watch = new System.Diagnostics.Stopwatch();
+
+            while (isRunning)
+            {
+                watch.Restart();
+                try
+                {
+                    if (!Pause)
+                    {
+                        //if (!gifVisible)
+                        //{
+                        //    wait = 1000;
+                        //}
+                        //else
+                        //{
+                        wait = 30;
+                        //}
+                        bool visible = Render();
+                        if (OnShowScrollDownLabel != null)
+                            OnShowScrollDownLabel(visible);
+                    }
+                    else wait = 1000;
+
+                    if (!isRunning)
+                        break;
+
+                    var elap = watch.ElapsedMilliseconds;
+                    if (elap < wait)
+                    {
+                        await Task.Delay((int)Math.Max(0, Math.Min(10000, (wait - elap))));
+                    }
+                    //dt = DateTime.Now.Ticks;
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        public bool MouseDown
+        {
+            get;
+            set;
+        }
+
         public bool Render()
         {
-            lock (drawLock)
+            try
             {
-                bufferedGraphics.Graphics.Clear(UserColors.ChatBackground);
-                if (ShowAllEmotes)
+                lock (drawLock)
                 {
-                    DrawEmotes();
+                    //var w = ScrollRectangle.Width;
+                    //var rect = new Rectangle((int)bufferedGraphics.Graphics.VisibleClipBounds.Width - w,
+                    //    w, w, (int)bufferedGraphics.Graphics.VisibleClipBounds.Height - ScrollRectangle.Height);
+
+                    //var po = new Control().PointToClient(Cursor.Position);
+                    //if (rect.Contains(po))
+                    //{
+                    //    int ey = po.Y;
+                    //    SoftScroll = LXMath.Map(ey, rect.Bottom, rect.Y, 0, SoftScrollMax);
+                    //}
+
+                    bufferedGraphics.Graphics.Clear(UserColors.ChatBackground);
+                    if (ShowAllEmotes)
+                    {
+                        DrawEmotes();
+                    }
+                    else
+                    {
+                        DrawMessagesNew();
+                    }
+                    DrawInfoOverlay();
+                    //  control.Scrollbar.OnPaint(g);
+                    bufferedGraphics.Render();
                 }
-                else
+
+                int ttms = (int)((DateTime.Now.Ticks - dtFps) / TimeSpan.TicksPerMillisecond);
+                if (ttms > 1000)
                 {
-                    DrawMessagesNew();
+                    FPS = fpscnt;
+                    fpscnt = 0;
+
+                    dtFps = DateTime.Now.Ticks;
                 }
-                DrawInfoOverlay();
-                //  control.Scrollbar.OnPaint(g);
-                bufferedGraphics.Render();
-            }
+                fpscnt++;
 
-            int ttms = (int)((DateTime.Now.Ticks - dtFps) / TimeSpan.TicksPerMillisecond);
-            if (ttms > 1000)
-            {
-                FPS = fpscnt;
-                fpscnt = 0;
-
-                dtFps = DateTime.Now.Ticks;
+                if (_softScroll > 0)
+                {
+                    AutoScroll = false;
+                    return true;
+                }
             }
-            fpscnt++;
-
-            if (viewStart > 0)
-            {
-                AutoScroll = false;
-                return true;
-            }
+            catch { }
             return false;
         }
 
-        public void ScrollEmotes(int delta)
+        public void Scroll(int delta)
         {
             if (!_showAllEmotes)
             {
-                int d = (int)((Math.Abs(delta) / 100f) + 0.5);
+                int d = (int)(delta / 20f);
 
-                if (delta > 0) ViewStart += d;
-                else if (delta < 0) ViewStart -= d;
+                SoftScroll += d;
             }
             else
             {
@@ -471,9 +569,50 @@ namespace LX29_ChatClient.Forms
             //g.DrawString(selectedText, Font, Brushes.Red, 0, 0);
         }
 
-        private void DrawMessage(Graphics graphics, ChatMessage message, int idx, RectangleF bounds, float yInput, float height)
+        private void DrawMessage(Graphics graphics, ChatMessage message, RectangleF bounds, float yInput, float height, bool swapColor)
         {
-            MeasureMessage(graphics, message, idx, bounds, yInput, height, false);
+            MeasureMessage(graphics, message, bounds, swapColor, yInput, height, false);
+        }
+
+        public int SoftScrollMax
+        {
+            get;
+            private set;
+        }
+
+        public int SoftScroll
+        {
+            get { return _softScroll; }
+            set
+            {
+                if (Channel != null)
+                {
+                    //int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType, WhisperName);
+                    _softScroll = Math.Max(0, Math.Min(SoftScrollMax * 10, value));
+                    AutoScroll = (_softScroll > 0) ? false : true;
+                    if (_softScroll == 0)
+                    {
+                        SoftScrollMax = 10000;
+                    }
+                    // MessageReceived(true);
+                }
+            }
+        }
+
+        public Size ScrollRectangle
+        {
+            get
+            {
+                return new Size(10, ((_softScroll == 0) ? 5 : (40 - (int)_LineSpacing)));
+            }
+        }
+
+        private struct msgDraw
+        {
+            public ChatMessage msg;
+            public float height;
+            public float y;
+            public bool swap;
         }
 
         private void DrawMessagesNew()
@@ -481,12 +620,11 @@ namespace LX29_ChatClient.Forms
             try
             {
                 Graphics g = bufferedGraphics.Graphics;
-                int i = 0;
                 RectangleF bounds = g.VisibleClipBounds;
-                float bottom = ((viewStart == 0) ? 5 : (15 - _LineSpacing));
+                float bottom = ((_softScroll == 0) ? 5 : (40 - _LineSpacing));
                 //if (count > 0)
                 //{c
-                float y = bounds.Bottom - bottom;
+                float y = (bounds.Bottom - bottom) + SoftScroll;
                 //var messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType);
                 if (messages != null && messages.Count > 0)
                 {
@@ -496,36 +634,46 @@ namespace LX29_ChatClient.Forms
                     //}
                     gifVisible = false;
                     ClickableList.Clear();
-                    visibleMessages = 0;
-                    int start = Math.Min(messages.Count - 1, Math.Max(0, (messages.Count - viewStart) - 1));
-                    //bool iwasZero = false;
-                    for (i = start; i >= 0; i--)
+                    int start = messages.Count - 1;
+                    //float height = 0;
+                    List<msgDraw> list = new List<msgDraw>();
+                    for (int i = start; i >= 0; i--)
+                    {
+                        var msg = messages[i];
+                        float height = MeasureMessage(g, msg, bounds);
+
+                        y -= height;
+                        if (y >= bounds.Bottom)
+                            continue;
+                        if (y < 0)
+                            break;
+
+                        list.Add(new msgDraw { height = height, msg = msg, y = y, swap = (i % 2 > 0) });
+                    }
+                    visibleMessages = list.Count;
+                    for (int i = 0; i < visibleMessages; i++)
                     {
                         if (isChangingGraphics > 0 || ShowAllEmotes)
                         {
                             return;
                         }
-                        float height = MeasureMessage(g, messages[i], i, bounds);
-                        //if (i == 0)
-                        //{
-                        //    iwasZero = true;
-                        //}
-                        if (y < 0)
-                        {
-                            break;
-                        }
-                        y -= height;
-                        if (y > bounds.Bottom)
-                            break;
+                        var item = list[i];
 
-                        swapColor = (i % 2 > 0);
-                        DrawMessage(g, messages[i], i, bounds, y, height);
-                        visibleMessages++;
+                        DrawMessage(g, item.msg, bounds, item.y, item.height, item.swap);
                     }
-                    //if (iwasZero)
-                    //{
-                    //    messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType, 0);
-                    //}
+                    if (!MouseDown)
+                    {
+                        if (y >= bounds.Height - bottom)
+                        {
+                            SoftScroll -= (int)(50);
+                            SoftScrollMax = SoftScroll;
+                        }
+                    }
+
+                    //e.Graphics.DrawRectangle(Pens.DarkGray, );
+                    float ys = LXMath.Map(SoftScroll, 0, SoftScrollMax, ScrollRectangle.Width, bounds.Height - ScrollRectangle.Width);
+                    g.FillRectangle(Brushes.DarkGray, bounds.Right - ScrollRectangle.Width, Math.Max(0, (bounds.Height - bottom) - ys),
+                        ScrollRectangle.Width, ScrollRectangle.Width * 2);
                 }
                 else
                 {
@@ -540,6 +688,8 @@ namespace LX29_ChatClient.Forms
                 sb.AppendLine("Size: " + this.Font.Size.ToString("F1") + "pt");
                 sb.AppendLine("Refresh/s: " + FPS);
                 sb.AppendLine("V-Msg: " + visibleMessages);
+                sb.AppendLine("Scroll: " + SoftScroll);
+                sb.AppendLine("ScrMax: " + SoftScrollMax);
                 g.DrawString(sb.ToString(), this.timeFont, Brushes.Red, bounds, infoStrFormat);
 #endif
             }
@@ -548,7 +698,7 @@ namespace LX29_ChatClient.Forms
             }
         }
 
-        private float MeasureMessage(Graphics graphics, ChatMessage message, int idx, RectangleF bounds, float yInput = 0, float height = 0, bool measure = true)
+        private float MeasureMessage(Graphics graphics, ChatMessage message, RectangleF bounds, bool swapColor = false, float yInput = 0, float height = 0, bool measure = true)
         {
             bool drawImages = true;
             bool alignText = Settings.AlignText;
@@ -621,17 +771,6 @@ namespace LX29_ChatClient.Forms
             #endregion Style&Font
 
             SizeF sf = SizeF.Empty;
-
-#if DEBUG
-            sf = graphics.MeasureText(idx.ToString(), timeFont);
-
-            if (!measure)
-            {
-                graphics.DrawText(idx.ToString(), Font, Color.Red, x, y + timeSizeFac);
-            }
-
-            x += sf.Width + _WordPadding + _TimePadding;
-#endif
 
             if (ShowTimeStamp)
             {
@@ -846,7 +985,7 @@ namespace LX29_ChatClient.Forms
 
         private StringFormat VcenterStrFormat = new StringFormat();
 
-        private int viewStart = 0;
+        private int _softScroll = 0;
 
         private float _BadgePadding
         {
@@ -938,21 +1077,21 @@ namespace LX29_ChatClient.Forms
             set;
         }
 
-        public int ViewStart
-        {
-            get { return viewStart; }
-            set
-            {
-                if (Channel != null)
-                {
-                    int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType, WhisperName);
-                    viewStart = Math.Max(0, Math.Min(msgcnt, value));
-                    AutoScroll = (viewStart > 0) ? false : true;
+        //public int ViewStart
+        //{
+        //    // get { return viewStart; }
+        //    set
+        //    {
+        //        if (Channel != null)
+        //        {
+        //            int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType, WhisperName);
+        //            viewStart = Math.Max(0, Math.Min(msgcnt, value));
+        //            AutoScroll = (viewStart > 0) ? false : true;
 
-                    MessageReceived(true);
-                }
-            }
-        }
+        //            MessageReceived(true);
+        //        }
+        //    }
+        //}
 
         public string WhisperName
         {
