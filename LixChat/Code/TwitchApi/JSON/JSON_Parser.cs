@@ -3,11 +3,17 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace LX29_Twitch.JSON_Parser
 {
-    public static class JSON
+    public static partial class JSON
     {
+        public static T DeserializeObject<T>(string input, T value)
+        {
+            return JsonConvert.DeserializeAnonymousType<T>(input, value);
+        }
+
         public static T DeserializeObject<T>(string input)
         {
             return JsonConvert.DeserializeObject<T>(input);
@@ -97,6 +103,25 @@ namespace LX29_Twitch.JSON_Parser
             catch { }
             char c = input[41];
             return new Twitch_Api.ChatterList();
+        }
+
+        // To parse this JSON data, add NuGet 'Newtonsoft.Json' then do:
+        //
+        //    using QuickType;
+        //
+        //    var data = ClipData.FromJson(jsonString);
+        //
+        public static bool ParseClip(string json, out ClipData clipData)
+        {
+            try
+            {
+                var t = new { data = new List<ClipData>() };
+                clipData = JsonConvert.DeserializeAnonymousType(json, t).data[0];
+                return true;
+            }
+            catch { }
+            clipData = null;
+            return false;
         }
 
         public static FFZ_Emotes.FFZ_Addon_Pack_Badges ParseFFZAddonBadges(string input)
@@ -199,40 +224,10 @@ namespace LX29_Twitch.JSON_Parser
             //}
             //return emotes;
         }
+    }
 
-        //private static string GetBetween(string input, string left, string right = "")
-        //{
-        //    try
-        //    {
-        //        int start = 0;
-        //        if (!input.Contains(left))
-        //        {
-        //            return "";
-        //        }
-
-        //        start = Math.Max(0, Math.Min(input.Length - 1, start));
-
-        //        string output = "";
-
-        //        int i0 = input.IndexOf(left, start) + left.Length;
-        //        int i1 = input.IndexOf(right, i0);
-        //        if (right.Length > 0 && i1 >= 0)
-        //        {
-        //            if (i0 <= i1)
-        //            {
-        //                output = input.Substring(i0, (i1 - i0) - 1);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            output = input.Substring(i0);
-        //        }
-        //        return output;
-        //    }
-        //    catch { }
-        //    return "";
-        //}
-
+    public static partial class JSON
+    {
         public class BTTV_Emotes
         {
             public List<object> bots { get; set; }
@@ -260,6 +255,52 @@ namespace LX29_Twitch.JSON_Parser
             }
         }
 
+        public class ClipData
+        {
+            [JsonProperty("broadcaster_id")]
+            public string BroadcasterId { get; set; }
+
+            [JsonProperty("created_at")]
+            public DateTime CreatedAt { get; set; }
+
+            [JsonProperty("creator_id")]
+            public string CreatorId { get; set; }
+
+            [JsonProperty("edit_url")]
+            public string EditUrl => Url + "/edit";
+
+            [JsonProperty("game_id")]
+            public string GameId { get; set; }
+
+            //[JsonProperty("embed_url")]
+            //public string EmbedUrl { get; set; }
+            [JsonProperty("id")]
+            public string Id { get; set; }
+
+            [JsonProperty("language")]
+            public string Language { get; set; }
+
+            [JsonProperty("thumbnail_url")]
+            public string ThumbnailUrl { get; set; }
+
+            [JsonProperty("title")]
+            public string Title { get; set; }
+
+            [JsonProperty("url")]
+            public string Url { get; set; }
+
+            [JsonProperty("video_id")]
+            public string VideoId { get; set; }
+
+            [JsonProperty("view_count")]
+            public long ViewCount { get; set; }
+
+            public override string ToString()
+            {
+                return JsonConvert.SerializeObject(this, Formatting.Indented);
+            }
+        }
+
         public class FFZ_Emotes
         {
             public class Badge
@@ -272,9 +313,9 @@ namespace LX29_Twitch.JSON_Parser
                 public string replaces { get; set; }
                 public int slot { get; set; }
                 public string title { get; set; }
-                public Dictionary<string, string> urls { get; set; }
+                public Dictionary<int, string> urls { get; set; }
 
-                public Dictionary<string, string> URLS
+                public Dictionary<int, string> URLS
                 {
                     get
                     {
@@ -303,7 +344,7 @@ namespace LX29_Twitch.JSON_Parser
                 public object offset { get; set; }
                 public Owner owner { get; set; }
 
-                public Dictionary<string, string> urls { get; set; }
+                public Dictionary<int, string> urls { get; set; }
                 public int width { get; set; }
             }
 
@@ -631,16 +672,11 @@ namespace LX29_Twitch.JSON_Parser
                 public string image_url_4x { get; set; }
                 public string title { get; set; }
 
-                public Dictionary<string, string> urls
+                public string url
                 {
                     get
                     {
-                        return new Dictionary<string, string>
-                        {
-                            {"1", image_url_1x },
-                            {"2", image_url_2x },
-                            {"3", image_url_4x }
-                        };
+                        return image_url_4x;
                     }
                 }
             }

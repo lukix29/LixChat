@@ -1,117 +1,75 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+
+//using System.Collections.Generic;
+
+//using System.IO;
+
+//using System.Linq;
 
 namespace LX29_ChatClient.Addons
 {
-    public enum QuickTextType
+    public class QuickTextCollection
     {
-        Channel,
-        Message,
-    }
-
-    public class QuickText //: CustomSettings<QuickText, QuickTextType>, IEquatable<QuickText>
-    {
-        public QuickText(string channel)
-        {
-            Channel = channel;
-        }
-
-        public QuickText(string channel, string message)
-        {
-            Channel = channel;
-            Message = message;
-        }
-
-        public QuickText(string[] input)
-        {
-            //if (!Load(input, this))
-            //{
-            //}
-        }
-
-        public string Channel
-        {
-            get;
-            set;
-        }
-
-        public string Message
-        {
-            get;
-            set;
-        }
-
-        public bool Equals(QuickText obj)
-        {
-            return obj.ToString().Equals(ToString());
-        }
-
-        public string Save()
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-
-        public override string ToString()
-        {
-            return "MESSAGE=" + Message;
-        }
-    }
-
-    public class QuickTextCollection : IEnumerable<QuickText>
-    {
-        private List<QuickText> list = new List<QuickText>();
-
         public QuickTextCollection()
         {
+            Values = new Dictionary<string, string>();
         }
 
         [JsonRequired]
-        public List<QuickText> Values
+        public Dictionary<string, string> Values
         {
-            get { return list; }
-            set { list = value; }
+            get;
+            set;
         }
 
-        public QuickText this[int index]
+        public string this[string key]
         {
-            get { return list[index]; }
-            set { list.Insert(index, value); }
+            get { return Values[key]; }
+            //set { list.Insert(index, value); }
         }
 
         public static QuickTextCollection Load()
         {
-            string path = Settings._dataDir + "QuickText.json";
-            if (System.IO.File.Exists(path))
+            try
             {
-                return JsonConvert.DeserializeObject<QuickTextCollection>(System.IO.File.ReadAllText(path));
-                //var sa = System.IO.File.ReadAllLines(path);
-                //list = CustomSettings.Load<QuickText, QuickTextType>(
-                //    sa, ((a, s) => a.Channel.Equals(s)), (t => new QuickText(t)));
+                string path = Settings._dataDir + "QuickText.json";
+                if (System.IO.File.Exists(path))
+                {
+                    return JsonConvert.DeserializeObject<QuickTextCollection>(System.IO.File.ReadAllText(path));
+                }
             }
+            catch { }
             return new QuickTextCollection();
         }
 
-        public void Add(QuickText item)
+        public void Add(string key, string item)
         {
-            if (!list.Contains(item))
+            if (!Values.ContainsKey(key))
             {
-                list.Add(item);
+                Values.Add(key, item);
+                Save();
             }
         }
 
-        public IEnumerator<QuickText> GetEnumerator()
+        public string CheckMessage(string input)
         {
-            return list.GetEnumerator();
+            var words = input.Trim().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var word in words)
+            {
+                if (Values.ContainsKey(word))
+                {
+                    return Values[word];
+                }
+            }
+            return input;
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        public void Remove(string key)
         {
-            return this.GetEnumerator();
-        }
-
-        public void Remove(int index)
-        {
-            list.RemoveAt(index);
+            Values.Remove(key);
+            Save();
         }
 
         public void Save()
@@ -119,17 +77,6 @@ namespace LX29_ChatClient.Addons
             string path = Settings._dataDir + "QuickText.json";
             var json = JsonConvert.SerializeObject(this);
             System.IO.File.WriteAllText(path, json);
-            //using (StreamWriter sw = new StreamWriter(path, false))
-            //{
-            //    foreach (var act in actions)
-            //    {
-            //        sw.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(act));
-            //    }
-            //}
-            //string path = Settings.dataDir + "QuickText.txt";
-            //var s = CustomSettings.GetSettings<QuickText, QuickTextType>(
-            //    list, new Func<QuickText, string>(t => t.Channel));
-            //System.IO.File.WriteAllText(path, s);
         }
     }
 }

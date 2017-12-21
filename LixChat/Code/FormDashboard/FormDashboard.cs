@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Globalization;
 
 namespace LX29_ChatClient.Dashboard
 {
@@ -396,7 +396,7 @@ namespace LX29_ChatClient.Dashboard
                 {
                     case "sub":
                         {
-                            if (canDraw) b.Draw(e.Graphics, rec, Emotes.EmoteImageSize.Large);
+                            if (canDraw) b.Draw(e.Graphics, rec);
                         }
                         break;
 
@@ -420,7 +420,7 @@ namespace LX29_ChatClient.Dashboard
 
                     case "newsubs":
                         {
-                            if (canDraw) b.Draw(e.Graphics, rec, Emotes.EmoteImageSize.Large);
+                            if (canDraw) b.Draw(e.Graphics, rec);
                             using (Font f = new Font("Calibri", 12f, FontStyle.Bold))
                             {
                                 using (var gp = new System.Drawing.Drawing2D.GraphicsPath())
@@ -711,14 +711,14 @@ namespace LX29_ChatClient.Dashboard
                             if (sub.user.usertype >= UserType.moderator)
                             {
                                 var img = ChatClient.Emotes.Badges.GetImage(sub.user.usertype);
-                                img.Draw(g, rec, Emotes.EmoteImageSize.Large);
+                                img.Draw(g, rec);
                                 x += height + 1;
                                 rec.X = x;
                             }
                             if (sub.is_sub)
                             {
                                 var img = ChatClient.Emotes.Badges.GetSubBadge(data.User.Name);
-                                img.Draw(g, rec, Emotes.EmoteImageSize.Large);
+                                img.Draw(g, rec);
                                 x += height + 1;
                                 rec.X = x;
                             }

@@ -17,7 +17,7 @@ namespace LX29_ChatClient.Emotes
         Badge = 7
     }
 
-    public interface EmoteBase : IEqualityComparer<EmoteBase>, IDisposable
+    public interface IEmoteBase : IEqualityComparer<IEmoteBase>, IDisposable
     {
         string Channel
         {
@@ -55,14 +55,12 @@ namespace LX29_ChatClient.Emotes
             set;
         }
 
-        SizeF CalcSize(float height, EmoteImageSize size);
+        SizeF CalcSize(float height);
 
-        void DownloadImages();
-
-        EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size, bool grayOut = false);
+        EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, bool grayOut = false);
     }
 
-    public class Emote : EmoteBase
+    public class Emote : IEmoteBase
     {
         public const int EmoteHeight = 32;
         private static readonly SolidBrush GrayOutBrush = new SolidBrush(Color.FromArgb(200, LX29_ChatClient.UserColors.ChatBackground));
@@ -144,11 +142,11 @@ namespace LX29_ChatClient.Emotes
             set;
         }
 
-        [JsonIgnore]
-        public IEnumerable<string> URLs
-        {
-            get { return Image.URLs.Values; }
-        }
+        //[JsonIgnore]
+        //public IEnumerable<string> URLs
+        //{
+        //    get { return Image.URLs.Values; }
+        //}
 
         [JsonIgnore]
         private EmoteImage Image
@@ -157,9 +155,9 @@ namespace LX29_ChatClient.Emotes
             set;
         }
 
-        public SizeF CalcSize(float height, EmoteImageSize size)
+        public SizeF CalcSize(float height)
         {
-            return Image.CalcSize(height, size);
+            return Image.CalcSize(height);
         }
 
         public void Dispose()
@@ -167,14 +165,14 @@ namespace LX29_ChatClient.Emotes
             Image.Dispose();
         }
 
-        public void DownloadImages()
-        {
-            Image.DownloadImages();
-        }
+        //public void DownloadImages()
+        //{
+        //    Image.DownloadImages();
+        //}
 
-        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size, bool grayOut = false)
+        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, bool grayOut = false)
         {
-            var res = Image.Draw(g, X, Y, Width, Height, size);
+            var res = Image.Draw(g, X, Y, Width, Height);
             if (grayOut)
             {
                 g.FillRectangle(GrayOutBrush, X, Y, Width, Height);
@@ -183,14 +181,14 @@ namespace LX29_ChatClient.Emotes
             return res;
         }
 
-        public bool Equals(EmoteBase obj, EmoteBase obj1)
+        public bool Equals(IEmoteBase obj, IEmoteBase obj1)
         {
             return obj.ID.Equals(obj1.ID);
         }
 
         public new bool Equals(object obj)
         {
-            return ((EmoteBase)obj).ID.Equals(ID);
+            return ((IEmoteBase)obj).ID.Equals(ID);
         }
 
         public new int GetHashCode()
@@ -198,7 +196,7 @@ namespace LX29_ChatClient.Emotes
             return ID.GetHashCode();
         }
 
-        public int GetHashCode(EmoteBase b)
+        public int GetHashCode(IEmoteBase b)
         {
             return b.GetHashCode();
         }

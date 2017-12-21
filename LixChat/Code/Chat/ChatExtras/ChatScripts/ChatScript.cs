@@ -163,7 +163,7 @@ namespace LX29_ChatClient.Addons.Scripts
             CompilerParameters parameters = new CompilerParameters();
             var assemblies = AppDomain.CurrentDomain
                             .GetAssemblies()
-                //.Where(a => !a.IsDynamic)
+                            //.Where(a => !a.IsDynamic)
                             .Select(a => a.Location).ToArray();
 
             parameters.ReferencedAssemblies.AddRange(assemblies);
@@ -197,17 +197,27 @@ namespace LX29_ChatClient.Addons.Scripts
             return meth;// (Func<ChatMessage, object>)Delegate.CreateDelegate(typeof(Func<ChatMessage, object>), func);
         }
 
+        private static void deleteExternalScripts()
+        {
+            try
+            {
+                foreach (var s in Directory.GetFiles(Settings._scriptDir))
+                {
+                    File.Delete(s);
+                }
+            }
+            catch
+            {
+            }
+        }
+
         private static void LoadExternalScripts()
         {
             try
             {
                 if (Settings.IsUpdatedCurrently)
                 {
-                    foreach (var s in Directory.GetFiles(Settings._scriptDir))
-                    {
-                        File.Delete(s);
-                    }
-                    //File.WriteAllText(Settings._scriptDir + "TestScript.cs", LX29_LixChat.Properties.Resources.MyScripts);
+                    deleteExternalScripts();
                 }
                 var names = Directory.GetFiles(Settings._scriptDir, "*.cs", SearchOption.AllDirectories);
                 if (names.Length > 0)
@@ -229,6 +239,7 @@ namespace LX29_ChatClient.Addons.Scripts
                 switch (x.Handle())
                 {
                     case MessageBoxResult.Retry:
+                        deleteExternalScripts();
                         x.Handle();
                         break;
 

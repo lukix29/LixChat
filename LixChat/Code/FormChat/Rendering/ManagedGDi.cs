@@ -137,7 +137,7 @@ namespace System.Drawing
 
             var _with1 = destRect;
             @bool = //GDI32.StretchBlt(destDc, _with1.X, _with1.Y, _with1.Width, _with1.Height, memDC, 0, 0, srcImage.Width, srcImage.Height,
-                //GDI32.TernaryRasterOperations.SRCERASE);
+                    //GDI32.TernaryRasterOperations.SRCERASE);
                 GDI32.AlphaBlend(destDc, _with1.X, _with1.Y, _with1.Width, _with1.Height, memDC, 0, 0, srcImage.Width, srcImage.Height,
             new GDI32.BLENDFUNCTION(alpha));
 

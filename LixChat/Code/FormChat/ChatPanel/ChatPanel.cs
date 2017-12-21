@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Windows.Forms;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace LX29_ChatClient.Forms
 {
@@ -20,9 +19,9 @@ namespace LX29_ChatClient.Forms
 
         //private Dictionary<string, EmoteSearchResult> searchResult = new Dictionary<string, EmoteSearchResult>();
 
-        private Task searchTask = null;
+        //private Task searchTask = null;
 
-        private bool stopTask = false;
+        //private bool stopTask = false;
 
         //private int lastMessageScrollMax = 0;
         //private List<ChatMessage> sentMessages = new List<ChatMessage>();
@@ -103,7 +102,8 @@ namespace LX29_ChatClient.Forms
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        private void btn_Send_Click(object sender, EventArgs e)
+        private async void btn_Send_Click(object sender, EventArgs e)
+
         {
             try
             {
@@ -112,29 +112,27 @@ namespace LX29_ChatClient.Forms
                     var text = rTB_Send.Text;
                     rTB_Send.Clear();
 
-                    System.Threading.Tasks.Task.Run(() =>
+                    var msg = ChatMessage.Empty;
+
+                    await System.Threading.Tasks.Task.Run(() =>
+                     {
+                         if (string.IsNullOrEmpty(chatView1.UserMessageName))
+                         {
+                             msg = ChatClient.SendMessage(text, Channel.ID);
+                         }
+                         else
+                         {
+                             msg = ChatClient.SendWhisper(text, chatView1.UserMessageName);
+                         }
+                     });
+
+                    if (!msg.IsEmpty)
                     {
-                        var msg = ChatMessage.Empty;
-                        if (string.IsNullOrEmpty(chatView1.UserMessageName))
+                        if (msg.IsType(MsgType.Whisper))
                         {
-                            msg = ChatClient.SendMessage(text, Channel.ID);
+                            OnWhisperSent?.Invoke(this, msg);
                         }
-                        else
-                        {
-                            msg = ChatClient.SendWhisper(text, chatView1.UserMessageName);
-                        }
-                        this.Invoke(new Action(() =>
-                        {
-                            if (!msg.IsEmpty)
-                            {
-                                if (msg.IsType(MsgType.Whisper))
-                                {
-                                    if (OnWhisperSent != null)
-                                        OnWhisperSent(this, msg);
-                                }
-                            }
-                        }));
-                    });
+                    }
                 }
             }
             catch (Exception x)
@@ -200,7 +198,6 @@ namespace LX29_ChatClient.Forms
 
                 userInfoPanel1.Font = new Font(chatView1.Font.FontFamily, 10);
 
-                //this.ParentForm.AcceptButton = this.btn_Send;
                 rTB_Send.AddContextMenu();
             }
             catch (Exception x)
@@ -210,67 +207,80 @@ namespace LX29_ChatClient.Forms
         }
 
         private void chatView1_MouseDown(object sender, MouseEventArgs e)
+
         {
             userInfoPanel1.Hide();
         }
 
         private void chatView1_MouseUp(object sender, MouseEventArgs e)
+
         {
             lstB_Search.Visible = false;
             lastSearch = "";
         }
 
         private void chatView1_OnEmoteClicked(ChatView sender, Emotes.Emote emote)
+
         {
             rTB_Send.AppendText(" " + emote.Name);
         }
 
         private void chatView1_OnLinkClicked(ChatView sender, string url)
+
         {
-            //if (!url.StartsWith("http"))
-            //{
-            //    url = "https://" + url;
-            //}
             Settings.StartBrowser(url);
         }
 
         private void chatView1_OnUserNameClicked(ChatView sender, ChatUser user, Point mouse)
+
         {
             Point location = this.PointToClient(mouse);
             userInfoPanel1.Show(sender.Channel, user, location);
         }
 
         private void lstB_Search_DrawItem(object sender, DrawItemEventArgs e)
+
         {
-            if (e.Index < 0) return;
-
-            e.DrawBackground();
-            e.DrawFocusRectangle();
-
-            int y = e.Bounds.Y;
-
-            Rectangle rec = new Rectangle(0, y, e.Bounds.Height, e.Bounds.Height);
-            if (lstB_Search.ClientRectangle.IntersectsWith(rec))
+            try
             {
-                int x = 0;
-                var res = (EmoteSearchResult)lstB_Search.Items[e.Index];
-                if (res.IsEmote)
+                if (e.Index < 0) return;
+
+                e.DrawBackground();
+                e.DrawFocusRectangle();
+
+                int y = e.Bounds.Y;
+
+                Rectangle rec = new Rectangle(0, y, e.Bounds.Height, e.Bounds.Height);
+                if (lstB_Search.ClientRectangle.IntersectsWith(rec))
                 {
-                    var em = (Emotes.EmoteBase)res.Result;
-                    x += 5;
-                    em.Draw(e.Graphics, x, y, e.Bounds.Height, e.Bounds.Height, Settings.EmoteQuality);
-                    x += 5 + e.Bounds.Height;
+                    int x = 0;
+                    var res = (ChatClient.EmoteSearchResult)lstB_Search.Items[e.Index];
+                    if (res.IsEmote)
+                    {
+                        var em = (Emotes.IEmoteBase)res.Result;
+                        x += 5;
+                        em.Draw(e.Graphics, x, y, e.Bounds.Height, e.Bounds.Height);
+                        x += 5 + e.Bounds.Height;
+                    }
+                    TextRenderer.DrawText(e.Graphics, res.Name, e.Font, new Point(x, y), e.ForeColor);
                 }
-                //else
-                //{
-                //    //c = ((ChatUser)res.Result).GetColor((float)LX29_Helpers.Settings.UserColorBrigthness);
-                //    e.Graphics.FillRectangle(Brushes.DarkGray, elrec);
-                //}
-                TextRenderer.DrawText(e.Graphics, res.Name, e.Font, new Point(x, y), e.ForeColor);
             }
+            catch { }
+        }
+
+        private void lstB_Search_MouseDoubleClick(object sender, MouseEventArgs e)
+
+        {
+            lstB_Search.SuspendLayout();
+            selectName();
+            lstB_Search.Visible = false;
+            rTB_Send.Focus();
+            rTB_Send.Select(rTB_Send.TextLength, 0);
+            lstB_Search.ResumeLayout();
         }
 
         private void lstB_Search_SelectedIndexChanged(object sender, EventArgs e)
+
         {
             if (!lockListSearch)
             {
@@ -284,6 +294,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private void lstB_Search_VisibleChanged(object sender, EventArgs e)
+
         {
             if (!lstB_Search.Visible)
             {
@@ -292,6 +303,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
+
         {
             //rTB_Send.SuspendLayout();
             //string text = rTB_Send.Text;
@@ -303,6 +315,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private void rTB_Send_KeyDown(object sender, KeyEventArgs e)
+
         {
             if (e.KeyCode == Keys.Down || e.KeyCode == Keys.Up)
             {
@@ -341,6 +354,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private void rTB_Send_KeyUp(object sender, KeyEventArgs e)
+
         {
             try
             {
@@ -370,7 +384,7 @@ namespace LX29_ChatClient.Forms
 
                         if (lastSearch.Length > 2)
                         {
-                            SearchFor();
+                            Task.Run(() => SearchFor());
                         }
                     }
                     else
@@ -421,124 +435,128 @@ namespace LX29_ChatClient.Forms
             }
         }
 
-        private IEnumerable<EmoteSearchResult> search(string s)
+        private List<ChatClient.EmoteSearchResult> Search(string s, int cnt = 0)
         {
             try
             {
+                if (cnt >= 5)
+                    return null;
                 string search = s.ToLower().Trim();
 
-                if (stopTask)
-                {
-                    lstB_Search.Items.Clear();
-                    return null;
-                }
+                //System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                //var watch = new System.Diagnostics.Stopwatch();
+                //watch.Start();
 
-                var users = ChatClient.Users.Find(search, Channel.Name)
-                    .Select(u => new EmoteSearchResult(u, u.DisplayName))
-                    .OrderBy(t => t.Name.Length).ThenBy(t => t.Name);
+                var userTask = ChatClient.ChatUsers.Find(search, Channel.Name);
 
-                if (stopTask)
-                {
-                    lstB_Search.Items.Clear();
-                    return null;
-                }
+                //sb.AppendLine("Users: " + watch.ElapsedMilliseconds.ToString("N0"));
+                //watch.Restart();
 
-                var emotes = ChatClient.Emotes.Values.Find(s, Channel.Name)
-                .Select(t => new EmoteSearchResult(t, t.Name));
+                var emoteTask = ChatClient.Emotes.Values.Find(s, Channel.Name)
+                    .Select(t => new ChatClient.EmoteSearchResult(t, t.Name, true));
 
-                if (stopTask)
-                {
-                    lstB_Search.Items.Clear();
-                    return null;
-                }
-                return users.Concat(emotes);
+                //sb.AppendLine("Emotes: " + watch.ElapsedMilliseconds.ToString("N0"));
+                //watch.Restart();
+
+                userTask.AddRange(emoteTask);
+
+                //sb.AppendLine("Concat: " + watch.ElapsedMilliseconds.ToString("N0"));
+                //watch.Restart();
+
+                //MessageBox.Show(sb.ToString());
+                return userTask;
             }
             catch
             {
+                return Search(s, cnt + 1);
             }
-            return null;
         }
 
         private void SearchFor()
         {
-            if (searchTask != null && !searchTask.IsCompleted)
+            try
             {
-                stopTask = true;
+                //var watch = new System.Diagnostics.Stopwatch();
+                //var sb = new System.Text.StringBuilder();
+                //watch.Start();
+
+                var searchResult = Search(lastSearch.ToLower());
+
+                //sb.AppendLine(watch.ElapsedMilliseconds.ToString("N0") + "ms Search");
+                //watch.Restart();
+
+                this.Invoke(new Action(() =>
+                {
+                    try
+                    {
+                        if (searchResult != null)
+                        {
+                            lstB_Search.BeginUpdate();
+                            lstB_Search.Items.Clear();
+                            foreach (var result in searchResult)
+                            {
+                                if (result.IsEmpty)
+                                {
+                                    continue;
+                                }
+                                //sb.AppendLine(watch.ElapsedMilliseconds.ToString("N0") + "ms " + result.Name);
+                                //watch.Restart();
+
+                                if (result.Result is Emotes.Emote em)
+                                {
+                                    if (em.IsGif)
+                                    {
+                                        if (Settings.AnimateGifInSearch) timer1.Interval = 100;
+                                    }
+                                }
+                                lstB_Search.Items.Add(result);
+                            }
+                            //sb.AppendLine(watch.ElapsedMilliseconds.ToString("N0") + "ms");
+                            //watch.Restart();
+
+                            lstB_Search.SelectedIndex = 0;
+                            if (searchResult.Count() == 1)
+                            {
+                                selectName();
+                            }
+                            else
+                            {
+                                lstB_Search.Visible = true;
+                                lstB_Search.Location = new Point(0, chatView1.Bottom - lstB_Search.Height);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
+                    finally
+                    {
+                        lstB_Search.EndUpdate();
+                        lstB_Search.Invalidate();
+                    }
+                }));
+                //sb.AppendLine(watch.ElapsedMilliseconds.ToString("N0") + "ms");
+                //MessageBox.Show(sb.ToString());
             }
-            searchTask = Task.Run(() =>
-              {
-                  try
-                  {
-                      if (stopTask)
-                      {
-                          lstB_Search.Items.Clear();
-                          return;
-                      }
-                      var searchResult = search(lastSearch.ToLower());
-                      if (searchResult != null)
-                      {
-                          this.Invoke(new Action(() =>
-                          {
-                              try
-                              {
-                                  lstB_Search.Items.Clear();
-                                  foreach (var result in searchResult)
-                                  {
-                                      if (stopTask)
-                                      {
-                                          lstB_Search.Items.Clear();
-                                          return;
-                                      }
-                                      if (result.Result is Emotes.Emote)
-                                      {
-                                          var em = (Emotes.Emote)result.Result;
-                                          if (em.IsGif)
-                                          {
-                                              if (Settings.AnimateGifInSearch) timer1.Interval = 200;
-                                          }
-                                      }
-                                      lstB_Search.Items.Add(result);
-                                  }
-                                  lstB_Search.SelectedIndex = 0;
-                                  if (searchResult.Count() == 1)
-                                  {
-                                      selectName();
-                                  }
-                                  else
-                                  {
-                                      lstB_Search.Visible = true;
-                                      lstB_Search.Location = new Point(0, chatView1.Bottom - lstB_Search.Height);
-                                  }
-                              }
-                              catch
-                              {
-                              }
-                          }));
-                          if (stopTask)
-                          {
-                              lstB_Search.Visible = false;
-                              lstB_Search.Items.Clear();
-                              return;
-                          }
-                      }
-                  }
-                  finally
-                  {
-                      lockListSearch = false;
-                      stopTask = false;
-                  }
-              });
+            catch
+            {
+            }
+            finally
+            {
+                lockListSearch = false;
+            }
         }
 
         private void selectName()
+
         {
             try
             {
                 if ((lstB_Search.SelectedIndex >= 0 && !string.IsNullOrEmpty(lastSearch)))
                 {
                     var text = rTB_Send.Text.Trim();
-                    var repl = (EmoteSearchResult)lstB_Search.SelectedItem;
-                    if (repl != null)
+                    var repl = (ChatClient.EmoteSearchResult)lstB_Search.SelectedItem;
+                    if (!repl.IsEmpty)
                     {
                         text = text.Replace(lastSearch, repl.Name) + " ";
 
@@ -551,62 +569,9 @@ namespace LX29_ChatClient.Forms
                     }
                 }
             }
-            catch
+            finally
             {
-            }
-            lastSearch = "";
-            // if (searchResult != null) searchResult.Clear();
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            try
-            {
-                if (lstB_Search.Visible)
-                    lstB_Search.Invalidate();
-                //else
-                //{
-                //    // timer1.Interval = 1000;
-                //}
-
-                if (Channel != null)
-                {
-                    var chan = ChatClient.Channels[Channel.ID];
-                    if (chan.HasSlowMode)
-                    {
-                        TimeSpan ts = DateTime.Now.Subtract(chan.LastSendMessageTime);
-                        int tts = chan.SlowMode - (int)ts.TotalSeconds;
-
-                        if (tts <= chan.SlowMode && tts > 0)
-                        {
-                            btn_Send.Text = (chan.SlowMode - (int)ts.TotalSeconds) + "s";// > 0 ? @"{mm\:ss}" : @"{ss}", ts);
-                            return;
-                        }
-                    }
-                    btn_Send.Text = "Chat";
-                }
-            }
-            catch
-            {
-            }
-        }
-
-        public class EmoteSearchResult
-        {
-            public readonly bool IsEmote;
-            public readonly string Name;
-            public readonly object Result;
-
-            public EmoteSearchResult(object result, string name)
-            {
-                IsEmote = (result is LX29_ChatClient.Emotes.EmoteBase);
-                Result = result;
-                Name = name;
-            }
-
-            public override string ToString()
-            {
-                return Name;
+                lastSearch = "";
             }
         }
 
@@ -641,14 +606,105 @@ namespace LX29_ChatClient.Forms
             }
         }
 
-        /// <summary>
-        /// All MEssages
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void toolStripButton2_Click(object sender, EventArgs e)
+        //private void SearchFor()
+        //{
+        //    if (searchTask != null && !searchTask.IsCompleted)
+        //    {
+        //        stopTask = true;
+        //    }
+        //    searchTask = Task.Run(() =>
+        //      {
+        //          try
+        //          {
+        //              if (stopTask)
+        //              {
+        //                  lstB_Search.Items.Clear();
+        //                  return;
+        //              }
+        //              var searchResult = search(lastSearch.ToLower());
+        //              if (searchResult != null)
+        //              {
+        //                  this.Invoke(new Action(() =>
+        //                  {
+        //                      try
+        //                      {
+        //                          lstB_Search.Items.Clear();
+        //                          foreach (var result in searchResult)
+        //                          {
+        //                              if (stopTask)
+        //                              {
+        //                                  lstB_Search.Items.Clear();
+        //                                  return;
+        //                              }
+        //                              if (result.Result is Emotes.Emote)
+        //                              {
+        //                                  var em = (Emotes.Emote)result.Result;
+        //                                  if (em.IsGif)
+        //                                  {
+        //                                      if (Settings.AnimateGifInSearch) timer1.Interval = 200;
+        //                                  }
+        //                              }
+        //                              lstB_Search.Items.Add(result);
+        //                          }
+        //                          lstB_Search.SelectedIndex = 0;
+        //                          if (searchResult.Count() == 1)
+        //                          {
+        //                              selectName();
+        //                          }
+        //                          else
+        //                          {
+        //                              lstB_Search.Visible = true;
+        //                              lstB_Search.Location = new Point(0, chatView1.Bottom - lstB_Search.Height);
+        //                          }
+        //                      }
+        //                      catch
+        //                      {
+        //                      }
+        //                  }));
+        //                  if (stopTask)
+        //                  {
+        //                      lstB_Search.Visible = false;
+        //                      lstB_Search.Items.Clear();
+        //                      return;
+        //                  }
+        //              }
+        //          }
+        //          finally
+        //          {
+        //              lockListSearch = false;
+        //              stopTask = false;
+        //          }
+        //      });
+        //}
+
+        private void timer1_Tick(object sender, EventArgs e)
+
         {
-            SetMsgType(toolStripButton2, MsgType.All_Messages);
+            try
+            {
+                if (lstB_Search.Visible)
+                    lstB_Search.Invalidate();
+
+                if (Channel != null)
+                {
+                    var chan = ChatClient.Channels[Channel.ID];
+                    if (chan.HasSlowMode)
+                    {
+                        TimeSpan ts = DateTime.Now.Subtract(chan.LastSendMessageTime);
+                        int tts = chan.SlowMode - (int)ts.TotalSeconds;
+
+                        if (tts <= chan.SlowMode && tts > 0)
+                        {
+                            btn_Send.Text = (chan.SlowMode - (int)ts.TotalSeconds) + "s";// > 0 ? @"{mm\:ss}" : @"{ss}", ts);
+                            return;
+                        }
+                    }
+                    btn_Send.Text = "Chat";
+                }
+            }
+            catch
+            {
+            }
         }
 
         /// <summary>
@@ -657,8 +713,20 @@ namespace LX29_ChatClient.Forms
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void toolStripButton1_Click(object sender, EventArgs e)
+
         {
             SetMsgType(toolStripButton2, MsgType.HL_Messages);
+        }
+
+        /// <summary>
+        /// All MEssages
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolStripButton2_Click(object sender, EventArgs e)
+
+        {
+            SetMsgType(toolStripButton2, MsgType.All_Messages);
         }
 
         /// <summary>
@@ -667,6 +735,7 @@ namespace LX29_ChatClient.Forms
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void toolStripButton3_Click(object sender, EventArgs e)
+
         {
             SetMsgType(toolStripButton2, MsgType.Outgoing);
         }
@@ -677,6 +746,7 @@ namespace LX29_ChatClient.Forms
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void tS_Btn_Emotes_Click(object sender, EventArgs e)
+
         {
             chatView1.ViewAllEmotes = true;
         }

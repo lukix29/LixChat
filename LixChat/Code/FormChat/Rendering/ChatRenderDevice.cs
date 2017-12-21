@@ -75,7 +75,7 @@ namespace LX29_ChatClient.Forms
     public class RenderDevice
     {
         //public int msgCount = 0;
-        public bool ShowName = true;
+        public bool ShowName { get; set; } = true;
 
         private readonly object drawLock = new object();
         private bool _showAllEmotes = false;
@@ -86,17 +86,14 @@ namespace LX29_ChatClient.Forms
 
         private DateTime emoteDLTime = DateTime.UtcNow;
 
-        private float emoteDrawMax = -600;
+        //private float emoteDrawMax = -600;
 
-        private float emoteDrawStart = 0;
+        //private float emoteDrawStart = 0;
 
-        private Color Link_Color = Color.DodgerBlue;
-        private List<ChatMessage> messages = new List<ChatMessage>();
+        //private List<ChatMessage> messages = new List<ChatMessage>();
         //private bool swapColor = true;
 
-        private IOrderedEnumerable<EmoteBase> tempEmotes = null;
-
-        private int visibleMessages = 0;
+        private IOrderedEnumerable<IEmoteBase> tempEmotes = null;
 
         public RenderDevice(ChatView form)
         {
@@ -112,13 +109,17 @@ namespace LX29_ChatClient.Forms
             infoStrFormat.Alignment = StringAlignment.Far;
             infoStrFormat.Trimming = StringTrimming.None;
 
-            centerStrFormat = new StringFormat(infoStrFormat);
-            centerStrFormat.Alignment = StringAlignment.Center;
-            centerStrFormat.LineAlignment = StringAlignment.Center;
+            centerStrFormat = new StringFormat(infoStrFormat)
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
 
-            VcenterStrFormat = new StringFormat(centerStrFormat);
-            VcenterStrFormat.LineAlignment = StringAlignment.Center;
-            VcenterStrFormat.Alignment = StringAlignment.Near;
+            VcenterStrFormat = new StringFormat(centerStrFormat)
+            {
+                LineAlignment = StringAlignment.Center,
+                Alignment = StringAlignment.Near
+            };
 
             Font = new System.Drawing.Font("Calibri", 12f);
             //FontBaseSize = Font.Size;
@@ -130,6 +131,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private enum internImages
+
         {
             Ban,
             Timeout,
@@ -142,16 +144,15 @@ namespace LX29_ChatClient.Forms
             {
                 _showAllEmotes = value;
                 tempEmotes = null;
-                ClickableList.Clear();
+                SoftScrollMin = 0;
+                SoftScrollMax = 10000;
+                SoftScroll = value ? (int)DrawBounds.Bottom : 0;
+                wait = 1;
             }
         }
 
-        public int VisibleMessages
-        {
-            get { return visibleMessages; }
-        }
-
         private bool alternateBG
+
         {
             get { return Settings.AlternateBG; }
         }
@@ -185,6 +186,7 @@ namespace LX29_ChatClient.Forms
                     bufferedGraphicsContex = BufferedGraphicsManager.Current;
                     bufferedGraphics = bufferedGraphicsContex.Allocate(control.CreateGraphics(), control.ClientRectangle);
                     bufferedGraphics.Graphics.SetGraphicQuality(true, true);
+                    wait = 1;
                 }
             }
             catch { }
@@ -196,13 +198,14 @@ namespace LX29_ChatClient.Forms
             if (AutoScroll || force)
             {
                 int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType, WhisperName);
-                messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType, msgcnt - 256, msgcnt);// - ViewStart);
+                Messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType, msgcnt - 256, msgcnt);// - ViewStart);
+                wait = 1;
                 //DrawMessagesNew();
                 //bufferedGraphics.Render();
             }
         }
 
-        private bool isrenderingasync = false;
+        //  private bool isrenderingasync = false;
 
         //public async void _RenderAsync()
         //{
@@ -234,15 +237,19 @@ namespace LX29_ChatClient.Forms
             if (!isRunning)
             {
                 isRunning = true;
-                Task.Run(() => _refreshLoop());
+                wait = 1;
+                Task.Factory.StartNew(() => _refreshLoop(), TaskCreationOptions.LongRunning);
             }
         }
 
-        public async void _refreshLoop()
+        public void _refreshLoop()
         {
             var watch = new System.Diagnostics.Stopwatch();
+#if DEBUG
             var fpswatch = new System.Diagnostics.Stopwatch();
+            fpswatch.Start();
             int fpscnt = 0;
+#endif
             try
             {
                 while (isRunning)
@@ -252,21 +259,19 @@ namespace LX29_ChatClient.Forms
                     {
                         if (!Pause)
                         {
-                            wait = 30;
+                            wait = 32;
 
                             bool visible = Render();
 
-                            if (OnShowScrollDownLabel != null)
-                                OnShowScrollDownLabel(visible);
+                            OnShowScrollDownLabel?.Invoke(visible);
                         }
                         else wait = 1000;
 
                         if (!isRunning)
                             break;
-
 #if DEBUG
                         fpscnt++;
-                        if (fpswatch.ElapsedMilliseconds > 1000)
+                        if (fpswatch.ElapsedMilliseconds >= 1000)
                         {
                             FPS = fpscnt;
                             fpscnt = 0;
@@ -274,11 +279,10 @@ namespace LX29_ChatClient.Forms
                             fpswatch.Restart();
                         }
 #endif
-
                         var elap = watch.ElapsedMilliseconds;
                         if (elap < wait)
                         {
-                            await Task.Delay((int)Math.Max(0, Math.Min(1000, (wait - elap))));
+                            System.Threading.Thread.Sleep((int)Math.Max(1, Math.Min(1000, (wait - elap))));
                         }
                     }
                     catch
@@ -299,6 +303,12 @@ namespace LX29_ChatClient.Forms
             set;
         }
 
+        public RectangleF DrawBounds
+        {
+            get;
+            private set;
+        }
+
         public bool Render()
         {
             try
@@ -315,7 +325,7 @@ namespace LX29_ChatClient.Forms
                     //    int ey = po.Y;
                     //    SoftScroll = LXMath.Map(ey, rect.Bottom, rect.Y, 0, SoftScrollMax);
                     //}
-
+                    DrawBounds = bufferedGraphics.Graphics.VisibleClipBounds;
                     bufferedGraphics.Graphics.Clear(UserColors.ChatBackground);
                     if (ShowAllEmotes)
                     {
@@ -326,14 +336,28 @@ namespace LX29_ChatClient.Forms
                         DrawMessagesNew();
                     }
                     DrawInfoOverlay();
+
+#if DEBUG
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine("Size: " + this.Font.Size.ToString("F1") + "pt");
+                    sb.AppendLine("Refresh/s: " + FPS);
+                    sb.AppendLine("V-Msg: " + VisibleMessages);
+                    sb.AppendLine("Scroll: " + SoftScroll);
+                    sb.AppendLine("ScrMax: " + SoftScrollMax);
+                    var str = sb.ToString();
+                    SizeF sizeF = bufferedGraphics.Graphics.MeasureString(str, this.timeFont);
+                    bufferedGraphics.Graphics.FillRectangle(Brushes.Black, new RectangleF(DrawBounds.Width - sizeF.Width, 0, sizeF.Width, sizeF.Height));
+                    bufferedGraphics.Graphics.DrawString(sb.ToString(), this.timeFont, Brushes.Red, DrawBounds, infoStrFormat);
+#endif
+
                     //  control.Scrollbar.OnPaint(g);
                     bufferedGraphics.Render();
-                }
 
-                if (_softScroll > 0)
-                {
-                    AutoScroll = false;
-                    return true;
+                    if (_softScroll > 0)
+                    {
+                        AutoScroll = false;
+                        return true;
+                    }
                 }
             }
             catch { }
@@ -342,16 +366,17 @@ namespace LX29_ChatClient.Forms
 
         public void Scroll(int delta)
         {
-            if (!_showAllEmotes)
-            {
-                int d = (int)(delta / 20f);
+            //if (!_showAllEmotes)
+            //{
+            int d = (int)(delta / (float)Settings.ScrollFactor);
 
-                SoftScroll += d;
-            }
-            else
-            {
-                emoteDrawStart = Math.Max(-600, Math.Min(0, emoteDrawStart + (delta / 10)));
-            }
+            SoftScroll += d;
+            wait = 1;
+            // }
+            //else
+            //{
+            //    emoteDrawStart = Math.Max(-600, Math.Min(0, emoteDrawStart + (delta / 10)));
+            //}
         }
 
         public void SetAllMessages(MsgType Type, string name = null)
@@ -359,11 +384,12 @@ namespace LX29_ChatClient.Forms
             _showAllEmotes = false;
             WhisperName = name;
             MessageType = Type;
-            var user = ChatClient.Users.Get(ChatClient.SelfUserName, Channel.Name);
+            var user = ChatClient.ChatUsers.Get(ChatClient.SelfUserName, Channel.Name);
             if (user != null && !user.IsEmpty)
             {
                 UserIsMod = user.Types.Any(t => ((int)t >= (int)UserType.moderator));
             }
+            wait = 1;
             //this.Invalidate();
             //MessageCount = ChatClient.Messages.Count(Channel.Name, MessageType, UserMessageName);
         }
@@ -393,13 +419,15 @@ namespace LX29_ChatClient.Forms
 
                 RectangleF bounds = g.VisibleClipBounds;
 
+                SoftScrollMin = (int)bounds.Bottom - 10;
                 if (!ChatClient.Emotes.Finished)
                 {
                     g.DrawText("Loading Emotes", this.font, Color.White, bounds, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
                     return;
                 }
                 float x = _EmotePadding;
-                float y = emoteDrawStart + _EmotePadding;
+                float y = (bounds.Bottom - _softScroll) - _EmotePadding;
+                if (y > 10) y = 10;
 
                 if (tempEmotes == null)
                 {
@@ -417,10 +445,12 @@ namespace LX29_ChatClient.Forms
                 gifVisible = false;
 
                 SizeF size = SizeF.Empty;
-                ClickableList.Clear();
+
+                tempList.Clear();
+
                 foreach (var em in tempEmotes)
                 {
-                    size = em.CalcSize(32, Settings.EmoteQuality);
+                    size = em.CalcSize(32);
                     if (!lastChannel.Equals(em.Channel))
                     {
                         y += size.Height + _EmotePadding;
@@ -435,7 +465,7 @@ namespace LX29_ChatClient.Forms
                         x = _EmotePadding;
                     }
                     if (!_showAllEmotes) return;
-                    var result = em.Draw(g, x, y, size.Width, size.Height, EmoteImageSize.Small, false);
+                    var result = em.Draw(g, x, y, size.Width, size.Height, false);
                     if (result == EmoteImageDrawResult.IsGif)
                     {
                         gifVisible = true;
@@ -458,10 +488,12 @@ namespace LX29_ChatClient.Forms
                         emoteDlCnt--;
                     }
 
-                    ClickableList.Add(new SLRect(x, y, size.Width, size.Height, em, RectType.Emote));
+                    tempList.Add(new SLRect(x, y, size.Width, size.Height, em, RectType.Emote));
+
                     x += size.Width + _EmotePadding;
                 }
-                emoteDrawMax = y + size.Height + _EmotePadding;
+                ClickableList.RePopulate(tempList);
+                //SoftScrollMax = (int)((y + size.Height + _EmotePadding) * 0.5f);
             }
             catch
             {
@@ -472,10 +504,11 @@ namespace LX29_ChatClient.Forms
         {
             Graphics g = bufferedGraphics.Graphics;
 
-            EmoteBase emote = null;
+            IEmoteBase emote = null;
             float width = g.VisibleClipBounds.Width;
             float Height = g.VisibleClipBounds.Height;
-            var selects = ClickableList.Where(t => t.Bounds.IntersectsWith(SelectRect)).ToList();
+            List<SLRect> selects = ClickableList.Where(t => t.Bounds.IntersectsWith(SelectRect)).ToList();
+
             if (selects.Count > 0)
             {
                 foreach (var curSelected in selects)
@@ -510,7 +543,7 @@ namespace LX29_ChatClient.Forms
                             break;
 
                         case RectType.Emote:
-                            emote = (EmoteBase)curSelected.Content;
+                            emote = (IEmoteBase)curSelected.Content;
                             Text = "Emote: " + emote.Name + "\r\nChannel: " + emote.Channel;
                             break;
 
@@ -560,7 +593,7 @@ namespace LX29_ChatClient.Forms
 
                         if (emote != null)
                         {
-                            emote.Draw(g, bounds.X + emSiz / 4f, bounds.Y + txtSize.Height, emSiz, emSiz, EmoteImageSize.Large, false);
+                            emote.Draw(g, bounds.X + emSiz / 4f, bounds.Y + txtSize.Height, emSiz, emSiz, false);
                         }
                     }
                     if (SelectRect.Width > 0)
@@ -568,6 +601,8 @@ namespace LX29_ChatClient.Forms
                         g.FillRectangle(new SolidBrush(Color.FromArgb(100, Color.LightSteelBlue)), curSelected.Bounds);
                     }
                     if (curSelected.Type != RectType.Text) g.FillRectangle(Brushes.WhiteSmoke, curSelected.Bounds.X, curSelected.Bounds.Bottom, curSelected.Bounds.Width, 1);
+
+                    g.DrawRectangle(Pens.Red, curSelected.Bounds.X, curSelected.Bounds.Y, curSelected.Bounds.Width, curSelected.Bounds.Height);
                 }
             }
             //g.DrawString(selectedText, Font, Brushes.Red, 0, 0);
@@ -578,11 +613,8 @@ namespace LX29_ChatClient.Forms
             MeasureMessage(graphics, message, bounds, swapColor, yInput, height, false);
         }
 
-        public int SoftScrollMax
-        {
-            get;
-            private set;
-        }
+        public int SoftScrollMax { get; private set; } = 10000;
+        public int SoftScrollMin { get; private set; } = 0;
 
         public int SoftScroll
         {
@@ -592,12 +624,13 @@ namespace LX29_ChatClient.Forms
                 if (Channel != null)
                 {
                     //int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType, WhisperName);
-                    _softScroll = Math.Max(0, Math.Min(SoftScrollMax * 10, value));
+                    _softScroll = Math.Max(SoftScrollMin, Math.Min(SoftScrollMax * 10, value));
                     AutoScroll = (_softScroll > 0) ? false : true;
                     if (_softScroll == 0)
                     {
                         SoftScrollMax = 10000;
                     }
+                    wait = 1;
                     // MessageReceived(true);
                 }
             }
@@ -612,6 +645,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private struct msgDraw
+
         {
             public ChatMessage msg;
             public float height;
@@ -623,39 +657,41 @@ namespace LX29_ChatClient.Forms
         {
             try
             {
+                //Gtk.DotNet.Graphics.
                 Graphics g = bufferedGraphics.Graphics;
+
                 RectangleF bounds = g.VisibleClipBounds;
                 float bottom = ((_softScroll == 0) ? 5 : (40 - _LineSpacing));
                 //if (count > 0)
                 //{c
                 float y = (bounds.Bottom - bottom) + SoftScroll;
                 //var messages = ChatClient.Messages.GetMessages(Channel.Name, WhisperName, MessageType);
-                if (messages != null && messages.Count > 0)
+                if (Messages != null && Messages.Count > 0)
                 {
                     //if (viewStart == 0 && AutoScroll)
                     //{
                     //    //msgCount = messages.Count;
                     //}
                     gifVisible = false;
-                    ClickableList.Clear();
-                    int start = messages.Count - 1;
+                    tempList.Clear();
+                    int start = Messages.Count - 1;
                     //float height = 0;
                     List<msgDraw> list = new List<msgDraw>();
                     for (int i = start; i >= 0; i--)
                     {
-                        var msg = messages[i];
+                        var msg = Messages[i];
                         float height = MeasureMessage(g, msg, bounds);
 
+                        if (y < 0)
+                            break;
                         y -= height;
                         if (y >= bounds.Bottom)
                             continue;
-                        if (y < 0)
-                            break;
 
                         list.Add(new msgDraw { height = height, msg = msg, y = y, swap = (i % 2 > 0) });
                     }
-                    visibleMessages = list.Count;
-                    for (int i = 0; i < visibleMessages; i++)
+                    VisibleMessages = list.Count;
+                    for (int i = 0; i < VisibleMessages; i++)
                     {
                         if (isChangingGraphics > 0 || ShowAllEmotes)
                         {
@@ -665,6 +701,7 @@ namespace LX29_ChatClient.Forms
 
                         DrawMessage(g, item.msg, bounds, item.y, item.height, item.swap);
                     }
+                    ClickableList.RePopulate(tempList);
                     if (!MouseDown)
                     {
                         if (y >= bounds.Height - bottom)
@@ -682,20 +719,11 @@ namespace LX29_ChatClient.Forms
                 else
                 {
                     MessageReceived();
-                    if (messages == null)
+                    if (Messages == null)
                     {
                         g.DrawString("<Waiting for Messages>", new Font("Arial", 12), Brushes.LightGray, bounds, centerStrFormat);
                     }
                 }
-#if DEBUG
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine("Size: " + this.Font.Size.ToString("F1") + "pt");
-                sb.AppendLine("Refresh/s: " + FPS);
-                sb.AppendLine("V-Msg: " + visibleMessages);
-                sb.AppendLine("Scroll: " + SoftScroll);
-                sb.AppendLine("ScrMax: " + SoftScrollMax);
-                g.DrawString(sb.ToString(), this.timeFont, Brushes.Red, bounds, infoStrFormat);
-#endif
             }
             catch
             {
@@ -788,16 +816,17 @@ namespace LX29_ChatClient.Forms
 
                 x += sf.Width + _WordPadding + _TimePadding;
             }
+
             if (!measure)
             {
                 if (UserIsMod && user != null && !user.IsEmpty && user.Types.All(t => ((int)t < (int)UserType.moderator)))
                 {
-                    internalImages[internImages.Ban].Draw(graphics, x, y, badgeHeight, badgeHeight, EmoteImageSize.Large);
-                    ClickableList.Add(new SLRect(x, y, badgeHeight, badgeHeight, user.Name, RectType.ModActionBan));
+                    internalImages[internImages.Ban].Draw(graphics, x, y, badgeHeight, badgeHeight);
+                    tempList.Add(new SLRect(x, y, badgeHeight, badgeHeight, user.Name, RectType.ModActionBan));
                     x += badgeHeight + _BadgePadding;
 
-                    internalImages[internImages.Timeout].Draw(graphics, x, y, badgeHeight, badgeHeight, EmoteImageSize.Large);
-                    ClickableList.Add(new SLRect(x, y, badgeHeight, badgeHeight, user.Name, RectType.ModActionTimeout));
+                    internalImages[internImages.Timeout].Draw(graphics, x, y, badgeHeight, badgeHeight);
+                    tempList.Add(new SLRect(x, y, badgeHeight, badgeHeight, user.Name, RectType.ModActionTimeout));
                     x += badgeHeight + _BadgePadding;
                 }
             }
@@ -813,11 +842,11 @@ namespace LX29_ChatClient.Forms
                     if (message.IsType(MsgType.Whisper))
                     {
                         ChatUser first = user;
-                        ChatUser second = ChatClient.Users.Self;
+                        ChatUser second = ChatClient.ChatUsers.Self;
                         if (message.IsType(MsgType.Outgoing))
                         {
                             first = second;
-                            second = ChatClient.Users.Get(message.Channel_Name, "");
+                            second = ChatClient.ChatUsers.Get(message.Channel_Name, "");
                         }
 
                         Color firstColor = first.GetColor();
@@ -825,7 +854,7 @@ namespace LX29_ChatClient.Forms
 
                         if (!measure)
                         {
-                            ClickableList.Add(new SLRect(new RectangleF(x, y, sf.Width, sf.Height), first, RectType.User));
+                            tempList.Add(new SLRect(new RectangleF(x, y, sf.Width, sf.Height), first, RectType.User));
 
                             graphics.DrawText(first.DisplayName + " > ", userFont, firstColor, x, y);
                         }
@@ -837,7 +866,7 @@ namespace LX29_ChatClient.Forms
                         //list.Add(new DrawItem(second.DisplayName + ":", userFont, secondColor, x, y, sf));
                         if (!measure)
                         {
-                            ClickableList.Add(new SLRect(new RectangleF(x, y, sf.Width, sf.Height), second, RectType.User));
+                            tempList.Add(new SLRect(new RectangleF(x, y, sf.Width, sf.Height), second, RectType.User));
 
                             graphics.DrawText(second.DisplayName + ": ", userFont, secondColor, x, y);
                         }
@@ -858,7 +887,7 @@ namespace LX29_ChatClient.Forms
                                 {
                                     if (!measure)
                                     {
-                                        ClickableList.Add(new SLRect(x, y, badgeHeight, badgeHeight, bt, RectType.Badge));
+                                        tempList.Add(new SLRect(x, y, badgeHeight, badgeHeight, bt, RectType.Badge));
 
                                         badge.Draw(bt, graphics, x, y, badgeHeight, badgeHeight);
                                     }
@@ -873,10 +902,10 @@ namespace LX29_ChatClient.Forms
 
                         if (!measure)
                         {
-                            ClickableList.Add(new SLRect(x, y, sf.Width, sf.Height, user, RectType.User));
+                            tempList.Add(new SLRect(x, y, sf.Width, sf.Height, user, RectType.User));
                             graphics.DrawText(user.DisplayName + ": ", userFont, userColor, x, y);
                         }
-                        x += sf.Width;
+                        x += sf.Width + _WordPadding;
                     }
                 }
 
@@ -892,24 +921,24 @@ namespace LX29_ChatClient.Forms
 
                 if (drawImages && w.IsEmote)
                 {
-                    foreach (EmoteBase em in w.Emote)
+                    foreach (IEmoteBase em in w.Emote)
                     {
-                        sf = em.CalcSize(emoteHeight, Settings.EmoteQuality);
+                        sf = em.CalcSize(emoteHeight);
                         lineSpace = sf.Height / 2 - _LineSpacing;
                         if (x + sf.Width > bounds.Right)
                         {
-                            x = alignText ? time_Right : (_WordPadding + _TimePadding);//Linepadding
+                            x = alignText ? time_Right : (Math.Max(0, _WordPadding) + _TimePadding);//Linepadding
                             y += (sf.Height + lineSpace) - emote_Y_Offset;
                         }
 
                         if (!measure)
                         {
-                            ClickableList.Add(new SLRect(x, y - emote_Y_Offset, sf.Width, sf.Height, em, RectType.Emote));
+                            tempList.Add(new SLRect(x, y - emote_Y_Offset, sf.Width, sf.Height, em, RectType.Emote));
 
-                            var gif = em.Draw(graphics, x, y - emote_Y_Offset, sf.Width, sf.Height, Settings.EmoteQuality, isTimeout) == EmoteImageDrawResult.IsGif;
+                            var gif = em.Draw(graphics, x, y - emote_Y_Offset, sf.Width, sf.Height, isTimeout) == EmoteImageDrawResult.IsGif;
                             if (gif && !measure) gifVisible = true;
                         }
-                        x += sf.Width + _EmotePadding + _WordPadding;
+                        x += sf.Width + _EmotePadding + Math.Max(0, _WordPadding);
                     }
                 }
                 else
@@ -917,19 +946,19 @@ namespace LX29_ChatClient.Forms
                     if (message.Timeout.IsEmpty && (w.Text.Contains('.') && !w.Text.Contains("..")
                         && reg.IsMatch(w.Text)))
                     {
-                        msgColor = Link_Color;
+                        msgColor = Link_Color1;
                         isLink = true;
                     }
                     sf = graphics.MeasureText(w.Text, userFont);
                     if (x + sf.Width > bounds.Right)
                     {
-                        x = alignText ? time_Right : (_WordPadding + _TimePadding);//Linepadding
+                        x = alignText ? time_Right : (Math.Max(0, _WordPadding) + _TimePadding);//Linepadding
                         y += _CharHeight + lineSpace;
                     }
 
                     if (!measure)
                     {
-                        ClickableList.Add(new SLRect(x, y, sf.Width, sf.Height, w, (isLink ? RectType.Link : RectType.Text)));
+                        tempList.Add(new SLRect(x, y, sf.Width, sf.Height, w, (isLink ? RectType.Link : RectType.Text)));
 
                         graphics.DrawText(w.Text, font, msgColor, x, y);
                     }
@@ -945,7 +974,11 @@ namespace LX29_ChatClient.Forms
 
         public bool AutoScroll = true;
         public LX29_Twitch.Api.ApiResult Channel;
-        public List<SLRect> ClickableList = new List<SLRect>();
+
+        //public readonly object ClickableListLock = new object();
+        public SafeList<SLRect> ClickableList = new SafeList<SLRect>();
+
+        private List<SLRect> tempList = new List<SLRect>();
         public bool gifVisible = false;
         public RectangleF SelectRect = RectangleF.Empty;
         private const int timeSizeFac = 2;
@@ -1058,16 +1091,10 @@ namespace LX29_ChatClient.Forms
             }
         }
 
-        //public int MessageCount
-        //{
-        //    get;
-        //    private set;
-        //}
-
         public MsgType MessageType
         {
             get;
-            set;
+            private set;
         }
 
         public bool Pause
@@ -1076,253 +1103,16 @@ namespace LX29_ChatClient.Forms
             set;
         }
 
-        public bool SmallEmotes
-        {
-            get;
-            set;
-        }
-
-        //public int ViewStart
-        //{
-        //    // get { return viewStart; }
-        //    set
-        //    {
-        //        if (Channel != null)
-        //        {
-        //            int msgcnt = ChatClient.Messages.Count(Channel.Name, MessageType, WhisperName);
-        //            viewStart = Math.Max(0, Math.Min(msgcnt, value));
-        //            AutoScroll = (viewStart > 0) ? false : true;
-
-        //            MessageReceived(true);
-        //        }
-        //    }
-        //}
-
         public string WhisperName
         {
             get;
             set;
         }
 
+        public List<ChatMessage> Messages { get; private set; }
+        public Color Link_Color1 { get => Color.DodgerBlue; }
+        public int VisibleMessages { get; private set; }
+
         #endregion Properties
     }
-
-    //public class Scroller
-    //{
-    //    private ChatView device;
-    //    private bool isMouseDown = false;
-    //    private bool isScrolling = false;
-    //    private object locko = new object();
-
-    //    private Rectangle scrollRect = new Rectangle();
-
-    //    private bool scrollVisible = false;
-
-    //    public Scroller(ChatView view)
-    //    {
-    //        device = view;
-    //    }
-
-    //    private Rectangle ClientRectangle
-    //    {
-    //        get { return device.ClientRectangle; }
-    //    }
-
-    //    private Size ClientSize
-    //    {
-    //        get { return ClientRectangle.Size; }
-    //    }
-
-    //    private int itemCount
-    //    {
-    //        get { return device.Renderer.msgCount; }
-    //    }
-
-    //    private int maxVisibleItems
-    //    {
-    //        get { return device.Renderer.VisibleMessages; }
-    //    }
-
-    //    private int scrollBarHeight
-    //    {
-    //        get
-    //        {
-    //            return 20;
-    //        }
-    //    }
-
-    //    private int scrollOffset
-    //    {
-    //        get { return device.Renderer.ViewStart; }
-    //        set { device.Renderer.ViewStart = value; }
-    //    }
-
-    //    public void OnMouseDown(MouseEventArgs e)
-    //    {
-    //        if (new Rectangle(scrollRect.X - 5, 0, scrollRect.Width + 10, this.ClientSize.Height).
-    //                Contains(e.Location))
-    //        {
-    //            if (new Rectangle(scrollRect.X - 5, scrollRect.Y, scrollRect.Width + 10, scrollRect.Height).
-    //                 Contains(e.Location))
-    //            {
-    //                isScrolling = true;
-    //            }
-    //        }
-    //        isMouseDown = true;
-    //    }
-
-    //    public void OnMouseMove(MouseEventArgs e)
-    //    {
-    //        if (isMouseDown)
-    //        {
-    //            if (isScrolling)
-    //            {
-    //                CalcScrolling(e.Y);
-    //            }
-    //            else if (!isScrolling)
-    //            {
-    //                if (e.Y >= this.ClientRectangle.Bottom)
-    //                {
-    //                    scrollOffset = Math.Min(itemCount - maxVisibleItems, scrollOffset + 1);
-    //                }
-    //                else if (e.Y <= 0)
-    //                {
-    //                    scrollOffset = Math.Max(0, scrollOffset - 1);
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    public void OnMouseUp(MouseEventArgs e)
-    //    {
-    //        if (new Rectangle(scrollRect.X - 5, 0, scrollRect.Width + 10, this.ClientSize.Height).
-    //             Contains(e.Location))
-    //        {
-    //            CalcScrolling(e.Y);
-    //        }
-
-    //        isScrolling = false;
-    //        isMouseDown = false;
-    //    }
-
-    //    public void OnMouseWheel(MouseEventArgs e)
-    //    {
-    //        //scrollOffset = Math.Max(0, Math.Min(itemCount - maxVisibleItems, scrollOffset - Math.Sign(e.Delta)));
-
-    //        int ys = LXMath.Map(scrollOffset, 0, itemCount - maxVisibleItems, 0, this.ClientSize.Height);
-    //        ys = Math.Min(this.ClientRectangle.Bottom - scrollBarHeight, Math.Max(0, ys - scrollBarHeight / 2));
-    //        scrollRect = new Rectangle(this.ClientRectangle.Right - 12, ys, 10, scrollBarHeight);
-    //    }
-
-    //    public void OnPaint(Graphics g)
-    //    {
-    //        try
-    //        {
-    //            // e.Graphics.SetGraphicQuality(true, true);
-    //            if (maxVisibleItems == 0)
-    //            {
-    //                scrollOffset = 0;
-    //                scrollVisible = false;
-    //            }
-    //            else
-    //            {
-    //                scrollVisible = true;
-    //            }
-    //            if (scrollVisible)
-    //            {
-    //                g.DrawRectangle(Pens.DarkGray, new Rectangle(scrollRect.X - 1, 0, scrollRect.Width + 1, this.ClientSize.Height - 1));
-    //                g.FillRectangle(Brushes.DarkGray, scrollRect);
-    //            }
-    //            else
-    //            {
-    //                isScrolling = false;
-    //            }
-    //        }
-    //        catch (Exception x)
-    //        {
-    //            //e.Graphics.DrawString(x.Message, this.Font, Brushes.Gainsboro, e.ClipRectangle, new StringFormat() { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-    //        }
-    //    }
-
-    //    public void OnResize(EventArgs e)
-    //    {
-    //        scrollRect = new Rectangle(this.ClientRectangle.Right - 12, scrollRect.Y, 10, scrollBarHeight);
-    //    }
-
-    //    private void CalcScrolling(int Y)
-    //    {
-    //        int ys = Math.Min(this.ClientRectangle.Bottom - scrollBarHeight, Math.Max(0, Y - scrollBarHeight / 2));
-    //        scrollRect = new Rectangle(this.ClientRectangle.Right - 12, ys, 10, scrollBarHeight);
-
-    //        var offset = LXMath.Map(Y, scrollBarHeight / 2,
-    //            this.ClientSize.Height - scrollBarHeight / 2, 0, itemCount - maxVisibleItems);
-    //        scrollOffset = Math.Max(0, Math.Min(itemCount - maxVisibleItems, offset));
-    //    }
-    //}
-
-    //public struct DrawRect
-    //{
-    //    public readonly RectangleF Bounds;
-    //    public readonly Image Image;
-    //    public readonly string Text;
-    //    public readonly Font Font;
-    //    public readonly Brush Brush;
-    //    public readonly RectType Type;
-    //    public readonly SizeF Size;
-
-    //    public DrawRect(float x, float y, float width, float height, Image image, SizeF size)
-    //    {
-    //        Bounds = new RectangleF(x, y, width, height);
-    //        Image = image;
-    //        Text = null;
-    //        Font = null;
-    //        Brush = null;
-    //        Size = size;
-    //        Type = RectType.Image;
-    //    }
-
-    //    public DrawRect(RectangleF bounds, Image image, SizeF size) :
-    //        this(bounds.X, bounds.Y, bounds.Width, bounds.Height, image, size) { }
-
-    //    public DrawRect(string text, float textHeight, Font font, Brush brush, RectangleF bounds) :
-    //        this(text, textHeight, font, brush, bounds.X, bounds.Y, bounds.Width, bounds.Height) { }
-
-    //    public DrawRect(string text, float textHeight, Font font, Brush brush, float x, float y, float width, float height)
-    //    {
-    //        Bounds = new RectangleF(x, y, width, height);
-    //        Image = null;
-    //        Size = new SizeF(0, textHeight);
-    //        Text = text;
-    //        Font = font;
-    //        Brush = brush;
-    //        Type = RectType.Word;
-    //    }
-
-    //    //public void Draw(Graphics g, float xOffset, float yOffset)
-    //    //{
-    //    //    if (Type == RectType.Word)
-    //    //    {
-    //    //        g.DrawCenteredSrting(Text, Font, Brush, xOffset + Bounds.X, yOffset + Bounds.Y, Bounds.Height, Size.Height);
-    //    //    }
-    //    //    else if (Type == RectType.Image)
-    //    //    {
-    //    //        //gBuffer.DrawCenteredImage(em.Image, x, y, lineHeight, emS.Width, emS.Height);
-    //    //        g.DrawCenteredImage(Image, xOffset + Bounds.X, yOffset + Bounds.Y, Bounds.Height, Size.Width, Size.Height);
-    //    //    }
-    //    //}
-    //}
-    //public static class FontSize
-    //{
-    //    public static readonly decimal FontBaseSize = 12.0m;
-
-    //    public static int GetFontPercent(decimal Size)
-    //    {
-    //        return (int)((Size / FontBaseSize) * 100m);
-    //    }
-
-    //    public static int GetFontPercent(Font Font)
-    //    {
-    //        return (int)(((decimal)Font.Size / FontBaseSize) * 100m);
-    //    }
-    //}
 }

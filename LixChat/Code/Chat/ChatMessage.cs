@@ -9,6 +9,7 @@ using System.Windows.Forms;
 namespace LX29_ChatClient
 {
     public enum channel_mode
+
     {
         NONE = 0,
         subs_on = 1,//	This room is now in subscribers-only mode.
@@ -25,6 +26,7 @@ namespace LX29_ChatClient
     }
 
     public enum irc_params
+
     {
         color,
         badges,
@@ -49,6 +51,7 @@ namespace LX29_ChatClient
     }
 
     public enum msg_ids
+
     {
         NONE = 0,
         resub = 19,
@@ -174,7 +177,7 @@ namespace LX29_ChatClient
                 {
                     tresult = new TimeOutResult(Name, Channel, HasTimeOut, IsBanned, TimeOutSeconds, reason);
                     //rtzuio
-                    var user = ChatClient.Users.Get(Name, Channel);
+                    var user = ChatClient.ChatUsers.Get(Name, Channel);
                     if (!user.IsEmpty)
                     {
                         if (user.HasTimeOut)//.To_Timer.Result.TimeOutDuration >= TimeOutSeconds)
@@ -336,7 +339,7 @@ namespace LX29_ChatClient
             Channel_Name = msg.Channel;
             Name = msg.Name;
             Message = msg.Message;
-            User = (ChatClient.Users != null) ? ChatClient.Users.Get(Name, Channel_Name, true) : new ChatUser(msg.Name, msg.Channel);
+            User = (ChatClient.ChatUsers != null) ? ChatClient.ChatUsers.Get(Name, Channel_Name, true) : new ChatUser(msg.Name, msg.Channel);
             SendTime = new DateTime(msg.Time);
             Types = new HashSet<MsgType>();
 
@@ -452,7 +455,7 @@ namespace LX29_ChatClient
                 //}
 
                 Name = user.ToLower();
-                User = ChatClient.Users.Get(Name, channel);
+                User = ChatClient.ChatUsers.Get(Name, channel);
                 SendTime = DateTime.Now;
             }
             catch (Exception x)
@@ -691,7 +694,7 @@ namespace LX29_ChatClient
             else
             {
                 Text = input.Emote.Name;
-                Emote = new EmoteBase[] { input.Emote };
+                Emote = new IEmoteBase[] { input.Emote };
                 IsEmote = true;
             }
         }
@@ -716,12 +719,12 @@ namespace LX29_ChatClient
             var em = ChatClient.Emotes.Values.ContainsKey(name);
             if (em != null)
             {
-                Emote = new EmoteBase[] { em };
+                Emote = new IEmoteBase[] { em };
                 IsEmote = true;
             }
         }
 
-        public EmoteBase[] Emote
+        public IEmoteBase[] Emote
         {
             get;
             private set;
@@ -746,12 +749,12 @@ namespace LX29_ChatClient
 
         public struct TempEmoteWord
         {
-            public EmoteBase Emote;
+            public IEmoteBase Emote;
 
             public int End;
             public int Start;
 
-            public TempEmoteWord(int Start, int End, EmoteBase Emote)
+            public TempEmoteWord(int Start, int End, IEmoteBase Emote)
             {
                 this.Start = Start;
                 this.End = End;

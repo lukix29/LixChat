@@ -27,7 +27,7 @@ namespace LX29_ChatClient.Forms
             try
             {
                 channel = info;
-                SetUsers(ChatClient.Users.Get(channel.Name));
+                SetUsers(ChatClient.ChatUsers.Get(channel.Name));
 
                 chatView1.SetChannel(info.ApiResult, MsgType.All_Messages);
 
@@ -54,6 +54,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private void chatView1_OnLinkClicked(ChatView sender, string url)
+
         {
             if (!url.StartsWith("http"))
             {
@@ -63,6 +64,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+
         {
         }
 
@@ -77,7 +79,7 @@ namespace LX29_ChatClient.Forms
         {
             if (lockListBox) return;
             lockListBox = true;
-            var user = ChatClient.Users.Get(name, channel.Name);
+            var user = ChatClient.ChatUsers.Get(name, channel.Name);
             if (!user.IsEmpty)
             {
                 //int idx = lstB_Users.Items.IndexOf(name);
@@ -92,6 +94,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private void lstB_Users_MouseDoubleClick(object sender, MouseEventArgs e)
+
         {
             //Change back to listbox!!!!!!!!!!!!!!!!!
             //var user = ChatClient.GetUser(selectedNode.Text, channel.Name);
@@ -102,16 +105,19 @@ namespace LX29_ChatClient.Forms
         }
 
         private void lstB_Users_MouseEnter(object sender, EventArgs e)
+
         {
             timer1.Enabled = false;
         }
 
         private void lstB_Users_MouseLeave(object sender, EventArgs e)
+
         {
             timer1.Enabled = true;
         }
 
         private void lstB_Users_SelectedIndexChanged(object sender, EventArgs e)
+
         {
             if (lstB_Users.SelectedItem != null)
             {
@@ -141,8 +147,10 @@ namespace LX29_ChatClient.Forms
             foreach (var s in sa)
             {
                 //MsgType msgt = (MsgType)Enum.Parse(typeof(MsgType), s);
-                var n = new TreeNode(s + ": ");
-                n.Name = s;
+                var n = new TreeNode(s + ": ")
+                {
+                    Name = s
+                };
                 list.Add(n);
             }
             //TreeNode node = new TreeNode("Messages", list.ToArray());
@@ -172,15 +180,17 @@ namespace LX29_ChatClient.Forms
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
+
         {
             search = textBox1.Text.ToLower();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
+
         {
             try
             {
-                var users = ChatClient.Users.Get(channel.Name);
+                var users = ChatClient.ChatUsers.Get(channel.Name);
 
                 SetUsers(users);
 

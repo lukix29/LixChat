@@ -1,11 +1,11 @@
 ﻿using LX29_ChatClient.Emotes;
 using LX29_Twitch.Api;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LX29_ChatClient.Forms
@@ -43,6 +43,12 @@ namespace LX29_ChatClient.Forms
                 this.SetStyle(ControlStyles.UserPaint, true);
                 this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
                 this.SetStyle(ControlStyles.ResizeRedraw, true);
+
+                //Microsoft.Xna.Framework.Control.GraphicsDeviceControl gdc = new Microsoft.Xna.Framework.Control.GraphicsDeviceControl();
+                //gdc.Paint += Gdc_Paint;
+                //gdc.AutoDraw = true;
+                //gdc.Dock = DockStyle.Fill;
+                //this.Controls.Add(gdc);
 
                 this.tSMi_Copy.Click += tSMi_Copy_Click;
                 this.tSMi_Search.Click += tSMi_Search_Click;
@@ -263,53 +269,68 @@ namespace LX29_ChatClient.Forms
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            //mouseLocation = e.Location;
-            if (onMouseDown)
+            try
             {
-                int yorig = _lastY - e.Y;
-                if (Math.Abs(yorig) > 25)
+                //mouseLocation = e.Location;
+                if (onMouseDown)
                 {
-                    Renderer.SoftScroll -= Math.Min(25, yorig);
-                    _lastY = e.Y;
+                    int yorig = _lastY - e.Y;
+                    if (Math.Abs(yorig) > 25)
+                    {
+                        Renderer.SoftScroll -= Math.Min(25, yorig);
+                        _lastY = e.Y;
+                    }
+                    else
+                    {
+                        int x0 = (int)Renderer.SelectRect.X;
+                        int x1 = e.X;
+                        if (x0 > x1)
+                        {
+                            //fgh
+                            x0 = e.X;
+                            x1 = (int)Renderer.SelectRect.X;
+                        }
+                        Renderer.SelectRect = RectangleF.FromLTRB(x0, Renderer.SelectRect.Y, x1, Renderer.SelectRect.Y + 1);
+                    }
                 }
                 else
                 {
-                    int x0 = (int)Renderer.SelectRect.X;
-                    int x1 = e.X;
-                    if (x0 > x1)
+                    var rect = new RectangleF(e.X, e.Y, 0, 2);
+                    Renderer.SelectRect = rect;
+
+                    var cnt = Renderer.ClickableList.Where(t => t.Bounds.IntersectsWith(rect) && t.Type != RectType.Text).ToList();
+                    if (cnt.Count == 0)
                     {
-                        //fgh
-                        x0 = e.X;
-                        x1 = (int)Renderer.SelectRect.X;
+                        Cursor = Cursors.Arrow;
                     }
-                    Renderer.SelectRect = RectangleF.FromLTRB(x0, Renderer.SelectRect.Y, x1, Renderer.SelectRect.Y + 1);
+                    else if (cnt[0].Type != RectType.Text)
+                    {
+                        Cursor = Cursors.Hand;
+                    }
                 }
+                //try
+                //{
+                //    SLRect curSelected = Renderer.ClickableList.FirstOrDefault(t => t.Contains(e.Location));
+
+                //    if (curSelected.IsEmpty)
+                //    {
+                //        Cursor = Cursors.Arrow;
+                //        //renderer.AutoScroll = true;
+                //    }
+                //    else if (curSelected.Type != RectType.Text)
+                //    {
+                //        Cursor = Cursors.Hand;
+                //    }
+                //    // this.Invalidate();
+                //}
+                //catch
+                //{
+                //    Cursor = Cursors.Arrow;
+                //    // renderer.AutoScroll = true;
+                //}
+                //Scrollbar.OnMouseMove(e);}
             }
-            else
-            {
-                Renderer.SelectRect = new RectangleF(e.X, e.Y, 0, 0);
-            }
-            try
-            {
-                var list = Renderer.ClickableList;
-                SLRect curSelected = list.FirstOrDefault(t => t.Contains(e.Location));
-                if (curSelected.IsEmpty)
-                {
-                    Cursor = Cursors.Arrow;
-                    //renderer.AutoScroll = true;
-                }
-                else if (curSelected.Type != RectType.Text)
-                {
-                    Cursor = Cursors.Hand;
-                }
-                // this.Invalidate();
-            }
-            catch
-            {
-                Cursor = Cursors.Arrow;
-                // renderer.AutoScroll = true;
-            }
-            //Scrollbar.OnMouseMove(e);
+            catch { }
             base.OnMouseMove(e);
         }
 
@@ -318,48 +339,48 @@ namespace LX29_ChatClient.Forms
             try
             {
                 timer1.Enabled = false;
-                if (Renderer.SelectRect.Width > 0)
+
+                List<SLRect> selects = Renderer.ClickableList.Where(t => t.Bounds.IntersectsWith(Renderer.SelectRect)).ToList();
+
+                if (selects.Count > 1)
                 {
-                    var list = Renderer.ClickableList.ToList();
-                    var selects = list.Where(t => t.Bounds.IntersectsWith(Renderer.SelectRect));
-                    if (selects.Count() > 0)
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var s in selects)
                     {
-                        StringBuilder sb = new StringBuilder();
-                        foreach (var s in selects)
+                        switch (s.Type)
                         {
-                            switch (s.Type)
-                            {
-                                case RectType.User:
-                                    var user = (ChatUser)s.Content;
-                                    sb.Append(user.Name + ": ");
-                                    break;
+                            case RectType.User:
+                                var user = (ChatUser)s.Content;
+                                sb.Append(user.Name + ": ");
+                                break;
 
-                                case RectType.Emote:
-                                    var emote = (Emote)s.Content;
-                                    sb.Append(emote.Name + " ");
-                                    break;
+                            case RectType.Emote:
+                                var emote = (Emote)s.Content;
+                                sb.Append(emote.Name + " ");
+                                break;
 
-                                case RectType.Badge:
-                                    var badge = (BadgeBase)s.Content;
-                                    sb.Append(badge.Name + " ");
-                                    break;
+                            case RectType.Badge:
+                                var badge = (BadgeBase)s.Content;
+                                sb.Append(badge.Name + " ");
+                                break;
 
-                                default:
-                                    sb.Append(s.Content + " ");
-                                    break;
-                            }
-                        }
-                        selectedText = sb.ToString().TrimEnd(' ');
-
-                        if (!string.IsNullOrEmpty(selectedText))
-                        {
-                            tSMi_Text.Text = selectedText;
-                            cMS_TextOptions.Show(this.PointToScreen(e.Location));
+                            default:
+                                sb.Append(s.Content + " ");
+                                break;
                         }
                     }
-                }
-                CheckClick(e.Location);
+                    selectedText = sb.ToString().TrimEnd(' ');
 
+                    if (!string.IsNullOrEmpty(selectedText))
+                    {
+                        tSMi_Text.Text = selectedText;
+                        cMS_TextOptions.Show(this.PointToScreen(e.Location));
+                    }
+                }
+                else if (selects.Count > 0)
+                {
+                    CheckClick(e.Location, selects[0]);
+                }
                 Renderer.SelectRect = Rectangle.Empty;
             }
             catch { }
@@ -452,9 +473,9 @@ namespace LX29_ChatClient.Forms
             // this.Invalidate();
         }
 
-        private void CheckClick(Point Location)
+        private void CheckClick(Point Location, SLRect curSelected)
         {
-            SLRect curSelected = Renderer.ClickableList.FirstOrDefault(t => t.Bounds.Contains(Location));
+            // SLRect curSelected = Renderer.ClickableList.FirstOrDefault(t => t.Bounds.Contains(Location));
             if (!curSelected.IsEmpty)
             {
                 switch (curSelected.Type)
@@ -474,26 +495,22 @@ namespace LX29_ChatClient.Forms
                         break;
 
                     case RectType.Link:
-                        if (OnLinkClicked != null)
-                            OnLinkClicked(this, curSelected.Content.ToString());
+                        OnLinkClicked?.Invoke(this, curSelected.Content.ToString());
                         break;
 
                     case RectType.Emote:
                         Emote em = (Emote)curSelected.Content;
-                        if (OnEmoteClicked != null)
-                            OnEmoteClicked(this, em);
+                        OnEmoteClicked?.Invoke(this, em);
                         break;
 
                     case RectType.User:
                         ChatUser cu = (ChatUser)curSelected.Content;
-                        if (OnUserNameClicked != null)
-                            OnUserNameClicked(this, cu, Location);
+                        OnUserNameClicked?.Invoke(this, cu, Location);
                         break;
 
                     case RectType.Badge:
                         Badge bd = (Badge)curSelected.Content;
-                        if (OnBadgeClicked != null)
-                            OnBadgeClicked(this, bd);
+                        OnBadgeClicked?.Invoke(this, bd);
                         break;
 
                     case RectType.Delegate:
@@ -506,12 +523,18 @@ namespace LX29_ChatClient.Forms
             }
         }
 
+        private void Gdc_Paint(object sender, PaintEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         private void HideScrollDownLabel()
         {
             lbl_ScrollDown.Visible = false;
         }
 
         private void lbl_ScrollDown_Click(object sender, EventArgs e)
+
         {
             if (lbl_ScrollDown.Visible)
             {
@@ -639,6 +662,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private void timer1_Tick(object sender, EventArgs e)
+
         {
             var w = Renderer.ScrollRectangle.Width;
             var rect = new Rectangle(this.ClientSize.Width - w,
@@ -653,6 +677,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private void tSMi_Copy_Click(object sender, System.EventArgs e)
+
         {
             if (!string.IsNullOrEmpty(selectedText))
             {
@@ -661,6 +686,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private void tSMi_Search_Click(object sender, System.EventArgs e)
+
         {
             System.Diagnostics.Process.Start("https://www.google.at/search?q=" + selectedText);
         }

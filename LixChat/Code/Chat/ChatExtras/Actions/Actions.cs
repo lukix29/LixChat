@@ -21,27 +21,27 @@ namespace LX29_ChatClient.Addons
     public class AutoActions
     {
         private List<ChatAction> chatactions = new List<ChatAction>();
-        private FormAutoChatActions formAutoChatActions = null;
+        //private AutoChatActionsControl formAutoChatActions = null;
 
         public AutoActions()
         {
             chatactions = new List<ChatAction>();
-            EnableActions = true;
+            //EnableActions = true;
         }
 
-        [JsonIgnore]
-        public bool ChatActionShowing
-        {
-            get;
-            set;
-        }
+        //[JsonIgnore]
+        //public bool ChatActionShowing
+        //{
+        //    get;
+        //    set;
+        //}
 
-        [JsonRequired]
-        public bool EnableActions
-        {
-            get;
-            private set;
-        }
+        //[JsonRequired]
+        //public bool EnableActions
+        //{
+        //    get;
+        //    private set;
+        //}
 
         [JsonRequired]
         public List<ChatAction> Values
@@ -144,24 +144,24 @@ namespace LX29_ChatClient.Addons
             return chatactions.GetEnumerator();
         }
 
-        public void OpenChatActions()
-        {
-            if (ChatActionShowing)
-            {
-                ChatActionShowing = false;
-                if (!formAutoChatActions.IsDisposed)
-                {
-                    formAutoChatActions.Close();
-                    formAutoChatActions.Dispose();
-                }
-            }
-            else
-            {
-                formAutoChatActions = new LX29_ChatClient.Addons.FormAutoChatActions();
-                formAutoChatActions.Show();
-                ChatActionShowing = true;
-            }
-        }
+        //public void OpenChatActions()
+        //{
+        //    if (ChatActionShowing)
+        //    {
+        //        ChatActionShowing = false;
+        //        if (!formAutoChatActions.IsDisposed)
+        //        {
+        //            // formAutoChatActions.Close();
+        //            formAutoChatActions.Dispose();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        formAutoChatActions = new LX29_ChatClient.Addons.AutoChatActionsControl();
+        //        formAutoChatActions.Show();
+        //        ChatActionShowing = true;
+        //    }
+        //}
 
         public void Save(IEnumerable<ChatAction> actions)
         {
@@ -224,6 +224,8 @@ namespace LX29_ChatClient.Addons
         private DateTime lastAction_TMi = DateTime.MinValue;
 
         private int lastRDmsg = -1;
+
+        private Random rd = new Random(LX29_Cryptography.LX29Crypt.GetSeed());
 
         public ChatAction()
         {
@@ -361,63 +363,82 @@ namespace LX29_ChatClient.Addons
         {
             if (Action.StartsWith("//")) return "";
             string sout = Action;
-            if (sout.Contains("&rd["))
+            int cnt = 0;
+            while (cnt < 32)
             {
-                Random rd = new Random();
-                int min = 0;
-                int max = 0;
-                string mi = sout.GetBetween("&rd[", "]");
-                string[] sa = mi.Split(",");
-                if (int.TryParse(sa[0], out min) && int.TryParse(sa[1], out max))
+                if (sout.Contains("&rd["))
                 {
-                    sout = sout.Replace("&rd[" + mi + "]", rd.Next(min, max + 1).ToString());
-                }
-                else
-                {
-                    if (File.Exists(Settings._scriptDir + mi))
+                    string mi = sout.GetBetween("&rd[", "]");
+                    string[] sa = mi.Split(",");
+                    if (int.TryParse(sa[0], out int min) && int.TryParse(sa[1], out int max))
                     {
-                        var arr = File.ReadLines(Settings._scriptDir + mi).Where(t => t.Length >= 3);
-                        int index = lastRDmsg;
-                        while (index == lastRDmsg)
-                        {
-                            lastRDmsg = rd.Next(0, arr.Count() - 1);
-                        }
-                        string lastLine = arr.ElementAt(lastRDmsg);
+                        sout = sout.Replace("&rd[" + mi + "]", rd.Next(min, max + 1).ToString());
+                    }
+                    else if (mi.Equals("user", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var list = ChatClient.ChatUsers.Users[msg.Channel_Name];
+                        getHumanRandom(0, list.Count);
+                        string lastLine = list[lastRDmsg].DisplayName;
                         sout = sout.Replace("&rd[" + mi + "]", lastLine);
                     }
+                    else if (mi.Length >= 3 && mi.Contains("."))
+                    {
+                        if (File.Exists(Settings._scriptDir + mi))
+                        {
+                            var arr = File.ReadLines(Settings._scriptDir + mi).Where(t => t.Length >= 3).ToList();
+                            getHumanRandom(0, arr.Count - 1);
+                            string lastLine = arr.ElementAt(lastRDmsg);
+                            sout = sout.Replace("&rd[" + mi + "]", lastLine);
+                        }
+                    }
                 }
-            }
-            if (sout.Contains("&word["))
-            {
-                int idx = 0;
-                string mi = sout.GetBetween("&word[", "]");
-                if (int.TryParse(mi, out idx))
+                else if (sout.Contains("&word["))
                 {
-                    idx = Math.Max(0, Math.Min(msg.ChatWords.Count - 1, idx));
-                    sout = sout.Replace("&word[" + mi + "]", msg.ChatWords[idx].Text);
+                    string mi = sout.GetBetween("&word[", "]");
+                    if (int.TryParse(mi, out int idx))
+                    {
+                        idx = Math.Max(0, Math.Min(msg.ChatWords.Count - 1, idx));
+                        sout = sout.Replace("&word[" + mi + "]", msg.ChatWords[idx].Text);
+                    }
                 }
-            }
-            if (sout.Contains("&name"))
-            {
-                string name = msg.Name;
-                if (!msg.User.IsEmpty)
+                else if (sout.Contains("&name"))
                 {
-                    name = msg.User.DisplayName;
+                    string name = msg.Name;
+                    if (!msg.User.IsEmpty)
+                    {
+                        name = msg.User.DisplayName;
+                    }
+                    sout = sout.Replace("&name", name);
                 }
-                sout = sout.Replace("&name", name);
-            }
-            if (sout.Contains("&channel"))
-            {
-                string name = msg.Channel_Name;
-                ChatUser user = ChatClient.Users.Get(name, name);
-                if (!user.IsEmpty)
+                else if (sout.Contains("&channel"))
                 {
-                    name = user.DisplayName;
+                    string name = msg.Channel_Name;
+                    ChatUser user = ChatClient.ChatUsers.Get(name, name);
+                    if (!user.IsEmpty)
+                    {
+                        name = user.DisplayName;
+                    }
+                    sout = sout.Replace("&channel", name);
                 }
-                sout = sout.Replace("&channel", name);
+                else break;
+                cnt++;
             }
             lastAction_TMi = DateTime.Now;
             return sout;
+        }
+
+        public override string ToString()
+        {
+            return "USERNAME=" + Username + " | MESSAGE=" + Message + " | ACTION=" + Action;
+        }
+
+        private void getHumanRandom(int min, int max)
+        {
+            int index = lastRDmsg;
+            while (index == lastRDmsg)
+            {
+                lastRDmsg = rd.Next(min, max);
+            }
         }
 
         //public bool Load(Dictionary<string, string> values)
@@ -429,11 +450,6 @@ namespace LX29_ChatClient.Addons
         //{
         //    return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         //}
-
-        public override string ToString()
-        {
-            return "USERNAME=" + Username + " | MESSAGE=" + Message + " | ACTION=" + Action;
-        }
     }
 
     public class CustomAnalytics

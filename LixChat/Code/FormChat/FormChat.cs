@@ -1,7 +1,6 @@
 ﻿using LX29_ChatClient.Channels;
 using System;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace LX29_ChatClient.Forms
@@ -41,8 +40,10 @@ namespace LX29_ChatClient.Forms
 
         private void AddTSMItem(string name, bool insert = false)
         {
-            ToolStripButton item = new ToolStripButton(name + " ");
-            item.Name = name;
+            ToolStripButton item = new ToolStripButton(name + " ")
+            {
+                Name = name
+            };
 
             SetColor(item, false);
             item.MouseUp += item_Click;

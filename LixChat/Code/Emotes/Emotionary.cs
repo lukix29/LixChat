@@ -11,25 +11,26 @@ namespace LX29_ChatClient.Emotes
         //public Dictionary<string, Emoji> _emoji_names = new Dictionary<string, Emoji>();
         public Dictionary<string, Emoji> _emoji_unicodes = new Dictionary<string, Emoji>();
 
-        private Dictionary<string, EmoteBase> _ffzbttv = new Dictionary<string, EmoteBase>();
+        private readonly object lockSync = new object();
+        private Dictionary<string, IEmoteBase> _ffzbttv = new Dictionary<string, IEmoteBase>();
 
-        private Dictionary<string, EmoteBase> _twitch = new Dictionary<string, EmoteBase>();
+        private Dictionary<string, IEmoteBase> _twitch = new Dictionary<string, IEmoteBase>();
 
         public Emoteionary()
         {
-            _UserEmotes = new List<EmoteBase>();
-            _ffzbttv = new Dictionary<string, EmoteBase>();
-            _twitch = new Dictionary<string, EmoteBase>();
+            _UserEmotes = new List<IEmoteBase>();
+            _ffzbttv = new Dictionary<string, IEmoteBase>();
+            _twitch = new Dictionary<string, IEmoteBase>();
             _emoji_unicodes = new Dictionary<string, Emoji>();
         }
 
-        public IEnumerable<EmoteBase> _UserEmotes
+        public IEnumerable<IEmoteBase> _UserEmotes
         {
             get;
             set;
         }
 
-        public IEnumerable<EmoteBase> All
+        public IEnumerable<IEmoteBase> All
         {
             get { return _twitch.Values.Concat(_ffzbttv.Values); }
         }
@@ -39,12 +40,12 @@ namespace LX29_ChatClient.Emotes
             get { return _ffzbttv.Count + _twitch.Count + _emoji_unicodes.Count; }
         }
 
-        public Dictionary<string, EmoteBase> Twitch
+        public Dictionary<string, IEmoteBase> Twitch
         {
             get { return _twitch; }
         }
 
-        public EmoteBase this[string ID, string Name]
+        public IEmoteBase this[string ID, string Name]
         {
             get
             {
@@ -60,7 +61,7 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public EmoteBase this[EmoteBase emote]
+        public IEmoteBase this[IEmoteBase emote]
         {
             get
             {
@@ -76,17 +77,20 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public void Add(EmoteBase e)
+        public void Add(IEmoteBase e)
         {
-            if (e.Origin == EmoteOrigin.Twitch || e.Origin == EmoteOrigin.Twitch_Global)
+            lock (lockSync)
             {
-                if (!_twitch.ContainsKey(e.ID))
-                    _twitch.Add(e.ID, e);
-            }
-            else
-            {
-                if (!_ffzbttv.ContainsKey(e.Name))
-                    _ffzbttv.Add(e.Name, e);
+                if (e.Origin == EmoteOrigin.Twitch || e.Origin == EmoteOrigin.Twitch_Global)
+                {
+                    if (!_twitch.ContainsKey(e.ID))
+                        _twitch.Add(e.ID, e);
+                }
+                else
+                {
+                    if (!_ffzbttv.ContainsKey(e.Name))
+                        _ffzbttv.Add(e.Name, e);
+                }
             }
         }
 
@@ -123,7 +127,7 @@ namespace LX29_ChatClient.Emotes
         //        return null;
         //    }
         //}
-        public bool Contains(EmoteBase Key)
+        public bool Contains(IEmoteBase Key)
         {
             if (Key.Origin == EmoteOrigin.Twitch || Key.Origin == EmoteOrigin.Twitch_Global)
             {
@@ -135,7 +139,7 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public EmoteBase ContainsKey(string name)
+        public IEmoteBase ContainsKey(string name)
         {
             if (_ffzbttv.ContainsKey(name))
             {
@@ -152,44 +156,49 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public List<EmoteBase> Find(string name, string channel)
+        public IEnumerable<IEmoteBase> Find(string name, string channel)
         {
-            if (name.StartsWith(":"))
+            lock (lockSync)
             {
-                name = name.ToLower();
-                return _emoji_unicodes.Values.Where(t => t.Name.StartsWith(name)).Select(t => (EmoteBase)t).ToList();
-            }
-            else
-            {
-                var em = _twitch.Values.Where((e) =>
-                   {
-                       if (e.Name.ToLower().StartsWith(name))
+                if (name.StartsWith(":"))
+                {
+                    name = name.ToLower();
+                    return _emoji_unicodes.Values
+                        .Where(t => t.Name.StartsWith(name));
+                }
+                else
+                {
+                    var em = _twitch.Values.Where((e) =>
                        {
-                           return _UserEmotes.Any(t => t.ID.Equals(e.ID));
-                       }
-                       return false;
-                   });
+                           if (e.Name.ToLower().StartsWith(name))
+                           {
+                               return _UserEmotes.Any(t => t.ID.Equals(e.ID));
+                           }
+                           return false;
+                       });
 
-                var ffz = _ffzbttv.Values.Where((t) =>
-                    {
-                        if (t.Name.ToLower().StartsWith(name))
+                    var ffz = _ffzbttv.Values.Where((t) =>
                         {
-                            if ((t.Channel.Contains(channel)) || (t.Origin == EmoteOrigin.FFZ_Global || t.Origin == EmoteOrigin.BTTV_Global))
+                            if (t.Name.ToLower().StartsWith(name))
                             {
-                                return true;
+                                if ((t.Channel.Contains(channel)) ||
+                                (t.Origin == EmoteOrigin.FFZ_Global || t.Origin == EmoteOrigin.BTTV_Global))
+                                {
+                                    return true;
+                                }
                             }
-                        }
-                        return false;
-                    });
+                            return false;
+                        });
 
-                em = em.Concat(ffz);
-                return em.OrderByDescending(t =>
-                    (t.Origin == EmoteOrigin.FFZ_Global || t.Origin == EmoteOrigin.BTTV_Global || t.Origin == EmoteOrigin.Twitch_Global))
-                    .ThenBy(t => t.Name).ToList();
+                    em = em.Concat(ffz);
+                    return em.OrderByDescending(t =>
+                        (t.Origin == EmoteOrigin.FFZ_Global || t.Origin == EmoteOrigin.BTTV_Global || t.Origin == EmoteOrigin.Twitch_Global))
+                        .ThenBy(t => t.Name);
+                }
             }
         }
 
-        public IEnumerable<EmoteBase> GetEmotes(string channel)
+        public IEnumerable<IEmoteBase> GetEmotes(string channel)
         {
             var ffz = _ffzbttv.Values.Where((t) =>
                 {

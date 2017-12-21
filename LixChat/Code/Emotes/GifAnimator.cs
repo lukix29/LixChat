@@ -16,58 +16,66 @@ namespace LX29_ChatClient.Emotes
         Downloading,
     }
 
-    public enum EmoteImageSize : int
-    {
-        Small = 1,
-        Medium = 2,
-        Large = 3
-    }
+    //public enum EmoteImageSize : int
+    //{
+    //    Small = 1,
+    //    Medium = 2,
+    //    Large = 3
+    //}
 
     public class EmoteImage : IDisposable
     {
         public static readonly EmoteImage Wait =
             new EmoteImage("WAITING");
 
-        private static readonly string[] BTTV_EMOTE_BASE_URL = new string[] { "https://cdn.betterttv.net/emote/{id}/1x", "https://cdn.betterttv.net/emote/{id}/2x", "https://cdn.betterttv.net/emote/{id}/3x" };
-        private static readonly string[] FFZ_EMOTE_BASE_URL = new string[] { "https://cdn.frankerfacez.com/emoticon/{id}/1", "https://cdn.frankerfacez.com/emoticon/{id}/2", "https://cdn.frankerfacez.com/emoticon/{id}/4" };
-        private static readonly string[] TWITCH_EMOTE_BASE_URL = new string[] { "https://static-cdn.jtvnw.net/emoticons/v1/{id}/1.0", "https://static-cdn.jtvnw.net/emoticons/v1/{id}/2.0", "https://static-cdn.jtvnw.net/emoticons/v1/{id}/3.0" };
-        private readonly object LockObject = new object();
+        private static readonly string BTTV_EMOTE_BASE_URL =// new string[] {
+            "https://cdn.betterttv.net/emote/{id}/3x";//, "https://cdn.betterttv.net/emote/{id}/2x", "https://cdn.betterttv.net/emote/{id}/3x" };
 
-        private Dictionary<EmoteImageSize, Bitmap[]> _images = new Dictionary<EmoteImageSize, Bitmap[]>();
-        private Dictionary<EmoteImageSize, Size> _sizes = new Dictionary<EmoteImageSize, Size>();
+        private static readonly string FFZ_EMOTE_BASE_URL =// new string[] {
+            "https://cdn.frankerfacez.com/emoticon/{id}/1";//, "https://cdn.frankerfacez.com/emoticon/{id}/2", "https://cdn.frankerfacez.com/emoticon/{id}/4" };
 
-        private Dictionary<EmoteImageSize, string> _urls = null;
+        private static readonly string TWITCH_EMOTE_BASE_URL =// new string[] {
+            "https://static-cdn.jtvnw.net/emoticons/v1/{id}/3.0";//, "https://static-cdn.jtvnw.net/emoticons/v1/{id}/2.0", "https://static-cdn.jtvnw.net/emoticons/v1/{id}/3.0" };
+
+        //private readonly object LockObject = new object();
+
+        private readonly string Url = null;
+        private Bitmap[] _images = null;
+        private Size _sizes = new Size();
+        private System.Diagnostics.Stopwatch gifWatch = new System.Diagnostics.Stopwatch();
         private bool isDownloading = false;
 
-        private long lasTime = 0;
-
-        public EmoteImage(Dictionary<string, string> urls, string name, EmoteOrigin origin)
+        public EmoteImage(string url, string name, EmoteOrigin origin)
         {
             Name = name.Trim();
             this.Origin = origin;
-            _urls = urls.Values
-                .Select((u, i) => new { url = u, idx = i })
-                .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
+            Url = url;//.Values.Last();
+            //.Select((u, i) => new { url = u, idx = i })
+            //.ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
             //_urls = urls;
             //EmoteImage(badge.urls, Name)
         }
 
-        public EmoteImage(string name, Image image)
+        public EmoteImage(string name, Bitmap image)
         {
             //FilePaths = new Dictionary<EmoteImageSize, string>();
             //URLs = new Dictionary<EmoteImageSize, string>();
             Name = name;
-            _images = new Dictionary<EmoteImageSize, Bitmap[]>();
             Type = image.RawFormat;
 
-            if (!SetGif(image, EmoteImageSize.Small))
-            {
-                _images.Add(EmoteImageSize.Small, new Bitmap[] { new Bitmap(image).Clone(new Rectangle(0, 0, image.Width, image.Height), PixelFormat.Format32bppPArgb) });
-                _sizes.Add(EmoteImageSize.Small, image.Size);
-            }
+            SetImage(image);
+            //if (!SetGif(image, EmoteImageSize.Small))
+            //{
+            //    _images.Add(EmoteImageSize.Small, new Bitmap(image).Clone(new Rectangle(0, 0, image.Width, image.Height), PixelFormat.Format32bppPArgb));
+            //    _sizes.Add(EmoteImageSize.Small, image.Size);
+            //}
             LoadTime = DateTime.MaxValue;
         }
 
+        /// <summary>
+        /// Only for Waiting Gif
+        /// </summary>
+        /// <param name="name"></param>
         public EmoteImage(string name)
         {
             if (name.Equals("WAITING"))
@@ -75,10 +83,9 @@ namespace LX29_ChatClient.Emotes
                 //FilePaths = new Dictionary<EmoteImageSize, string>();
                 //URLs = new Dictionary<EmoteImageSize, string>();
                 Name = name;
-                _images = new Dictionary<EmoteImageSize, Bitmap[]>();
                 Type = LX29_LixChat.Properties.Resources.loading.RawFormat;
                 IsGif = true;
-                SetGif(LX29_LixChat.Properties.Resources.loading, EmoteImageSize.Small);
+                SetImage(LX29_LixChat.Properties.Resources.loading);
                 LoadTime = DateTime.MaxValue;
             }
         }
@@ -89,11 +96,22 @@ namespace LX29_ChatClient.Emotes
             Name = name.Trim();
             //this.URLs = new Dictionary<EmoteImageSize, string>();
             //this.FilePaths = new Dictionary<EmoteImageSize, string>();
-            if (Origin == EmoteOrigin.FFZ_Global)
-            {
-            }
+
             this.Origin = Origin;
             this.ID = ID;
+
+            if (Origin == EmoteOrigin.BTTV || Origin == EmoteOrigin.BTTV_Global)
+            {
+                Url = BTTV_EMOTE_BASE_URL.Replace("{id}", ID);
+            }
+            else if (Origin == EmoteOrigin.FFZ || Origin == EmoteOrigin.FFZ_Global)
+            {
+                Url = FFZ_EMOTE_BASE_URL.Replace("{id}", ID);
+            }
+            else if (Origin == EmoteOrigin.Twitch || Origin == EmoteOrigin.Twitch_Global)
+            {
+                Url = TWITCH_EMOTE_BASE_URL.Replace("{id}", ID);
+            }
 
             //var arr = urls.Select((v, i) => new { url = v, idx = i }).ToArray();
             //if (arr.Length > 0)
@@ -125,16 +143,16 @@ namespace LX29_ChatClient.Emotes
         }
 
         //private object locko = new object();
-        public Bitmap Bitmap
-        {
-            get
-            {
-                var img = GetImage(EmoteImageSize.Large);
-                if (img != null)
-                    return img;
-                else return new Bitmap(1, 1);
-            }
-        }
+        //public Bitmap Bitmap
+        //{
+        //    get
+        //    {
+        //        var img = GetImage(EmoteImageSize.Large);
+        //        if (img != null)
+        //            return img;
+        //        else return new Bitmap(1, 1);
+        //    }
+        //}
 
         public int Delay
         {
@@ -142,11 +160,11 @@ namespace LX29_ChatClient.Emotes
             private set;
         }
 
-        public Dictionary<EmoteImageSize, string> FilePaths
+        public string FilePaths
         {
             get
             {
-                return URLs.ToDictionary(t => t.Key, t0 => Path.GetFullPath(GetLocalfileName(t0.Value)));
+                return Path.GetFullPath(GetLocalfileName(Url));
             }
         }
 
@@ -176,7 +194,7 @@ namespace LX29_ChatClient.Emotes
 
         public bool IsLoaded
         {
-            get { return _sizes.Count > 0; }
+            get { return !_sizes.IsEmpty; }
         }
 
         public DateTime LoadTime
@@ -203,35 +221,35 @@ namespace LX29_ChatClient.Emotes
             private set;
         }
 
-        public Dictionary<EmoteImageSize, string> URLs
-        {
-            get
-            {
-                if (Origin == EmoteOrigin.BTTV || Origin == EmoteOrigin.BTTV_Global)
-                {
-                    return BTTV_EMOTE_BASE_URL
-                        .Select((u, i) => new { url = u.Replace("{id}", ID), idx = i })
-                        .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
-                }
-                else if (Origin == EmoteOrigin.FFZ || Origin == EmoteOrigin.FFZ_Global)
-                {
-                    return FFZ_EMOTE_BASE_URL
-                        .Select((u, i) => new { url = u.Replace("{id}", ID), idx = i })
-                        .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
-                }
-                else if (Origin == EmoteOrigin.Twitch || Origin == EmoteOrigin.Twitch_Global)
-                {
-                    return TWITCH_EMOTE_BASE_URL
-                        .Select((u, i) => new { url = u.Replace("{id}", ID), idx = i })
-                        .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
-                }
-                else if (Origin == EmoteOrigin.Badge)
-                {
-                    return _urls;
-                }
-                return new Dictionary<EmoteImageSize, string>();
-            }
-        }
+        //public string URLs
+        //{
+        //    get
+        //    {
+        //        if (Origin == EmoteOrigin.BTTV || Origin == EmoteOrigin.BTTV_Global)
+        //        {
+        //            return BTTV_EMOTE_BASE_URL
+        //                .Select((u, i) => new { url = u.Replace("{id}", ID), idx = i })
+        //                .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
+        //        }
+        //        else if (Origin == EmoteOrigin.FFZ || Origin == EmoteOrigin.FFZ_Global)
+        //        {
+        //            return FFZ_EMOTE_BASE_URL
+        //                .Select((u, i) => new { url = u.Replace("{id}", ID), idx = i })
+        //                .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
+        //        }
+        //        else if (Origin == EmoteOrigin.Twitch || Origin == EmoteOrigin.Twitch_Global)
+        //        {
+        //            return TWITCH_EMOTE_BASE_URL
+        //                .Select((u, i) => new { url = u.Replace("{id}", ID), idx = i })
+        //                .ToDictionary(t => (EmoteImageSize)Math.Min(3, t.idx + 1), t0 => t0.url);
+        //        }
+        //        else if (Origin == EmoteOrigin.Badge)
+        //        {
+        //            return _urls;
+        //        }
+        //        return "";
+        //    }
+        //}
 
         public static string GetLocalfileName(string imageUri)
         {
@@ -262,12 +280,12 @@ namespace LX29_ChatClient.Emotes
             return retVal;
         }
 
-        public static Image ResizeBitmap(Image input, float width, float height)
+        public static Bitmap ResizeBitmap(Image input, float width, float height)
         {
             return ResizeBitmap(input, new SizeF(width, height));
         }
 
-        public static Image ResizeBitmap(Image input, SizeF newSize)
+        public static Bitmap ResizeBitmap(Image input, SizeF newSize)
         {
             Bitmap b = new Bitmap((int)newSize.Width, (int)newSize.Height, input.PixelFormat);
             Graphics g = Graphics.FromImage(b);
@@ -279,23 +297,11 @@ namespace LX29_ChatClient.Emotes
             return b;
         }
 
-        public SizeF CalcSize(float height, EmoteImageSize size)
+        public SizeF CalcSize(float height)
         {
             try
             {
-                if (_sizes.Count == 0)
-                    return Size.Empty;
-
-                SizeF emS = Size.Empty;
-
-                if (_images.ContainsKey(size))
-                {
-                    emS = _sizes[size];
-                }
-                else
-                {
-                    emS = _sizes.Last().Value;
-                }
+                SizeF emS = _sizes;
 
                 float ratio = height / emS.Height;
                 float newWidth = (emS.Width * ratio);
@@ -310,12 +316,10 @@ namespace LX29_ChatClient.Emotes
         {
             try
             {
-                foreach (var size in _images)
+                gifWatch.Stop();
+                foreach (var image in _images)
                 {
-                    foreach (var image in size.Value)
-                    {
-                        image.Dispose();
-                    }
+                    image.Dispose();
                 }
             }
             catch { }
@@ -323,54 +327,56 @@ namespace LX29_ChatClient.Emotes
             {
                 lock (_images)
                 {
-                    _sizes.Clear();
-                    _images.Clear();
+                    _images = null;
                 }
             }
         }
 
-        public void DownloadImages()
+        //public void DownloadImages()
+        //{
+        //    foreach (var size in URLs)
+        //    {
+        //        DownloadImage(size.Key);
+        //    }
+        //}
+
+        public EmoteImageDrawResult Draw(Graphics g, Rectangle rec)
         {
-            foreach (var size in URLs)
-            {
-                DownloadImage(size.Key);
-            }
+            return Draw(g, rec.X, rec.Y, rec.Width, rec.Height);
         }
 
-        public EmoteImageDrawResult Draw(Graphics g, Rectangle rec, EmoteImageSize size)
-        {
-            return Draw(g, rec.X, rec.Y, rec.Width, rec.Height, size);
-        }
-
-        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size)
+        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height)
         {
             var result = EmoteImageDrawResult.Success;
-            var images = GetImage(size);
+
             try
             {
-                if (!Name.Equals("WAITING") && images == null)
+                if (!Name.Equals("WAITING") && _images == null)
                 {
                     if (!isDownloading)
                     {
                         isDownloading = true;
-                        Task.Run(() => DownloadImage(size));
+                        Task.Run(() => DownloadImage());
                     }
-                    Wait.Draw(g, X, Y, Width, Height, size);
+                    Wait.Draw(g, X, Y, Width, Height);
                     result = EmoteImageDrawResult.Downloading;
                 }
-                else
+                else if (_images != null)
                 {
                     if (IsGif && Settings.AnimatedEmotes)
                     {
-                        long ms = (long)((DateTime.UtcNow.Ticks - lasTime) / TimeSpan.TicksPerMillisecond);
+                        long ms = gifWatch.ElapsedMilliseconds;// (long)((DateTime.UtcNow.Ticks - lasTime) / TimeSpan.TicksPerMillisecond);
                         if (ms > Delay)
                         {
+                            // ImageAnimator.UpdateFrames(image);
+                            //activeFrame =
                             if (FrameIndex + 1 >= FrameCount)
                             {
                                 FrameIndex = 0;
                             }
                             else FrameIndex++;
-                            lasTime = DateTime.UtcNow.Ticks;
+
+                            // lasTime = DateTime.UtcNow.Ticks;
                         }
                         result = EmoteImageDrawResult.IsGif;
                     }
@@ -379,9 +385,9 @@ namespace LX29_ChatClient.Emotes
                         FrameIndex = 0;
                     }
                     //Monitor.Enter(images.SyncRoot);
-                    lock (images)
+                    lock (_images[FrameIndex])
                     {
-                        g.DrawBitmap(images, X, Y, Width, Height, Settings.HwEmoteDrawing);
+                        g.DrawBitmap(_images[FrameIndex], X, Y, Width, Height, Settings.HwEmoteDrawing);
                     }
                     //Monitor.Exit(images.SyncRoot);
                     LoadTime = DateTime.Now;
@@ -389,30 +395,20 @@ namespace LX29_ChatClient.Emotes
             }
             catch
             {
+                g.DrawRectangle(Pens.Red, X, Y, Width, Height);
+                g.DrawLine(Pens.Red, X, Y, X + Width, Y + Height);
+                g.DrawLine(Pens.Red, 0, Y + Height, X + Width, 0);
+                //Dispose();
             }
-            //finally
-            //{
-            //    //Monitor.Exit(images.SyncRoot);
-            //}
-            return result;
-        }
-
-        public Bitmap GetImage(EmoteImageSize size)
-        {
-            //lock (LockObject)
-            //{
-            if (_images == null)
-                return null;
-            if (_images.Count == 0)
-                return null;
-
-            if (_images.ContainsKey(size))
+            finally
             {
-                return _images[size][FrameIndex];
+                if (IsGif)
+                {
+                    gifWatch.Restart();
+                }
+                //Monitor.Exit(images.SyncRoot);
             }
-            var max = (EmoteImageSize)_images.Keys.Max(t => (int)t);
-            return _images[max][FrameIndex];
-            //}
+            return result;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -420,123 +416,154 @@ namespace LX29_ChatClient.Emotes
             Dispose();
         }
 
-        private void DownloadImage(EmoteImageSize size)
+        private void DownloadImage()
         {
-            if (_images.ContainsKey(size)) return;
+            if (_images != null) return;
 
-            var url = "";
             try
             {
                 //float height = Emote.EmoteHeight;
-                if (!URLs.ContainsKey(size))
-                {
-                    url = URLs.Last().Value;
-                }
-                else
-                {
-                    url = URLs[size];
-                }
+                //if (!URLs.ContainsKey(size))
+                //{
+                //    url = URLs.Last().Value;
+                //}
+                //else
+                //{
+                //    url = URLs[size];
+                //}
 
-                string FilePath = Path.GetFullPath(Settings._emoteDir + GetLocalfileName(url));
+                string FilePath = Path.GetFullPath(Settings._emoteDir + GetLocalfileName(Url));
                 //  Image img = null;
-                lock (LockObject)
+                //lock (LockObject)
                 {
+                    if (Origin == EmoteOrigin.FFZ || Origin == EmoteOrigin.FFZ_Global)
+                    {
+                    }
                     if (!File.Exists(FilePath))
                     {
                         using (WebClient wc = new WebClient())
                         {
                             wc.Proxy = null;
-                            using (var ms = wc.OpenRead(new Uri(url)))
+                            using (var ms = wc.OpenRead(new Uri(Url)))
                             {
-                                using (Image img0 = Image.FromStream(ms))
-                                {
-                                    SetImageOrGif(img0, size);
+                                Bitmap img0 = new Bitmap(ms);
 
-                                    img0.Save(FilePath);
-                                }
+                                SetImage(img0);
+
+                                img0.Save(FilePath);
                             }
                         }
                     }
                     else
                     {
-                        using (Image img0 = Image.FromFile(FilePath))
-                        {
-                            SetImageOrGif(img0, size);
-                        }
+                        Bitmap img0 = new Bitmap(FilePath);
+
+                        SetImage(img0);
                     }
                 }
                 LoadTime = DateTime.Now;
             }
             catch
             {
-                _images = new Dictionary<EmoteImageSize, Bitmap[]>();
+                _images = null;
             }
             isDownloading = false;
         }
 
-        private bool SetGif(Image img, EmoteImageSize size, int cnt = 0)
+        private bool Set_Gif(Bitmap img, int cnt = 0)
         {
             try
             {
-                if (!ImageFormat.Gif.Equals(this.Type)) return false;
-                if (cnt > 10) return false;
-                IsGif = true;
-                FrameDimension dimension = new FrameDimension(img.FrameDimensionsList[0]);
-                FrameCount = img.GetFrameCount(dimension);
-                Bitmap[] list = new Bitmap[FrameCount];
-                int[] delays = new int[FrameCount];
-                for (int i = 0; i < FrameCount; i++)
+                if (!ImageFormat.Gif.Equals(this.Type))
                 {
-                    img.SelectActiveFrame(dimension, i);
-                    list[i] = new Bitmap(img).Clone(new Rectangle(0, 0, img.Width, img.Height), PixelFormat.Format32bppPArgb);
-                }
-
-                var val = img.PropertyItems.FirstOrDefault(t => t.Id == 0x5100);
-                if (val != null)
-                {
-                    byte[] ba = val.Value;
-                    // Time is in 1/10 of a millisecond
-                    Delay = Math.Min(100, Math.Max(10, BitConverter.ToInt32(ba, 0) * 10));
+                    IsGif = false;
+                    return false;
                 }
                 else
                 {
-                    Delay = 30;
+                    //ImageAnimator.Animate(img, OnFrameChanged);
+                    IsGif = true;
+                    gifWatch.Start();
+
+                    //_images.Add(size, (Bitmap)img);
+                    _sizes = img.Size;
+
+                    //Get Frame Delay
+                    var val = img.PropertyItems.FirstOrDefault(t => t.Id == 0x5100);
+
+                    FrameIndex = 0;
+                    FrameCount = img.GetFrameCount(FrameDimension.Time);
+
+                    for (int i = 0; i < FrameCount; i++)
+                    {
+                        img.SelectActiveFrame(FrameDimension.Time, i);
+                        _images[i] = img.Clone(new Rectangle(0, 0, img.Width, img.Height), PixelFormat.Format32bppPArgb);
+                    }
+
+                    if (val != null)
+                    {
+                        byte[] ba = val.Value;
+                        //Time is in 1 / 10 of a millisecond
+                        Delay = Math.Min(100, Math.Max(10, BitConverter.ToInt32(ba, 0) * 10));
+                    }
+                    else
+                    {
+                        Delay = 30;
+                    }
+                    if (!string.IsNullOrEmpty(Name) && Name.Equals("(ditto)"))
+                    {
+                        Delay = (int)(Delay * 3.5f);
+                    }
                 }
-                //if (!string.IsNullOrEmpty(Name) && Name.Equals("(ditto)"))
+
+                #region old Code
+
+                //if (!ImageFormat.Gif.Equals(this.Type)) return false;
+                //if (cnt > 10) return false;
+                //IsGif = true;
+                //FrameDimension dimension = new FrameDimension(img.FrameDimensionsList[0]);
+                //FrameCount = img.GetFrameCount(dimension);
+                //Bitmap[] list = new Bitmap[FrameCount];
+                //int[] delays = new int[FrameCount];
+                //for (int i = 0; i < FrameCount; i++)
                 //{
-                //    Delay = (int)(Delay * 3.5f);
+                //    img.SelectActiveFrame(dimension, i);
+                //    list[i] = new Bitmap(img).Clone(new Rectangle(0, 0, img.Width, img.Height), PixelFormat.Format32bppPArgb);
                 //}
 
-                _images.Add(size, list.ToArray());
-                _sizes.Add(size, list[0].Size);
-                return true;
+                //_images.Add(size, list.ToArray());
+                //_sizes.Add(size, list[0].Size);
+
+                #endregion old Code
             }
             catch (Exception x)
             {
                 if (x.Message.Equals("Allgemeiner Fehler in GDI+.", StringComparison.OrdinalIgnoreCase))
                 {
-                    SetGif(img, size, cnt + 1);
+                    return Set_Gif(img, cnt + 1);
                 }
+                FrameCount = 1;
             }
-            return false;
+            return IsGif;
         }
 
-        private void SetImageOrGif(Image img, EmoteImageSize size)
+        private void SetImage(Bitmap img)
         {
             this.Type = img.RawFormat;
 
             SizeF emS = img.Size;
-            if (!SetGif(img, size))
+            if (!Set_Gif(img))
             {
                 if (EmoteCollection.StandardEmotes.Any(t => Name.Contains(t.Value)))
                 {
                     img = ResizeBitmap(img, emS.Width * 1f, emS.Height * 1.5f);
                 }
-                if (!_images.ContainsKey(size))
-                    _images.Add(size,
-                        new Bitmap[] { new Bitmap(img).Clone(new Rectangle(0, 0, img.Width, img.Height), PixelFormat.Format32bppPArgb) });
-                if (!_sizes.ContainsKey(size))
-                    _sizes.Add(size, img.Size);
+
+                _images = new Bitmap[] {
+                       img.Clone(new Rectangle(0, 0, img.Width, img.Height),
+                        PixelFormat.Format32bppPArgb)};
+
+                _sizes = img.Size;
             }
         }
     }

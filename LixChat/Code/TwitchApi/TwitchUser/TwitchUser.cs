@@ -165,7 +165,7 @@ namespace LX29_Twitch.Api
 
         public static void FetchNewToken(System.Windows.Forms.Form Main, Action action = null, bool showBrowserSelector = false)
         {
-            Main.Invoke(new Action(delegate()
+            Main.Invoke(new Action(delegate ()
                       {
                           Main.TopMost = true;
                           Main.BringToFront();

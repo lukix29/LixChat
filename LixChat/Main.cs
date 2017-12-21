@@ -4,7 +4,6 @@ using LX29_MPV;
 using LX29_Twitch.Api;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -50,33 +49,23 @@ namespace LX29_LixChat
             InitializeComponent();
         }
 
-        //private int treeMax = 0;
-        public static Color[] ColorStructToList()
-        {
-            return typeof(Color).GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public)
-                                .Select(c => (Color)c.GetValue(null, null))
-                                .ToArray();
-        }
+        ////private int treeMax = 0;
+        //public static Color[] ColorStructToList()
+        //{
+        //    return typeof(Color).GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public)
+        //                        .Select(c => (Color)c.GetValue(null, null))
+        //                        .ToArray();
+        //}
 
-        //private int oldRefreshTime = 0;
-        public static PropertyInfo HasMethod(object objectToCheck, string methodName)
-        {
-            var type = objectToCheck.GetType();
-            return type.GetProperty(methodName);
-        }
-
-        public string GetNumber(string url)
-        {
-            System.Net.WebClient wc = new System.Net.WebClient();
-            wc.Proxy = null;
-            string result = wc.DownloadString(url);
-            string toFind = "Current outbound caller ID for extension";
-            int start = result.LastIndexOf(toFind) + toFind.Length;
-            int end = result.IndexOf("</div>", start);
-            return result.Substring(start, end - start);
-        }
+        ////private int oldRefreshTime = 0;
+        //public static PropertyInfo HasMethod(object objectToCheck, string methodName)
+        //{
+        //    var type = objectToCheck.GetType();
+        //    return type.GetProperty(methodName);
+        //}
 
         protected void btn_OpenChat_Click(object sender, EventArgs e)
+
         {
             try
             {
@@ -94,6 +83,7 @@ namespace LX29_LixChat
         }
 
         protected void button1_Click(object sender, EventArgs e)
+
         {
             try
             {
@@ -113,6 +103,7 @@ namespace LX29_LixChat
         }
 
         protected void cB_AutoLogin_CheckedChanged(object sender, EventArgs e)
+
         {
             if (lockChatSettings) return;
             var sa = GetCurrentInfo();
@@ -135,81 +126,21 @@ namespace LX29_LixChat
             }
         }
 
-        protected void Form1_Load(object sender, EventArgs e)
-        {
-            try
-            {
-                Bitmap bg = new Bitmap(1, 1);
-                bg.SetPixel(0, 0, Color.FromArgb(40, 40, 40));
-                toolStrip1.BackgroundImage = bg;
-
-                this.Text = "LixChat | (Build " + this.GetType().Assembly.GetLinkerTime().ToString() + ")";
-
-                if (System.IO.File.Exists(Settings._dataDir + "Channels_.txt"))
-                {
-                    System.IO.File.Delete(Settings._dataDir + "Channels_.txt");
-                }
-                if (!System.IO.Directory.Exists(Settings._dataDir))
-                {
-                    System.IO.Directory.CreateDirectory(Settings._dataDir);
-                }
-                if (!System.IO.Directory.Exists(Settings._pluginDir))
-                {
-                    System.IO.Directory.CreateDirectory(Settings._pluginDir);
-                }
-
-                //MPV_Wrapper.SetBorderSize(this.Size, this.ClientSize);
-
-                this.Bounds = Settings.MainBounds.MaxSize(this.Bounds);
-
-                SetTreeView();
-
-                Task.Run(() => Updater.CheckUpdate(SetProgressInfo));
-
-                playerControl1.OnStarted += playerControl1_OnStarted;
-                playerControl1.OnStopped += playerControl1_OnStopped;
-                LX29_ChatClient.Emotes.EmoteCollection.OnChannelLoaded += Emotes_LoadedChannel;
-                ChatClient.ListLoaded += ChatClient_ListLoaded;
-
-                Task.Run(() => ChatClient.INITIALIZE(this));
-
-                finishedLaoding = true;
-
-                if (System.IO.File.Exists(Settings._dataDir + "updated"))
-                {
-                    System.IO.File.Delete(Settings._dataDir + "updated");
-                }
-
-                // var result = TwitchApi.GetStreamOrChannel("32664128", "39670679", "76853127", "79328905", "95869794");
-            }
-            catch (Exception x)
-            {
-                switch (x.Handle("", true))
-                {
-                    case MessageBoxResult.Retry:
-                        Application.Restart();
-                        return;
-
-                    case MessageBoxResult.Abort:
-                        Application.Exit();
-                        return;
-                }
-            }
-        }
-
         protected void lstB_Channels_MouseDoubleClick(object sender, MouseEventArgs e)
+
         {
             btn_OpenChat.PerformClick();
         }
 
         protected void lstB_Channels_SelectedIndexChanged(object sender, EventArgs e)
+
         {
             if (lockChatSettings) return;
             var sa = GetCurrentInfo();
             if (sa != null)
             {
                 var si = sa[0];
-                this.BeginInvoke(new Action<ChannelInfo>(SetChatInfos), si);
+                SetChatInfos(si);
             }
         }
 
@@ -254,7 +185,9 @@ namespace LX29_LixChat
         //protected override void OnPaint(PaintEventArgs e)
         //{
         //    //ManagedGDI.AlphaBlend(LX29_LixChat.Properties.Resources.temp, e.Graphics, new Rectangle(0, 0, 100, 100), 255);
+
         protected void timer1_Tick(object sender, EventArgs e)
+
         {
             try
             {
@@ -283,32 +216,37 @@ namespace LX29_LixChat
         }
 
         protected void tSMi_Exit_Click(object sender, EventArgs e)
+
         {
             Application.Exit();
         }
 
-        protected void tSMi_ReconnectChat_Click(object sender, EventArgs e)
+        protected async void tSMi_ReconnectChat_Click(object sender, EventArgs e)
+
         {
-            Task.Run(new Action(delegate()
-            {
-                foreach (var name in ChatClient.Channels.Values)
-                {
-                    if (ChatClient.HasJoined(name.ID))
-                    {
-                        ChatClient.Disconnect(name.ID);
-                        while (ChatClient.HasJoined(name.ID)) System.Threading.Thread.Sleep(100);
-                        ChatClient.TryConnect(name.ID, true);
-                    }
-                }
-                UpdateList();
-            }));
+            tSMi_ReconnectChat.Enabled = false;
+            await Task.Run(() =>
+             {
+                 foreach (var name in ChatClient.Channels.Values)
+                 {
+                     if (ChatClient.HasJoined(name.ID))
+                     {
+                         ChatClient.Disconnect(name.ID);
+                         while (ChatClient.HasJoined(name.ID)) System.Threading.Thread.Sleep(100);
+                         ChatClient.TryConnect(name.ID, true);
+                     }
+                 }
+                 UpdateList();
+             });
+            tSMi_ReconnectChat.Enabled = true;
         }
 
         private void btn_AddChannel_Click(object sender, EventArgs e)
+
         {
             string name = textBox1.Text.LastLine("/");
             textBox1.Clear();
-            Task.Run(new Action(delegate()
+            Task.Run(new Action(delegate ()
             {
                 var error = ChatClient.AddChannel(name);
                 if (error != AddError.None)
@@ -319,17 +257,21 @@ namespace LX29_LixChat
         }
 
         private void btn_AutoChatActions_Click(object sender, EventArgs e)
+
         {
-            ChatClient.AutoActions.OpenChatActions();
+            LX29_ChatClient.Addons.FormChatActionsQuick fcaq = new LX29_ChatClient.Addons.FormChatActionsQuick();
+            fcaq.Show();
         }
 
         private void btn_Dashboard_Click(object sender, EventArgs e)
+
         {
             LX29_ChatClient.Dashboard.FormDashboard formd = new LX29_ChatClient.Dashboard.FormDashboard();
             formd.Show();
         }
 
         private void btn_Disconnect_Click(object sender, EventArgs e)
+
         {
             if (lockChatSettings) return;
             var sa = GetCurrentInfo();
@@ -347,6 +289,7 @@ namespace LX29_LixChat
         }
 
         private void btn_External_Click(object sender, EventArgs e)
+
         {
             var sa = GetCurrentInfo();
             if (sa != null)
@@ -362,7 +305,8 @@ namespace LX29_LixChat
             }
         }
 
-        private void btn_openSubpage_Click(object sender, EventArgs e)
+        private async void btn_openSubpage_Click(object sender, EventArgs e)
+
         {
             var sa = GetCurrentInfo();
             if (sa != null)
@@ -374,12 +318,15 @@ namespace LX29_LixChat
                 }
                 else if (sa[0].SubInfo.IsSub)
                 {
-                    Task.Run(() => LX29_MessageBox.Show(sa[0].SubInfo.ToString(), sa[0].SubInfo.PlanName));
+                    btn_openSubpage.Enabled = false;
+                    await Task.Run(() => LX29_MessageBox.Show(sa[0].SubInfo.ToString(), sa[0].SubInfo.PlanName));
+                    btn_openSubpage.Enabled = true;
                 }
             }
         }
 
         private void btn_Record_Click(object sender, EventArgs e)
+
         {
             if (LX29_MessageBox.Show("Stream recording is experimental!\r\nStart Recording?", "Experimental Feature", MessageBoxButtons.YesNo) == MessageBoxResult.Yes)
             {
@@ -397,6 +344,7 @@ namespace LX29_LixChat
         }
 
         private void btn_removeChannel_Click(object sender, EventArgs e)
+
         {
             var sa = GetCurrentInfo();
             foreach (var s in sa)
@@ -408,16 +356,20 @@ namespace LX29_LixChat
             this.UpdateList();
         }
 
-        private void btn_Show_Video_Info_Click(object sender, EventArgs e)
+        private async void btn_Show_Video_Info_Click(object sender, EventArgs e)
+
         {
             var sa = GetCurrentInfo();
             if (sa != null)
             {
-                Task.Run(() => LX29_MessageBox.Show(sa[0].StreamURLS.ToString()));
+                btn_Show_Video_Info.Enabled = false;
+                await Task.Run(() => LX29_MessageBox.Show(sa[0].StreamURLS.ToString()));
+                btn_Show_Video_Info.Enabled = true;
             }
         }
 
         private void btn_ShowUsers_Click(object sender, EventArgs e)
+
         {
             var user = TwitchUserCollection.Values.FirstOrDefault(t => !t.ID.Equals(TwitchUserCollection.Selected.ID));
             var sa = GetCurrentInfo();
@@ -464,7 +416,9 @@ namespace LX29_LixChat
         //    {
         //    }
         //}
+
         private void btn_StartStream_Click(object sender, EventArgs e)
+
         {
             var sa = GetCurrentInfo();
             if (sa != null)
@@ -481,6 +435,7 @@ namespace LX29_LixChat
         }
 
         private void button1_Click_2(object sender, EventArgs e)
+
         {
             var sa = GetCurrentInfo();
             if (sa != null)
@@ -494,6 +449,7 @@ namespace LX29_LixChat
         }
 
         private void button2_Click(object sender, EventArgs e)
+
         {
             var sa = GetCurrentInfo();
             if (sa != null)
@@ -504,6 +460,7 @@ namespace LX29_LixChat
         }
 
         private void cB_Favorite_CheckedChanged(object sender, EventArgs e)
+
         {
             if (lockChatSettings) return;
             var sa = GetCurrentInfo();
@@ -518,6 +475,7 @@ namespace LX29_LixChat
         }
 
         private void cB_LogChat_CheckedChanged(object sender, EventArgs e)
+
         {
             try
             {
@@ -568,6 +526,7 @@ namespace LX29_LixChat
         }
 
         private void cMS_ListBox_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+
         {
         }
 
@@ -584,6 +543,7 @@ namespace LX29_LixChat
         }
 
         private void comBox_StreamQuali_SelectedIndexChanged(object sender, EventArgs e)
+
         {
             playerControl1.Quality = comBox_StreamQuali.SelectedItem.ToString();
         }
@@ -594,7 +554,77 @@ namespace LX29_LixChat
         }
 
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
+
         {
+        }
+
+        private async void Form1_Load(object sender, EventArgs e)
+        {
+            try
+            {
+#if !DEBUG
+                btn_CreateClip.Visible = false;
+#endif
+
+                Bitmap bg = new Bitmap(1, 1);
+                bg.SetPixel(0, 0, Color.FromArgb(40, 40, 40));
+                toolStrip1.BackgroundImage = bg;
+
+                this.Text = "LixChat | (Build " + this.GetType().Assembly.GetLinkerTime().ToString() + ")";
+
+                if (System.IO.File.Exists(Settings._dataDir + "Channels_.txt"))
+                {
+                    System.IO.File.Delete(Settings._dataDir + "Channels_.txt");
+                }
+                if (!System.IO.Directory.Exists(Settings._dataDir))
+                {
+                    System.IO.Directory.CreateDirectory(Settings._dataDir);
+                }
+                if (!System.IO.Directory.Exists(Settings._pluginDir))
+                {
+                    System.IO.Directory.CreateDirectory(Settings._pluginDir);
+                }
+
+                //MPV_Wrapper.SetBorderSize(this.Size, this.ClientSize);
+
+                this.Bounds = Settings.MainBounds.MaxSize(this.Bounds);
+
+                SetTreeView();
+
+                Task.Run(() => Updater.CheckUpdate(SetProgressInfo));
+
+                playerControl1.OnStarted += playerControl1_OnStarted;
+                playerControl1.OnStopped += playerControl1_OnStopped;
+                LX29_ChatClient.Emotes.EmoteCollection.OnChannelLoaded += Emotes_LoadedChannel;
+                ChatClient.ListLoaded += ChatClient_ListLoaded;
+
+                await Task.Run(() => ChatClient.INITIALIZE(this));
+
+                flowLayoutPanel1.Enabled = true;
+                lstB_Channels.Refresh();
+
+                finishedLaoding = true;
+
+                if (System.IO.File.Exists(Settings._dataDir + "updated"))
+                {
+                    System.IO.File.Delete(Settings._dataDir + "updated");
+                }
+
+                // var result = TwitchApi.GetStreamOrChannel("32664128", "39670679", "76853127", "79328905", "95869794");
+            }
+            catch (Exception x)
+            {
+                switch (x.Handle("", true))
+                {
+                    case MessageBoxResult.Retry:
+                        Application.Restart();
+                        return;
+
+                    case MessageBoxResult.Abort:
+                        Application.Exit();
+                        return;
+                }
+            }
         }
 
         private ChannelInfo[] GetCurrentInfo()
@@ -610,21 +640,8 @@ namespace LX29_LixChat
             return null;
         }
 
-        private void lstB_Channels_KeyDown(object sender, KeyEventArgs e)
-        {
-            switch (e.KeyCode)
-            {
-                case Keys.Down:
-                    lstB_Channels.SelectedIndex++;
-                    break;
-
-                case Keys.Up:
-                    lstB_Channels.SelectedIndex--;
-                    break;
-            }
-        }
-
         private void lstB_Channels_Load(object sender, EventArgs e)
+
         {
         }
 
@@ -649,6 +666,7 @@ namespace LX29_LixChat
         }
 
         private void openChannelInBrowserToolStripMenuItem_Click(object sender, EventArgs e)
+
         {
             var sa = GetCurrentInfo();
             if (sa != null)
@@ -658,6 +676,7 @@ namespace LX29_LixChat
         }
 
         private void openStreamInBrowserPopoutToolStripMenuItem_Click(object sender, EventArgs e)
+
         {
             var sa = GetCurrentInfo();
             if (sa != null)
@@ -684,42 +703,24 @@ namespace LX29_LixChat
             }
         }
 
-        private void pb_Preview_DoubleClick(object sender, EventArgs e)
-        {
-            try
-            {
-                var sa = GetCurrentInfo();
-                if (sa != null)
-                {
-                    string temp = System.IO.Path.GetTempFileName().Replace(".tmp", ".bmp");
-                    using (var fs = System.IO.File.Create(temp))
-                    {
-                        using (var bit = new Bitmap(sa[0].PreviewImage))
-                        {
-                            bit.Save(fs, System.Drawing.Imaging.ImageFormat.Jpeg);
-                        }
-                    }
-                    Process.Start(temp);
-                }
-            }
-            catch
-            {
-            }
-        }
-
         private void playerControl1_OnStarted()
+
         {
             isRunningPreview = true;
         }
 
         private void playerControl1_OnStopped()
+
         {
             isRunningPreview = false;
         }
 
-        private void refreshChannelsToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void refreshChannelsToolStripMenuItem_Click(object sender, EventArgs e)
+
         {
-            Task.Run(() => ChatClient.UpdateChannels());
+            refreshChannelsToolStripMenuItem.Enabled = false;
+            await Task.Run(() => ChatClient.UpdateChannels());
+            refreshChannelsToolStripMenuItem.Enabled = true;
         }
 
         private void SetChatInfoBox(ChannelInfo si)
@@ -737,42 +738,15 @@ namespace LX29_LixChat
             }
         }
 
-        private void SetChatInfos(ChannelInfo si)
+        private async void SetChatInfos(ChannelInfo si)
         {
             if (lockChatSettings) return;
             lockChatSettings = true;
 
+            btn_External.Enabled = btn_StartStream.Enabled = btn_Show_Video_Info.Enabled = false;
+
             playerControl1.Stream = si;
             //playerControl1.SizeMode = si.PreviewImage.IsGif() ? PictureBoxSizeMode.CenterImage : PictureBoxSizeMode.Zoom;
-
-            comBox_StreamQuali.Text = "Loading";
-            comBox_StreamQuali.Items.Add("SOURCE");
-            Task.Run(() =>
-            {
-                var items = si.StreamURLS.KeysUpper;
-                this.Invoke(new Action(() =>
-                {
-                    int idx = comBox_StreamQuali.SelectedIndex;
-                    comBox_StreamQuali.BeginUpdate();
-                    comBox_StreamQuali.Items.Clear();
-                    comBox_StreamQuali.Items.AddRange(items);
-                    comBox_StreamQuali.EndUpdate();
-                    if (comBox_StreamQuali.Items.Count > 0)
-                    {
-                        comBox_StreamQuali.Enabled = true;
-                        comBox_StreamQuali.SelectedIndex = idx;
-                        if (idx >= 0)
-                            comBox_StreamQuali.Text = comBox_StreamQuali.SelectedItem.ToString();
-                        else
-                            comBox_StreamQuali.SelectedIndex = 0;
-                    }
-                    else
-                    {
-                        comBox_StreamQuali.Text = "Offline";
-                        comBox_StreamQuali.Enabled = false;
-                    }
-                }));
-            });
 
             playerControl1.PreviewImage = si.PreviewImage;
 
@@ -783,6 +757,8 @@ namespace LX29_LixChat
             cB_AutoLogin.Enabled = btn_Disconnect.Enabled = !si.IsFixed;
 
             btn_ShowUsers.Visible = si.IsChatConnected;
+
+            btn_CreateClip.Visible = si.IsOnline;
 
             btn_openSubpage.Visible = true;
             if (si.SubInfo.IsSub)
@@ -810,20 +786,45 @@ namespace LX29_LixChat
 
             if (isRunningPreview && !si.Name.Equals(lastSelectedName, StringComparison.OrdinalIgnoreCase))
             {
-                //var quali = comBox_StreamQuali.SelectedItem;
-                //if (quali == null) quali = "SOURCE";
-
                 playerControl1.Stop();//(quali.ToString(), si);
                 isRunningPreview = false;
             }
             lastSelectedName = si.Name;
+
+            comBox_StreamQuali.Text = "Loading";
+            comBox_StreamQuali.Items.Add("SOURCE");
+
+            var items = await Task.Run<string[]>(() => { return si.StreamURLS.KeysUpper; });
+
+            int idx = comBox_StreamQuali.SelectedIndex;
+            comBox_StreamQuali.BeginUpdate();
+            comBox_StreamQuali.Items.Clear();
+            comBox_StreamQuali.Items.AddRange(items);
+            comBox_StreamQuali.EndUpdate();
+            if (comBox_StreamQuali.Items.Count > 0)
+            {
+                btn_External.Enabled = btn_StartStream.Enabled = btn_Show_Video_Info.Enabled = true;
+
+                comBox_StreamQuali.Enabled = true;
+                comBox_StreamQuali.SelectedIndex = idx;
+                if (idx >= 0)
+                    comBox_StreamQuali.Text = comBox_StreamQuali.SelectedItem.ToString();
+                else
+                    comBox_StreamQuali.SelectedIndex = 0;
+            }
+            else
+            {
+                btn_External.Enabled = btn_StartStream.Enabled = btn_Show_Video_Info.Enabled = false;
+                comBox_StreamQuali.Text = "Offline";
+                comBox_StreamQuali.Enabled = false;
+            }
         }
 
         private void SetProgressInfo(int count, int max, string info)
         {
             try
             {
-                this.Invoke(new Action(delegate()
+                this.Invoke(new Action(delegate ()
                 {
                     tsLbl_Infotext.Visible = true;
                     tsLabel_Info.Visible = true;
@@ -849,19 +850,18 @@ namespace LX29_LixChat
             foreach (var si in sa)
             {
                 var s = Enum.GetName(typeof(MsgType), si).Replace("_Messages", "");
-                var n = new TreeNode(s + ": ");// + new string(' ', treeMax - s.Length));
-                n.Name = s;
+                var n = new TreeNode(s + ": ")
+                {
+                    Name = s
+                };// + new string(' ', treeMax - s.Length));
                 list.Add(n);
             }
             //TreeNode node = new TreeNode("Messages", list.ToArray());
             treeView1.Nodes.AddRange(list.ToArray());
         }
 
-        private void splitContainer2_Panel1_Paint(object sender, PaintEventArgs e)
-        {
-        }
-
         private void textBox1_KeyUp(object sender, KeyEventArgs e)
+
         {
             if (e.KeyData == Keys.Enter)
             {
@@ -869,15 +869,8 @@ namespace LX29_LixChat
             }
         }
 
-        private void toolStripMenuItem2_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void toolStripMenuItem2_Click_1(object sender, EventArgs e)
-        {
-        }
-
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+
         {
             //MsgType type = MsgType.All_Messages;
             //Enum.TryParse<MsgType>(treeView1.SelectedNode.Name, out type);
@@ -888,13 +881,15 @@ namespace LX29_LixChat
         }
 
         private void tSMI_About_Click(object sender, EventArgs e)
+
         {
             DateTime cur = Extensions.GetLinkerTime(Application.ExecutablePath);
-            LX29_MessageBox.Show("Programmed by Lukix29 ©" + cur.Year + "\r\n\r\nEmoji artwork provided by EmojiOne." +
+            LX29_MessageBox.Show("LixChat " + Application.ProductVersion + " (" + cur.ToString() + ")\r\nProgrammed by Lukix29\r\n\r\nEmoji artwork provided by EmojiOne." +
                 "\r\n\r\nhttps://lixchat.com\r\nFeedback:\r\nfeedback@lixchat.com\r\n(Domain provided by ChoosenEye)\r\n\r\nIf you want to Support me:\r\nhttps://paypal.me/lukix29");
         }
 
         private void tsMi_ImportChannels_Click(object sender, EventArgs e)
+
         {
             OpenFileDialog ofd = new OpenFileDialog();
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -905,6 +900,7 @@ namespace LX29_LixChat
         }
 
         private void tSMi_LogOut_Click(object sender, EventArgs e)
+
         {
             LX29_Twitch.Api.Controls.FormTwitchUser users = new LX29_Twitch.Api.Controls.FormTwitchUser();
             users.OnChangedToken += users_OnChangedToken;
@@ -914,6 +910,7 @@ namespace LX29_LixChat
         }
 
         private void tSMI_OpenChatInBrowser_Click(object sender, EventArgs e)
+
         {
             var sa = GetCurrentInfo();
             if (sa != null)
@@ -941,12 +938,24 @@ namespace LX29_LixChat
             }
         }
 
-        private void tSMi_ReloadEmotes_Click(object sender, EventArgs e)
+        private async void tSMi_ReloadEmotes_Click(object sender, EventArgs e)
+
         {
-            Task.Run(() => ChatClient.FetchEmotes());
+            tSMi_ReloadEmotes.Enabled = false;
+            await Task.Run(() => ChatClient.FetchEmotes());
+            tSMi_ReloadEmotes.Enabled = true;
+        }
+
+        private async void tSMi_ReloadFollows_Click(object sender, EventArgs e)
+
+        {
+            tSMi_ReloadFollows.Enabled = false;
+            await Task.Run(() => ChatClient.SyncFollows(true));// dfghj
+            tSMi_ReloadFollows.Enabled = true;
         }
 
         private void tSMi_ShowSettings_Click(object sender, EventArgs e)
+
         {
             try
             {
@@ -966,14 +975,12 @@ namespace LX29_LixChat
         //    Task.Run(() => ChatClient.ReSyncFollows(false));
         //}
 
-        private void tsMi_SyncOnlyOnline_Click(object sender, EventArgs e)
-        {
-            Task.Run(() => ChatClient.ReSyncFollows(true));
-        }
+        private async void tSMI_UpdateProgramm_Click(object sender, EventArgs e)
 
-        private void tSMI_UpdateProgramm_Click(object sender, EventArgs e)
         {
-            Task.Run(() => Updater.CheckUpdate(SetProgressInfo));
+            tSMI_UpdateProgramm.Enabled = false;
+            await Task.Run(() => Updater.CheckUpdate(SetProgressInfo));
+            tSMI_UpdateProgramm.Enabled = true;
         }
 
         private void UpdateList()
@@ -1001,6 +1008,7 @@ namespace LX29_LixChat
         }
 
         private void users_OnChangedToken(TwitchUser new_user)
+
         {
             Task.Run(() =>
             {
@@ -1012,6 +1020,28 @@ namespace LX29_LixChat
                     ChatClient.TryConnect(si.Key, true);
                 }
             });
+        }
+
+        private async void btn_CreateClip_Click(object sender, EventArgs e)
+        {
+            var sa = GetCurrentInfo();
+            if (sa != null)
+            {
+                btn_CreateClip.Text = "Creating Clip...";
+                var data = await TwitchApi.CreateClip(sa[0].ID);
+                if (data != null)
+                {
+                    if (LX29_MessageBox.Show("Edit Clip in Browser?\r\n\r\nClip Data " + data.ToString(), "Clip created successfully!", MessageBoxButtons.YesNo) == MessageBoxResult.Yes)
+                    {
+                        Settings.StartBrowser(data.EditUrl);
+                    }
+                }
+                else
+                {
+                    LX29_MessageBox.Show("Failed to create Clip.\r\nPlease try again.");
+                }
+                btn_CreateClip.Text = "Create Clip";
+            }
         }
     }
 }

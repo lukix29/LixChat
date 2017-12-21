@@ -10,10 +10,6 @@ namespace LX29_ChatClient
 {
     public partial class ChatClient
     {
-        public static bool LoggedIn = false;
-
-        // public static DateTime now = DateTime.Now;
-        // public static System.Text.StringBuilder sb = new System.Text.StringBuilder();
         private static Dictionary<int, ChannelInfo> channels = new Dictionary<int, ChannelInfo>();
 
         private static bool isSnycing = false;
@@ -81,15 +77,9 @@ namespace LX29_ChatClient
             }
             if (save)
             {
-                if (ListLoaded != null)
-                    ListLoaded(channels.Count, channels.Count, "Imported " + channels.Count + " Channels");
+                ListLoaded?.Invoke(channels.Count, channels.Count, "Imported " + channels.Count + " Channels");
                 SaveChannels();
             }
-        }
-
-        public static System.Reflection.PropertyInfo[] GetMemberNames(object target, bool dynamicOnly = false)
-        {
-            return target.GetType().GetProperties();
         }
 
         public static string GetOnlyName(string input)
@@ -113,7 +103,7 @@ namespace LX29_ChatClient
                 {
                     sortArr[x] = (SortMode)x;
                 }
-                TwitchUserCollection.Load(Main, new Action(SyncFollows));
+                TwitchUserCollection.Load(Main, () => SyncFollows());
             }
             catch (Exception x)
             {
@@ -129,28 +119,6 @@ namespace LX29_ChatClient
                 }
             }
         }
-
-        //public static void LoadChatLog()
-        //{
-        //    try
-        //    {
-        //        foreach (ChannelInfo ci in channels.Values)
-        //        {
-        //            string path = Settings.chatLogDir + ci.Name + ".log";
-        //            if (File.Exists(path))
-        //            {
-        //                var sa = File.ReadAllLines(path);
-        //                foreach (var s in sa)
-        //                {
-        //                    TryParseRawMessage(s);
-        //                }
-        //                messages.Add(ci.Name, "End of Log.");
-        //            }
-        //        }
-        //    }
-        //    catch (Exception x) { x.Handle("", false); }
-        //    AutoActions.EnableActions = true;
-        //}
 
         public static Dictionary<int, ChannelInfo> LoadChannels(string saveFile)
         {
@@ -168,21 +136,6 @@ namespace LX29_ChatClient
                         dict.Add(b.ID, b);
                     }
                     return dict;
-                    //var values = CustomSettings.LoadList(input);
-
-                    //Dictionary<int, Dictionary<string, string>> dict = new Dictionary<int, Dictionary<string, string>>();
-                    //foreach (var vals in values)
-                    //{
-                    //    int ID = (int)vals["ID"];
-                    //    dict.Add(ID, new Dictionary<string, string>());
-                    //    foreach (var item in vals)
-                    //    {
-                    //        dict[ID].Add(item.Key, item.Value);
-                    //    }
-                    //}
-
-                    //if (dict.Count == 0) File.Delete(ChannelSave);
-                    //return dict;
                 }
             }
             catch { }
@@ -191,84 +144,67 @@ namespace LX29_ChatClient
 
         public static void RemoveChannel(int channel)
         {
-            //channel = GetOnlyName(channel.ToLower());
             if (channels.ContainsKey(channel))
             {
                 channels.Remove(channel);
-                if (ListLoaded != null)
-                    ListLoaded(channels.Count, channels.Count, "Removed Channel");
+                ListLoaded?.Invoke(channels.Count, channels.Count, "Removed Channel");
             }
         }
 
-        public static void ReSyncFollows(bool onlyOnline)
+        public async static void SaveChannels()
         {
-            if (isSnycing) return;
-            isSnycing = true;
-            if (ListLoaded != null)
-                ListLoaded(0, channels.Count, "Loading Channels");
-            var follows = TwitchApi.GetFollowedStreams();
-            List<ChannelInfo> list = new List<ChannelInfo>();
-            foreach (var channel in follows)
+            await Task.Run(() =>
             {
-                if (onlyOnline && !channel.IsOnline) continue;
-                ChannelInfo ci = new ChannelInfo(channel);
-                if (!channels.ContainsKey(ci.ID))
+                try
                 {
-                    channels.Add(ci.ID, ci);
-                    list.Add(ci);
-                }
-            }
-            Task.Run(() => Emotes.FetchEmotes(list, true));
-
-            SaveChannels();
-
-            isSnycing = false;
-
-            if (ListLoaded != null)
-                ListLoaded(channels.Count, channels.Count, "Loaded Channels");
-        }
-
-        public static void SaveChannels()
-        {
-            try
-            {
-                lock (lockChannels)
-                {
-                    string s = "";
-                    using (StreamWriter sw = new StreamWriter(ChannelSave, false))
+                    lock (lockChannels)
                     {
-                        foreach (var chan in channels.Values)
+                        string s = "";
+                        using (StreamWriter sw = new StreamWriter(ChannelSave, false))
                         {
-                            string obj = Newtonsoft.Json.JsonConvert.SerializeObject(chan);
-                            sw.WriteLine(obj);
-                            s += chan.Name + ",";
+                            foreach (var chan in channels.Values)
+                            {
+                                string obj = Newtonsoft.Json.JsonConvert.SerializeObject(chan);
+                                sw.WriteLine(obj);
+                                s += chan.Name + ",";
+                            }
                         }
-                        //File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\users.txt", s);
                     }
                 }
-            }
-            catch (Exception x)
-            {
-                x.Handle();
-            }
+                catch (Exception x)
+                {
+                    x.Handle();
+                }
+            });
         }
 
-        public static void SyncFollows()
+        public static void SyncFollows(bool addAll = false)
         {
             try
             {
                 if (isSnycing) return;
                 isSnycing = true;
 
-                if (ListLoaded != null)
-                    ListLoaded(0, channels.Count, "Loading Channels");
+                channels = new Dictionary<int, ChannelInfo>();
+
+                ListLoaded?.Invoke(0, channels.Count, "Loading Channels");
 
                 Task.Run(() => LoadChatHighlightWords());
                 //Task.Run(() => AutoActions.Load());
 
-                Task.Run(() => { AutoActions = LX29_ChatClient.Addons.AutoActions.Load(); });
-
-                Task.Run(() => LX29_ChatClient.Addons.Scripts.ScriptClassCollection.LoadScripts());
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        AutoActions = LX29_ChatClient.Addons.AutoActions.Load();
+                        QuickText = LX29_ChatClient.Addons.QuickTextCollection.Load();
+                        LX29_ChatClient.Addons.Scripts.ScriptClassCollection.LoadScripts();
+                    }
+                    catch (Exception x)
+                    {
+                        x.Handle();
+                    }
+                });
 
                 LoadSelfStream();
 
@@ -285,12 +221,17 @@ namespace LX29_ChatClient
                     {
                         if (!channels.ContainsKey(ci.ID))
                         {
+                            bool cont = false;
                             if (setts.ContainsKey(ci.ID))
                             {
                                 ci.Load(setts[ci.ID]);
+                                cont = true;
                             }
-                            channels.Add(ci.ID, ci);
-                            rest.Remove(ci.ID);
+                            if (cont || addAll)
+                            {
+                                channels.Add(ci.ID, ci);
+                                rest.Remove(ci.ID);
+                            }
                         }
                     }
                     else
@@ -319,8 +260,7 @@ namespace LX29_ChatClient
 
                 isSnycing = false;
 
-                if (ListLoaded != null)
-                    ListLoaded(channels.Count, channels.Count, "Loaded " + channels.Count + " Channels");
+                ListLoaded?.Invoke(channels.Count, channels.Count, "Loaded " + channels.Count + " Channels");
 
                 Task.Run(() => Emotes.FetchEmotes(channels.Values.ToList(), false));
 
@@ -411,23 +351,13 @@ namespace LX29_ChatClient
         }
 
         private static void startRefresher()
+
         {
             LXTimer o = new LXTimer(new Action<LXTimer>(updateChannels), (int)Settings.UpdateInterval, System.Threading.Timeout.Infinite);
         }
 
-        //private static void logInChats()
-        //{
-        //    var list = channels.Where(
-        //        t => t.Value.AutoLoginChat).Select(t => t.Value)
-        //        .OrderBy(t => t.IsFixed).Select(t => t.Name).ToList();
-        //    foreach (var s in list)
-        //    {
-        //        ChatClient.TryConnect(s);
-        //    }
-        //    //TryConnect("lx29_tcvc");
-        //    ListUpdated();
-        //}
         private static void updateChannels(LXTimer obj)
+
         {
             LXTimer o = obj;
             UpdateChannels();
@@ -440,17 +370,5 @@ namespace LX29_ChatClient
                 o.Change(10000, System.Threading.Timeout.Infinite);
             }
         }
-
-        //public struct temp
-        //{
-        //    public string name;
-        //    public TimeSpan span;
-
-        //    public temp(string Name, TimeSpan Span)
-        //    {
-        //        name = Name;
-        //        span = Span;
-        //    }
-        //}
     }
 }

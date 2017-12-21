@@ -262,7 +262,7 @@ namespace LX29_ChatClient
             if (toResult.HasTimeOut)
             {
                 System.Threading.Timer timer =
-                    new System.Threading.Timer(new TimerCallback(delegate(object o)
+                    new System.Threading.Timer(new TimerCallback(delegate (object o)
                     {
                         To_Timer = new TimeoutTimer();
                     }),

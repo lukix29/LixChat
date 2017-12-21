@@ -126,9 +126,11 @@ namespace LX29_Twitch.Api.Video
         {
             try
             {
-                WebClient wc = new WebClient();
-                wc.Proxy = null;
-                wc.Encoding = Encoding.UTF8;
+                WebClient wc = new WebClient
+                {
+                    Proxy = null,
+                    Encoding = Encoding.UTF8
+                };
                 videoInfos = new Dictionary<string, VideoInfo>();// new VideoInfoCollection();
 
                 string t = "";

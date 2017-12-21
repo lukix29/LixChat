@@ -42,6 +42,7 @@
             // 
             this.Name = "ChannelListBox";
             this.Size = new System.Drawing.Size(357, 471);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ChannelListBox_KeyUp);
             this.ResumeLayout(false);
 
         }

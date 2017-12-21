@@ -160,10 +160,7 @@
   <data name="Whisper" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\whisper.db;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="updater" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\updater.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Cache" type="System.Resources.ResXFileRef, System.Windows.Forms">
+   <data name="Cache" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Cache.db;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="System_Data_SQLite" type="System.Resources.ResXFileRef, System.Windows.Forms">

@@ -31,8 +31,10 @@ namespace LX29_MPV
                 OnFinished = onFinished;
                 progressAction = a;
                 progressAction.Invoke(0, 100, "Downloading MPV.7z");
-                WebClient wc = new WebClient();
-                wc.Proxy = null;
+                WebClient wc = new WebClient
+                {
+                    Proxy = null
+                };
 
                 wc.DownloadFileCompleted += wc_DownloadFileCompleted;
                 wc.DownloadProgressChanged += wc_DownloadProgressChanged;
@@ -55,6 +57,7 @@ namespace LX29_MPV
         }
 
         private static void wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+
         {
             // Task.Run(new Action(delegate()
             //  {
@@ -82,6 +85,7 @@ namespace LX29_MPV
         }
 
         private static void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+
         {
             if (lastPercent < e.ProgressPercentage)
             {
@@ -119,8 +123,7 @@ namespace LX29_MPV
 
                     using (var sr = resp.GetResponseStream())
                     {
-                        byte[] buffer;
-                        var online = sr.GetOnlineLinkerTime(out buffer);
+                        var online = sr.GetOnlineLinkerTime(out byte[] buffer);
                         if (online.Ticks > cur.Ticks || force)
                         {
                             using (var fs = File.OpenWrite(path))

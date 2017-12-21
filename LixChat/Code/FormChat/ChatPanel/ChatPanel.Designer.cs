@@ -38,10 +38,10 @@
             this.userInfoPanel1 = new LX29_ChatClient.Forms.UserInfoPanel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.tS_Btn_Emotes = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+            this.tS_Btn_Emotes = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -83,6 +83,7 @@
             this.lstB_Search.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstB_Search_DrawItem);
             this.lstB_Search.SelectedIndexChanged += new System.EventHandler(this.lstB_Search_SelectedIndexChanged);
             this.lstB_Search.VisibleChanged += new System.EventHandler(this.lstB_Search_VisibleChanged);
+            this.lstB_Search.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstB_Search_MouseDoubleClick);
             // 
             // btn_Send
             // 
@@ -159,17 +160,17 @@
             this.toolStrip1.TabIndex = 16;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // tS_Btn_Emotes
+            // toolStripButton2
             // 
-            this.tS_Btn_Emotes.BackColor = System.Drawing.Color.Black;
-            this.tS_Btn_Emotes.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tS_Btn_Emotes.ForeColor = System.Drawing.Color.White;
-            this.tS_Btn_Emotes.Image = ((System.Drawing.Image)(resources.GetObject("tS_Btn_Emotes.Image")));
-            this.tS_Btn_Emotes.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tS_Btn_Emotes.Name = "tS_Btn_Emotes";
-            this.tS_Btn_Emotes.Size = new System.Drawing.Size(50, 22);
-            this.tS_Btn_Emotes.Text = "Emotes";
-            this.tS_Btn_Emotes.Click += new System.EventHandler(this.tS_Btn_Emotes_Click);
+            this.toolStripButton2.BackColor = System.Drawing.Color.Black;
+            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButton2.ForeColor = System.Drawing.Color.White;
+            this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
+            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton2.Name = "toolStripButton2";
+            this.toolStripButton2.Size = new System.Drawing.Size(79, 22);
+            this.toolStripButton2.Text = "All Messages";
+            this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
             // toolStripButton1
             // 
@@ -183,18 +184,6 @@
             this.toolStripButton1.Text = "Highlights";
             this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
             // 
-            // toolStripButton2
-            // 
-            this.toolStripButton2.BackColor = System.Drawing.Color.Black;
-            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.toolStripButton2.ForeColor = System.Drawing.Color.White;
-            this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
-            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(79, 22);
-            this.toolStripButton2.Text = "All Messages";
-            this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
-            // 
             // toolStripButton3
             // 
             this.toolStripButton3.BackColor = System.Drawing.Color.Black;
@@ -206,6 +195,18 @@
             this.toolStripButton3.Size = new System.Drawing.Size(62, 22);
             this.toolStripButton3.Text = "Outgoing";
             this.toolStripButton3.Click += new System.EventHandler(this.toolStripButton3_Click);
+            // 
+            // tS_Btn_Emotes
+            // 
+            this.tS_Btn_Emotes.BackColor = System.Drawing.Color.Black;
+            this.tS_Btn_Emotes.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tS_Btn_Emotes.ForeColor = System.Drawing.Color.White;
+            this.tS_Btn_Emotes.Image = ((System.Drawing.Image)(resources.GetObject("tS_Btn_Emotes.Image")));
+            this.tS_Btn_Emotes.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tS_Btn_Emotes.Name = "tS_Btn_Emotes";
+            this.tS_Btn_Emotes.Size = new System.Drawing.Size(50, 22);
+            this.tS_Btn_Emotes.Text = "Emotes";
+            this.tS_Btn_Emotes.Click += new System.EventHandler(this.tS_Btn_Emotes_Click);
             // 
             // ChatPanel
             // 

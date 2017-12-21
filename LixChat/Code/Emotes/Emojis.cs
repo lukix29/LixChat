@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace LX29_ChatClient.Emotes
 {
-    public class Emoji : EmoteBase
+    public class Emoji : IEmoteBase
     {
         public static readonly Emoji Empty = new Emoji("", "");
         private static readonly SolidBrush GrayOutBrush = new SolidBrush(Color.FromArgb(200, LX29_ChatClient.UserColors.ChatBackground));
@@ -97,7 +97,7 @@ namespace LX29_ChatClient.Emotes
             private set;
         }
 
-        public SizeF CalcSize(float height, EmoteImageSize size)
+        public SizeF CalcSize(float height)
         {
             float ratio = height / (float)Size.Height;
             float newWidth = (Size.Width * ratio);
@@ -120,7 +120,7 @@ namespace LX29_ChatClient.Emotes
         {
         }
 
-        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, EmoteImageSize size, bool grayOut = false)
+        public EmoteImageDrawResult Draw(Graphics g, float X, float Y, float Width, float Height, bool grayOut = false)
         {
             Width *= 0.75f;
             Height *= 0.75f;
@@ -138,14 +138,14 @@ namespace LX29_ChatClient.Emotes
             return EmoteImageDrawResult.Success;
         }
 
-        public bool Equals(EmoteBase obj, EmoteBase obj1)
+        public bool Equals(IEmoteBase obj, IEmoteBase obj1)
         {
             return obj.ID.Equals(obj1.ID);
         }
 
         public new bool Equals(object obj)
         {
-            return ((EmoteBase)obj).ID.Equals(ID);
+            return ((IEmoteBase)obj).ID.Equals(ID);
         }
 
         public new int GetHashCode()
@@ -153,7 +153,7 @@ namespace LX29_ChatClient.Emotes
             return ID.GetHashCode();
         }
 
-        public int GetHashCode(EmoteBase b)
+        public int GetHashCode(IEmoteBase b)
         {
             return b.GetHashCode();
         }

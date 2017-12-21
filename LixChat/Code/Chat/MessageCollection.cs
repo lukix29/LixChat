@@ -14,14 +14,38 @@ namespace LX29_ChatClient
 {
     public static partial class ChatClient
     {
+        public struct EmoteSearchResult
+        {
+            public readonly bool IsEmote;
+            public readonly string Name;
+            public readonly object Result;
+
+            public bool IsEmpty
+            {
+                get { return string.IsNullOrEmpty(Name) || Result == null; }
+            }
+
+            public EmoteSearchResult(object result, string name, bool isEmote)
+            {
+                IsEmote = isEmote;
+                Result = result;
+                Name = name;
+            }
+
+            public override string ToString()
+            {
+                return Name;
+            }
+        }
+
         public class ChatUserCollection// : IDictionary<string, Dictionary<string, ChatUser>>
         {
-            private List<ChatUser> users;
+            private Dictionary<string, List<ChatUser>> users;
             private static readonly object syncRoot = new object();
 
             public ChatUserCollection()
             {
-                users = new List<ChatUser>();
+                users = new Dictionary<string, List<ChatUser>>();
             }
 
             public ChatUser Self
@@ -41,14 +65,18 @@ namespace LX29_ChatClient
                     {
                         string channel = user.Channel;
                         string name = user.Name;
+                        if (!users.ContainsKey(channel))
+                        {
+                            users.Add(channel, new List<ChatUser>());
+                        }
                         if (!Contains(name, channel))
                         {
-                            users.Add(user);
+                            users[channel].Add(user);
                         }
                         else
                         {
-                            var u = users.FindIndex(t => t.Channel.Equals(channel) && t.Name.Equals(name));
-                            users[u] = user;
+                            var u = users[channel].FindIndex(t => t.Channel.Equals(channel) && t.Name.Equals(name));
+                            users[channel][u] = user;
                         }
                     }
                 }
@@ -84,6 +112,10 @@ namespace LX29_ChatClient
                         return;
                     }
                     name = name.RemoveFrom("!");
+                    if (!users.ContainsKey(channel))
+                    {
+                        users.Add(channel, new List<ChatUser>());
+                    }
                     lock (syncRoot)
                     {
                         if (!Contains(name, channel))
@@ -100,11 +132,11 @@ namespace LX29_ChatClient
                             {
                                 cu = new ChatUser(name, channel);
                             }
-                            users.Add(cu);
+                            users[channel].Add(cu);
                         }
                         else
                         {
-                            var user = users.First(t => t.Channel.Equals(channel) && t.Name.Equals(name));
+                            var user = users[channel].First(t => t.Channel.Equals(channel) && t.Name.Equals(name));
                             user.Parse(channel, parameters, name, toResult);
                         }
                     }
@@ -121,42 +153,66 @@ namespace LX29_ChatClient
             //}
             public ChatUser FirstOrDefault(string name, string channel)
             {
-                lock (syncRoot)
+                if (users.ContainsKey(channel))
                 {
-                    return users.FirstOrDefault(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase));
+                    lock (syncRoot)
+                    {
+                        return users[channel].FirstOrDefault(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase));
+                    }
                 }
+                return ChatUser.Emtpy;
             }
 
             public bool Contains(string name, string channel)
             {
-                lock (syncRoot)
+                if (users.ContainsKey(channel))
                 {
-                    return users.Any(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase));
+                    lock (syncRoot)
+                    {
+                        return users[channel].Any(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                    }
                 }
+                return false;
             }
 
             public int Count(string channel)
             {
-                lock (syncRoot)
+                if (users.ContainsKey(channel))
                 {
-                    return users.Count(t => t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase));
+                    lock (syncRoot)
+                    {
+                        return users[channel].Count(t => t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase));
+                    }
                 }
+                return 0;
             }
 
             public int Count(string channel, Func<ChatUser, bool> predicate)
             {
-                lock (syncRoot)
+                if (users.ContainsKey(channel))
                 {
-                    return users.Where(t => t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase)).Count(predicate);
+                    lock (syncRoot)
+                    {
+                        return users[channel].Where(t => t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase)).Count(predicate);
+                    }
                 }
+                return 0;
             }
 
-            public IEnumerable<ChatUser> Find(string name, string channel)
+            public List<ChatClient.EmoteSearchResult> Find(string name, string channel)
             {
-                lock (syncRoot)
+                if (users.ContainsKey(channel))
                 {
-                    return users.Where(t => t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase) && t.Name.StartsWith(name));
+                    lock (syncRoot)
+                    {
+                        var arr = users[channel].Where(t => t.Name.StartsWith(name))
+                        .OrderBy(t => t.Name.Length).ThenBy(t => t.Name);
+                        List<ChatClient.EmoteSearchResult> list = new List<EmoteSearchResult>();
+                        System.Threading.Tasks.Parallel.ForEach(arr, t => list.Add(new ChatClient.EmoteSearchResult(t, t.Name, false)));
+                        return list;
+                    }
                 }
+                return null;
             }
 
             public ChatUser Get(string name, string channel, bool create = false)
@@ -168,27 +224,19 @@ namespace LX29_ChatClient
                         if (!string.IsNullOrEmpty(channel))
                         {
                             channel = channel.ToLower().Trim();
-                            name = name.ToLower().Trim();
-                            lock (syncRoot)
+                            if (users.ContainsKey(channel))
                             {
-                                var user = users.FirstOrDefault(t => t.Channel.Equals(channel) && t.Name.Equals(name));
-                                if (user != null && !user.IsEmpty)
+                                name = name.ToLower().Trim();
+                                lock (syncRoot)
                                 {
-                                    return user;
+                                    var user = users[channel].FirstOrDefault(t => t.Channel.Equals(channel) && t.Name.Equals(name));
+                                    if (user != null && !user.IsEmpty)
+                                    {
+                                        return user;
+                                    }
                                 }
                             }
-                            //foreach (string s in users.Keys)
-                            //{
-                            //    if (users.ContainsKey(name))
-                            //    {
-                            //        return users[name];
-                            //    }
-                            //}
                         }
-                        //else if (users.ContainsKey(channel) && users[channel].ContainsKey(name))
-                        //{
-                        //    return users[channel][name];
-                        //}
                     }
                     if (create) return new ChatUser(name, channel);
                 }
@@ -198,26 +246,25 @@ namespace LX29_ChatClient
                 return ChatUser.Emtpy;
             }
 
-            public IEnumerable<ChatUser> Get(string channel)
+            public List<ChatUser> Get(string channel)
             {
-                lock (syncRoot)
+                if (users.ContainsKey(channel))
                 {
-                    return users.Where(t => t.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase));
+                    lock (syncRoot)
+                    {
+                        return users[channel];
+                    }
                 }
-                //if (users.ContainsKey(channel.ToLower().Trim()))
-                //{
-                //    return users[channel.ToLower().Trim()];
-                //}
-                //return null;
+                return null;
             }
 
-            public string[] GetAllNames()
-            {
-                lock (syncRoot)
-                {
-                    return users.Select(t => t.Name).ToArray();
-                }
-            }
+            //public string[] GetAllNames()
+            //{
+            //    lock (syncRoot)
+            //    {
+            //        return users.Values.Select(t => t.Name).ToArray();
+            //    }
+            //}
 
             public void SetOffline(string name, string channel)
             {
@@ -234,9 +281,15 @@ namespace LX29_ChatClient
                 }
             }
 
-            private List<ChatUser> Users(string channel)
+            public Dictionary<string, List<ChatUser>> Users
             {
-                return users;
+                get
+                {
+                    lock (syncRoot)
+                    {
+                        return users;
+                    }
+                }
             }
         }
 
@@ -267,6 +320,7 @@ namespace LX29_ChatClient
             }
 
             private bool enableCaching
+
             {
                 get { return Settings.MessageCaching; }
             }
@@ -298,7 +352,7 @@ namespace LX29_ChatClient
                     //Int16.MaxValue / 2 = 16383
                     AllCount[channel] = (cnt + 1 > (Int16.MaxValue / 2)) ? 0 : cnt + 1;
 
-                    while (messages.Count > Settings.ChatHistory)
+                    while (messages[channel].Count > Settings.ChatHistory)
                     {
                         int min = messages[channel].Keys.Min();
                         messages[channel].Remove(min);
@@ -443,8 +497,7 @@ namespace LX29_ChatClient
                                             messages[t.Channel].Add(cnt, msg);
 
                                             AllCount[t.Channel] = (cnt + 1 > (Int16.MaxValue / 2)) ? 0 : cnt + 1;
-                                            if (OnMessageReceived != null)
-                                                OnMessageReceived(msg);
+                                            OnMessageReceived?.Invoke(msg);
                                         }
                                     }
                                 }
@@ -568,10 +621,7 @@ namespace LX29_ChatClient
 
                     if (executeActions)
                     {
-                        if (AutoActions.EnableActions)
-                        {
-                            AutoActions.CheckActions(msg);
-                        }
+                        AutoActions.CheckActions(msg);
 
                         LX29_ChatClient.Addons.Scripts.ScriptClassCollection.ForEachAll(msg);
                     }
@@ -625,8 +675,7 @@ namespace LX29_ChatClient
                     if (!msg.Name.Equals(ChatClient.SelfUserName))
                     {
                         Notifications.Whisper(name);
-                        if (OnWhisperReceived != null)
-                            OnWhisperReceived(msg);
+                        OnWhisperReceived?.Invoke(msg);
                     }
                 }
                 else
@@ -639,8 +688,7 @@ namespace LX29_ChatClient
                         if (!msg.Name.Equals(ChatClient.SelfUserName))
                         {
                             Notifications.Whisper(name);
-                            if (OnWhisperReceived != null)
-                                OnWhisperReceived(msg);
+                            OnWhisperReceived?.Invoke(msg);
                         }
                     }
                 }
@@ -942,6 +990,7 @@ namespace LX29_ChatClient
             }
 
             private void bufferWrite(LXTimer t)
+
             {
                 t.Change(-1, 0);
                 try

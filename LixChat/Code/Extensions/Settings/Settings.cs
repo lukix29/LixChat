@@ -127,22 +127,22 @@ namespace LX29_ChatClient
     {
         public static readonly SettingClasses[] ChatBasic = new SettingClasses[]
         {
-            new SettingClasses("_ChatHistory", "Chat History Amount", 32.0, 8192.0, 1.0),
+            new SettingClasses("_ChatHistory", "Chat History Amount", 32.0, Int16.MaxValue / 2.0, 1.0),
             new SettingClasses("_ShowTimeoutMessages", "Show Timeouts/Bans"),
             new SettingClasses("_ShowTimeStamp", "Show Time Stamp"),
             new SettingClasses("_AlternateBG", "Alternate Message\r\nBackground"),
             new SettingClasses("_BeepOnWhisper", "Beep on Whisper"),
             new SettingClasses("_BeepOnHighlight", "Beep On Highlight"),
-            new SettingClasses("_MessageCaching", "Message Caching")
+            new SettingClasses("_MessageCaching", "Message Caching"),
         };
 
         public static readonly SettingClasses[] EmoteBasic = new SettingClasses[]
         {
-            new SettingClasses("_BadgePadding", "Badge Padding", 1.0, 100.0, 1.0),
+            new SettingClasses("_BadgePadding", "Badge Padding", -10.0, 100.0, 1.0),
             new SettingClasses("_BadgeSizeFac", "Badge Size", 0.1, 10, 0.1),
-            new SettingClasses("_EmotePadding", "Emote Padding", 1.0, 100.0, 1.0),
+            new SettingClasses("_EmotePadding", "Emote Padding", -10.0, 100.0, 1.0),
             new SettingClasses("_EmoteSizeFac", "Emote Size", 0.1, 10, 0.1),
-            new SettingClasses("_EmoteSize", "Emote Quality", 1.0, 3.0, 1.0),
+            //new SettingClasses("_EmoteSize", "Emote Quality", 1.0, 3.0, 1.0),
             new SettingClasses("_HwEmoteDrawing", "Hardware Accel"),
             new SettingClasses("_AnimatedEmotes", "Animated Gif Emotes"),
             new SettingClasses("_ShowEmojis", "Show Emojis")
@@ -158,15 +158,16 @@ namespace LX29_ChatClient
         public static readonly SettingClasses[] TextBasic = new SettingClasses[]
         {
             new SettingClasses("_ChatFontSize", "Chat Font Size", 4.0, 32.0, 0.1),
-            new SettingClasses("_LinePadding", "Line Padding", 1.0, 100.0, 0.1),
-            new SettingClasses("_LineSpacing", "Line Spacing", 1.0, 100.0, 0.1),
-            new SettingClasses("_WordPadding", "Word Padding", 1.0, 100.0, 0.1),
-            new SettingClasses("_TimePadding", "Time Padding", 1.0, 100.0, 0.1),
+            new SettingClasses("_LinePadding", "Line Padding", -10.0, 100.0, 0.1),
+            new SettingClasses("_LineSpacing", "Line Spacing", -10.0, 100.0, 0.1),
+            new SettingClasses("_WordPadding", "Word Padding", -10.0, 100.0, 0.1),
+            new SettingClasses("_TimePadding", "Time Padding", -10.0, 100.0, 0.1),
             new SettingClasses("_AlignText", "Align Text")
         };
 
         public static readonly SettingClasses[] UserBasic = new SettingClasses[]
         {
+            new SettingClasses("_ScrollFactor", "Mouse Scroll Factor", 1.0, 100.0, 1.0),
             new SettingClasses("_UserColorBrigthness", "User Brigthness", 0.0, 2.0, 0.01),
             new SettingClasses("_UserColorSaturation", "User Saturation", 0.0, 2.0, 0.01)
         };
@@ -254,9 +255,11 @@ namespace LX29_ChatClient
         private static bool _AnimateGifInSearch = true;
         private static double _BadgePadding = 2;
         private static double _BadgeSizeFac = 0.9;
-        private static double _EmotePadding = 2;
-        private static double _EmoteSize = (int)Emotes.EmoteImageSize.Large;
+        private static double _EmotePadding = 6;
+
+        //private static double _EmoteSize = (int)Emotes.EmoteImageSize.Large;
         private static double _EmoteSizeFac = 1.5;
+
         private static bool _HwEmoteDrawing = false;
         private static bool _ShowTimeStamp = true;
 
@@ -330,15 +333,15 @@ namespace LX29_ChatClient
             }
         }
 
-        public static Emotes.EmoteImageSize EmoteQuality
-        {
-            get { return (Emotes.EmoteImageSize)(int)_EmoteSize; }
-            set
-            {
-                _EmoteSize = (int)value;
-                Save();
-            }
-        }
+        //public static Emotes.EmoteImageSize EmoteQuality
+        //{
+        //    get { return (Emotes.EmoteImageSize)(int)_EmoteSize; }
+        //    set
+        //    {
+        //        _EmoteSize = (int)value;
+        //        Save();
+        //    }
+        //}
 
         public static double EmoteSizeFac
         {
@@ -382,7 +385,7 @@ namespace LX29_ChatClient
         private static double _TimePadding = 1;
         private static double _UserColorBrigthness = 0.05;
         private static double _UserColorSaturation = 1.0;
-        private static double _WordPadding = 3;
+        private static double _WordPadding = -5.0;
 
         public static bool AlignText
         {
@@ -463,13 +466,14 @@ namespace LX29_ChatClient
 
         #region PrivateFields
 
+        private static int _ScrollFactor = 8;
         private static bool _BeepOnHighlight = false;
         private static bool _BeepOnWhisper = false;
         private static string _BrowserName = "";
         private static string _BrowserPath = "";
         private static double _ChatBackGround = Color.FromArgb(35, 35, 35).ToArgb();
         private static string _ChatFontName = "Calibri";
-        private static double _ChatHistory = 1024;
+        private static double _ChatHistory = 8192;
         private static bool _DevUpdates = false;
         private static Rectangle _MainBounds = Rectangle.Empty;
         private static bool _MessageCaching = false;
@@ -483,6 +487,16 @@ namespace LX29_ChatClient
         #endregion PrivateFields
 
         #region PublicProperties
+
+        public static int ScrollFactor
+        {
+            get { return _ScrollFactor; }
+            set
+            {
+                _ScrollFactor = value;
+                Save();
+            }
+        }
 
         public static bool BeepOnHighlight
         {
@@ -741,10 +755,10 @@ namespace LX29_ChatClient
 
             if (File.Exists(_settings_ini_path))
             {
-                try
+                var lines = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(_settings_ini_path));
+                if (lines.Count > 0)
                 {
-                    var lines = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(_settings_ini_path));
-                    if (lines.Count > 0)
+                    try
                     {
                         foreach (var line in lines)
                         {
@@ -772,9 +786,9 @@ namespace LX29_ChatClient
                         }
                         return true;
                     }
-                }
-                catch
-                {
+                    catch
+                    {
+                    }
                 }
             }
             Save();

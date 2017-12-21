@@ -42,9 +42,9 @@
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.btn_StartStream = new System.Windows.Forms.Button();
             this.btn_External = new System.Windows.Forms.Button();
-            this.btn_Record = new System.Windows.Forms.Button();
             this.comBox_StreamQuali = new System.Windows.Forms.ComboBox();
             this.btn_Show_Video_Info = new System.Windows.Forms.Button();
+            this.btn_Record = new System.Windows.Forms.Button();
             this.splitC_Main = new System.Windows.Forms.SplitContainer();
             this.lstB_Channels = new LX29_ChatClient.Forms.ChannelListBox();
             this.cMS_ListBox = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -80,6 +80,7 @@
             this.tSMi_Exit = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshChannelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tSMi_ReloadFollows = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_ReloadEmotes = new System.Windows.Forms.ToolStripMenuItem();
             this.tsMi_ImportChannels = new System.Windows.Forms.ToolStripMenuItem();
             this.tSMi_ReconnectChat = new System.Windows.Forms.ToolStripMenuItem();
@@ -92,6 +93,7 @@
             this.tSProgBar_Loading = new System.Windows.Forms.ToolStripProgressBar();
             this.tsLabel_Info = new System.Windows.Forms.ToolStripLabel();
             this.toolTip_Main = new System.Windows.Forms.ToolTip(this.components);
+            this.btn_CreateClip = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Preview)).BeginInit();
             this.splitContainer_Preview.Panel1.SuspendLayout();
             this.splitContainer_Preview.Panel2.SuspendLayout();
@@ -124,7 +126,6 @@
             resources.ApplyResources(this.splitContainer_Preview.Panel1, "splitContainer_Preview.Panel1");
             this.splitContainer_Preview.Panel1.Controls.Add(this.playerControl1);
             this.splitContainer_Preview.Panel1.Controls.Add(this.lbl_preview);
-            this.splitContainer_Preview.Panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer2_Panel1_Paint);
             // 
             // splitContainer_Preview.Panel2
             // 
@@ -154,9 +155,9 @@
             this.flowLayoutPanel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flowLayoutPanel2.Controls.Add(this.btn_StartStream);
             this.flowLayoutPanel2.Controls.Add(this.btn_External);
-            this.flowLayoutPanel2.Controls.Add(this.btn_Record);
             this.flowLayoutPanel2.Controls.Add(this.comBox_StreamQuali);
             this.flowLayoutPanel2.Controls.Add(this.btn_Show_Video_Info);
+            this.flowLayoutPanel2.Controls.Add(this.btn_Record);
             resources.ApplyResources(this.flowLayoutPanel2, "flowLayoutPanel2");
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             // 
@@ -180,16 +181,6 @@
             this.btn_External.UseVisualStyleBackColor = false;
             this.btn_External.Click += new System.EventHandler(this.btn_External_Click);
             // 
-            // btn_Record
-            // 
-            resources.ApplyResources(this.btn_Record, "btn_Record");
-            this.btn_Record.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            this.btn_Record.ForeColor = System.Drawing.Color.Gainsboro;
-            this.btn_Record.Name = "btn_Record";
-            this.btn_Record.TabStop = false;
-            this.btn_Record.UseVisualStyleBackColor = false;
-            this.btn_Record.Click += new System.EventHandler(this.btn_Record_Click);
-            // 
             // comBox_StreamQuali
             // 
             this.comBox_StreamQuali.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
@@ -208,6 +199,16 @@
             this.btn_Show_Video_Info.TabStop = false;
             this.btn_Show_Video_Info.UseVisualStyleBackColor = false;
             this.btn_Show_Video_Info.Click += new System.EventHandler(this.btn_Show_Video_Info_Click);
+            // 
+            // btn_Record
+            // 
+            resources.ApplyResources(this.btn_Record, "btn_Record");
+            this.btn_Record.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.btn_Record.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btn_Record.Name = "btn_Record";
+            this.btn_Record.TabStop = false;
+            this.btn_Record.UseVisualStyleBackColor = false;
+            this.btn_Record.Click += new System.EventHandler(this.btn_Record_Click);
             // 
             // splitC_Main
             // 
@@ -304,6 +305,7 @@
             this.flowLayoutPanel1.Controls.Add(this.btn_openSubpage);
             this.flowLayoutPanel1.Controls.Add(this.groupBox1);
             this.flowLayoutPanel1.Controls.Add(this.btn_Dashboard);
+            this.flowLayoutPanel1.Controls.Add(this.btn_CreateClip);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
             // 
@@ -550,6 +552,7 @@
             this.toolStripMenuItem1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.refreshChannelsToolStripMenuItem,
+            this.tSMi_ReloadFollows,
             this.tSMi_ReloadEmotes,
             this.tsMi_ImportChannels,
             this.tSMi_ReconnectChat,
@@ -565,6 +568,14 @@
             this.refreshChannelsToolStripMenuItem.Name = "refreshChannelsToolStripMenuItem";
             resources.ApplyResources(this.refreshChannelsToolStripMenuItem, "refreshChannelsToolStripMenuItem");
             this.refreshChannelsToolStripMenuItem.Click += new System.EventHandler(this.refreshChannelsToolStripMenuItem_Click);
+            // 
+            // tSMi_ReloadFollows
+            // 
+            this.tSMi_ReloadFollows.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.tSMi_ReloadFollows.ForeColor = System.Drawing.Color.Gainsboro;
+            this.tSMi_ReloadFollows.Name = "tSMi_ReloadFollows";
+            resources.ApplyResources(this.tSMi_ReloadFollows, "tSMi_ReloadFollows");
+            this.tSMi_ReloadFollows.Click += new System.EventHandler(this.tSMi_ReloadFollows_Click);
             // 
             // tSMi_ReloadEmotes
             // 
@@ -655,6 +666,16 @@
             this.toolTip_Main.ReshowDelay = 100;
             this.toolTip_Main.UseAnimation = false;
             this.toolTip_Main.UseFading = false;
+            // 
+            // btn_CreateClip
+            // 
+            this.btn_CreateClip.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            resources.ApplyResources(this.btn_CreateClip, "btn_CreateClip");
+            this.btn_CreateClip.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btn_CreateClip.Name = "btn_CreateClip";
+            this.btn_CreateClip.TabStop = false;
+            this.btn_CreateClip.UseVisualStyleBackColor = false;
+            this.btn_CreateClip.Click += new System.EventHandler(this.btn_CreateClip_Click);
             // 
             // Main
             // 
@@ -763,6 +784,8 @@
         private System.Windows.Forms.ToolStripMenuItem tSMi_ShowSettings;
         private System.Windows.Forms.ToolStripMenuItem tsMi_ImportChannels;
         private System.Windows.Forms.Button btn_Dashboard;
+        private System.Windows.Forms.ToolStripMenuItem tSMi_ReloadFollows;
+        private System.Windows.Forms.Button btn_CreateClip;
     }
 }
 

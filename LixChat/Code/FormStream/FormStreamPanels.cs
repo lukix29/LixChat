@@ -46,15 +46,15 @@ namespace LX29_Twitch.Forms
                 pictureBox1.Image = image;
                 if (!string.IsNullOrEmpty(imgUrl))
                 {
-                    pictureBox1.MouseEnter += delegate(object sender, EventArgs e)
+                    pictureBox1.MouseEnter += delegate (object sender, EventArgs e)
                     {
                         pictureBox1.Cursor = Cursors.Hand;
                     };
-                    pictureBox1.MouseLeave += delegate(object sender, EventArgs e)
+                    pictureBox1.MouseLeave += delegate (object sender, EventArgs e)
                     {
                         pictureBox1.Cursor = Cursors.Arrow;
                     };
-                    pictureBox1.MouseClick += delegate(object sender, MouseEventArgs e)
+                    pictureBox1.MouseClick += delegate (object sender, MouseEventArgs e)
                     {
                         System.Diagnostics.Process.Start(imgUrl);
                     };
@@ -78,11 +78,11 @@ namespace LX29_Twitch.Forms
                     Replace("<li>", "<li style=\"color:white;\">"));
                 html.AppendLine("</body></html>");
                 webBrowser1.DocumentText = html.ToString();
-                webBrowser1.DocumentCompleted += delegate(object sender, WebBrowserDocumentCompletedEventArgs e)
+                webBrowser1.DocumentCompleted += delegate (object sender, WebBrowserDocumentCompletedEventArgs e)
                     {
                         webBrowser1.Height = webBrowser1.Document.Window.Size.Height;
                     };
-                webBrowser1.Navigating += delegate(object sender, WebBrowserNavigatingEventArgs e)
+                webBrowser1.Navigating += delegate (object sender, WebBrowserNavigatingEventArgs e)
                 {
                     e.Cancel = true;
                     System.Diagnostics.Process.Start(e.Url.ToString());

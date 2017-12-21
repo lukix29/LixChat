@@ -41,32 +41,27 @@ namespace LX29_ChatClient
 
         public static void ListUpdated()
         {
-            if (ListLoaded != null)
-                ListLoaded(0, 0, "");
+            ListLoaded?.Invoke(0, 0, "");
         }
 
         private static void ChannelJoined(int channel)
         {
-            if (OnChannelJoined != null)
-                OnChannelJoined(channel);
+            OnChannelJoined?.Invoke(channel);
         }
 
         private static void ChannelParted(int channel)
         {
-            if (OnChannelParted != null)
-                OnChannelParted(channel);
+            OnChannelParted?.Invoke(channel);
         }
 
         private static void MessageReceived(ChatMessage msg)
         {
-            if (OnMessageReceived != null)
-                OnMessageReceived(msg);
+            OnMessageReceived?.Invoke(msg);
         }
 
         private static void UserHasTimeouted(TimeOutResult result)
         {
-            if (OnTimeout != null)
-                OnTimeout(result);
+            OnTimeout?.Invoke(result);
         }
     }
 
@@ -165,6 +160,10 @@ namespace LX29_ChatClient
             }
             else
             {
+                if (name.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
+                {
+                    Emotes.LoadUserEmotes();
+                }
                 if (subs.ContainsKey(channel))
                 {
                     if (!subs[channel].Contains(ntc))
@@ -175,8 +174,7 @@ namespace LX29_ChatClient
                     subs.Add(channel, new HashSet<NoticeMessage>(new NoticeMessage[] { ntc }));
                 }
             }
-            if (OnUserNoticeReceived != null)
-                OnUserNoticeReceived(ntc);
+            OnUserNoticeReceived?.Invoke(ntc);
         }
 
         private static Dictionary<irc_params, string> ParseParams(string raw, string spliType)
@@ -196,9 +194,8 @@ namespace LX29_ChatClient
                 string[] sa = param.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
                 if (sa.Length > 0)
                 {
-                    irc_params para;
                     string sp = sa[0].Replace("-", "_").Trim();
-                    if (Enum.TryParse<irc_params>(sp, out para))
+                    if (Enum.TryParse<irc_params>(sp, out irc_params para))
                     {
                         string si = "";
                         if (sa.Length > 1)
@@ -220,8 +217,7 @@ namespace LX29_ChatClient
                 {
                     return true;
                 }
-                string spliType = "";
-                if (raw.ContainsAny(out spliType, false, ROOMSTATE, WHISPER, USERNOTICE, USERSTATE, PRIVMSG, CLEARCHAT, NOTICE, GLOBALUSERSTATE))
+                if (raw.ContainsAny(out string spliType, false, ROOMSTATE, WHISPER, USERNOTICE, USERSTATE, PRIVMSG, CLEARCHAT, NOTICE, GLOBALUSERSTATE))
                 {
                     string Name = "";
                     string Message = "";
@@ -596,7 +592,7 @@ namespace LX29_ChatClient
                     Message = wi + Message;
                     //string Channel = clients.Keys.First();
                     string username = SelfUserName.ToLower();// ChatClient.SelfApiResult.GetValue<string>(LX29_TwitchApi.ApiInfo.name);
-                    ChatUser me = ChatClient.Users.Get(username, "");
+                    ChatUser me = ChatClient.ChatUsers.Get(username, "");
                     ChatMessage m = new ChatMessage(rawMessage, me, name, true);
                     m.Types.Add(MsgType.Whisper);
                     var client = clients.FirstOrDefault(t => t.Value.Channel_Name.Equals("lukix29", StringComparison.OrdinalIgnoreCase)).Value;
@@ -645,6 +641,7 @@ namespace LX29_ChatClient
         }
 
         private static void client_AddClient(IRC c, string Message)
+
         {
             try
             {
@@ -686,6 +683,7 @@ namespace LX29_ChatClient
         }
 
         private static void client_ConnectionComplete(object sender, EventArgs e)
+
         {
             IRC client = (IRC)sender;
 
@@ -695,6 +693,7 @@ namespace LX29_ChatClient
         }
 
         private static void client_NetworkError(object sender, Exception e)
+
         {
             try
             {
@@ -722,6 +721,7 @@ namespace LX29_ChatClient
         }
 
         private static void client_RawMessageRecieved(object sender, RawMessageEventArgs e)
+
         {
             IRC c = (IRC)sender;
             client_AddClient(c, e.Message);
@@ -730,6 +730,7 @@ namespace LX29_ChatClient
         }
 
         private static void client_UserJoinedChannel(object sender, IrcChannelUserEventArgs e)
+
         {
             if (e.User.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
             {
@@ -740,6 +741,7 @@ namespace LX29_ChatClient
         }
 
         private static void client_UserKicked(object sender, IrcChannelUserEventArgs e)
+
         {
             if (e.User.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
             {
@@ -752,6 +754,7 @@ namespace LX29_ChatClient
         }
 
         private static void client_UserPartedChannel(object sender, IrcChannelUserEventArgs e)
+
         {
             if (e.User.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
             {
@@ -764,6 +767,7 @@ namespace LX29_ChatClient
         }
 
         private static void client_UserQuit(object sender, IrcChannelUserEventArgs e)
+
         {
             if (e.User.Equals(SelfUserName, StringComparison.OrdinalIgnoreCase))
             {
@@ -776,6 +780,7 @@ namespace LX29_ChatClient
         }
 
         private static void connect(int channel, string channelName)
+
         {
             try
             {
@@ -889,6 +894,9 @@ namespace LX29_ChatClient
                 {
                     return SendWhisper(Message, Message.GetBetween("/w ", " "));
                 }
+
+                Message = QuickText.CheckMessage(Message);
+
                 Message = Message.ReplaceAll(" ", "  ", "\t", "\r", "\n", "\0").Trim();
                 if (Message.Length > 0)
                 {
@@ -902,7 +910,7 @@ namespace LX29_ChatClient
                     }
 
                     user = (string.IsNullOrEmpty(user)) ? SelfUserName.ToLower() : user;
-                    ChatUser me = ChatClient.Users.Get(user, ChannelName);
+                    ChatUser me = ChatClient.ChatUsers.Get(user, ChannelName);
 
                     bool mod = me.Types.Any(t => (((int)t) >= (int)UserType.moderator));
 
@@ -970,6 +978,11 @@ namespace LX29_ChatClient
             set { chathighlights = value; }
         }
 
+        public static ChatUserCollection ChatUsers
+        {
+            get { return users; }
+        }
+
         public static Dictionary<int, IRC> Clients
         {
             get { return clients; }
@@ -978,11 +991,6 @@ namespace LX29_ChatClient
         public static MessageCollection Messages
         {
             get { return messages; }
-        }
-
-        public static ChatUserCollection Users
-        {
-            get { return users; }
         }
 
         public static void FetchEmotes()

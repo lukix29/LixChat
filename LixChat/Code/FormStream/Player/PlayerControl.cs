@@ -121,6 +121,7 @@ namespace LX29_LixChat.Code.FormStream.Player
         }
 
         private MpvLib mpv
+
         {
             get
             {
@@ -169,8 +170,7 @@ namespace LX29_LixChat.Code.FormStream.Player
                     cB_Borderless.Visible =
                         cB_OnTop.Visible = false;
                 }
-                if (OnPlayerControlsShown != null)
-                    OnPlayerControlsShown(true, isFullscreen);
+                OnPlayerControlsShown?.Invoke(true, isFullscreen);
 
                 panelVideoControls.Location = new Point(0, this.Bottom - panelVideoControls.Height);
                 panelVideoControls.Visible = true;
@@ -180,8 +180,7 @@ namespace LX29_LixChat.Code.FormStream.Player
             {
                 panelVideoControls.Visible = false;
 
-                if (OnPlayerControlsShown != null)
-                    OnPlayerControlsShown(false, isFullscreen);
+                OnPlayerControlsShown?.Invoke(false, isFullscreen);
             }
         }
 
@@ -220,19 +219,18 @@ namespace LX29_LixChat.Code.FormStream.Player
         {
             mpv.Stop();
             setBtnPause(false);
-            if (OnStopped != null)
-                OnStopped();
+            OnStopped?.Invoke();
         }
 
         private void btn_Pause_CheckedChanged(object sender, EventArgs e)
+
         {
             if (lockVolume) return;
             if (!cb_Pause.Checked)
             {
                 cb_Pause.BackgroundImage = LX29_LixChat.Properties.Resources.play;
                 mpv.Stop();
-                if (OnStopped != null)
-                    OnStopped();
+                OnStopped?.Invoke();
             }
             else
             {
@@ -246,12 +244,13 @@ namespace LX29_LixChat.Code.FormStream.Player
         }
 
         private void cB_Borderless_CheckedChanged(object sender, System.EventArgs e)
+
         {
-            if (OnBordelessChanged != null)
-                OnBordelessChanged(cB_Borderless.Checked);
+            OnBordelessChanged?.Invoke(cB_Borderless.Checked);
         }
 
         private void cB_Mute_CheckedChanged(object sender, EventArgs e)
+
         {
             lockVolume = true;
             if (cB_Mute.Checked)
@@ -273,12 +272,13 @@ namespace LX29_LixChat.Code.FormStream.Player
         }
 
         private void cB_OnTop_CheckedChanged(object sender, System.EventArgs e)
+
         {
-            if (OnTopMostChanged != null)
-                OnTopMostChanged(cB_OnTop.Checked);
+            OnTopMostChanged?.Invoke(cB_OnTop.Checked);
         }
 
         private void comBox_previewQuali_SelectedIndexChanged(object sender, System.EventArgs e)
+
         {
             try
             {
@@ -291,17 +291,34 @@ namespace LX29_LixChat.Code.FormStream.Player
             catch { }
         }
 
-        private void panelVideo_MouseDoubleClick_1(object sender, MouseEventArgs e)
+        private void panelVideo_MouseDoubleClick(object sender, MouseEventArgs e)
+
         {
-            this.OnMouseDoubleClick(e);
+            try
+            {
+                string temp = System.IO.Path.GetTempFileName().Replace(".tmp", ".bmp");
+                using (var fs = System.IO.File.Create(temp))
+                {
+                    using (var bit = new Bitmap(Stream.PreviewImage))
+                    {
+                        bit.Save(fs, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    }
+                }
+                System.Diagnostics.Process.Start(temp);
+            }
+            catch
+            {
+            }
         }
 
         private void panelVideo_MouseHover(object sender, EventArgs e)
+
         {
             ShowStreamControls(false);
         }
 
         private void panelVideo_MouseMove(object sender, MouseEventArgs e)
+
         {
             if (Math.Abs(mousePoint.X - e.X) >= 2 || Math.Abs(mousePoint.Y - e.Y) >= 2)
             {
@@ -311,6 +328,7 @@ namespace LX29_LixChat.Code.FormStream.Player
         }
 
         private void setBtnPause(bool pause)
+
         {
             this.Invoke(new Action(() =>
             {
@@ -325,6 +343,7 @@ namespace LX29_LixChat.Code.FormStream.Player
         }
 
         private void startStream(IntPtr handle, int volume)
+
         {
             try
             {
@@ -337,8 +356,7 @@ namespace LX29_LixChat.Code.FormStream.Player
                     if (mpv.Start(video.URL, handle, volume))
                     {
                         setBtnPause(true);
-                        if (OnStarted != null)
-                            OnStarted();
+                        OnStarted?.Invoke();
                     }
                     else
                     {
@@ -367,6 +385,7 @@ namespace LX29_LixChat.Code.FormStream.Player
         }
 
         private void timer1_Tick_1(object sender, System.EventArgs e)
+
         {
             try
             {
@@ -389,10 +408,12 @@ namespace LX29_LixChat.Code.FormStream.Player
         }
 
         private void volumeControl1_Load(object sender, EventArgs e)
+
         {
         }
 
         private void volumeControl1_ValueChanged_1(object sender, EventArgs e)
+
         {
             if (lockVolume) return;
             try

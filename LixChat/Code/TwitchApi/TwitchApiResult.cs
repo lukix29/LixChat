@@ -545,8 +545,10 @@ namespace LX29_Twitch.Api
                         if (!string.IsNullOrEmpty(url))
                         {
                             image = new System.Drawing.Bitmap(1, 1);
-                            WebClient wc = new WebClient();
-                            wc.Proxy = null;
+                            WebClient wc = new WebClient
+                            {
+                                Proxy = null
+                            };
                             var t = wc.DownloadData(url);
                             //var wait = t.GetAwaiter();
                             //wait.OnCompleted(new Action(delegate()
@@ -589,13 +591,11 @@ namespace LX29_Twitch.Api
         public void Dispose()
         {
             this.Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         public bool Dispose(bool dispose)
         {
             if (image != null) image.Dispose();
-            if (true) GC.SuppressFinalize(this);
             return dispose;
         }
     }

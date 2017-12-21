@@ -431,9 +431,9 @@ namespace System
         }
 
 #if Drawing
-        public static readonly Size maxSize = new Size(int.MaxValue, int.MaxValue);
+        public static readonly Size maxSize = new Size(10, 10);
 
-        public static void DrawBitmap(this Graphics g, Bitmap image, float x, float y, float width, float height, bool drawHW)
+        public static void DrawBitmap(this Graphics g, Image image, float x, float y, float width, float height, bool drawHW)
         {
 #if ManagedGDI
             if (drawHW)
@@ -627,10 +627,11 @@ namespace System
 
 #endif
 
+        public const TextFormatFlags FormatFlags = TextFormatFlags.NoPadding | TextFormatFlags.Left | TextFormatFlags.NoPrefix;
+
         public static void DrawText(this Graphics g, string text, Font font, Color b, float x, float y)
         {
-            TextRenderer.DrawText(g, text, font, new Point((int)x, (int)y), b,
-                  TextFormatFlags.NoPadding | TextFormatFlags.Left | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPrefix);
+            TextRenderer.DrawText(g, text, font, new Point((int)x, (int)y), b, FormatFlags);
         }
 
         public static void DrawText(this Graphics g, string text, Font font, Color b, RectangleF bounds, TextFormatFlags centerStrFormat)
@@ -640,9 +641,9 @@ namespace System
 
         public static SizeF MeasureText(this Graphics g, string text, Font font)
         {
-            //return g.MeasureString(text, font);
-            return TextRenderer.MeasureText(g, text, font, maxSize,
-                TextFormatFlags.NoPadding | TextFormatFlags.Left | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPrefix);
+            //return new SizeF(50, 20);
+            // return g.MeasureString(text, font);
+            return TextRenderer.MeasureText(text, font, maxSize, FormatFlags);
         }
 
         #endregion DRAWING
@@ -660,16 +661,12 @@ namespace System
         {
             try
             {
-                int w = 0;
-                int h = 0;
                 string[] sa = s.Split(new char[] { '=', ',', '}' }, StringSplitOptions.RemoveEmptyEntries);
-                int x = 0;
-                int y = 0;
 
-                Int32.TryParse(sa[1], out x);
-                Int32.TryParse(sa[3], out y);
-                Int32.TryParse(sa[5], out w);
-                Int32.TryParse(sa[7], out h);
+                Int32.TryParse(sa[1], out int x);
+                Int32.TryParse(sa[3], out int y);
+                Int32.TryParse(sa[5], out int w);
+                Int32.TryParse(sa[7], out int h);
                 var rec = new Rectangle(x, y, w, h);
 
                 int xi = Screen.AllScreens.Min(t => t.Bounds.X);
@@ -682,7 +679,8 @@ namespace System
 
                 return new Rectangle(x, y, w, h);
             }
-            catch { } return Rectangle.Empty;
+            catch { }
+            return Rectangle.Empty;
         }
 
         public static Rectangle ScreenSafe(this Rectangle rec)
@@ -699,7 +697,8 @@ namespace System
 
                 return new Rectangle(x, y, rec.Width, rec.Height);
             }
-            catch { } return Rectangle.Empty;
+            catch { }
+            return Rectangle.Empty;
         }
 
         public static void SetGraphicQuality(this Graphics g, bool textQuality, bool imageQuality)
@@ -781,8 +780,10 @@ namespace System
 
         public static DateTime GetOnlineLinkerTime(string url)
         {
-            WebClient wc = new WebClient();
-            wc.Proxy = null;
+            WebClient wc = new WebClient
+            {
+                Proxy = null
+            };
             var buffer = new byte[512];
 
             using (var stream = wc.OpenRead(url))
@@ -1569,18 +1570,21 @@ namespace System.Windows.Forms
         }
 
         private void button1_Click(object sender, EventArgs e)
+
         {
             diagRes = (MessageBoxResult)Enum.Parse(typeof(MessageBoxResult), button1.Text);
             this.Close();
         }
 
         private void button2_Click(object sender, EventArgs e)
+
         {
             diagRes = (MessageBoxResult)Enum.Parse(typeof(MessageBoxResult), button2.Text);
             this.Close();
         }
 
         private void button3_Click(object sender, EventArgs e)
+
         {
             diagRes = (MessageBoxResult)Enum.Parse(typeof(MessageBoxResult), button3.Text);
             this.Close();
@@ -1598,6 +1602,7 @@ namespace System.Windows.Forms
         }
 
         private void txtB_Main_LinkClicked(object sender, LinkClickedEventArgs e)
+
         {
             LX29_ChatClient.Settings.StartBrowser(e.LinkText);
         }

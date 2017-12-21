@@ -167,8 +167,74 @@ namespace System
         }
     }
 
+    public class DebugWatch
+    {
+        private System.Text.StringBuilder result = new System.Text.StringBuilder();
+        private System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+
+        public static long Frequency
+        {
+            get { return System.Diagnostics.Stopwatch.Frequency; }
+        }
+
+        public static bool IsHighResolution
+        {
+            get { return System.Diagnostics.Stopwatch.IsHighResolution; }
+        }
+
+        public long ElapsedMilliseconds
+        {
+            get { return watch.ElapsedMilliseconds; }
+        }
+
+        public long ElapsedTicks
+        {
+            get { return watch.ElapsedTicks; }
+        }
+
+        public string Results
+        {
+            get { return result.ToString(); }
+        }
+
+        public void Restart()
+        {
+            watch.Restart();
+        }
+
+        public void Restart(string info, bool restart = true)
+        {
+            result.AppendLine(watch.ElapsedMilliseconds + info);
+            if (restart) watch.Restart();
+        }
+
+        public void ShowResults()
+        {
+            System.Windows.Forms.MessageBox.Show(result.ToString());
+            watch.Stop();
+        }
+
+        public void Start()
+        {
+            result.Clear();
+            watch.Restart();
+        }
+
+        public void Stop()
+        {
+            watch.Stop();
+        }
+    }
+
     public class LXTimer : IDisposable
     {
+        /// <summary>
+        ///     Initialisiert eine neue Instanz der LXTimer-Klasse zum angegebenen Zeitintervall und startet diesen.
+        ///     (Threading.Timer Wrapper)
+        /// </summary>
+        /// <param name="action">Eine System.Action mit dem Timer als Parameter, der die auszuführende Methode darstellt.</param>
+        /// <param name="dueTime">Die in Millisekunden angegebene Zeitspanne, die gewartet werden soll, bis callback aufgerufen wird. Geben Sie System.Threading.Timeout.Infinite(-1) an, um das Starten des Zeitgebers zu verhindern. Geben Sie 0 (null) an, um den Zeitgeber sofort zu starten.</param>
+        /// <param name="interval"> Das in Millisekunden angegebene Zeitintervall zwischen den Aufrufen von callback. Geben Sie System.Threading.Timeout.Infinite(-1) an, um periodisches Signalisieren zu deaktivieren.</param>
         public LXTimer(Action<LXTimer> action, int dueTime, int interval)
         {
             Action = action;
@@ -187,6 +253,7 @@ namespace System
         }
 
         private TTData timer
+
         {
             get;
             set;
@@ -219,6 +286,7 @@ namespace System
         public class TTData
         {
             public System.Threading.Timer timer
+
             {
                 get;
                 set;

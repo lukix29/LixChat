@@ -56,7 +56,7 @@ namespace LX29_ChatClient.Emotes
                     });
                     tasks.Add(t0);
                     tasks.Add(t1);
-                    if (tasks.Count >= 10)
+                    if (tasks.Count >= Math.Max(4, (max / 10)))
                     {
                         Task.WaitAll(tasks.ToArray());
                         tasks.Clear();
@@ -84,8 +84,7 @@ namespace LX29_ChatClient.Emotes
 
         public void On_Loaded_channel(ChannelInfo ci, int count, int max, string info)
         {
-            if (OnChannelLoaded != null)
-                OnChannelLoaded(ci, (int)count, (int)max, info.Trim(':'));
+            OnChannelLoaded?.Invoke(ci, (int)count, (int)max, info.Trim(':'));
         }
 
         private Dictionary<string, _emotesetchannelid> _load_EmoteSet_IDs()
@@ -301,11 +300,14 @@ namespace LX29_ChatClient.Emotes
         }
 
         private void parse_BTTV(string bttv_api_url = "https://api.betterttv.net/2/emotes")
+
         {
             try
             {
-                WebClient wc = new WebClient();
-                wc.Proxy = null;
+                WebClient wc = new WebClient
+                {
+                    Proxy = null
+                };
                 string bttv = wc.DownloadString(bttv_api_url);
                 wc.Dispose();
 
@@ -354,16 +356,20 @@ namespace LX29_ChatClient.Emotes
         }
 
         private void parse_BTTV_Channel(string channel)
+
         {
             parse_BTTV("https://api.betterttv.net/2/channels/" + channel);
         }
 
         private void parse_FFZ(string uri = "https://api.frankerfacez.com/v1/set/global")
+
         {
             try
             {
-                WebClient wc = new WebClient();
-                wc.Proxy = null;
+                WebClient wc = new WebClient
+                {
+                    Proxy = null
+                };
                 string json = wc.DownloadString(uri);
 
                 wc.Dispose();
@@ -418,12 +424,14 @@ namespace LX29_ChatClient.Emotes
         }
 
         private void parse_FFZ_Channel(string Channel)
+
         {
             string uri = "https://api.frankerfacez.com/v1/room/" + Channel;
             parse_FFZ(uri);
         }
 
         private void parse_Twitch_EmoteList()
+
         {
             LXTimer timer = null;
             try
@@ -568,6 +576,7 @@ namespace LX29_ChatClient.Emotes
         public class _emotesetchannelid
         {
             public string channel_id { get; set; }
+
             public string channel_name { get; set; }
         }
 
@@ -629,40 +638,40 @@ namespace LX29_ChatClient.Emotes
 
         public static readonly Dictionary<string, string> PrimeEmotes = new Dictionary<string, string>()
         {
-        {"432",	">("},
-        {"433",	":\\"},
-        {"434",	":("},
-        {"435",	"R)"},
-        {"436",	":o"},
-        {"437",	"o_o"},
-        {"438",	":p"},
-        {"439",	";)"},
-        {"440",	":)"},
-        {"441",	"B)"},
-        {"442",	";p"},
-        {"443",	":D"},
-        {"444",	":z"},
-        {"445",	"<3"},
+        {"432", ">("},
+        {"433", ":\\"},
+        {"434", ":("},
+        {"435", "R)"},
+        {"436", ":o"},
+        {"437", "o_o"},
+        {"438", ":p"},
+        {"439", ";)"},
+        {"440", ":)"},
+        {"441", "B)"},
+        {"442", ";p"},
+        {"443", ":D"},
+        {"444", ":z"},
+        {"445", "<3"},
 
-        {"483",	"<3"},
-        {"484",	"R)"},
-        {"485",	"#/"},
-        {"486",	":>"},
-        {"487",	"<]"},
-        {"488",	":7"},
-        {"489",	":("},
-        {"490",	":p"},
-        {"491",	";p"},
-        {"492",	":o"},
-        {"493",	":\\"},
-        {"494",	":z"},
-        {"495",	":s"},
-        {"496",	":D"},
-        {"497",	"o_o"},
-        {"498",	">("},
-        {"499",	":)"},
-        {"500",	"B)"},
-        {"501",	";)"}
+        {"483", "<3"},
+        {"484", "R)"},
+        {"485", "#/"},
+        {"486", ":>"},
+        {"487", "<]"},
+        {"488", ":7"},
+        {"489", ":("},
+        {"490", ":p"},
+        {"491", ";p"},
+        {"492", ":o"},
+        {"493", ":\\"},
+        {"494", ":z"},
+        {"495", ":s"},
+        {"496", ":D"},
+        {"497", "o_o"},
+        {"498", ">("},
+        {"499", ":)"},
+        {"500", "B)"},
+        {"501", ";)"}
         };
 
         public static readonly HashSet<string> StandardEmoteID = new HashSet<string>()
@@ -686,40 +695,40 @@ namespace LX29_ChatClient.Emotes
         {"13", ";p"},
         {"14", "R)"},
 
-        {"432",	">("},
-        {"433",	":\\"},
-        {"434",	":("},
-        {"435",	"R)"},
-        {"436",	":o"},
-        {"437",	"o_o"},
-        {"438",	":p"},
-        {"439",	";)"},
-        {"440",	":)"},
-        {"441",	"B)"},
-        {"442",	";p"},
-        {"443",	":D"},
-        {"444",	":z"},
-        {"445",	"<3"},
+        {"432", ">("},
+        {"433", ":\\"},
+        {"434", ":("},
+        {"435", "R)"},
+        {"436", ":o"},
+        {"437", "o_o"},
+        {"438", ":p"},
+        {"439", ";)"},
+        {"440", ":)"},
+        {"441", "B)"},
+        {"442", ";p"},
+        {"443", ":D"},
+        {"444", ":z"},
+        {"445", "<3"},
 
-        {"483",	"<3"},
-        {"484",	"R)"},
-        {"485",	"#/"},
-        {"486",	":>"},
-        {"487",	"<]"},
-        {"488",	":7"},
-        {"489",	":("},
-        {"490",	":p"},
-        {"491",	";p"},
-        {"492",	":o"},
-        {"493",	":\\"},
-        {"494",	":z"},
-        {"495",	":s"},
-        {"496",	":D"},
-        {"497",	"o_o"},
-        {"498",	">("},
-        {"499",	":)"},
-        {"500",	"B)"},
-        {"501",	";)"}
+        {"483", "<3"},
+        {"484", "R)"},
+        {"485", "#/"},
+        {"486", ":>"},
+        {"487", "<]"},
+        {"488", ":7"},
+        {"489", ":("},
+        {"490", ":p"},
+        {"491", ";p"},
+        {"492", ":o"},
+        {"493", ":\\"},
+        {"494", ":z"},
+        {"495", ":s"},
+        {"496", ":D"},
+        {"497", "o_o"},
+        {"498", ">("},
+        {"499", ":)"},
+        {"500", "B)"},
+        {"501", ";)"}
         };
 
         #endregion StandardEMotes
@@ -753,7 +762,7 @@ namespace LX29_ChatClient.Emotes
             get { return Settings.ShowEmojis; }
         }
 
-        public EmoteBase Add(Emote e)
+        public IEmoteBase Add(Emote e)
         {
             if (e.IsEmpty) return null;
 
@@ -769,7 +778,7 @@ namespace LX29_ChatClient.Emotes
             return emotionary[e];
         }
 
-        public EmoteBase Add_FFZ_BTTV(string id, string name, string channel, EmoteOrigin origin, string channelName)
+        public IEmoteBase Add_FFZ_BTTV(string id, string name, string channel, EmoteOrigin origin, string channelName)
         {
             if (StandardEmotes.ContainsKey(id))
             {
@@ -779,19 +788,18 @@ namespace LX29_ChatClient.Emotes
             return Add(em);
         }
 
-        public void DownloadAllEmotes()
-        {
-            if (!Finished) return;
-            int cnt = 0;
-            int length = emotionary.All.Count();
-            foreach (var emote in emotionary.All)
-            {
-                emote.DownloadImages();
-                cnt++;
-                if (OnChannelLoaded != null)
-                    OnChannelLoaded(null, cnt, length, emote.Name);
-            }
-        }
+        //public void DownloadAllEmotes()
+        //{
+        //    if (!Finished) return;
+        //    int cnt = 0;
+        //    int length = emotionary.All.Count();
+        //    foreach (var emote in emotionary.All)
+        //    {
+        //        emote.DownloadImages();
+        //        cnt++;
+        //        OnChannelLoaded?.Invoke(null, cnt, length, emote.Name);
+        //    }
+        //}
 
         public void FetchEmotes(List<ChannelInfo> Channels, bool loadnew)
         {
@@ -896,7 +904,7 @@ namespace LX29_ChatClient.Emotes
             }
         }
 
-        public IEnumerable<EmoteBase> GetEmote(string name, string channel, bool outgoing = false)
+        public IEnumerable<IEmoteBase> GetEmote(string name, string channel, bool outgoing = false)
         {
             if (!Finished) return null;
 
@@ -915,7 +923,7 @@ namespace LX29_ChatClient.Emotes
                 if (!(((em.Origin == EmoteOrigin.FFZ) || (em.Origin == EmoteOrigin.BTTV)) &&
                     ((!em.Channel.Contains(channel)) && (!em.Channel.ToLower().Contains("global")))))
                 {
-                    return new EmoteBase[] { em };
+                    return new IEmoteBase[] { em };
                 }
             }
             if (!string.IsNullOrEmpty(name))
@@ -930,7 +938,7 @@ namespace LX29_ChatClient.Emotes
                     {
                         if (name.Length % 2 == 0)
                         {
-                            List<EmoteBase> unis = new List<EmoteBase>();
+                            List<IEmoteBase> unis = new List<IEmoteBase>();
                             for (int i = 0; i < name.Length; i += 2)
                             {
                                 var ch = name.Substring(i, 2);
@@ -952,10 +960,15 @@ namespace LX29_ChatClient.Emotes
             return null;
         }
 
-        public IEnumerable<EmoteBase> GetEmotes(string channel)
+        public IEnumerable<IEmoteBase> GetEmotes(string channel)
         {
             if (!Finished) return null;
             return emotionary.GetEmotes(channel);
+        }
+
+        public Task LoadUserEmotes()
+        {
+            return Task.Run(() => emotionary.LoadUserEmotes());
         }
 
         //public void LoadChannelEmotes(params ChannelInfo[] channels)

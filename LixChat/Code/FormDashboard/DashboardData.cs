@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace LX29_ChatClient.Dashboard
@@ -15,6 +16,7 @@ namespace LX29_ChatClient.Dashboard
         public List<Sub> follows { get; set; }
 
         //public List<FollowSub> follows { get { return subscriptions; } set { subscriptions = value; } }
+
         public List<Sub> subscriptions { get; set; }
     }
 
@@ -32,6 +34,7 @@ namespace LX29_ChatClient.Dashboard
         public List<Tipeee.DonationHost> DonationHosts = new List<Tipeee.DonationHost>();
 
         private string summit
+
         {
             get
             {
@@ -251,7 +254,7 @@ namespace LX29_ChatClient.Dashboard
 
                 //SubCount = con.Count;
 
-                while (ChatClient.Users.Count(User.Name) == 0)
+                while (ChatClient.ChatUsers.Count(User.Name) == 0)
                 {
                     Task.Delay(500).Wait();
                 }
@@ -388,21 +391,20 @@ namespace LX29_ChatClient.Dashboard
             //    //Subs.Add(sub);
             //    //getsubs();
             //}
-            if (OnUserNoticeReceived != null)
-                OnUserNoticeReceived(notice);
+            OnUserNoticeReceived?.Invoke(notice);
         }
 
         private List<Sub> downloadFollows()
+
         {
             string url = "https://api.twitch.tv/kraken/channels/"
                 + User.ID + "/follows?direction=desc";
 
             string delimiter = (url.Contains("?")) ? "&" : "?";
-            string s = TwitchApi.downloadString(url + delimiter + "limit=100");
+            string s = downloadString(url + delimiter + "limit=100");
 
-            int total = 0;
             string tt = s.GetBetween("\"_total\":", ",");
-            int.TryParse(tt, out total);
+            int.TryParse(tt, out int total);
 
             List<Sub> subs = new List<Sub>();
             var cfj = JsonConvert.DeserializeObject<ChannelSubJson>(s);
@@ -413,7 +415,7 @@ namespace LX29_ChatClient.Dashboard
                 if (string.IsNullOrEmpty(cfj._cursor))
                     break;
 
-                s = TwitchApi.downloadString(url + delimiter + "limit=100&cursor=" + cfj._cursor);
+                s = downloadString(url + delimiter + "limit=100&cursor=" + cfj._cursor);
                 cfj = JsonConvert.DeserializeObject<ChannelSubJson>(s);
                 subs.AddRange(cfj.follows);
                 break;
@@ -422,19 +424,42 @@ namespace LX29_ChatClient.Dashboard
             return subs;
         }
 
+        private string downloadString(string url, string tokken = "")
+
+        {
+            try
+            {
+                using (var webclient = new WebClient())
+                {
+                    webclient.Proxy = null;
+                    webclient.Encoding = System.Text.Encoding.UTF8;
+                    webclient.Headers.Add("Accept: application/vnd.twitchtv.v5+json");
+                    webclient.Headers.Add("Client-ID: " + TwitchApi.CLIENT_ID);
+                    if (!string.IsNullOrEmpty(tokken)) webclient.Headers.Add("Authorization: OAuth " + tokken);
+
+                    string s = webclient.DownloadString(url);
+                    return s;
+                }
+            }
+            catch
+            {
+            }
+            return "";
+        }
+
         private List<Sub> downloadSubs()
+
         {
             string token = User.Token;
             string url = "https://api.twitch.tv/kraken/channels/"
                 + User.ID + "/subscriptions?direction=desc";
 
-            int total = 100;
             int limit = 100;
             //int offset = 0;
             string delimiter = (url.Contains("?")) ? "&" : "?";
-            string s = TwitchApi.downloadString(url + delimiter + "limit=" + limit, token);
+            string s = downloadString(url + delimiter + "limit=" + limit, token);
             string tt = s.GetBetween("\"_total\":", ",");
-            int.TryParse(tt, out total);
+            int.TryParse(tt, out int total);
 
             int parts = total / limit;
 
@@ -468,6 +493,7 @@ namespace LX29_ChatClient.Dashboard
         }
 
         private Dictionary<string, Sub> getsubs()
+
         {
             Dictionary<string, Sub> con = new Dictionary<string, Sub>();
             foreach (var s in Subs)
@@ -502,9 +528,13 @@ namespace LX29_ChatClient.Dashboard
     public class Sub
     {
         public string _id { get; set; }
+
         public DateTime created_at { get; set; }
+
         public string sub_plan { get; set; }
+
         public string sub_plan_name { get; set; }
+
         public User user { get; set; }
     }
 
@@ -513,14 +543,19 @@ namespace LX29_ChatClient.Dashboard
         public class DonationHost
         {
             public int amount { get; set; }
+
             public DateTime created_at { get; set; }
+
             public string currency { get; set; }
 
             public bool is_host
+
             { get { return string.IsNullOrEmpty(message); } }
 
             public string message { get; set; }
+
             public string name { get; set; }
+
             public string type { get; set; }
         }
 
@@ -532,49 +567,74 @@ namespace LX29_ChatClient.Dashboard
         public class JSON
         {
             public Datas datas { get; set; }
+
             public string message { get; set; }
 
             public class Currency
             {
                 public bool available { get; set; }
+
                 public string code { get; set; }
+
                 public string label { get; set; }
+
                 public string symbol { get; set; }
             }
 
             public class Datas
             {
                 public List<Item> items { get; set; }
+
                 public int total_count { get; set; }
             }
 
             public class Item
             {
                 private User _user = new User();
+
                 public string @ref { get; set; }
+
                 public int amount { get { return parameters.amount; } }
+
                 public DateTime created_at { get; set; }
+
                 public bool display { get; set; }
+
                 public string formattedAmount { get; set; }
+
                 public int id { get; set; }
+
                 public DateTime inserted_at { get; set; }
+
                 public bool is_host { get { return type.Equals("hosting"); } }
+
                 public Parameters parameters { get; set; }
+
                 public string type { get; set; }
+
                 public User user { get; set; }
             }
 
             public class Parameters
             {
                 public int amount { get; set; }
+
                 public string currency { get; set; }
+
                 public int fees { get; set; }
+
                 public string formattedMessage { get; set; }
+
                 public string hostname { get; set; }
+
                 public string identifier { get; set; }
+
                 public string message { get; set; }
+
                 public int paypalCampaign { get; set; }
+
                 public string username { get; set; }
+
                 public int viewers { get; set; }
             }
 
@@ -607,14 +667,23 @@ namespace LX29_ChatClient.Dashboard
     public class User
     {
         public int _id { get; set; }
+
         public DateTime created_at { get; set; }
+
         public string display_name { get; set; }
-        public string DisplayName { get { return (display_name != null) ? display_name : name; } }
+
+        public string DisplayName => display_name ?? name;
+
         public int id { get { return _id; } set { _id = value; } }
+
         public string logo { get; set; }
+
         public string name { get; set; }
+
         public DateTime updated_at { get; set; }
+
         public string username { get { return name; } set { name = value; } }
+
         public UserType usertype { get; set; }
 
         public void FromApiResult(ApiResult id)
@@ -633,9 +702,11 @@ namespace LX29_ChatClient.Dashboard
         public bool is_follow { get { return follow.Ticks > 0; } }
 
         //public DateTime follow_created_at { get; set; }
+
         public bool is_sub { get { return sub != null; } }
 
         public Sub sub { get; set; }
+
         public User user { get; set; }
     }
 

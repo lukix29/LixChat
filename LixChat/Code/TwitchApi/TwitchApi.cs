@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Net.Http;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace LX29_Twitch.Api
 {
@@ -46,6 +49,47 @@ namespace LX29_Twitch.Api
             // return "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=" + CLIENT_ID + "&redirect_uri=http://localhost:12685&force_verify=true&scope=chat_login+user_subscriptions+user_read+user_follows_edit";
         }
 
+        public static async Task<JSON.ClipData> CreateClip(int id)
+        {
+            try
+            {
+                using (WebClient webclient = new WebClient())
+                {
+                    webclient.Proxy = null;
+                    webclient.Headers.Add("Authorization: Bearer " + TwitchUserCollection.Selected.Token);
+                    var result = await webclient.UploadStringTaskAsync("https://api.twitch.tv/helix/clips?broadcaster_id=" + id, string.Empty);
+                    var json = Newtonsoft.Json.Linq.JObject.Parse(result);
+                    var clipID = json["data"][0].Value<string>("id");
+                    var clipURL = json["data"][0].Value<string>("edit_url");
+
+                    webclient.Headers.Clear();
+                    webclient.Headers.Add("Client-ID: " + CLIENT_ID);
+
+                    System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+                    stopwatch.Start();
+                    while (stopwatch.ElapsedMilliseconds <= 30000)
+                    {
+                        await Task.Delay(1000);
+                        try
+                        {
+                            result = await webclient.DownloadStringTaskAsync("https://api.twitch.tv/helix/clips?id=" + clipID);
+
+                            if (JSON.ParseClip(result, out var data))
+                            {
+                                return data;
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+            }
+            catch (Exception x)
+            { }
+            return null;
+        }
+
         public static string downloadString(string url, string tokken = null, int api_version = 5, bool handleError = true)
         {
             try
@@ -63,14 +107,12 @@ namespace LX29_Twitch.Api
                             webclient.Headers.Add("Authorization: OAuth " + tokken);
                         }
                     }
-                    string s = webclient.DownloadString(url);
-                    return s;
+                    return webclient.DownloadString(url);
                 }
             }
             catch (WebException x)
             {
-                int code = 0;
-                var info = TwitchApiErrors.GetError(x, out code);
+                var info = TwitchApiErrors.GetError(x, out int code);
 
                 if (handleError)
                 {
@@ -82,7 +124,7 @@ namespace LX29_Twitch.Api
                             return downloadString(url, tokken, api_version);
                         }
                     }
-                    if (code == (int)HttpStatusCode.GatewayTimeout || code == (int)HttpStatusCode.RequestTimeout)
+                    if (code == (int)HttpStatusCode.GatewayTimeout || code == (int)HttpStatusCode.RequestTimeout || code == (int)HttpStatusCode.ServiceUnavailable)
                     {
                         return downloadString(url, tokken, api_version);
                     }
@@ -328,6 +370,7 @@ namespace LX29_Twitch.Api
         }
 
         private static string getChannelList(IEnumerable<string> results)
+
         {
             StringBuilder sb = new StringBuilder();
             foreach (var a in results)
@@ -340,20 +383,21 @@ namespace LX29_Twitch.Api
         }
 
         private static string getChannelList(IEnumerable<ApiResult> results)
+
         {
             var ids = results.Where(t => t.ID > 0).Select(t => t.ID.ToString());
             return getChannelList(ids);
         }
 
         private static List<ApiResult> getResults(string Url, string token)
+
         {
-            int total = 100;
             int limit = 100;
             int offset = 0;
             string delimiter = (Url.Contains("?")) ? "&" : "?";
             string s = downloadString(Url + delimiter + "limit=" + limit, token);
             string tt = s.GetBetween("\"_total\":", ",");
-            int.TryParse(tt, out total);
+            int.TryParse(tt, out int total);
 
             List<ApiResult> list = new List<ApiResult>();
             list.AddRange(JSON.Parse(s));
@@ -379,6 +423,7 @@ namespace LX29_Twitch.Api
         }
 
         private static string uploadString(string url, string param, string tokken = null, int api_version = 5)
+
         {
             try
             {
@@ -401,8 +446,7 @@ namespace LX29_Twitch.Api
             }
             catch (WebException x)
             {
-                int code = 0;
-                var info = TwitchApiErrors.GetError(x, out code);
+                var info = TwitchApiErrors.GetError(x, out int code);
                 switch (x.Handle(info))
                 {
                     case System.Windows.Forms.MessageBoxResult.Retry:

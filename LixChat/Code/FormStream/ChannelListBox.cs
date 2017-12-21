@@ -13,17 +13,22 @@ namespace LX29_ChatClient.Forms
         private SolidBrush BackBrush = new SolidBrush(Color.Black);
         //private SolidBrush InverseBG = new SolidBrush(Color.White);
 
-        private bool isCtrPressed = false;
         private bool isMouseDown = false;
+
         private bool isScrolling = false;
+
         private int ItemHeight = 10;
+
         private object locko = new object();
 
         private int maxVisibleItems = 0;
+
         private int scrollOffset = 0;
+
         private Rectangle scrollRect = new Rectangle();
 
         private bool scrollVisible = false;
+
         private List<int> selIndices = new List<int>();
 
         private int selStartY = 0;
@@ -82,6 +87,7 @@ namespace LX29_ChatClient.Forms
                 int val = Math.Max(scrollOffset, Math.Min(c, value));
                 if (selIndices.Count > 0) selIndices[0] = val;
                 else selIndices.Add(val);
+                SelectedIndexChanged?.Invoke(this, new EventArgs());
             }
         }
 
@@ -112,7 +118,14 @@ namespace LX29_ChatClient.Forms
             }
         }
 
+        private bool isCtrPressed
+
+        {
+            get { return ModifierKeys.HasFlag(Keys.Control); }
+        }
+
         private int scrollBarHeight
+
         {
             get
             {
@@ -141,10 +154,13 @@ namespace LX29_ChatClient.Forms
                 }
             }
             catch { }
-            this.Invoke(new Action(() =>
-                {
-                    base.Refresh();
-                }));
+            finally
+            {
+                this.Invoke(new Action(() =>
+                    {
+                        base.Refresh();
+                    }));
+            }
         }
 
         protected override void OnLoad(EventArgs e)
@@ -152,8 +168,7 @@ namespace LX29_ChatClient.Forms
             maxVisibleItems = (int)(1f + (this.ClientRectangle.Height / (float)ItemHeight));
 
             scrollRect = new Rectangle(this.ClientSize.Width - 12, 0, 10, scrollBarHeight);
-            this.KeyUp += ChannelListBox_KeyUp;
-            this.KeyDown += ChannelListBox_KeyDown;
+            //this.KeyUp += ChannelListBox_KeyUp;
             ItemHeight = TextRenderer.MeasureText("A", Font).Height;
             base.OnLoad(e);
         }
@@ -257,9 +272,12 @@ namespace LX29_ChatClient.Forms
                             {
                                 selIndices.Remove(index);
                             }
+                            else
+                            {
+                                selIndices.Add(index);
+                            }
                         }
-                        if (SelectedIndexChanged != null)
-                            SelectedIndexChanged(this, new EventArgs());
+                        SelectedIndexChanged?.Invoke(this, new EventArgs());
                     }
                 }
             }
@@ -351,14 +369,18 @@ namespace LX29_ChatClient.Forms
             scrollOffset = Math.Max(0, Math.Min(Items.Length - maxVisibleItems, offset));
         }
 
-        private void ChannelListBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            isCtrPressed = e.Control;
-        }
-
         private void ChannelListBox_KeyUp(object sender, KeyEventArgs e)
         {
-            isCtrPressed = false;
+            switch (e.KeyCode)
+            {
+                case Keys.Down:
+                    SelectedIndex++;
+                    break;
+
+                case Keys.Up:
+                    SelectedIndex--;
+                    break;
+            }
         }
 
         private void DrawItem(ChannelInfo info, Graphics g, int y, bool selected)
@@ -412,6 +434,7 @@ namespace LX29_ChatClient.Forms
         }
 
         private void timer1_Tick(object sender, EventArgs e)
+
         {
             this.Refresh();
         }

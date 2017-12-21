@@ -33,12 +33,12 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.cb_Pause = new System.Windows.Forms.CheckBox();
             this.cB_Mute = new System.Windows.Forms.CheckBox();
-            this.volumeControl1 = new LX29_Twitch.Forms.VolumeControl();
             this.cB_Borderless = new System.Windows.Forms.CheckBox();
             this.cB_OnTop = new System.Windows.Forms.CheckBox();
             this.comBox_previewQuali = new System.Windows.Forms.ComboBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.panelVideo = new System.Windows.Forms.PictureBox();
+            this.volumeControl1 = new LX29_Twitch.Forms.VolumeControl();
             this.panelVideoControls.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelVideo)).BeginInit();
@@ -105,35 +105,6 @@
             this.cB_Mute.UseVisualStyleBackColor = false;
             this.cB_Mute.CheckedChanged += new System.EventHandler(this.cB_Mute_CheckedChanged);
             // 
-            // volumeControl1
-            // 
-            this.volumeControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.volumeControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.volumeControl1.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.volumeControl1.ForeColor = System.Drawing.Color.Gray;
-            this.volumeControl1.Location = new System.Drawing.Point(60, 5);
-            this.volumeControl1.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.volumeControl1.Maximum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-            this.volumeControl1.Minimum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.volumeControl1.Name = "volumeControl1";
-            this.volumeControl1.Size = new System.Drawing.Size(120, 20);
-            this.volumeControl1.TabIndex = 12;
-            this.volumeControl1.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-            this.volumeControl1.ValueChanged += new System.EventHandler(this.volumeControl1_ValueChanged_1);
-            this.volumeControl1.Load += new System.EventHandler(this.volumeControl1_Load);
-            // 
             // cB_Borderless
             // 
             this.cB_Borderless.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -196,16 +167,44 @@
             this.panelVideo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.panelVideo.TabIndex = 19;
             this.panelVideo.TabStop = false;
-            this.panelVideo.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.panelVideo_MouseDoubleClick_1);
             this.panelVideo.MouseHover += new System.EventHandler(this.panelVideo_MouseHover);
             this.panelVideo.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelVideo_MouseMove);
+            // 
+            // volumeControl1
+            // 
+            this.volumeControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.volumeControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.volumeControl1.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.volumeControl1.ForeColor = System.Drawing.Color.Gray;
+            this.volumeControl1.Location = new System.Drawing.Point(60, 5);
+            this.volumeControl1.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.volumeControl1.Maximum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.volumeControl1.Minimum = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.volumeControl1.Name = "volumeControl1";
+            this.volumeControl1.Size = new System.Drawing.Size(120, 20);
+            this.volumeControl1.TabIndex = 12;
+            this.volumeControl1.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.volumeControl1.ValueChanged += new System.EventHandler(this.volumeControl1_ValueChanged_1);
+            this.volumeControl1.Load += new System.EventHandler(this.volumeControl1_Load);
             // 
             // PlayerControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.Controls.Add(this.panelVideoControls);
             this.Controls.Add(this.panelVideo);
             this.Name = "PlayerControl";

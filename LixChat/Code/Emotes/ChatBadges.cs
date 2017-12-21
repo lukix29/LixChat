@@ -22,14 +22,16 @@ namespace LX29_ChatClient.Emotes
     {
         private static readonly SolidBrush ffz_brush = new SolidBrush(Color.FromArgb(117, 80, 0));
 
-        public Badge(string name, string type, Dictionary<string, string> urls)
+        public Badge(string name, string type, Dictionary<int, string> urls)
         {
             IsEnabled = true;
             Origin = BadgeOrigin.FFZ_AP;
             Type = name;
             Name = type;
-            URLS = new Dictionary<string, EmoteImage>();
-            URLS.Add("1", new EmoteImage(urls, Name, EmoteOrigin.Badge));
+            URLS = new Dictionary<string, EmoteImage>
+            {
+                { "1", new EmoteImage(urls[urls.Keys.Max()], Name, EmoteOrigin.Badge) }
+            };
         }
 
         public Badge(LX29_Twitch.JSON_Parser.JSON.FFZ_Emotes.Badge badge)
@@ -38,8 +40,10 @@ namespace LX29_ChatClient.Emotes
             Origin = BadgeOrigin.FFZ;
             Type = badge.name.Trim() + "_FFZ";
             Name = Type;
-            URLS = new Dictionary<string, EmoteImage>();
-            URLS.Add("1", new EmoteImage(badge.URLS, Name, EmoteOrigin.Badge));
+            URLS = new Dictionary<string, EmoteImage>
+            {
+                { "1", new EmoteImage(badge.URLS[badge.URLS.Keys.Max()], Name, EmoteOrigin.Badge) }
+            };
         }
 
         public Badge(JSON.Twitch_Badges.BadgeData lst)
@@ -52,7 +56,7 @@ namespace LX29_ChatClient.Emotes
             foreach (var kvp in lst.versions)
             {
                 Type = kvp.Value.description;
-                URLS.Add(kvp.Key, new EmoteImage(kvp.Value.urls, Name, EmoteOrigin.Badge));
+                URLS.Add(kvp.Key, new EmoteImage(kvp.Value.url, Name, EmoteOrigin.Badge));
             }
         }
 
@@ -78,7 +82,7 @@ namespace LX29_ChatClient.Emotes
                         g.FillRectangle(Brushes.MediumBlue, X, Y, Width, Height);
                         break;
                 }
-                img.Draw(g, X, Y, Width, Height, Settings.EmoteQuality);
+                img.Draw(g, X, Y, Width, Height);
             }
         }
 
@@ -310,8 +314,10 @@ namespace LX29_ChatClient.Emotes
             try
             {
                 if (i >= 3) return;
-                WebClient wc = new WebClient();
-                wc.Proxy = null;
+                WebClient wc = new WebClient
+                {
+                    Proxy = null
+                };
                 string temp = wc.DownloadString("https://cdn.ffzap.download/supporters.json");
                 wc.Dispose();
                 var result = JSON.ParseFFZAddonBadges(temp);
@@ -341,8 +347,10 @@ namespace LX29_ChatClient.Emotes
             try
             {
                 if (i >= 3) return;
-                WebClient wc = new WebClient();
-                wc.Proxy = null;
+                WebClient wc = new WebClient
+                {
+                    Proxy = null
+                };
                 string temp = wc.DownloadString("http://api.frankerfacez.com/v1/badges");
                 wc.Dispose();
                 var result = JSON.ParseFFZBadges(temp);

@@ -153,7 +153,7 @@ namespace LX29_ChatClient.Channels
         {
             get
             {
-                var user = ChatClient.Users.Get(ChatClient.SelfUserName, Name);
+                var user = ChatClient.ChatUsers.Get(ChatClient.SelfUserName, Name);
                 if (user.Types.Any(t => (((int)t) >= (int)UserType.moderator)))
                 {
                     return false;
@@ -378,7 +378,11 @@ namespace LX29_ChatClient.Channels
         {
             if (chatForm != null) chatForm.Dispose();
             if (playerForm != null) playerForm.Dispose();
-            if (dispose) GC.SuppressFinalize(this);
+            foreach (var b in _previewImages)
+            {
+                b.Dispose();
+            }
+            _previewImages = null;
             return dispose;
         }
 
@@ -581,6 +585,7 @@ namespace LX29_ChatClient.Channels
         }
 
         private void playerForm_FormClosed(object sender, System.Windows.Forms.FormClosedEventArgs e)
+
         {
             playerForm.Dispose();
             playerForm = null;
@@ -588,6 +593,7 @@ namespace LX29_ChatClient.Channels
         }
 
         private void playerForm_LocationChanged(object sender, EventArgs e)
+
         {
             PlayerPosition = new Rectangle(playerForm.Location, playerForm.Size).ScreenSafe();
         }
@@ -697,12 +703,14 @@ namespace LX29_ChatClient.Channels
         }
 
         private void chatForm_FormClosed(object sender, System.Windows.Forms.FormClosedEventArgs e)
+
         {
             chatForm.Dispose();
             chatForm = null;
         }
 
         private void chatForm_LocationChanged(object sender, EventArgs e)
+
         {
             ChatPosition = new Rectangle(chatForm.Location, chatForm.Size).ScreenSafe();
         }
@@ -743,9 +751,8 @@ namespace LX29_ChatClient.Channels
 
         public void SetMode(channel_mode id, string value)
         {
-            bool b = false;
             int i = 0;
-            if (bool.TryParse(value, out b))
+            if (bool.TryParse(value, out bool b))
             {
                 setMode(id, b);
             }
@@ -760,6 +767,7 @@ namespace LX29_ChatClient.Channels
         }
 
         private void setMode(channel_mode id, object value)
+
         {
             if (modes.ContainsKey(id))
             {
