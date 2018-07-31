@@ -1,4 +1,6 @@
-# LixChat - The Better Twitch Client
+# This Project has been discontinued please use the Web-Version at https://lixmod.tk/lixchat
+
+## LixChat - The Better Twitch Client
 
 
 _Please help by reporting bugs, pull-requests or feature requests!_
